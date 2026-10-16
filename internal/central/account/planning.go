@@ -41,7 +41,7 @@ func (a *Authority) Initialize(ctx context.Context) error {
 				return field("/account_keyring", "KEY_REUSED")
 			}
 		}
-		rows, e := x.Query(ctx, `SELECT kid FROM agenteam_account.account_key_registry r WHERE anonymous_until>clock_timestamp() OR EXISTS(SELECT 1 FROM agenteam_account.commands c WHERE c.semantic_kid=r.kid) OR EXISTS(SELECT 1 FROM agenteam_account.sessions s WHERE s.csrf_kid=r.kid AND s.absolute_expires_at>clock_timestamp()) OR EXISTS(SELECT 1 FROM agenteam_account.auth_failures f WHERE f.kid=r.kid AND f.expires_at>clock_timestamp()) OR EXISTS(SELECT 1 FROM agenteam_account.challenges c WHERE c.subject_kid=r.kid AND c.expires_at>clock_timestamp())`)
+		rows, e := x.Query(ctx, `SELECT kid FROM agenteam_account.account_key_registry r WHERE anonymous_until>clock_timestamp() OR EXISTS(SELECT 1 FROM agenteam_account.commands c WHERE c.semantic_kid=r.kid) OR EXISTS(SELECT 1 FROM agenteam_account.sessions s WHERE s.csrf_kid=r.kid AND s.absolute_expires_at>clock_timestamp()) OR EXISTS(SELECT 1 FROM agenteam_account.auth_failures f WHERE f.kid=r.kid AND f.expires_at>clock_timestamp()) OR EXISTS(SELECT 1 FROM agenteam_account.challenges c WHERE c.subject_kid=r.kid AND c.expires_at>clock_timestamp()) OR EXISTS(SELECT 1 FROM agenteam_account.email_requests e WHERE e.code_kid=r.kid AND e.phase='pending' AND e.expires_at>clock_timestamp())`)
 		if e != nil {
 			return unavailable(e)
 		}

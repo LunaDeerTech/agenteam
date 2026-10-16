@@ -27,6 +27,8 @@ func loadLink(ctx context.Context, x postgres.SQLExecutor, kind c.TokenKind, id 
 	r := linkRecord{kind: string(kind)}
 	var e error
 	switch kind {
+	case c.EmailCodeToken, c.EmailNoticeToken:
+		return loadEmailLink(ctx, x, kind, id)
 	case c.InvitationToken:
 		e = x.QueryRow(ctx, `SELECT id::text,canonical_email,material_ref::text,token_verifier,version,created_at,expires_at,coalesce(last_delivery_at,'0001-01-01Z'::timestamptz),expires_at>clock_timestamp() FROM agenteam_account.invitations WHERE id=$1`, id).Scan(&r.id, &r.email, &r.ref, &r.verifier, &r.version, &r.created, &r.expires, &r.lastDelivery, &r.live)
 	case c.PasswordResetToken:

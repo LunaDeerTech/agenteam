@@ -39,6 +39,8 @@ func (a *Authority) writeMapping(ctx context.Context, x postgres.SQLExecutor, r 
 		case "reset-request":
 			expected = sc.PasswordResetMaterial
 		case "invite-create":
+		case "passkey-recovery-request", "email-change-request", "email-initialize-request", "operator-recovery-request", "email-code-resend":
+			expected = sc.EmailCodeMaterial
 		default:
 			return "", nil, fault(foundation.Forbidden, nil)
 		}
@@ -123,7 +125,11 @@ func (a *Authority) ValidateServiceWriteInTx(ctx context.Context, tx foundation.
 			if e != nil {
 				return unavailable(e)
 			}
-			if _, e = a.AuthorizeSystem(ctx, tx, actor, identity.Mutate); e != nil {
+			if isEmailDeliveryCommand(cmd.name) {
+				if e = a.RequireCurrentSession(ctx, tx, actor); e != nil {
+					return e
+				}
+			} else if _, e = a.AuthorizeSystem(ctx, tx, actor, identity.Mutate); e != nil {
 				return e
 			}
 		}
@@ -315,6 +321,9 @@ func (a *Authority) responseCommandCurrent(ctx context.Context, tx foundation.Tx
 	x, e := a.state().store.InTx(tx)
 	if e != nil {
 		return unavailable(e)
+	}
+	if e = currentPasskeyLogin(ctx, x, cmd.id.String()); e != nil {
+		return e
 	}
 	var live bool
 	e = x.QueryRow(ctx, `SELECT response_expires_at>clock_timestamp() FROM agenteam_account.commands WHERE id=$1`, cmd.id.String()).Scan(&live)

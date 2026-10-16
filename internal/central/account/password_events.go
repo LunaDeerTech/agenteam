@@ -14,12 +14,24 @@ import (
 // The caller holds the original command/User writers. Only a still-planned
 // event may move to the next internal sequence, retaining EventID and payload.
 func (s *Service) planPasswordEvent(ctx context.Context, x postgres.SQLExecutor, cmd commandRecord, u userRecord, reason c.RevocationReason) (event.Event, error) {
+	return s.planSessionsRevokedEvent(ctx, x, cmd, u, c.SessionsRevoked{UserID: u.user.ID, Scope: c.AllSessions, Reason: reason})
+}
+
+// OtherSessions names the current SessionID as the session retained by the
+// same transaction that revokes the other sessions and invalidates reset links.
+func (s *Service) planOtherSessionsEvent(ctx context.Context, x postgres.SQLExecutor, cmd commandRecord, u userRecord, reason c.RevocationReason) (event.Event, error) {
+	payload := c.SessionsRevoked{UserID: u.user.ID, Scope: c.OtherSessions, SessionID: cmd.session, Reason: reason}
+	if payload.Validate() != nil {
+		return event.Event{}, invalid()
+	}
+	return s.planSessionsRevokedEvent(ctx, x, cmd, u, payload)
+}
+func (s *Service) planSessionsRevokedEvent(ctx context.Context, x postgres.SQLExecutor, cmd commandRecord, u userRecord, payload c.SessionsRevoked) (event.Event, error) {
 	if u.sequence == foundation.Sequence(math.MaxInt64) {
 		return event.Event{}, fault(foundation.InvalidState, nil)
 	}
 	next := u.sequence + 1
 	version := foundation.Version(next)
-	payload := c.SessionsRevoked{UserID: u.user.ID, Scope: c.AllSessions, Reason: reason}
 	var rawHeader, rawPayload []byte
 	var dg string
 	if e := x.QueryRow(ctx, `SELECT event_header,event_payload,coalesce(event_digest,'') FROM agenteam_account.commands WHERE id=$1 AND phase='planned'`, cmd.id.String()).Scan(&rawHeader, &rawPayload, &dg); e != nil {

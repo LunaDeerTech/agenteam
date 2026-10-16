@@ -59,7 +59,8 @@ func (s *Service) Recover(ctx context.Context) (RecoveryStatus, error) {
 		{"commands", "cleanup_pass", "EXISTS(SELECT 1 FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id WHERE i.id=agenteam_account.commands.id AND j.id IS NULL)", s.reconcileDelivery},
 		{"commands", "cleanup_pass", "command_name='invite-create' AND EXISTS(SELECT 1 FROM agenteam_account.invitations i WHERE i.id=agenteam_account.commands.resource_id AND i.expires_at<=clock_timestamp())", func(ctx context.Context, id string) error { return s.expireCommandLink(ctx, id, c.InvitationToken) }},
 		{"commands", "cleanup_pass", "command_name='reset-request' AND EXISTS(SELECT 1 FROM agenteam_account.password_resets r JOIN agenteam_account.users u ON u.id=r.user_id WHERE r.id=agenteam_account.commands.resource_id AND (r.expires_at<=clock_timestamp() OR r.password_version<>u.password_version))", func(ctx context.Context, id string) error { return s.expireCommandLink(ctx, id, c.PasswordResetToken) }},
-		{"material_cleanup", "pass", "owner_kind IN ('invitation','password_reset') AND phase<>'completed'", s.cleanLinkMaterial},
+		{"material_cleanup", "pass", "owner_kind IN ('invitation','password_reset','email_code','email_notice') AND phase<>'completed'", s.cleanLinkMaterial},
+		{"email_requests", "cleanup_pass", "material_ref IS NOT NULL AND (phase<>'pending' OR expires_at<=clock_timestamp())", s.expireEmailRequest},
 		{"response_plans", "pass", "true", s.recoverResponse},
 		{"commands", "cleanup_pass", "command_name='login' AND phase='planned'", s.recoverLogin},
 		{"commands", "cleanup_pass", "command_name='login' AND phase='committed' AND response_secret_ref IS NOT NULL AND (response_expires_at<=clock_timestamp() OR EXISTS(SELECT 1 FROM agenteam_account.sessions s JOIN agenteam_account.users u ON u.id=s.user_id WHERE s.id=agenteam_account.commands.session_id AND (s.revoked_at IS NOT NULL OR u.password_version<>agenteam_account.commands.password_version)))", s.expireResponse},
@@ -200,6 +201,12 @@ func (s *Service) forgetAnonymousLogin(ctx context.Context, id string) error {
 			return fault(foundation.ResourceBusy, nil)
 		}
 		if _, e = x.Exec(ctx, `DELETE FROM agenteam_account.auth_attempts WHERE command_id=$1 AND kind IN ('login','response_read') AND phase IN ('completed','released')`, id); e != nil {
+			return unavailable(e)
+		}
+		if _, e = x.Exec(ctx, `DELETE FROM agenteam_account.passkey_logins WHERE command_id=$1`, id); e != nil {
+			return unavailable(e)
+		}
+		if _, e = x.Exec(ctx, `DELETE FROM agenteam_account.passkey_operations WHERE consumed_command_id=$1 AND purpose='login'`, id); e != nil {
 			return unavailable(e)
 		}
 		_, e = x.Exec(ctx, `DELETE FROM agenteam_account.commands WHERE id=$1`, id)

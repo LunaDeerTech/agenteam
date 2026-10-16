@@ -54,7 +54,7 @@ func (s *Service) verifyLoginCommand(ctx context.Context, x postgres.SQLExecutor
 	if !live {
 		return fault(foundation.Unauthenticated, nil)
 	}
-	return nil
+	return currentPasskeyLogin(ctx, x, cmd.id.String())
 }
 func loginIdentity(r c.LoginRequest) (foundation.CommandIdentity, error) {
 	return foundation.NewCommandIdentity("account.login", []string{r.Fields().Browser.ID().String()}, "login", r.Fields().Key)
@@ -63,6 +63,12 @@ func secretIdentity(owner string) (foundation.CommandIdentity, error) {
 	return foundation.NewCommandIdentity("secret.account", []string{owner}, "create", foundation.IdempotencyKey(owner))
 }
 func (s *Service) Login(ctx context.Context, r c.LoginRequest) (LoginResponse, error) {
+	return s.login(ctx, r, nil)
+}
+
+// proof is an unexported, server-verified WebAuthn assertion. HTTP cannot bind
+// this authority; password requests always use the nil branch.
+func (s *Service) login(ctx context.Context, r c.LoginRequest, proof *passkeyLoginProof) (LoginResponse, error) {
 	responseCtx := ctx
 	if r.Validate() != nil {
 		return LoginResponse{}, invalid()
@@ -155,6 +161,9 @@ func (s *Service) Login(ctx context.Context, r c.LoginRequest) (LoginResponse, e
 	if exists {
 		locks = append(locks, userLock(uid, foundation.Exclusive))
 	}
+	if proof != nil {
+		locks = append(locks, recordLock(proof.operation.id))
+	}
 	privacyLocks, e := s.privacyLocks(r, email)
 	if e != nil {
 		return LoginResponse{}, e
@@ -206,7 +215,7 @@ func (s *Service) Login(ctx context.Context, r c.LoginRequest) (LoginResponse, e
 			}
 			user = u
 		}
-		if e = s.requireChallenge(ctx, tx, r, email, false); e != nil {
+		if e = s.checkLoginAuthentication(ctx, tx, r, email, false, proof, cmdID.String()); e != nil {
 			return e
 		}
 		_, e = x.Exec(ctx, `INSERT INTO agenteam_account.commands(id,namespace,owner_id,command_key,command_name,identity_digest,semantic_kid,semantic_mac,actor_kind,user_id,session_id,browser_id,browser_expires_at,origin_process_id,password_version,attempt_id,phase,secret_command_digest,secret_write_binding) VALUES($1,'account.login',$2,$3,'login',$4,$5,$6,'browser',$7,$8,$2,$9,$10,$11,$12,'planned',$13,$14)`, cmdID.String(), r.Fields().Browser.ID().String(), string(r.Fields().Key), string(digest([]byte(identityKey.Canonical()))), st.keys.current(), mac, null(uid), nullableSession(exists, sessionID.String()), r.Fields().Browser.ExpiresAt().Time(), st.process.String(), nullableVersion(exists, int64(user.passwordVersion)), attempt.String(), string(secretDigest), string(binding))
@@ -235,9 +244,12 @@ func (s *Service) Login(ctx context.Context, r c.LoginRequest) (LoginResponse, e
 	if exists {
 		encoded = user.phc
 	}
-	ok, e := st.hasher.Verify(ctx, r.Fields().Password, encoded)
-	if e != nil {
-		return LoginResponse{}, e
+	ok := proof != nil
+	if proof == nil {
+		ok, e = st.hasher.Verify(ctx, r.Fields().Password, encoded)
+		if e != nil {
+			return LoginResponse{}, e
+		}
 	}
 	ok = ok && exists
 	if !ok {
@@ -290,6 +302,9 @@ func (s *Service) Login(ctx context.Context, r c.LoginRequest) (LoginResponse, e
 	locks = append(locks, prepared.RequiredLocks()...)
 	locks = append(locks, deps.RequiredLocks()...)
 	locks = append(locks, privacyLocks...)
+	if proof != nil {
+		locks = append(locks, recordLock(proof.operation.id))
+	}
 	var verifier []byte
 	e = cookie.Use(func(raw []byte) error { var e error; verifier, e = sessionVerifier(raw); return e })
 	if e != nil {
@@ -320,7 +335,7 @@ func (s *Service) Login(ctx context.Context, r c.LoginRequest) (LoginResponse, e
 		if int64(u.passwordVersion) != cmd.passwordVersion {
 			return fault(foundation.Unauthenticated, nil)
 		}
-		if e = s.requireChallenge(ctx, tx, r, email, true); e != nil {
+		if e = s.checkLoginAuthentication(ctx, tx, r, email, true, proof, cmd.id.String()); e != nil {
 			return e
 		}
 		settings, e := loadSettings(ctx, x)

@@ -104,7 +104,7 @@ func (k Keyring) mac(kid, purpose string, parts ...[]byte) ([]byte, error) {
 		return nil, unavailable(nil)
 	}
 	switch purpose {
-	case "command-v1", "anonymous-cookie-v1", "csrf-v1", "privacy-counter-v1", "outbound-proxy-command-v1":
+	case "command-v1", "anonymous-cookie-v1", "csrf-v1", "privacy-counter-v1", "outbound-proxy-command-v1", "email-code-v1":
 	default:
 		return nil, invalid()
 	}

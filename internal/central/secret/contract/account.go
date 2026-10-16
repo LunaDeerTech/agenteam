@@ -23,6 +23,8 @@ const (
 	PasswordResetMaterial AccountOwnerKind = "password_reset"
 	LoginResponseMaterial AccountOwnerKind = "login_response"
 	SMTPSettingsMaterial  AccountOwnerKind = "smtp_settings"
+	EmailCodeMaterial     AccountOwnerKind = "email_code"
+	EmailNoticeMaterial   AccountOwnerKind = "email_notice"
 )
 
 type ServiceWriteFields struct {
@@ -48,7 +50,7 @@ func NewServiceWriteRequest(f ServiceWriteFields) (ServiceWriteRequest, error) {
 	if f.Actor.Validate() != nil || a.Kind != identity.Service || f.Scope.Validate() != nil || f.Scope.Details().Kind != identity.System || a.ProjectID != "" || !validID(f.OwnerID) || f.Identity.Validate() != nil || f.Identity.Namespace() != "secret.account" || f.Identity.Command() != string(f.Kind) || !slices.Equal(f.Identity.OwnerIDs(), []string{f.OwnerID}) {
 		return ServiceWriteRequest{}, bad()
 	}
-	if f.OwnerKind != InvitationMaterial && f.OwnerKind != PasswordResetMaterial && f.OwnerKind != LoginResponseMaterial && f.OwnerKind != SMTPSettingsMaterial {
+	if f.OwnerKind != InvitationMaterial && f.OwnerKind != PasswordResetMaterial && f.OwnerKind != LoginResponseMaterial && f.OwnerKind != SMTPSettingsMaterial && f.OwnerKind != EmailCodeMaterial && f.OwnerKind != EmailNoticeMaterial {
 		return ServiceWriteRequest{}, bad()
 	}
 	if f.Purpose != System && f.Purpose != SMTP || f.OwnerKind == SMTPSettingsMaterial && f.Purpose != SMTP || f.OwnerKind != SMTPSettingsMaterial && f.Purpose != System {

@@ -102,7 +102,7 @@ func mailLive(ctx context.Context, x postgres.SQLExecutor, r mailRecord, cfg smt
 		if !cfg.Configured || !cfg.Enabled || cfg.Ref != r.CredentialRef {
 			return "", time.Time{}, fault(foundation.InvalidState, nil)
 		}
-	} else if cfg.Configured || r.Kind == string(c.TestDelivery) {
+	} else if cfg.Configured || r.Kind == string(c.TestDelivery) || isEmailDelivery(r.Kind) {
 		return "", time.Time{}, fault(foundation.InvalidState, nil)
 	}
 	if r.Kind == string(c.TestDelivery) {
@@ -112,7 +112,7 @@ func mailLive(ctx context.Context, x postgres.SQLExecutor, r mailRecord, cfg smt
 	if e != nil {
 		return "", time.Time{}, e
 	}
-	if !link.live || link.ref != r.TokenRef {
+	if !link.live || link.ref != r.TokenRef || r.Kind == string(c.EmailCodeDelivery) && link.ref != r.origin.rootCommand.plannedRef {
 		return "", time.Time{}, fault(foundation.ResourceDeleted, nil)
 	}
 	if r.Kind == string(c.ResetDelivery) {

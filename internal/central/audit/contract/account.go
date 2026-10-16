@@ -22,6 +22,14 @@ const (
 	AccountPasswordResetRequest  Action       = "account.password.reset.request"
 	AccountPasswordResetComplete Action       = "account.password.reset.complete"
 	AccountProfileUpdate         Action       = "account.profile.update"
+	AccountPasskeyRegister       Action       = "account.passkey.register"
+	AccountPasskeyRename         Action       = "account.passkey.rename"
+	AccountPasskeyRevoke         Action       = "account.passkey.revoke"
+	AccountPasskeyReauthenticate Action       = "account.passkey.reauthenticate"
+	AccountEmailProofRequest     Action       = "account.email.proof.request"
+	AccountEmailProofConfirm     Action       = "account.email.proof.confirm"
+	AccountEmailChange           Action       = "account.email.change"
+	AccountEmailAuthorize        Action       = "account.email.authorize"
 	AccountAvatarUpdate          Action       = "account.avatar.update"
 	AccountSettingsUpdate        Action       = "account.settings.update"
 	SMTPSettingsUpdate           Action       = "smtp.settings.update"
@@ -42,7 +50,7 @@ const (
 
 func AccountAction(a Action) bool {
 	switch a {
-	case AccountBootstrap, AccountLogin, AccountLogout, AccountInviteCreate, AccountInviteRevoke, AccountInviteRedeem, AccountPasswordChange, AccountPasswordResetRequest, AccountPasswordResetComplete, AccountProfileUpdate, AccountAvatarUpdate, AccountSettingsUpdate, SMTPSettingsUpdate, SMTPTestRequest, SMTPDelivery, SMTPDeliveryRetry:
+	case AccountPasskeyRegister, AccountPasskeyRename, AccountPasskeyRevoke, AccountPasskeyReauthenticate, AccountEmailProofRequest, AccountEmailProofConfirm, AccountEmailChange, AccountEmailAuthorize, AccountBootstrap, AccountLogin, AccountLogout, AccountInviteCreate, AccountInviteRevoke, AccountInviteRedeem, AccountPasswordChange, AccountPasswordResetRequest, AccountPasswordResetComplete, AccountProfileUpdate, AccountAvatarUpdate, AccountSettingsUpdate, SMTPSettingsUpdate, SMTPTestRequest, SMTPDelivery, SMTPDeliveryRetry:
 		return true
 	}
 	return false
@@ -163,7 +171,7 @@ func AccountMetadata(action Action, f AccountMetadataFields) (Metadata, error) {
 		allow("invitation", "initiator")
 	case AccountInviteRedeem:
 		allow("user", "invitation")
-	case AccountPasswordChange, AccountProfileUpdate:
+	case AccountPasskeyRegister, AccountPasskeyRename, AccountPasskeyRevoke, AccountPasskeyReauthenticate, AccountEmailProofRequest, AccountEmailProofConfirm, AccountEmailChange, AccountEmailAuthorize, AccountPasswordChange, AccountProfileUpdate:
 		allow("user")
 	case AccountPasswordResetRequest:
 		allow("attempt", "user")
@@ -217,6 +225,11 @@ func AccountMetadata(action Action, f AccountMetadataFields) (Metadata, error) {
 	case AccountInviteRedeem:
 		phase = AccountRedeemed
 		if f.InvitationID == "" || f.UserID == "" {
+			return Metadata{}, invalid("metadata")
+		}
+	case AccountPasskeyRegister, AccountPasskeyRename, AccountPasskeyRevoke, AccountPasskeyReauthenticate, AccountEmailProofRequest, AccountEmailProofConfirm, AccountEmailChange, AccountEmailAuthorize:
+		phase = AccountUpdated
+		if f.UserID == "" {
 			return Metadata{}, invalid("metadata")
 		}
 	case AccountPasswordChange:

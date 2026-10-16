@@ -126,6 +126,12 @@ func (a logAdmission) Authorize(ctx context.Context, id recoverylog.RecordIdenti
 	return p.GrantRecoveryLog(g.Grant)
 }
 func (w *Worker) link(f c.DeliveryMaterialFields) (sc.SecretMaterial, error) {
+	if f.Attempt.Details().Kind == c.EmailCodeDelivery {
+		return emailCodeMessage(f.Token)
+	}
+	if f.Attempt.Details().Kind == c.EmailNoticeDelivery {
+		return sc.NewSecretMaterial([]byte("Agenteam account security notice: the email or recovery settings for your account changed. If you did not request this change, contact your deployment administrator immediately."))
+	}
 	path := "/invite"
 	if f.Attempt.Details().Kind == c.ResetDelivery {
 		path = "/reset-password"
@@ -139,6 +145,9 @@ func (w *Worker) link(f c.DeliveryMaterialFields) (sc.SecretMaterial, error) {
 	return out, e
 }
 func (w *Worker) sendLog(ctx context.Context, f c.DeliveryMaterialFields) (c.DeliveryOutcome, error) {
+	if f.Attempt.Details().Kind == c.EmailCodeDelivery || f.Attempt.Details().Kind == c.EmailNoticeDelivery {
+		return classify(invalid(), false), invalid()
+	}
 	link, e := w.link(f)
 	if e != nil {
 		return classify(e, false), e

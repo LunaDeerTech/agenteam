@@ -15,3 +15,4 @@ fi
 mkdir -p bin
 "$AGENTEAM_GO" build -o bin/agenteam ./cmd/agenteam
 "$AGENTEAM_GO" build -o bin/agenteam-runner ./cmd/agenteam-runner
+"$AGENTEAM_GO" build -o bin/agenteam-account-recovery ./cmd/agenteam-account-recovery

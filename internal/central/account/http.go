@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/account/passkeycrypto"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 )
@@ -21,6 +22,7 @@ type accountHTTP struct {
 	profiles c.ProfilePort
 	system   *SystemHTTPFacade
 	csrf     csrfBoundary
+	passkeys *pc.Verifier
 }
 type httpRequest struct {
 	actor   identity.Actor
@@ -58,11 +60,11 @@ func NewHTTPHandler(core *Service, profiles c.ProfilePort, options HTTPOptions) 
 	if e != nil {
 		return nil, e
 	}
-	h := &accountHTTP{core: core, profiles: profiles, system: options.System, csrf: b}
+	h := &accountHTTP{core: core, profiles: profiles, system: options.System, csrf: b, passkeys: pc.New(options.PublicOrigin)}
 	return h.httpHandler(), nil
 }
 func (h *accountHTTP) httpRoutes() []accountHTTPRoute {
-	return []accountHTTPRoute{
+	routes := []accountHTTPRoute{
 		{"GET", "/auth/bootstrap", "public", false, h.httpBootstrap},
 		{"GET", "/session", "session", false, h.httpSession},
 		{"POST", "/sessions/login", "browser", true, h.httpLogin},
@@ -101,6 +103,7 @@ func (h *accountHTTP) httpRoutes() []accountHTTPRoute {
 		{"GET", "/system/mail-jobs/{id}/management", "admin", false, h.httpGetMailJobManagement},
 		{"POST", "/system/mail-jobs/{id}/retry", "admin", true, h.httpRetryMailJob},
 	}
+	return append(append(routes, h.passkeyRoutes()...), h.emailRoutes()...)
 }
 func (h *accountHTTP) httpHandler() http.Handler {
 	mux := http.NewServeMux()

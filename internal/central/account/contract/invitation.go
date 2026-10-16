@@ -65,6 +65,8 @@ type TokenKind string
 const (
 	InvitationToken    TokenKind = "invitation"
 	PasswordResetToken TokenKind = "password_reset"
+	EmailCodeToken     TokenKind = "email_code"
+	EmailNoticeToken   TokenKind = "email_notice"
 )
 
 type LinkToken struct {

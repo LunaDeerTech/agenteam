@@ -71,6 +71,17 @@ func (a *Authority) appendCommand(ctx context.Context, x postgres.SQLExecutor, a
 		if cmd.name == "logout" && (value.Scope != c.OneSession || value.Reason != c.LoggedOut || value.SessionID != cmd.session) || cmd.name == "password-change" && (value.Scope != c.AllSessions || value.Reason != c.PasswordChanged) {
 			return commandRecord{}, fault(foundation.Forbidden, nil)
 		}
+	case "email-change-confirm", "email-initialize-confirm", "operator-recovery-confirm", "passkey-register":
+		if d.Kind != identity.Human || cmd.actorKind != "human" || cmd.user != d.UserID || cmd.session != d.SessionID || value.Scope != c.OtherSessions || value.SessionID != cmd.session {
+			return commandRecord{}, fault(foundation.Forbidden, nil)
+		}
+		reason := c.EmailChanged
+		if cmd.name == "operator-recovery-confirm" || cmd.name == "passkey-register" {
+			reason = c.PasskeysRecovered
+		}
+		if value.Reason != reason {
+			return commandRecord{}, fault(foundation.Forbidden, nil)
+		}
 	case "reset-complete":
 		if d.Kind != identity.Service || d.ServiceName != identity.AccountAuth || d.CauseRef != cmd.id.String() || cmd.actorKind != "browser" || value.Scope != c.AllSessions || value.Reason != c.PasswordWasReset {
 			return commandRecord{}, fault(foundation.Forbidden, nil)

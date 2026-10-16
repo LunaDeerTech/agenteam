@@ -254,7 +254,7 @@ func (s *Service) RevokeInvitation(ctx context.Context, r c.InvitationRevoke) er
 func (s *Service) cleanLinkMaterial(ctx context.Context, id string) error {
 	st := s.state()
 	var owner, kind, refRaw, phase string
-	e := st.store.QueryRow(ctx, `SELECT owner_id::text,owner_kind,credential_id::text,phase FROM agenteam_account.material_cleanup WHERE id=$1 AND owner_kind IN ('invitation','password_reset')`, id).Scan(&owner, &kind, &refRaw, &phase)
+	e := st.store.QueryRow(ctx, `SELECT owner_id::text,owner_kind,credential_id::text,phase FROM agenteam_account.material_cleanup WHERE id=$1 AND owner_kind IN ('invitation','password_reset','email_code')`, id).Scan(&owner, &kind, &refRaw, &phase)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return nil
 	}

@@ -126,6 +126,18 @@ func enqueueDelivery(ctx context.Context, x postgres.SQLExecutor, f deliveryFact
 		if e := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.password_resets r JOIN agenteam_account.users u ON u.id=r.user_id WHERE r.id=$1 AND r.user_id=$2 AND r.password_version=$3 AND r.expires_at>clock_timestamp() AND r.password_version=u.password_version)`, f.Link, f.User, f.PasswordVersion).Scan(&live); e != nil {
 			return unavailable(e)
 		}
+	case c.EmailCodeDelivery:
+		l, e := loadEmailLink(ctx, x, c.EmailCodeToken, f.Link)
+		if e != nil {
+			return e
+		}
+		live = l.live && l.ref == f.origin.rootCommand.plannedRef
+	case c.EmailNoticeDelivery:
+		l, e := loadEmailLink(ctx, x, c.EmailNoticeToken, f.Link)
+		if e != nil {
+			return e
+		}
+		live = l.live
 	case c.TestDelivery:
 		cfg, e := loadSMTP(ctx, x)
 		if e != nil {

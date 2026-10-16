@@ -61,6 +61,14 @@ func loadDeliveryOrigin(ctx context.Context, x postgres.SQLExecutor, id string) 
 		if r.name != "reset-request" || r.actorKind != "browser" || r.browser == "" || r.browser != o.root.Initiator || r.resource != o.root.Link || r.user == "" || r.passwordVersion < 1 {
 			return o, fault(foundation.Forbidden, nil)
 		}
+	case c.EmailCodeDelivery:
+		if !isEmailDeliveryCommand(r.name) || r.actorKind != "human" || r.user == "" || r.user != o.root.Initiator || r.resource != o.root.Link || r.plannedRef == "" {
+			return o, fault(foundation.Forbidden, nil)
+		}
+	case c.EmailNoticeDelivery:
+		if !isEmailNoticeCommand(r.name) || r.actorKind != "human" || r.user == "" || r.user != o.root.Initiator || r.resource != o.root.Link {
+			return o, fault(foundation.Forbidden, nil)
+		}
 	case c.TestDelivery:
 		if r.name != "smtp-test" || r.actorKind != "human" || r.user == "" || r.user != o.root.Initiator || o.root.Link != "" || o.root.Recipient == "" || r.resource == "" || r.expectedVersion < 1 {
 			return o, fault(foundation.Forbidden, nil)
@@ -105,7 +113,7 @@ func (o deliveryOrigin) locks() []foundation.LockRequest {
 	return l
 }
 func (o deliveryOrigin) user() string {
-	if o.root.Kind == string(c.ResetDelivery) {
+	if o.root.Kind == string(c.ResetDelivery) || isEmailDelivery(o.root.Kind) {
 		return o.rootCommand.user
 	}
 	return ""
@@ -136,7 +144,7 @@ func originLive(ctx context.Context, x postgres.SQLExecutor, o deliveryOrigin) e
 	if e != nil {
 		return e
 	}
-	if !l.live {
+	if !l.live || o.root.Kind == string(c.EmailCodeDelivery) && l.ref != o.rootCommand.plannedRef {
 		return fault(foundation.ResourceDeleted, nil)
 	}
 	if o.root.Kind == string(c.ResetDelivery) {

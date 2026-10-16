@@ -220,7 +220,9 @@ func (p *deliveryPort) ClaimDelivery(ctx context.Context, id c.JobID) (c.Deliver
 				refused = e
 			} else {
 				m.TokenRef = link.ref
-				m.TokenLease = token.String()
+				if link.ref != "" {
+					m.TokenLease = token.String()
+				}
 			}
 		}
 		if _, _, e = mailLive(ctx, x, m, cfg); e != nil {

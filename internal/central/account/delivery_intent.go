@@ -18,8 +18,12 @@ func commandDeliveryKind(cmd commandRecord) (c.DeliveryKind, error) {
 		return c.InvitationDelivery, nil
 	case "reset-request":
 		return c.ResetDelivery, nil
+	case "email-change-confirm", "email-initialize-confirm", "operator-recovery-confirm":
+		return c.EmailNoticeDelivery, nil
 	case "smtp-test":
 		return c.TestDelivery, nil
+	case "passkey-recovery-request", "email-change-request", "email-initialize-request", "operator-recovery-request", "email-code-resend":
+		return c.EmailCodeDelivery, nil
 	}
 	return "", fault(foundation.Forbidden, nil)
 }
@@ -102,7 +106,11 @@ func (a *Authority) validateDeliveryAppend(ctx context.Context, tx foundation.Tx
 		return fault(foundation.ResourceBusy, nil)
 	}
 	if cmd.actorKind == "human" {
-		if _, e = a.AuthorizeSystem(ctx, tx, actor, identity.Mutate); e != nil {
+		if isEmailDeliveryCommand(cmd.name) || isEmailNoticeCommand(cmd.name) {
+			if e = a.RequireCurrentSession(ctx, tx, actor); e != nil {
+				return e
+			}
+		} else if _, e = a.AuthorizeSystem(ctx, tx, actor, identity.Mutate); e != nil {
 			return e
 		}
 	} else {

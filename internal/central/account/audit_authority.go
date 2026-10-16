@@ -45,7 +45,7 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 			if m.UserID != actor.UserID || m.SessionID != actor.SessionID {
 				return fault(foundation.Forbidden, nil)
 			}
-		case ac.AccountPasswordChange, ac.AccountProfileUpdate, ac.AccountAvatarUpdate:
+		case ac.AccountPasskeyRegister, ac.AccountPasskeyRename, ac.AccountPasskeyRevoke, ac.AccountPasskeyReauthenticate, ac.AccountEmailProofRequest, ac.AccountEmailProofConfirm, ac.AccountEmailChange, ac.AccountPasswordChange, ac.AccountProfileUpdate, ac.AccountAvatarUpdate:
 			if m.UserID != actor.UserID {
 				return fault(foundation.Forbidden, nil)
 			}
@@ -73,6 +73,22 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 		return e
 	}
 	switch actor.ServiceName {
+	case identity.AccountMaintenance:
+		if f.Action != ac.AccountEmailAuthorize || f.Outcome != ac.Success || key.Details().Ordinal != 0 || f.Resource.Details().Kind != ac.UserResource || f.Resource.Details().ID != m.UserID {
+			return fault(foundation.Forbidden, nil)
+		}
+		if e = a.state().store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{configLock("account-directory", foundation.Exclusive), userLock(m.UserID, foundation.Exclusive), recordLock(actor.CauseRef)}); e != nil {
+			return unavailable(e)
+		}
+		var authorized bool
+		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.operator_authorizations WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL AND consumed_request_id IS NULL AND expires_at>clock_timestamp())`, actor.CauseRef, m.UserID).Scan(&authorized)
+		if e != nil {
+			return unavailable(e)
+		}
+		if !authorized {
+			return fault(foundation.Forbidden, nil)
+		}
+		return nil
 	case identity.AccountBootstrap:
 		if f.Action != ac.AccountBootstrap || f.Outcome != ac.Success {
 			return fault(foundation.Forbidden, nil)
@@ -183,6 +199,8 @@ func (a *Authority) checkSecretAudit(ctx context.Context, tx foundation.Tx, x po
 			e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.invitations WHERE id=$1 AND material_ref=$2)`, r.resource, f.Resource.Details().ID).Scan(&matches)
 		case "reset-request":
 			e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.password_resets WHERE id=$1 AND material_ref=$2)`, r.resource, f.Resource.Details().ID).Scan(&matches)
+		case "passkey-recovery-request", "email-change-request", "email-initialize-request", "operator-recovery-request", "email-code-resend":
+			e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.email_requests WHERE id=$1 AND material_ref=$2 AND user_id=$3 AND session_id=$4 AND phase='pending')`, r.resource, f.Resource.Details().ID, r.user, r.session).Scan(&matches)
 		default:
 			return fault(foundation.Forbidden, nil)
 		}
@@ -231,6 +249,8 @@ func (a *Authority) CheckServiceLookup(ctx context.Context, actor identity.Actor
 	case identity.AccountMaintenance:
 		if key.Details().Producer == ac.SecretProducer {
 			e = s.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.material_cleanup WHERE id=$1 AND secret_command_digest=$2)`, d.CauseRef, key.Details().CauseRef).Scan(&exists)
+		} else if key.Details().Producer == ac.AccountProducer && key.Details().CauseRef == d.CauseRef && key.Details().Ordinal == 0 {
+			e = s.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.operator_authorizations WHERE id=$1)`, d.CauseRef).Scan(&exists)
 		}
 	case identity.AccountMail:
 		if key.Details().Producer == ac.AccountMailProducer && key.Details().CauseRef == d.CauseRef {

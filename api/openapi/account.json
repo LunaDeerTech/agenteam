@@ -3318,6 +3318,1699 @@
           }
         ]
       }
+    },
+    "/api/v1/auth/passkeys/capabilities": {
+      "get": {
+        "operationId": "passkeyCapabilities",
+        "security": [],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyCapabilities"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/passkeys": {
+      "get": {
+        "operationId": "listPasskeys",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/passkeys/login/options": {
+      "post": {
+        "operationId": "beginPasskeyLogin",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOptions"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/auth/passkeys/login/complete": {
+      "post": {
+        "operationId": "completePasskeyLogin",
+        "security": [
+          {
+            "Browser": [],
+            "CSRF": []
+          },
+          {
+            "LocalBrowser": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Opaque host-only HttpOnly SameSite=Lax Path=/ cookie; Secure and __Host- names on HTTPS, isolated agenteam_local_ names only on literal loopback HTTP. Issued only after full JSON encoding and confirmed domain success."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyCompleteInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/reauth/options": {
+      "post": {
+        "operationId": "beginPasskeyReauth",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOptions"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyReauthInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/reauth/complete": {
+      "post": {
+        "operationId": "completePasskeyReauth",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyGrant"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyCompleteInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/registration/options": {
+      "post": {
+        "operationId": "beginPasskeyRegistration",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyOptions"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRegistrationInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/registration/complete": {
+      "post": {
+        "operationId": "completePasskeyRegistration",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyCompleteInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/{id}": {
+      "patch": {
+        "operationId": "renamePasskey",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRenameInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      },
+      "delete": {
+        "operationId": "revokePasskey",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Passkey operation bound to the fixed deployment Origin/RPID, current authority and server-held one-use challenge. Errors never clear Session cookies. Confirmed commands replay only with the original key/body/context; no public lookup or new-key retry.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyReceipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyDeleteInput"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/recovery/request": {
+      "post": {
+        "operationId": "requestPasskeyRecovery",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProofReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasskeyRecoveryRequest"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/recovery/resend": {
+      "post": {
+        "operationId": "resendPasskeyRecovery",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProofReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailProofResend"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/passkeys/recovery/confirm": {
+      "post": {
+        "operationId": "confirmPasskeyRecovery",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasskeyGrant"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailProofConfirmation"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/email-change/request": {
+      "post": {
+        "operationId": "requestEmailChange",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProofReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailChangeRequest"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/email-change/resend": {
+      "post": {
+        "operationId": "resendEmailChange",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProofReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailProofResend"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/email-change/confirm": {
+      "post": {
+        "operationId": "confirmEmailChange",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailChangeReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailProofConfirmation"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/email-initialization/request": {
+      "post": {
+        "operationId": "requestEmailInitialization",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProofReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailInitializationRequest"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/email-initialization/resend": {
+      "post": {
+        "operationId": "resendEmailInitialization",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailProofReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailProofResend"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
+    },
+    "/api/v1/me/email-initialization/confirm": {
+      "post": {
+        "operationId": "confirmEmailInitialization",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current Session, CSRF and original idempotency key/body are required. Codes are six digits, valid ten minutes; the user/purpose budget permits five incorrect submissions and five deliveries, with a sixty-second send cooldown. Verification emails require configured enabled SMTP; recovery-log output is never mailbox proof. Confirmed same-key replay does not consume a proof twice.",
+        "responses": {
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Authentication errors never mutate the Session cookie, so a delayed response cannot erase a newer login in another tab. Only explicit successful session commands set or clear cookies. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailChangeReceipt"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailProofConfirmation"
+              }
+            }
+          },
+          "x-max-bytes": 16384
+        }
+      }
     }
   },
   "components": {
@@ -4906,6 +6599,531 @@
         ],
         "additionalProperties": false,
         "description": "Descending intent created_at and job_id, with an independently signed mail-job-management cursor. Defaults to 25 items. Each page is a statement snapshot; separate pages do not share a snapshot."
+      },
+      "PasskeyCapabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "reason": {
+            "enum": [
+              "available",
+              "secure_origin_required",
+              "domain_required"
+            ]
+          },
+          "rp_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "available",
+          "reason",
+          "rp_id"
+        ]
+      },
+      "PasskeyItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "created_at",
+          "last_used_at"
+        ]
+      },
+      "PasskeyList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "email_verified": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "$ref": "#/components/schemas/PasskeyItem"
+            }
+          },
+          "email_initialization_required": {
+            "type": "boolean",
+            "description": "True only for a bootstrap account whose mailbox has not yet been verified; requires a one-use deployment operator authorization."
+          }
+        },
+        "required": [
+          "version",
+          "email_verified",
+          "items",
+          "email_initialization_required"
+        ]
+      },
+      "PasskeyOptions": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "public_key": {
+            "type": "object",
+            "description": "Native WebAuthn JSON options. challenge and credential/user IDs use unpadded base64url; UV is required. Server SessionData is never sent."
+          }
+        },
+        "required": [
+          "operation_id",
+          "expires_at",
+          "public_key"
+        ]
+      },
+      "PasskeyAssertionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientDataJSON": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "authenticatorData": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "userHandle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "maxLength": 16384
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "clientDataJSON",
+          "authenticatorData",
+          "signature"
+        ]
+      },
+      "PasskeyAttestationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientDataJSON": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "attestationObject": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "transports": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "authenticatorData": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "publicKey": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "publicKeyAlgorithm": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "clientDataJSON",
+          "attestationObject"
+        ]
+      },
+      "PasskeyCredential": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "rawId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 16384
+          },
+          "type": {
+            "const": "public-key"
+          },
+          "response": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PasskeyAssertionResponse"
+              },
+              {
+                "$ref": "#/components/schemas/PasskeyAttestationResponse"
+              }
+            ]
+          },
+          "authenticatorAttachment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "platform",
+              "cross-platform",
+              null
+            ]
+          },
+          "clientExtensionResults": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "rawId",
+          "type",
+          "response",
+          "clientExtensionResults"
+        ]
+      },
+      "PasskeyCompleteInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credential": {
+            "$ref": "#/components/schemas/PasskeyCredential"
+          }
+        },
+        "required": [
+          "operation_id",
+          "credential"
+        ]
+      },
+      "PasskeyReauthInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "purpose": {
+            "enum": [
+              "manage_passkeys",
+              "change_email"
+            ]
+          },
+          "action": {
+            "enum": [
+              "register",
+              "rename",
+              "delete"
+            ]
+          },
+          "passkey_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "purpose"
+        ],
+        "description": "manage_passkeys requires action; rename/delete require passkey_id; register forbids passkey_id. change_email forbids action and passkey_id. Grant is one-use and bound to that exact action/target."
+      },
+      "PasskeyGrant": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "purpose": {
+            "enum": [
+              "manage_passkeys",
+              "change_email"
+            ]
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "grant_id",
+          "purpose",
+          "expires_at"
+        ]
+      },
+      "PasskeyRegistrationInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "grant_id",
+          "label",
+          "expected_version"
+        ]
+      },
+      "PasskeyReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "version",
+          "id",
+          "created_at"
+        ]
+      },
+      "PasskeyRenameInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "grant_id",
+          "label",
+          "expected_version"
+        ]
+      },
+      "PasskeyDeleteInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "grant_id",
+          "expected_version"
+        ]
+      },
+      "EmailProofReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expires_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "resend_after": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "request_id",
+          "expires_at",
+          "resend_after"
+        ]
+      },
+      "EmailChangeReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "version",
+          "email",
+          "created_at"
+        ]
+      },
+      "PasskeyRecoveryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "EmailProofResend": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "request_id"
+        ]
+      },
+      "EmailProofConfirmation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[0-9]{6}$",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "request_id",
+          "code"
+        ]
+      },
+      "EmailChangeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "grant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "required": [
+          "grant_id",
+          "email",
+          "expected_version"
+        ]
+      },
+      "EmailInitializationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "authorization": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "authorization",
+          "password"
+        ]
       }
     }
   }

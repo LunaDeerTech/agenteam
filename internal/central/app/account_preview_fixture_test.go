@@ -73,6 +73,10 @@ func TestAccountPreviewFixture(t *testing.T) {
 		port = "5250"
 	}
 	outboundPreview := os.Getenv("AGENTEAM_OUTBOUND_PREVIEW") == "1"
+	passkeyPreview := os.Getenv("AGENTEAM_PASSKEY_PREVIEW") == "1"
+	if passkeyPreview && (port != "5270" || outboundPreview) {
+		t.Fatal("passkey preview requires dedicated owned 5270")
+	}
 	ruleModesPreview := os.Getenv("AGENTEAM_RULE_MODES_PREVIEW") == "1"
 	if ruleModesPreview && !outboundPreview {
 		t.Fatal("rule modes preview requires owned outbound preview")
@@ -80,7 +84,7 @@ func TestAccountPreviewFixture(t *testing.T) {
 	if outboundPreview && port != "5260" {
 		t.Fatal("outbound preview requires dedicated owned 5260")
 	}
-	if port != "5250" && port != "5254" && !(outboundPreview && port == "5260") {
+	if port != "5250" && port != "5254" && !(outboundPreview && port == "5260") && !(passkeyPreview && port == "5270") {
 		t.Fatal("preview TLS port must be 5250 or 5254")
 	}
 	localOrigin := "https://localhost:" + port
@@ -91,7 +95,7 @@ func TestAccountPreviewFixture(t *testing.T) {
 	if origin != localOrigin && origin != "https://mcpc-terra.lunadeer.cn:18443" && origin != "https://154.12.86.233:18443" {
 		t.Fatal("preview origin is not an explicitly supported HTTPS endpoint")
 	}
-	if outboundPreview && origin != localOrigin {
+	if (outboundPreview || passkeyPreview) && origin != localOrigin {
 		t.Fatal("outbound preview must stay local")
 	}
 	originURL, err := url.Parse(origin)
@@ -190,6 +194,9 @@ func TestAccountPreviewFixture(t *testing.T) {
 	if outboundPreview {
 		frontendAddress = "http://127.0.0.1:5246"
 	}
+	if passkeyPreview {
+		frontendAddress = "http://127.0.0.1:5274"
+	}
 	frontend, _ := url.Parse(frontendAddress)
 	apiProxy := httputil.NewSingleHostReverseProxy(backend)
 	webProxy := httputil.NewSingleHostReverseProxy(frontend)
@@ -265,6 +272,18 @@ func TestAccountPreviewFixture(t *testing.T) {
 		previewCheck(t, "outbound scope encoding", e)
 		scopePath := filepath.Join(private, "outbound-owned.json")
 		previewCheck(t, "outbound scope", os.WriteFile(scopePath, data, 0600))
+		t.Cleanup(func() { _ = os.Remove(scopePath) })
+	}
+	if passkeyPreview {
+		previewPasskeyConstraints(t, ctx, db)
+		previewEmailInitializationReplay(t, ctx, cfg, core, db, origin, listener.Addr().String(), security.CA, credentials)
+		manifest["regular_credentials"] = previewOutboundRegular(t, ctx, cfg, core, smtp, endpoint)
+		manifest["test_scope"] = "account-passkeys-email-change"
+		sidecar := map[string]string{"test_scope": "account-passkeys-email-change", "runtime_file": filepath.Join(private, "runtime.json"), "nonce": nonce}
+		data, e := json.Marshal(sidecar)
+		previewCheck(t, "passkey scope encoding", e)
+		scopePath := filepath.Join(private, "passkey-owned.json")
+		previewCheck(t, "passkey scope", os.WriteFile(scopePath, data, 0600))
 		t.Cleanup(func() { _ = os.Remove(scopePath) })
 	}
 	raw, err := json.Marshal(manifest)

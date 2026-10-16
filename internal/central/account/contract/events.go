@@ -17,21 +17,25 @@ const UserAuthAggregate event.StableName = "account-user-auth"
 type RevocationScope string
 
 const (
-	OneSession  RevocationScope = "one"
-	AllSessions RevocationScope = "all"
+	OneSession    RevocationScope = "one"
+	AllSessions   RevocationScope = "all"
+	OtherSessions RevocationScope = "others"
 )
 
 type RevocationReason string
 
 const (
-	LoggedOut        RevocationReason = "logout"
-	PasswordChanged  RevocationReason = "password_changed"
-	PasswordWasReset RevocationReason = "password_reset"
+	LoggedOut         RevocationReason = "logout"
+	PasswordChanged   RevocationReason = "password_changed"
+	PasswordWasReset  RevocationReason = "password_reset"
+	EmailChanged      RevocationReason = "email_changed"
+	PasskeysRecovered RevocationReason = "passkeys_recovered"
 )
 
 type SessionsRevoked struct {
-	UserID    UserID           `json:"user_id"`
-	Scope     RevocationScope  `json:"scope"`
+	UserID UserID          `json:"user_id"`
+	Scope  RevocationScope `json:"scope"`
+	// SessionID identifies the revoked session for "one", or retained session for "others".
 	SessionID string           `json:"session_id,omitempty"`
 	Reason    RevocationReason `json:"reason"`
 }
@@ -42,6 +46,15 @@ func (p SessionsRevoked) Validate() error {
 	}
 	if p.Scope == OneSession {
 		if p.Reason != LoggedOut {
+			return Invalid()
+		}
+		if _, e := foundation.ParseID[identity.Session](p.SessionID); e != nil {
+			return Invalid()
+		}
+		return nil
+	}
+	if p.Scope == OtherSessions {
+		if p.Reason != EmailChanged && p.Reason != PasskeysRecovered {
 			return Invalid()
 		}
 		if _, e := foundation.ParseID[identity.Session](p.SessionID); e != nil {
@@ -69,13 +82,15 @@ const MailEnqueueHandler event.StableName = "account.mail-enqueue"
 type DeliveryKind string
 
 const (
-	InvitationDelivery DeliveryKind = "invitation"
-	ResetDelivery      DeliveryKind = "password_reset"
-	TestDelivery       DeliveryKind = "test"
+	InvitationDelivery  DeliveryKind = "invitation"
+	ResetDelivery       DeliveryKind = "password_reset"
+	TestDelivery        DeliveryKind = "test"
+	EmailCodeDelivery   DeliveryKind = "email_code"
+	EmailNoticeDelivery DeliveryKind = "email_notice"
 )
 
 func (k DeliveryKind) Valid() bool {
-	return k == InvitationDelivery || k == ResetDelivery || k == TestDelivery
+	return k == InvitationDelivery || k == ResetDelivery || k == TestDelivery || k == EmailCodeDelivery || k == EmailNoticeDelivery
 }
 
 type DeliveryRequested struct {
