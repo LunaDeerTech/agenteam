@@ -65,6 +65,7 @@ const needsPassword = ref(false);
 const configSave = useSettingsCommand<SMTPResult>();
 const configAction = ref<"save" | "unconfigure" | "remove-auth">("save");
 const recipient = ref("");
+const acceptedRecipient = ref("");
 const testSubmitted = ref(false);
 const deliverySave = useSettingsCommand<JobAccepted | JobRetryAccepted>();
 const deliveryAction = ref<"test" | "retry">("test");
@@ -77,6 +78,7 @@ const confirmedJob = shallowRef<{
 const rows = shallowRef<MailJobManagement[]>([]);
 const listReady = ref(false);
 const listReading = ref(false);
+const listRefreshing = ref(false);
 const listError = shallowRef<unknown>();
 const nextCursor = ref<string>();
 const cursors = ref<(string | undefined)[]>([undefined]);
@@ -87,7 +89,6 @@ const detailId = ref<string>();
 const detail = shallowRef<MailJobManagement>();
 const detailReading = ref(false);
 const detailError = shallowRef<unknown>();
-const detailHeading = ref<HTMLElement | null>(null);
 const listHeading = ref<HTMLElement | null>(null);
 const configFeedback = ref<HTMLElement | null>(null);
 const checking = ref(false);
@@ -100,6 +101,7 @@ const confirmation = ref<
   | "switch"
   | "retry"
   | "remove-auth"
+  | "close-detail"
 >();
 const nextSection = ref("");
 const retryTarget = shallowRef<MailJobManagement>();
@@ -107,6 +109,8 @@ let alive = true;
 let configRevision = 0;
 let listRevision = 0;
 let detailRevision = 0;
+let detailOrigin: HTMLElement | null = null;
+let detailScroll = 0;
 
 const configDirty = computed(() => {
   if (!baseline.value) return false;
@@ -118,7 +122,7 @@ const configDirty = computed(() => {
 });
 const deliveryDirty = computed(
   () =>
-    !!recipient.value ||
+    (!!recipient.value && recipient.value !== acceptedRecipient.value) ||
     deliverySave.busy.value ||
     deliverySave.uncertain.value,
 );
@@ -319,13 +323,20 @@ async function removeAuthentication() {
     },
   );
 }
-async function loadJobs(cursor?: string, targetPage = 0) {
-  if (!access.allowed.value || !accountEnabled || listReading.value) return;
+async function loadJobs(cursor?: string, targetPage = 0, preserve = false) {
+  if (
+    !access.allowed.value ||
+    !accountEnabled ||
+    listReading.value ||
+    listRefreshing.value
+  )
+    return;
   const revision = ++listRevision;
   const limit = pageSize.value;
   const generation = access.generation.value;
   const focused = document.activeElement;
   const restoreFocus =
+    !preserve &&
     focused instanceof HTMLElement &&
     focused.matches("button") &&
     !!focused.closest(".job-list");
@@ -335,11 +346,14 @@ async function loadJobs(cursor?: string, targetPage = 0) {
     generation === access.generation.value &&
     section.value === "delivery";
   listTarget = { cursor, page: targetPage };
-  listReading.value = true;
+  if (preserve) listRefreshing.value = true;
+  else listReading.value = true;
   listError.value = undefined;
-  listReady.value = false;
-  rows.value = [];
-  nextCursor.value = undefined;
+  if (!preserve) {
+    listReady.value = false;
+    rows.value = [];
+    nextCursor.value = undefined;
+  }
   try {
     const value = await listSMTPJobs(cursor, { current }, limit);
     if (!current()) return;
@@ -351,7 +365,10 @@ async function loadJobs(cursor?: string, targetPage = 0) {
   } catch (error) {
     if (current()) listError.value = error;
   } finally {
-    if (revision === listRevision) listReading.value = false;
+    if (revision === listRevision) {
+      listReading.value = false;
+      listRefreshing.value = false;
+    }
     if (current() && restoreFocus) {
       await nextTick();
       if (current()) listHeading.value?.focus({ preventScroll: true });
@@ -363,6 +380,7 @@ async function changePageSize(value: number) {
     return;
   listRevision++;
   listReading.value = false;
+  listRefreshing.value = false;
   listReady.value = false;
   rows.value = [];
   nextCursor.value = undefined;
@@ -373,8 +391,17 @@ async function changePageSize(value: number) {
   listTarget = { page: 0 };
   await loadJobs();
 }
-async function openJob(jobId: string, moveFocus = true) {
+function captureDetailOrigin() {
+  detailOrigin =
+    document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+  detailScroll =
+    pageElement.value?.closest<HTMLElement>(".settings-main")?.scrollTop ?? 0;
+}
+async function openJob(jobId: string, captureOrigin = true) {
   if (!access.allowed.value || detailReading.value) return;
+  if (!detailId.value && captureOrigin) captureDetailOrigin();
   const revision = ++detailRevision;
   const generation = access.generation.value;
   const previous = detail.value?.job_id === jobId ? detail.value : undefined;
@@ -387,10 +414,6 @@ async function openJob(jobId: string, moveFocus = true) {
   detail.value = undefined;
   detailReading.value = true;
   detailError.value = undefined;
-  if (moveFocus) {
-    await nextTick();
-    if (current()) detailHeading.value?.focus({ preventScroll: true });
-  }
   try {
     const value = await getSMTPJob(jobId, { current });
     if (!current()) return;
@@ -398,15 +421,21 @@ async function openJob(jobId: string, moveFocus = true) {
       previous && BigInt(previous.version) > BigInt(value.version)
         ? previous
         : value;
+    rows.value = rows.value.map((job) =>
+      job.job_id === value.job_id &&
+      BigInt(value.version) >= BigInt(job.version)
+        ? value
+        : job,
+    );
   } catch (error) {
     if (current()) detailError.value = error;
   } finally {
     if (revision === detailRevision) detailReading.value = false;
   }
 }
-async function backToList() {
-  if (detailReading.value || deliverySave.busy.value) return;
+async function closeDetail() {
   detailRevision++;
+  detailReading.value = false;
   detailId.value = undefined;
   detail.value = undefined;
   detailError.value = undefined;
@@ -416,8 +445,28 @@ async function backToList() {
     access.allowed.value &&
     section.value === "delivery" &&
     !detailId.value
+  ) {
+    const main = pageElement.value?.closest<HTMLElement>(".settings-main");
+    if (main) main.scrollTop = detailScroll;
+    if (detailOrigin?.isConnected && !detailOrigin.matches(":disabled"))
+      detailOrigin.focus({ preventScroll: true });
+  }
+  detailOrigin = null;
+}
+function requestDetailClose() {
+  if (deliverySave.busy.value) return;
+  if (deliverySave.uncertain.value) confirmation.value = "close-detail";
+  else void closeDetail();
+}
+async function showAcceptedJob(jobId: string) {
+  const generation = access.generation.value;
+  await openJob(jobId, false);
+  if (
+    alive &&
+    generation === access.generation.value &&
+    section.value === "delivery"
   )
-    listHeading.value?.focus({ preventScroll: true });
+    await loadJobs(cursors.value[page.value], page.value, true);
 }
 async function sendTest() {
   if (deliveryLocked.value || !observation.value?.configured) return;
@@ -427,19 +476,21 @@ async function sendTest() {
     return;
   }
   const generation = access.generation.value;
+  const submittedRecipient = recipient.value;
+  captureDetailOrigin();
   deliveryAction.value = "test";
   sourceJob.value = undefined;
   confirmedJob.value = undefined;
   await deliverySave.submit(
     () =>
-      testSMTP(recipient.value, {
+      testSMTP(submittedRecipient, {
         current: () => alive && generation === access.generation.value,
       }),
-    async (value) => {
+    (value) => {
       confirmedJob.value = { job_id: value.job_id, kind: "test" };
-      recipient.value = "";
+      acceptedRecipient.value = submittedRecipient;
       testSubmitted.value = false;
-      await openJob(value.job_id);
+      void showAcceptedJob(value.job_id);
     },
   );
 }
@@ -457,13 +508,13 @@ async function retryJob() {
       retrySMTPJob(target, {
         current: () => alive && generation === access.generation.value,
       }),
-    async (value) => {
+    (value) => {
       confirmedJob.value = {
         job_id: value.job_id,
         source: target.job_id,
         kind: "retry",
       };
-      await openJob(value.job_id);
+      void showAcceptedJob(value.job_id);
     },
   );
 }
@@ -486,9 +537,7 @@ async function inspectDelivery() {
     if (!(await deliverySave.verify())) return;
     if (sourceJob.value) await openJob(sourceJob.value);
     else {
-      detailId.value = undefined;
-      detail.value = undefined;
-      await loadJobs();
+      await loadJobs(cursors.value[page.value], page.value, true);
     }
   } finally {
     checking.value = false;
@@ -498,6 +547,7 @@ function clearDelivery() {
   listRevision++;
   detailRevision++;
   listReading.value = false;
+  listRefreshing.value = false;
   detailReading.value = false;
   listReady.value = false;
   rows.value = [];
@@ -510,6 +560,9 @@ function clearDelivery() {
   listError.value = undefined;
   detailError.value = undefined;
   recipient.value = "";
+  acceptedRecipient.value = "";
+  detailOrigin = null;
+  detailScroll = 0;
   testSubmitted.value = false;
   sourceJob.value = undefined;
   confirmedJob.value = undefined;
@@ -565,14 +618,20 @@ async function confirmAction() {
     await switchSection(nextSection.value);
     return;
   }
+  if (action === "close-detail") {
+    deliverySave.abandon();
+    sourceJob.value = undefined;
+    await closeDetail();
+    return;
+  }
   if (action === "abandon-config") {
     configSave.abandon();
     baseline.value = undefined;
     Object.assign(draft, smtpDraft());
     await readConfig(true);
   } else if (action === "abandon-delivery") {
-    clearDelivery();
-    await loadJobs();
+    deliverySave.abandon();
+    sourceJob.value = undefined;
   } else if (action === "adopt" && observation.value) {
     configSave.abandon();
     adopt(observation.value);
@@ -582,17 +641,24 @@ async function confirmAction() {
   }
 }
 const confirmationTitle = computed(() =>
-  confirmation.value === "stop"
-    ? "停用 SMTP"
-    : confirmation.value === "remove-auth"
-      ? "移除已保存的认证"
-      : confirmation.value === "retry"
-        ? "申请新的投递重试"
-        : confirmation.value?.startsWith("abandon")
-          ? "放弃追踪本次操作"
-          : "放弃当前修改",
+  confirmation.value === "close-detail"
+    ? "关闭并放弃追踪"
+    : confirmation.value === "stop"
+      ? "停用 SMTP"
+      : confirmation.value === "remove-auth"
+        ? "移除已保存的认证"
+        : confirmation.value === "retry"
+          ? "申请新的投递重试"
+          : confirmation.value?.startsWith("abandon")
+            ? "放弃追踪本次操作"
+            : "放弃当前修改",
 );
 const confirmationCopy = computed(() => {
+  if (
+    confirmation.value === "close-detail" ||
+    confirmation.value === "abandon-delivery"
+  )
+    return "此前提交仍可能生效。放弃追踪会清除原请求的恢复材料，不会撤销服务端操作或邮件发送。";
   if (confirmation.value === "stop")
     return "停用会清除已保存的连接配置和认证凭据，保留当前填写的重试策略。未保存的其他字段会被放弃；在途邮件不会因此撤回。";
   if (confirmation.value === "retry")
@@ -914,10 +980,6 @@ useLeaveProtection(
           @submit.prevent="sendTest"
         >
           <h2>测试邮件</h2>
-          <p class="form-note">
-            测试使用服务端已保存的配置。请求受理、SMTP
-            接受和收件箱到达是不同结果。
-          </p>
           <p v-if="!observation?.configured" class="form-note">
             当前尚未确认可用的已配置 SMTP，请返回配置区读取或保存。
           </p>
@@ -939,31 +1001,16 @@ useLeaveProtection(
               "
               >请求测试发送</UiButton
             >
+            <UiButton
+              v-if="confirmedJob"
+              :disabled="anyBusy"
+              @click="openJob(confirmedJob.job_id)"
+              >查看已受理任务</UiButton
+            >
           </div>
         </form>
         <div
-          v-if="confirmedJob"
-          class="form-feedback form-success"
-          role="status"
-        >
-          <p>
-            {{
-              confirmedJob.kind === "test"
-                ? "测试请求已受理。"
-                : "新的投递重试已受理。"
-            }}
-            实际尝试结果以任务详情为准。
-          </p>
-          <p class="job-reference">任务 {{ confirmedJob.job_id }}</p>
-          <p v-if="confirmedJob.source" class="job-reference">
-            源任务 {{ confirmedJob.source }}
-          </p>
-          <UiButton :disabled="anyBusy" @click="openJob(confirmedJob.job_id)"
-            >查看已受理任务</UiButton
-          >
-        </div>
-        <div
-          v-if="deliverySave.uncertain.value"
+          v-if="!detailId && deliverySave.uncertain.value"
           class="form-feedback"
           role="alert"
         >
@@ -997,109 +1044,22 @@ useLeaveProtection(
           </div>
         </div>
         <div
-          v-else-if="deliverySave.error.value"
+          v-else-if="!detailId && deliverySave.error.value"
           class="form-feedback"
           role="alert"
         >
           <p>{{ accountErrorMessage(deliverySave.error.value) }}</p>
         </div>
-        <section
-          v-if="detailId"
-          class="job-detail"
-          aria-labelledby="smtp-job-title"
-        >
-          <div class="section-toolbar">
-            <h2 id="smtp-job-title" ref="detailHeading" tabindex="-1">
-              投递任务详情
-            </h2>
-            <div class="form-actions">
-              <UiButton :disabled="anyBusy" @click="backToList"
-                >返回任务列表</UiButton
-              >
-              <UiButton
-                :loading="detailReading"
-                :disabled="anyBusy"
-                @click="openJob(detailId, false)"
-                >重新读取任务</UiButton
-              >
-            </div>
-          </div>
-          <p v-if="detailReading" class="form-note" role="status">
-            正在读取任务…
-          </p>
-          <div v-if="detailError" class="form-feedback" role="alert">
-            <p>
-              任务读取失败，已受理的请求不会重新发送。{{
-                accountErrorMessage(detailError)
-              }}
-            </p>
-          </div>
-          <template v-if="detail">
-            <dl class="job-facts">
-              <dt>任务类型</dt>
-              <dd>{{ deliveryKinds[detail.kind] }}</dd>
-              <dt>当前阶段</dt>
-              <dd>{{ deliveryPhases[detail.phase] }}</dd>
-              <dt>尝试次数</dt>
-              <dd>{{ detail.attempts }} 次领取记录</dd>
-              <dt>实际尝试渠道</dt>
-              <dd>{{ deliveryChannel(detail.attempt_channel) }}</dd>
-              <dt>当前尝试结果</dt>
-              <dd>
-                {{
-                  deliveryOutcome(detail.attempt_result, detail.attempt_channel)
-                }}
-              </dd>
-              <template v-if="detail.reason"
-                ><dt>原因</dt>
-                <dd>{{ deliveryReasons[detail.reason] }}</dd></template
-              >
-              <dt>创建时间（UTC）</dt>
-              <dd>
-                <time
-                  :datetime="detail.created_at"
-                  :title="detail.created_at"
-                  >{{ detail.created_at.slice(0, 19).replace("T", " ") }}</time
-                >
-              </dd>
-              <dt>任务 ID</dt>
-              <dd class="job-reference">{{ detail.job_id }}</dd>
-              <dt>兼容渠道摘要</dt>
-              <dd>
-                {{ deliveryChannel(detail.channel)
-                }}<small>不证明已尝试，也不代表下一次使用的渠道。</small>
-              </dd>
-            </dl>
-            <p class="form-note">
-              “发送端已确认”只表示 SMTP
-              接受或受限恢复日志已写入，不保证收件箱到达。历史结果不会随配置改变。
-            </p>
-            <p v-if="jobRetryIssue(detail)" class="form-note">
-              {{ jobRetryIssue(detail) }}
-            </p>
-            <div class="form-actions">
-              <UiButton
-                :disabled="deliveryLocked || !!jobRetryIssue(detail)"
-                @click="
-                  retryTarget = { ...detail };
-                  confirmation = 'retry';
-                "
-                >申请重试投递</UiButton
-              >
-            </div>
-          </template>
-        </section>
-        <section v-else aria-labelledby="smtp-job-list" class="job-list">
+        <section aria-labelledby="smtp-job-list" class="job-list">
           <div class="section-toolbar">
             <h2 id="smtp-job-list" ref="listHeading" tabindex="-1">投递任务</h2>
             <UiButton
-              :loading="listReading"
-              :disabled="anyBusy"
+              :loading="listReading || listRefreshing"
+              :disabled="anyBusy || listRefreshing"
               @click="loadJobs()"
               >刷新任务</UiButton
             >
           </div>
-          <p class="form-note">包含邀请、密码重置和测试任务，仅按需读取。</p>
           <p v-if="listReading" class="form-note" role="status">
             正在读取投递任务…
           </p>
@@ -1163,11 +1123,15 @@ useLeaveProtection(
             </div>
             <div class="form-actions">
               <UiButton
-                :disabled="anyBusy || !listReady || page === 0"
+                :disabled="
+                  anyBusy || listRefreshing || !listReady || page === 0
+                "
                 @click="loadJobs(cursors[page - 1], page - 1)"
                 >上一页</UiButton
               ><UiButton
-                :disabled="anyBusy || !listReady || !nextCursor"
+                :disabled="
+                  anyBusy || listRefreshing || !listReady || !nextCursor
+                "
                 @click="loadJobs(nextCursor, page + 1)"
                 >下一页</UiButton
               >
@@ -1176,6 +1140,142 @@ useLeaveProtection(
         </section>
       </div>
     </UiTabs>
+    <UiDialog
+      :open="!!detailId && access.allowed.value"
+      title="投递任务详情"
+      @update:open="!$event && requestDetailClose()"
+    >
+      <div class="job-detail">
+        <p
+          v-if="confirmedJob?.job_id === detailId"
+          class="form-note form-success"
+          role="status"
+        >
+          {{
+            confirmedJob?.kind === "test"
+              ? "测试请求已受理。"
+              : "新的投递重试已受理。"
+          }}
+        </p>
+        <p v-if="deliverySave.busy.value" class="form-note" role="status">
+          正在提交，请稍候…
+        </p>
+        <div
+          v-if="deliverySave.uncertain.value"
+          class="form-feedback"
+          role="alert"
+        >
+          <p>
+            {{
+              deliveryCommitted
+                ? "操作已提交，回执尚未读回。"
+                : "原请求结果尚未确认。"
+            }}
+            查看任务不能确认原请求是否成功；不要另发一个新请求。
+          </p>
+          <div class="form-actions">
+            <UiButton
+              :loading="checking"
+              :disabled="anyBusy"
+              @click="inspectDelivery"
+              >检查当前状态</UiButton
+            >
+            <UiButton
+              v-if="deliverySave.replayable.value"
+              :loading="deliverySave.busy.value"
+              :disabled="listReading || detailReading || checking"
+              @click="deliverySave.retry"
+              >重试原请求</UiButton
+            >
+            <UiButton
+              :disabled="anyBusy"
+              @click="confirmation = 'abandon-delivery'"
+              >放弃本次操作</UiButton
+            >
+          </div>
+        </div>
+        <div
+          v-else-if="deliverySave.error.value"
+          class="form-feedback"
+          role="alert"
+        >
+          <p>{{ accountErrorMessage(deliverySave.error.value) }}</p>
+        </div>
+
+        <p v-if="detailReading" class="form-note" role="status">
+          正在读取任务…
+        </p>
+        <div v-if="detailError" class="form-feedback" role="alert">
+          <p>
+            任务读取失败，已受理的请求不会重新发送。{{
+              accountErrorMessage(detailError)
+            }}
+          </p>
+          <p class="job-reference">任务 {{ detailId }}</p>
+        </div>
+        <template v-if="detail">
+          <dl class="job-facts">
+            <dt>任务类型</dt>
+            <dd>{{ deliveryKinds[detail.kind] }}</dd>
+            <dt>当前阶段</dt>
+            <dd>{{ deliveryPhases[detail.phase] }}</dd>
+            <dt>尝试次数</dt>
+            <dd>{{ detail.attempts }} 次</dd>
+            <dt>实际尝试渠道</dt>
+            <dd>{{ deliveryChannel(detail.attempt_channel) }}</dd>
+            <dt>当前尝试结果</dt>
+            <dd>
+              {{
+                deliveryOutcome(detail.attempt_result, detail.attempt_channel)
+              }}
+            </dd>
+            <template v-if="detail.reason"
+              ><dt>原因</dt>
+              <dd>{{ deliveryReasons[detail.reason] }}</dd></template
+            >
+            <dt>创建时间（UTC）</dt>
+            <dd>
+              <time :datetime="detail.created_at" :title="detail.created_at">{{
+                detail.created_at.slice(0, 19).replace("T", " ")
+              }}</time>
+            </dd>
+            <dt>任务 ID</dt>
+            <dd class="job-reference">{{ detail.job_id }}</dd>
+            <template
+              v-if="confirmedJob?.job_id === detailId && confirmedJob.source"
+              ><dt>源任务 ID</dt>
+              <dd class="job-reference">{{ confirmedJob.source }}</dd></template
+            >
+          </dl>
+          <p v-if="jobRetryIssue(detail)" class="form-note">
+            {{ jobRetryIssue(detail) }}
+          </p>
+        </template>
+      </div>
+      <template #footer>
+        <UiButton
+          :disabled="deliverySave.busy.value"
+          @click="requestDetailClose"
+          >关闭详情</UiButton
+        >
+        <UiButton
+          :loading="detailReading"
+          :disabled="anyBusy"
+          @click="detailId && openJob(detailId, false)"
+          >重新读取任务</UiButton
+        >
+        <UiButton
+          v-if="detail"
+          variant="primary"
+          :disabled="deliveryLocked || !!jobRetryIssue(detail)"
+          @click="
+            retryTarget = { ...detail };
+            confirmation = 'retry';
+          "
+          >申请重试投递</UiButton
+        >
+      </template>
+    </UiDialog>
     <UiDialog
       :open="!!confirmation && access.allowed.value"
       :title="confirmationTitle"
@@ -1190,11 +1290,13 @@ useLeaveProtection(
       </p>
       <template #footer>
         <UiButton @click="confirmation = undefined">{{
-          confirmation === "stop" ||
-          confirmation === "retry" ||
-          confirmation === "remove-auth"
-            ? "取消"
-            : "继续编辑"
+          confirmation === "close-detail"
+            ? "继续追踪"
+            : confirmation === "stop" ||
+                confirmation === "retry" ||
+                confirmation === "remove-auth"
+              ? "取消"
+              : "继续编辑"
         }}</UiButton>
         <UiButton
           :variant="
@@ -1204,15 +1306,17 @@ useLeaveProtection(
           "
           @click="confirmAction"
           >{{
-            confirmation === "stop"
-              ? "确认停用"
-              : confirmation === "remove-auth"
-                ? "确认移除认证"
-                : confirmation === "retry"
-                  ? "申请重试"
-                  : confirmation?.startsWith("abandon")
-                    ? "放弃追踪"
-                    : "放弃修改"
+            confirmation === "close-detail"
+              ? "放弃追踪并关闭"
+              : confirmation === "stop"
+                ? "确认停用"
+                : confirmation === "remove-auth"
+                  ? "确认移除认证"
+                  : confirmation === "retry"
+                    ? "申请重试"
+                    : confirmation?.startsWith("abandon")
+                      ? "放弃追踪"
+                      : "放弃修改"
           }}</UiButton
         >
       </template>
