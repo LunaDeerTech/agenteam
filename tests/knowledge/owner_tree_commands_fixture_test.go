@@ -233,7 +233,7 @@ func assembleTreeCommandHTTPFixture(t *testing.T, x *ownerTreeFixture) *treeComm
 	if err != nil {
 		t.Fatal(err)
 	}
-	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: sink, PublicOrigin: treeCommandHTTPOrigin})
+	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Trust: trust, RecoveryLog: sink, PublicOrigin: treeCommandHTTPOrigin})
 	if err != nil {
 		t.Fatal(err)
 	}

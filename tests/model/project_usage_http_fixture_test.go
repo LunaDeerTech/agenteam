@@ -196,7 +196,7 @@ func newProjectUsageHTTPFixture(t *testing.T) *projectUsageHTTPFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
-	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: sink, PublicOrigin: systemHTTPOrigin})
+	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Trust: trust, RecoveryLog: sink, PublicOrigin: systemHTTPOrigin})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -18,7 +18,7 @@ import (
 type Dependencies struct {
 	Port         c.DeliveryPort
 	Registry     *WorkRegistry
-	Outbound     *outbound.Client
+	Resolver     SMTPResolver
 	Trust        outbound.TrustStore
 	RecoveryLog  *recoverylog.Sink
 	PublicOrigin string
@@ -27,7 +27,12 @@ type Dependencies struct {
 type Worker struct{ data func() *Dependencies }
 
 func New(d Dependencies) (*Worker, error) {
-	if nilPort(d.Port) || d.Registry == nil || d.Outbound == nil || d.Trust.Validate() != nil || d.RecoveryLog == nil {
+	if nilPort(d.Port) || d.Registry == nil || d.Trust.Validate() != nil || d.RecoveryLog == nil {
+		return nil, invalid()
+	}
+	if d.Resolver == nil {
+		d.Resolver = &net.Resolver{PreferGo: true, StrictErrors: true}
+	} else if nilPort(d.Resolver) {
 		return nil, invalid()
 	}
 	u, e := url.Parse(d.PublicOrigin)

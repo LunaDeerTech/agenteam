@@ -12,7 +12,6 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
-	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
@@ -62,7 +61,7 @@ func TestAccountDevModeDeploymentAssembly(t *testing.T) {
 			if accepted := boundary.CheckRequest(httptest.NewRecorder(), r) == nil; accepted != dev {
 				t.Fatal("deployment mode did not override HTTP dependencies")
 			}
-			worker, err := createAccountMailWorker(cfg, accountmail.Dependencies{DevMode: !dev, PublicOrigin: "ftp://unused.example.test", Port: devModeNoCallDelivery{}, Registry: &accountmail.WorkRegistry{}, Outbound: &outbound.Client{}, Trust: cfg.OutboundTrust(), RecoveryLog: &recoverylog.Sink{}})
+			worker, err := createAccountMailWorker(cfg, accountmail.Dependencies{DevMode: !dev, PublicOrigin: "ftp://unused.example.test", Port: devModeNoCallDelivery{}, Registry: &accountmail.WorkRegistry{}, Trust: cfg.OutboundTrust(), RecoveryLog: &recoverylog.Sink{}})
 			if err != nil || worker == nil {
 				t.Fatal("deployment mail origin/mode not propagated", err)
 			}

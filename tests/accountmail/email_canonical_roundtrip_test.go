@@ -48,7 +48,7 @@ func TestAccountMailEmailCanonicalWireRoundTrip(t *testing.T) {
 			if _, err = f.service.UpdateSMTPSettings(ctx, request); err != nil {
 				t.Fatal("canonical sender save", err)
 			}
-			m := composeMail(t, f, network, uint16(endpoint.Port))
+			m := composeMail(t, f, network)
 			accepted, err := f.service.TestSMTP(ctx, c.SMTPTest{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: tc.recipient})
 			if err != nil {
 				t.Fatal("canonical test intent", err)

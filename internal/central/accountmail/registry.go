@@ -1,5 +1,5 @@
 // Package accountmail drives durable account delivery through current account,
-// Secret and outbound ports. It exposes no HTTP route or protocol bypass.
+// Secret ports and directly owned SMTP connections. It exposes no HTTP route.
 package accountmail
 
 import (

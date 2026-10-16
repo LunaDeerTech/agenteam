@@ -5,6 +5,7 @@ package accountmail_test
 import (
 	"context"
 	"encoding/json"
+	"net"
 	"net/netip"
 	"os"
 	"testing"
@@ -107,7 +108,7 @@ func TestAccountMailCurrentMaterialChangesStopAuthAndMail(t *testing.T) {
 				f := newAccount(t)
 				old := bootstrapPassword(t, f)
 				configure(t, f, endpoint, "starttls", true)
-				m := composeMail(t, f, network, uint16(endpoint.Port))
+				m := composeMail(t, f, network)
 				var job c.JobID
 				if mutation == "redeem" || mutation == "expiry" {
 					job = createMailInvitation(t, f).JobID
@@ -119,7 +120,7 @@ func TestAccountMailCurrentMaterialChangesStopAuthAndMail(t *testing.T) {
 				if e != nil {
 					t.Fatal(e)
 				}
-				worker, e := accountmail.New(accountmail.Dependencies{Port: port, Registry: m.registry, Outbound: m.client, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
+				worker, e := accountmail.New(accountmail.Dependencies{Port: port, Registry: m.registry, Resolver: m.resolver, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
 				if e != nil {
 					t.Fatal(e)
 				}
@@ -237,11 +238,11 @@ type exactMailResolver struct {
 	ip   netip.Addr
 }
 
-func (r exactMailResolver) Lookup(ctx context.Context, host string) ([]netip.Addr, error) {
+func (r exactMailResolver) LookupIPAddr(ctx context.Context, host string) ([]net.IPAddr, error) {
 	if host != r.host {
 		return nil, foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted)
 	}
-	return []netip.Addr{r.ip}, ctx.Err()
+	return []net.IPAddr{{IP: net.IP(r.ip.AsSlice())}}, ctx.Err()
 }
 func TestAccountMailTLSRejectsUnknownChainAndWrongHost(t *testing.T) {
 	network := startSMTP(t)
@@ -253,7 +254,7 @@ func TestAccountMailTLSRejectsUnknownChainAndWrongHost(t *testing.T) {
 			}
 			f := newAccount(t)
 			configure(t, f, endpoint, "tls", true)
-			m := composeMail(t, f, network, uint16(endpoint.Port))
+			m := composeMail(t, f, network)
 			ca, host := network.CAFile, smtpfixture.Host
 			if mode == "chain" {
 				ca = ""
@@ -275,16 +276,7 @@ func TestAccountMailTLSRejectsUnknownChainAndWrongHost(t *testing.T) {
 			if e != nil {
 				t.Fatal(e)
 			}
-			client, e := outbound.NewClient(m.policy, trust, exactMailResolver{host, netip.MustParseAddr(network.PrivateIP)})
-			if e != nil {
-				t.Fatal(e)
-			}
-			defer func() {
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-				defer cancel()
-				_ = client.ForceClose(ctx)
-			}()
-			worker, e := accountmail.New(accountmail.Dependencies{Port: m.port, Registry: m.registry, Outbound: client, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
+			worker, e := accountmail.New(accountmail.Dependencies{Port: m.port, Registry: m.registry, Resolver: exactMailResolver{host, netip.MustParseAddr(network.PrivateIP)}, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
 			if e != nil {
 				t.Fatal(e)
 			}

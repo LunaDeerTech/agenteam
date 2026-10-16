@@ -516,7 +516,7 @@ func (x *firstRoundFixture) transport(t *testing.T, v *taskTransitionFixture) wi
 	firstRoundRequire(t, policy.Reload(ctxFor(t)))
 	ports, err := outbound.SelectedPorts(8443)
 	firstRoundRequire(t, err)
-	rule, err := outbound.NewRule(x.network.PrivateIP+"/32", ports, false)
+	rule, err := outbound.NewRule(x.network.PrivateIP+"/32", ports)
 	firstRoundRequire(t, err)
 	rules, err := outbound.NewRules(rule)
 	firstRoundRequire(t, err)
@@ -527,7 +527,7 @@ func (x *firstRoundFixture) transport(t *testing.T, v *taskTransitionFixture) wi
 	if status.Version == nil {
 		t.Fatal("actual outbound policy version missing")
 	}
-	_, err = policy.UpdatePolicy(ctxFor(t), actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: id[struct{}](t).String()}, rules)
+	_, err = policy.UpdatePolicy(ctxFor(t), actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: id[struct{}](t).String()}, outbound.Allowlist, rules)
 	firstRoundRequire(t, err)
 	trust, err := outbound.LoadTrustStore(x.network.CAFile)
 	firstRoundRequire(t, err)

@@ -24,7 +24,7 @@ func TestAccountMailJobManagementAttemptFacts(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	composition := composeMail(t, f, network, uint16(success.Port))
+	composition := composeMail(t, f, network)
 	create := func(t *testing.T, email string) c.InvitationReceipt {
 		t.Helper()
 		q, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: email})
@@ -198,7 +198,7 @@ func TestAccountMailJobManagementAttemptFacts(t *testing.T) {
 			t.Fatal(e)
 		}
 		configure(t, f, endpoint, "none", false)
-		m := composeMail(t, f, network, uint16(endpoint.Port))
+		m := composeMail(t, f, network)
 		job := testJob(t, f)
 		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
 			t.Fatal("SMTP550 not observed")
@@ -240,7 +240,7 @@ func TestAccountMailJobManagementAttemptFacts(t *testing.T) {
 		}
 		configure(t, f, endpoint, "none", false)
 		setRetryCount(t, f, 0)
-		m := composeMail(t, f, network, uint16(endpoint.Port))
+		m := composeMail(t, f, network)
 		job := testJob(t, f)
 		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
 			t.Fatal("lost acceptance not observed")
@@ -262,7 +262,7 @@ func TestAccountMailJobManagementAttemptFacts(t *testing.T) {
 			t.Fatal(e)
 		}
 		configure(t, f, unknown, "none", false)
-		m := composeMail(t, f, network, uint16(unknown.Port), uint16(paused.Port))
+		m := composeMail(t, f, network)
 		job := testJob(t, f)
 		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
 			t.Fatal("first unknown attempt absent")

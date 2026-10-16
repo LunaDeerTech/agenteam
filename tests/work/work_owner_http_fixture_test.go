@@ -265,7 +265,7 @@ func assembleWorkOwnerHTTPFixture(t *testing.T, db *pgfixture.Database, raw *pos
 	if err != nil {
 		t.Fatal(err)
 	}
-	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: sink, PublicOrigin: workOwnerHTTPOrigin})
+	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Trust: trust, RecoveryLog: sink, PublicOrigin: workOwnerHTTPOrigin})
 	if err != nil {
 		t.Fatal(err)
 	}

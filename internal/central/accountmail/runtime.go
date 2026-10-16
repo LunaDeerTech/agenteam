@@ -221,10 +221,9 @@ func (r *Runtime) Force(ctx context.Context) error {
 	// an exhausted parent. Each wait uses this same original force budget.
 	d.Registry.requestForce(original)
 	a := d.RecoveryLog.Force(original)
-	b := d.Outbound.ForceClose(original)
 	c := d.Registry.Drain(original)
 	e := r.waitLoops(original)
-	return errors.Join(a, b, c, e)
+	return errors.Join(a, c, e)
 }
 func (r *Runtime) Joined() bool {
 	s := r.data()

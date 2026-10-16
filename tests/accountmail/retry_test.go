@@ -32,7 +32,7 @@ func TestAccountMailManualRetryAtomicRootAndSingleAcceptedCycle(t *testing.T) {
 	}
 	f := newAccount(t)
 	configure(t, f, endpoint, "none", false)
-	m := composeMail(t, f, network, uint16(endpoint.Port))
+	m := composeMail(t, f, network)
 	job := testJob(t, f)
 	if e = m.worker.RunJob(ctxFor(t), job); e == nil {
 		t.Fatal("actual terminal failure absent")
@@ -93,7 +93,7 @@ func TestAccountMailConcurrentRetryVersionOnlyOneNewCycle(t *testing.T) {
 	}
 	f := newAccount(t)
 	configure(t, f, endpoint, "none", false)
-	m := composeMail(t, f, network, uint16(endpoint.Port))
+	m := composeMail(t, f, network)
 	job := testJob(t, f)
 	if e = m.worker.RunJob(ctxFor(t), job); e == nil {
 		t.Fatal("actual terminal failure absent")

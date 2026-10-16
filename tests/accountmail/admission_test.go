@@ -9,6 +9,7 @@ import (
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
 )
 
@@ -24,6 +25,75 @@ func unconfigure(t *testing.T, f *fixture) {
 	}
 	if _, e = f.service.UpdateSMTPSettings(ctxFor(t), r); e != nil {
 		t.Fatal("committed config invalidation", e)
+	}
+}
+
+// An accepted AUTH does not authorize a later MAIL after configured credentials
+// change. The old credential remains leased until the actual socket owner joins.
+func TestAccountMailConfiguredCredentialReplacementBeforeMail(t *testing.T) {
+	network := startSMTP(t)
+	endpoint, err := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "starttls", PauseStage: "auth"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := newAccount(t)
+	configure(t, f, endpoint, "starttls", true)
+	m := composeMail(t, f, network)
+	invite := createMailInvitation(t, f)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	done := make(chan error, 1)
+	go func() { done <- m.worker.RunJob(ctx, invite.JobID) }()
+	waitSMTPPhase(t, network, endpoint, "auth")
+	cfg, err := f.service.GetSMTPSettings(ctxFor(t), f.admin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	password, err := sc.NewSecretMaterial([]byte("owned replacement credential"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer password.Destroy()
+	update, err := c.NewSMTPUpdate(c.SMTPUpdateFields{
+		Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()),
+		ExpectedVersion: cfg.Version, Configured: true, Host: cfg.Host, Port: cfg.Port,
+		TLSMode: cfg.TLSMode, Username: cfg.Username, Password: &password,
+		SenderEmail: cfg.SenderEmail, SenderName: cfg.SenderName,
+		RetryCount: int64(cfg.RetryCount), RetryIntervalSeconds: int64(cfg.RetryIntervalSeconds),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = f.service.UpdateSMTPSettings(ctxFor(t), update); err != nil {
+		t.Fatal("committed credential replacement", err)
+	}
+	current, err := f.service.GetSMTPSettings(ctxFor(t), f.admin)
+	if err != nil || !current.Configured || current.Version == cfg.Version || !current.CredentialPresent {
+		t.Fatal("configured replacement did not advance version", err)
+	}
+	var active int
+	err = f.store.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_kind='account_delivery_attempt' AND NOT released`).Scan(&active)
+	if err != nil || active != 2 {
+		t.Fatal("replacement retired an active token or credential lease", active, err)
+	}
+	if err = network.Release(ctxFor(t), endpoint.ID); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case err = <-done:
+		if err == nil {
+			t.Fatal("old attempt sent after configured credential replacement")
+		}
+	case <-ctx.Done():
+		t.Fatal("actual SMTP owner did not join")
+	}
+	state, err := network.State(ctxFor(t), endpoint.ID)
+	if err != nil || state.Auth != 1 || state.Mail != 0 || state.Messages != 0 {
+		t.Fatal("stale attempt crossed the MAIL socket gate", state, err)
+	}
+	err = f.store.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_secret.secret_leases WHERE owner_kind='account_delivery_attempt' AND NOT released`).Scan(&active)
+	if err != nil || active != 0 || !m.registry.Joined() {
+		t.Fatal("replacement did not retain leases through actual join", active, err)
 	}
 }
 func createMailInvitation(t *testing.T, f *fixture) c.InvitationReceipt {
@@ -53,7 +123,7 @@ func TestAccountMailActualAuthAndMailSeparateAdmission(t *testing.T) {
 				// EHLO pauses before STARTTLS; other stages exercise the upgraded TLS wire.
 				f := newAccount(t)
 				configure(t, f, endpoint, "starttls", true)
-				m := composeMail(t, f, network, uint16(endpoint.Port))
+				m := composeMail(t, f, network)
 				invite := createMailInvitation(t, f)
 				ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 				defer cancel()

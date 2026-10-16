@@ -5,6 +5,7 @@ package accountmail_test
 import (
 	"context"
 	"encoding/json"
+	"net"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -155,65 +156,28 @@ func newAccount(t *testing.T) *fixture {
 
 type fixtureResolver struct{ ip netip.Addr }
 
-func (r fixtureResolver) Lookup(ctx context.Context, host string) ([]netip.Addr, error) {
+func (r fixtureResolver) LookupIPAddr(ctx context.Context, host string) ([]net.IPAddr, error) {
 	if host != smtpfixture.Host {
 		return nil, foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted)
 	}
-	return []netip.Addr{r.ip}, ctx.Err()
+	return []net.IPAddr{{IP: net.IP(r.ip.AsSlice())}}, ctx.Err()
 }
 
 type mailComposition struct {
 	worker   *accountmail.Worker
 	port     c.DeliveryPort
 	registry *accountmail.WorkRegistry
-	policy   *outbound.PolicyService
-	client   *outbound.Client
+	resolver accountmail.SMTPResolver
 	f        *fixture
 }
 
-func composeMail(t *testing.T, f *fixture, network *smtpfixture.Fixture, ports ...uint16) *mailComposition {
+func composeMail(t *testing.T, f *fixture, network *smtpfixture.Fixture) *mailComposition {
 	t.Helper()
-	policy, e := outbound.NewPolicyService(f.store, f.audit, outbound.Authorizations{Sessions: f.authority, System: f.authority})
-	if e != nil {
-		t.Fatal(e)
-	}
-	if e = policy.Reload(ctxFor(t)); e != nil {
-		t.Fatal(e)
-	}
-	selected, e := outbound.SelectedPorts(ports...)
-	if e != nil {
-		t.Fatal(e)
-	}
-	rule, e := outbound.NewRule(network.PrivateIP+"/32", selected, false)
-	if e != nil {
-		t.Fatal(e)
-	}
-	rules, e := outbound.NewRules(rule)
-	if e != nil {
-		t.Fatal(e)
-	}
-	key, e := foundation.NewCommandIdentity("outbound-policy", []string{f.admin.Details().UserID}, "update", foundation.IdempotencyKey(id[struct{}](t).String()))
-	if e != nil {
-		t.Fatal(e)
-	}
-	if _, e = policy.UpdatePolicy(ctxFor(t), f.admin, outbound.CommandMeta{Identity: key, ExpectedVersion: *policy.Status().Version}, rules); e != nil {
-		t.Fatal(e)
-	}
 	trust, e := outbound.LoadTrustStore(network.CAFile)
 	if e != nil {
 		t.Fatal(e)
 	}
-	client, e := outbound.NewClient(policy, trust, fixtureResolver{netip.MustParseAddr(network.PrivateIP)})
-	if e != nil {
-		t.Fatal(e)
-	}
-	t.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		if e := client.ForceClose(ctx); e != nil {
-			t.Error(e)
-		}
-	})
+	resolver := fixtureResolver{netip.MustParseAddr(network.PrivateIP)}
 	registry, e := accountmail.NewWorkRegistry(f.process)
 	if e != nil {
 		t.Fatal(e)
@@ -222,11 +186,11 @@ func composeMail(t *testing.T, f *fixture, network *smtpfixture.Fixture, ports .
 	if e != nil {
 		t.Fatal(e)
 	}
-	worker, e := accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
+	worker, e := accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Resolver: resolver, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
 	if e != nil {
 		t.Fatal(e)
 	}
-	return &mailComposition{worker, port, registry, policy, client, f}
+	return &mailComposition{worker, port, registry, resolver, f}
 }
 func startSMTP(t *testing.T) *smtpfixture.Fixture {
 	t.Helper()

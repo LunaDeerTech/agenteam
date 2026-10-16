@@ -17,16 +17,13 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
-	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
-	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
-	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 )
 
 // smtpWire is below TLS. The account permit encloses the actual first socket
 // Write, not a successful write into a protocol buffer or TLS staging buffer.
 type smtpWire struct {
-	*outbound.Conn
+	*directSMTPConn
 	permit c.SendPermit
 	armed  bool
 	ctx    context.Context
@@ -34,7 +31,7 @@ type smtpWire struct {
 
 func (w *smtpWire) Write(b []byte) (int, error) {
 	if !w.armed {
-		return w.Conn.Write(b)
+		return w.directSMTPConn.Write(b)
 	}
 	w.armed = false
 	return w.permit.RunSMTPFirstWrite(func(ctx context.Context) (int, error) {
@@ -42,17 +39,17 @@ func (w *smtpWire) Write(b []byte) (int, error) {
 		if !ok {
 			return 0, invalid()
 		}
-		if e := w.Conn.SetWriteDeadline(deadline); e != nil {
+		if e := w.directSMTPConn.SetWriteDeadline(deadline); e != nil {
 			return 0, e
 		}
 		done := make(chan struct{})
-		stop := context.AfterFunc(ctx, func() { _ = w.Conn.Close(); close(done) })
-		n, e := w.Conn.Write(b)
+		stop := context.AfterFunc(ctx, func() { _ = w.directSMTPConn.Close(); close(done) })
+		n, e := w.directSMTPConn.Write(b)
 		if !stop() {
 			<-done
 		}
 		// Preserve the operation's shorter absolute deadline and idle cap.
-		_ = w.Conn.SetWriteDeadline(smtpDeadline(w.ctx, 5*time.Second))
+		_ = w.directSMTPConn.SetWriteDeadline(smtpDeadline(w.ctx, 5*time.Second))
 		return n, e
 	})
 }
@@ -153,46 +150,18 @@ func smtpError(e error, uncertain bool) (c.DeliveryOutcome, error) {
 	if errors.As(e, &unknown) || errors.As(e, &hostname) || errors.As(e, &cert) {
 		return c.DeliveryOutcome{Result: c.DeliveryFailed, Reason: c.ReasonConfiguration}, fail(foundation.DependencyUnavailable, e)
 	}
-	var network *outbound.NetworkError
-	if errors.As(e, &network) {
-		switch network.Decision().Reason {
-		case ac.RuleNotAllowed, ac.AddressForbidden, ac.PrivateNotAllowed, ac.PortDenied, ac.HTTPDenied, ac.BindingInvalid:
-			return c.DeliveryOutcome{Result: c.DeliveryFailed, Reason: c.ReasonPolicy}, fail(foundation.DependencyUnavailable, e)
-		}
-	}
 	return classify(e, uncertain), fail(foundation.DependencyUnavailable, e)
 }
 func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (out c.DeliveryOutcome, err error) {
 	ctx, cancel := context.WithTimeout(parent, 30*time.Second)
 	defer cancel()
 	attempt := f.Attempt
-	id := attempt.Details().AttemptID.String()
-	registration, e := identity.RegisterService(identity.OutboundService)
-	if e != nil {
-		return smtpError(e, false)
-	}
-	actor, e := registration.Actor(id, identity.SystemScope())
-	if e != nil {
-		return smtpError(e, false)
-	}
-	key, e := ac.NewAppendKey(ac.AccessProducer, id, 0)
-	if e != nil {
-		return smtpError(e, false)
-	}
-	call, e := outbound.NewCallContext(actor, identity.SystemScope(), key, ac.Associations{})
-	if e != nil {
-		return smtpError(e, false)
-	}
-	profile, e := outbound.NewSMTPProfile(call, outbound.Limits{Connect: 5 * time.Second, TLS: 10 * time.Second, Overall: 30 * time.Second, ReadIdle: 5 * time.Second})
-	if e != nil {
-		return smtpError(e, false)
-	}
-	raw, e := w.data().Outbound.DialTarget(ctx, f.Host, uint16(f.Port), profile)
+	raw, e := dialSMTP(ctx, w.data().Resolver, f.Host, f.Port)
 	if e != nil {
 		return smtpError(e, false)
 	}
 	defer raw.Close()
-	wire := &smtpWire{Conn: raw, ctx: ctx}
+	wire := &smtpWire{directSMTPConn: raw, ctx: ctx}
 	defer func() { wire.permit.Close() }()
 	var conn net.Conn = wire
 	upgrade := func() error {
@@ -279,9 +248,6 @@ func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (o
 		}
 	}
 	begin := func(phase c.DeliveryPhase) error {
-		if e := raw.BeginSend(ctx); e != nil {
-			return e
-		}
 		permit, e := w.data().Port.BeginDelivery(ctx, attempt, phase)
 		if e != nil {
 			return e
@@ -319,9 +285,6 @@ func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (o
 		}
 		if code != 235 {
 			return c.DeliveryOutcome{Result: c.DeliveryFailed, Reason: c.ReasonSMTP}, fail(foundation.Forbidden, nil)
-		}
-		if e = raw.EndSend(); e != nil {
-			return smtpError(e, false)
 		}
 	}
 	message, e := w.message(f)
@@ -369,7 +332,7 @@ func (w *Worker) sendSMTP(parent context.Context, f c.DeliveryMaterialFields) (o
 	if code != 250 {
 		return smtpStatus(code, 250), fail(foundation.DependencyUnavailable, nil)
 	}
-	_ = raw.EndSend() // No QUIT or any other protocol write after EndSend.
+	// Acceptance is final; close the owned socket without another protocol write.
 	return c.DeliveryOutcome{Result: c.DeliverySent, Reason: c.ReasonSent}, nil
 }
 

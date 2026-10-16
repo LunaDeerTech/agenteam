@@ -294,7 +294,7 @@ func assembleVariableHTTPFixture(t *testing.T, db *pgfixture.Database, raw *post
 	if err != nil {
 		t.Fatal(err)
 	}
-	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: sink, PublicOrigin: variableHTTPOrigin})
+	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Trust: trust, RecoveryLog: sink, PublicOrigin: variableHTTPOrigin})
 	if err != nil {
 		t.Fatal(err)
 	}

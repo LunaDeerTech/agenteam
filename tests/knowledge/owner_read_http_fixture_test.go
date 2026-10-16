@@ -230,7 +230,7 @@ func assembleKnowledgeOwnerHTTPFixture(t *testing.T, x *ownerTreeFixture) *knowl
 	if err != nil {
 		t.Fatal(err)
 	}
-	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: sink, PublicOrigin: knowledgeOwnerHTTPOrigin})
+	v.worker, err = accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Trust: trust, RecoveryLog: sink, PublicOrigin: knowledgeOwnerHTTPOrigin})
 	if err != nil {
 		t.Fatal(err)
 	}

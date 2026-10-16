@@ -150,6 +150,7 @@ func TestAccountPreviewFixture(t *testing.T) {
 	var core *account.Service
 	var transport *outboundRuntime
 	deps := dependencies{
+		smtpResolver:   previewSMTPResolver{netip.MustParseAddr(smtp.PrivateIP)},
 		observeAccount: func(v *account.Service) { core = v },
 		outboundConstruct: func(ctx context.Context, cfg config.Config, v *outboundRuntime) error {
 			transport = v
@@ -336,6 +337,14 @@ func (r previewSMTPResolver) Lookup(_ context.Context, host string) ([]netip.Add
 		return nil, errors.New("preview permits only its owned SMTP hostname")
 	}
 	return []netip.Addr{r.address}, nil
+}
+
+func (r previewSMTPResolver) LookupIPAddr(ctx context.Context, host string) ([]net.IPAddr, error) {
+	ips, err := r.Lookup(ctx, host)
+	if err != nil {
+		return nil, err
+	}
+	return []net.IPAddr{{IP: net.IP(ips[0].AsSlice())}}, ctx.Err()
 }
 
 func previewConfigureSMTP(t *testing.T, ctx context.Context, cfg config.Config, core *account.Service, transport *outboundRuntime, smtp *smtpfixture.Fixture, endpoint smtpfixture.Endpoint) {

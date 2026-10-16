@@ -1,14 +1,18 @@
-# 当前状态：SMTP 独立直连拆分实施中
+# 当前状态：SMTP 独立直连待集成与保数据升级
 
 2026-10-16。用户已确认 SMTP 与数据库、对象存储同属独立基础设施：直接连接保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，不新增 SMTP 专属代理开关。保留严格 TLS/STARTTLS、超时取消/join、Secret、SMTP 版本和当前凭据、账户 SendPermit 的 AUTH/MAIL 真实首写、权限审计、队列重投重试与 Unknown。现有账号/Session、SMTP、proxy、规则与 keys 全部保留，无迁移或清库；真实 SMTP 实发暂停，本轮仅 owned 隔离验证。正式合同见[工作项](../docs/development/work-items/system-outbound-policy-proxy.md)。
 
-当前生产仍为 `13a22493`，活动 staged manifest 与恢复命令沿下方既有记录；新实现、隔离验收、root 集成与 runtime 升级尚未完成，不把目标边界写成运行事实。
+当前生产仍为 `13a22493`，未切换、未发送外部邮件，活动 staged manifest 与恢复命令沿下方既有记录。独立审查已确认本轮关键风险证据足够支持集成；root 正准备将实现分支 `e2039777` 的35路径集成到主树，排除其分支 current，不提前记为已集成或已部署。
+
+已完成的 owned 验证覆盖真实 App 根在规则拒绝 SMTP 目标且统一代理故障时仍送达隔离 SMTP sink、HTTP 继续拒绝；该链44.93秒通过，整 fixture exit0并完成四类资源清理。域名及环境代理隔离、真实 socket 首写许可/取消的 race 检查，以及真实PG当前凭据换版、证书链/hostname拒绝均通过。旧 admission/material 两顶层停在40秒 setup，protocol/no_starttls 遇到 MIGRATION_FAILED 尚未进入业务；剩余必要回归原链仍在途，须收终态及清理，不称全量通过。未变更的队列、重试与 Unknown 逻辑只按原输入复用。
+
+可部署候选来源 `e203977766438a9045b2ac4ef54161e5e5c943f5`，生产输入沿 b5 未改；Go1.27.1普通构建 VCS clean、1854项生产输入一致、check-config退出0，binary SHA256为 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`。首次3df构建虽退出0但VCS modified=true，不作为部署候选；配置检查不代证运行升级。精确验证材料与剩余回归由实现分支 current 维护。
 
 | 当前 Owner / 工作树 | 责任与下一步 |
 | --- | --- |
-| `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；实现与受影响测试、该分支 current，先冻结交 root 与独审。 |
-| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 唯一维护 root 授权的当前契约、后端说明及本 current；10文件归位与限定文档检查完成，已冻结交 checkpoint，不写产品或实现树。 |
-| root / 指定独审与 runtime owner | 全部 Git 和组合协调；独立隔离验收、集成后才保数据升级当前服务，升级不触发真实邮件。 |
+| `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；e2039777实现已冻结，维护原回归链终态/清理与该分支 current，交 root 集成。 |
+| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 10份规范已归位并冻结；本次仅按实际验证结论更新主树 current，检查后再次停写，不写产品或实现树。 |
+| root / 指定独审与 runtime owner | 全部 Git 与组合协调；收齐原回归链和资源清理，完成集成后安排 runtime 保数据升级，升级不触发真实邮件。 |
 
 ## 此前规则、代理与 SMTP 诊断（历史）
 
@@ -115,7 +119,7 @@
 
 ## 保存与下一步
 
-本轮先完成 SMTP 独立直连源码、owned 隔离验证与独立审查，再由 root 集成并安排 runtime 保数据升级；当前仍运行13a，不提前替换或追加真实发送。10份文档已按新边界归位，限定格式/链接及静态一致性检查完成并冻结交 root checkpoint；后端总览4条原历史 output 结果链接在本工作区缺失，保留原记录。实际产品测试、集成和切换结果取得后再补，不预写 PASS。保留用户5245/18443、DB、账号/Session、用户已更正的 TLS 配置、SMTP凭据、keys、proxy和对象数据。当前代理链路的HTTP400与既有直连失败仅作为历史限制，拆分不证明本环境端口可达或认证/收件成功。恢复继续使用13a活动staged manifest，不自动回退旧binary；公网严格匿名curl60未取nonce的限制保持。
+root 集成 e2039777 的35路径并保存本 current；继续等待既有必要回归链的真实终态与精确资源清理，不重复启动新链覆盖原失败。关键风险证据已支持集成，尚不称全部回归完成。runtime 随后按既有 stage/停止/恢复流程使用上述 clean 候选保数据升级；实际切换事实待运行 owner 报告后再更新，当前仍以13a活动manifest管理。保留用户5245/18443、账号/Session、SMTP TLS配置和凭据、keys、proxy、规则及对象数据，无迁移或清库；外部邮件继续暂停。旧代理HTTP400、直连失败和公网严格匿名curl60未取nonce的限制保持，隔离成功不证明本环境SMTP可达、认证或收件。
 
 ## 保留的既有恢复入口
 

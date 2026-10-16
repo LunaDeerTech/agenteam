@@ -41,7 +41,7 @@ func TestAccountMailProtocolFailuresNeverFallbackOrClaimSent(t *testing.T) {
 			}
 			f := newAccount(t)
 			configure(t, f, endpoint, tc.mode, true)
-			m := composeMail(t, f, network, uint16(endpoint.Port))
+			m := composeMail(t, f, network)
 			job := testJob(t, f)
 			err := m.worker.RunJob(ctxFor(t), job)
 			if err == nil {
@@ -113,7 +113,7 @@ func TestAccountMailSlowReplyHonorsOriginalParentAndActuallyJoins(t *testing.T) 
 			}
 			f := newAccount(t)
 			configure(t, f, endpoint, "none", true)
-			m := composeMail(t, f, network, uint16(endpoint.Port))
+			m := composeMail(t, f, network)
 			job := testJob(t, f)
 			ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
 			defer cancel()

@@ -51,13 +51,13 @@ func TestAccountMailSuccessfulClaimStopBeforeWorkerAcceptStillJoins(t *testing.T
 			}
 			f := newAccount(t)
 			configure(t, f, endpoint, "none", true)
-			m := composeMail(t, f, network, uint16(endpoint.Port))
+			m := composeMail(t, f, network)
 			port := &claimedReturnPort{DeliveryPort: m.port, claimed: make(chan c.DeliveryAttempt, 1), release: make(chan struct{})}
 			trust, e := outbound.LoadTrustStore(network.CAFile)
 			if e != nil {
 				t.Fatal(e)
 			}
-			worker, e := accountmail.New(accountmail.Dependencies{Port: port, Registry: m.registry, Outbound: m.client, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
+			worker, e := accountmail.New(accountmail.Dependencies{Port: port, Registry: m.registry, Resolver: m.resolver, Trust: trust, RecoveryLog: f.sink, PublicOrigin: "https://accounts.example.test"})
 			if e != nil {
 				t.Fatal(e)
 			}

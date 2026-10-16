@@ -38,7 +38,7 @@ func TestExecutionRuntimeAccessAudit(t *testing.T) {
 		if status.Version == nil {
 			t.Fatal("original outbound Policy has no current version")
 		}
-		denied, err := x.outboundPolicy.UpdatePolicy(ctxFor(t), actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: id[struct{}](t).String()}, rules)
+		denied, err := x.outboundPolicy.UpdatePolicy(ctxFor(t), actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: id[struct{}](t).String()}, outbound.Allowlist, rules)
 		firstRoundRequire(t, err)
 		if denied.RuleCount != 0 {
 			t.Fatal("formal empty Policy was not committed")

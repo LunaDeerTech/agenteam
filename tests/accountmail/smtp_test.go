@@ -25,7 +25,7 @@ func TestAccountMailSMTPThreeModesUseActualControlledSockets(t *testing.T) {
 			}
 			f := newAccount(t)
 			configure(t, f, endpoint, mode, true)
-			m := composeMail(t, f, network, uint16(endpoint.Port))
+			m := composeMail(t, f, network)
 			job := testJob(t, f)
 			if e = m.worker.RunJob(ctxFor(t), job); e != nil {
 				t.Fatal("real delivery", e)
@@ -62,7 +62,7 @@ func TestAccountMailLogOnlyUnconfiguredAndUsesRealTicket(t *testing.T) {
 		t.Fatal(e)
 	}
 	f := newAccount(t)
-	m := composeMail(t, f, network, uint16(endpoint.Port))
+	m := composeMail(t, f, network)
 	req, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: "invited@example.test"})
 	if e != nil {
 		t.Fatal(e)

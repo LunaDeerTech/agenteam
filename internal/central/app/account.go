@@ -979,7 +979,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	worker, err := createAccountMailWorker(cfg, accountmail.Dependencies{Port: port, Registry: registry, Outbound: transport.client, Trust: cfg.OutboundTrust(), RecoveryLog: sink})
+	worker, err := createAccountMailWorker(cfg, accountmail.Dependencies{Port: port, Registry: registry, Resolver: deps.smtpResolver, Trust: cfg.OutboundTrust(), RecoveryLog: sink})
 	if err != nil {
 		return err
 	}

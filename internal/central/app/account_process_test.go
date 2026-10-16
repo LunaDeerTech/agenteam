@@ -150,6 +150,7 @@ func TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard(t *testing.T) {
 	var owned *resources
 	mailDrainEntered, coreDrainEntered := make(chan struct{}), make(chan struct{})
 	deps := dependencies{
+		smtpResolver:   previewSMTPResolver{netip.MustParseAddr(network.PrivateIP)},
 		observeAccount: func(v *account.Service) { core = v },
 		outboundConstruct: func(ctx context.Context, cfg config.Config, v *outboundRuntime) error {
 			transport = v

@@ -66,7 +66,7 @@ func TestAccountMailInvitationDirectoryChannelsAndOutcomes(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	m := composeMail(t, f, network, uint16(success.Port))
+	m := composeMail(t, f, network)
 	create := func(email string) c.InvitationReceipt {
 		t.Helper()
 		q, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: email})
@@ -159,7 +159,7 @@ func TestAccountMailInvitationDirectoryChannelsAndOutcomes(t *testing.T) {
 				t.Fatal(e)
 			}
 			configure(t, f, endpoint, tc.mode, false)
-			composition := composeMail(t, f, network, uint16(endpoint.Port))
+			composition := composeMail(t, f, network)
 			invite := create("directory-" + tc.name + "@example.test")
 			enqueue()
 			if e = composition.worker.RunJob(ctxFor(t), invite.JobID); e == nil {
@@ -194,7 +194,7 @@ func TestAccountMailInvitationDirectoryChannelsAndOutcomes(t *testing.T) {
 					t.Fatal(e)
 				}
 				configure(t, f, paused, "none", false)
-				next := composeMail(t, f, network, uint16(paused.Port))
+				next := composeMail(t, f, network)
 				if _, e = f.store.Exec(ctxFor(t), `UPDATE agenteam_account.mail_jobs SET next_at=clock_timestamp() WHERE id=$1`, invite.JobID.String()); e != nil {
 					t.Fatal(e)
 				}

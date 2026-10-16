@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -72,6 +73,7 @@ type dependencies struct {
 	secretInitialize    func(context.Context, *secret.Service) error
 	outboundConstruct   func(context.Context, config.Config, *outboundRuntime) error
 	outboundInitialize  func(context.Context, *outboundRuntime) (egress, error)
+	smtpResolver        accountmail.SMTPResolver
 	observeAccount      func(*account.Service)
 	observeProjectUsage func(*projectUsageAssembly)
 	runtimeInformation  runtimeInformationFactory

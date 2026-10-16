@@ -36,7 +36,7 @@ func TestAccountMailSixAttemptsAndLoweredBudgetUseRealFailures(t *testing.T) {
 	f := newAccount(t)
 	configure(t, f, endpoint, "none", false)
 	setRetryCount(t, f, 5)
-	m := composeMail(t, f, network, uint16(endpoint.Port))
+	m := composeMail(t, f, network)
 	job := testJob(t, f)
 	for attempt := 1; attempt <= 6; attempt++ {
 		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
@@ -96,7 +96,7 @@ func TestAccountMailRuntimeStopForceUsesActualOwnersAndTwoSlots(t *testing.T) {
 	}
 	f := newAccount(t)
 	configure(t, f, endpoint, "none", true)
-	m := composeMail(t, f, network, uint16(endpoint.Port))
+	m := composeMail(t, f, network)
 	for range 3 {
 		_ = testJob(t, f)
 	}

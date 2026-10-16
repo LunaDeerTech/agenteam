@@ -296,18 +296,7 @@ func newLogMail(t *testing.T, stage string, blockClose bool) *logMailFixture {
 	if e = response.Close(ctx); e != nil {
 		t.Fatal(e)
 	}
-	policy, e := outbound.NewPolicyService(store, aud, outbound.Authorizations{Sessions: auth, System: auth})
-	if e != nil {
-		t.Fatal(e)
-	}
-	if e = policy.Reload(ctx); e != nil {
-		t.Fatal(e)
-	}
 	trust, e := outbound.LoadTrustStore("")
-	if e != nil {
-		t.Fatal(e)
-	}
-	client, e := outbound.NewClient(policy, trust, nil)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -321,7 +310,7 @@ func newLogMail(t *testing.T, stage string, blockClose bool) *logMailFixture {
 	}
 	f.registry = registry
 	f.port = &observeMailPort{DeliveryPort: port, prepared: make(chan c.JobID, 2)}
-	f.worker, e = accountmail.New(accountmail.Dependencies{Port: f.port, Registry: registry, Outbound: client, Trust: trust, RecoveryLog: sink, PublicOrigin: "https://account.example.test"})
+	f.worker, e = accountmail.New(accountmail.Dependencies{Port: f.port, Registry: registry, Trust: trust, RecoveryLog: sink, PublicOrigin: "https://account.example.test"})
 	if e != nil {
 		t.Fatal(e)
 	}
