@@ -4,25 +4,49 @@
 
 ## Agent 最终原型补齐：本轮检查
 
-本轮从 `b52b8c43` 的工作树继续，目标是已有 Agent 的“基本配置 / 能力与资源 / 记忆 / 审计”四个 Tab，以及只有前两个 Tab 的创建流程。后文旧轮次结果保留其原始输入和范围，不能作为本轮新增功能通过的依据。`[agent-completion]` 是本轮入口。首批九项实际为 **5 通过 / 4 失败**（1.6m，exit 1）：审批模式切换后出现控件与草稿不一致，另三项为测试选择器仍使用旧 Skills 菜单或未包含必填标签标记。原报告保留在 `first/`。实现修复审批联动、测试修正选择器后，限定四项 `core-repaired/` **4/4 通过**（17.8s，exit 0）；没有放宽保存、授权或创建结果断言。
+本轮从 `b52b8c43` 继续，验证已有 Agent 的“基本配置 / 能力与资源 / 记忆 / 审计”四个 Tab，以及只有前两个 Tab 的创建流程。最终形成 **25 个不同用例的有效证据**：21 个 `[agent-completion]` 和 4 个保留适配的回归用例。证据按下表输入与修复影响复用，**不是在最终 `d93c300b` 上一次运行 25 项**。下文旧轮次只保留历史事实，没有叠加进本轮计数。
 
-覆盖按实际用户动作组织：列表身份、派生忙碌、筛选分页及时间；空白和 Preset 复制后的真实创建结果；模型、推理等级与审批联动；普通 Tool 与 MCP 逐工具授权；完整 Mount、Secret 候选与旧引用、Skills 分配/启停/撤销；Memory 过滤、修订和删除留历史；Reusable Approvals 查看、撤销及保留来源。跨 Tab 草稿、逐条资源保存与基本配置取消之间的隔离，以及 Unknown 查询确认后回读恢复，是共同的重点。Agent 删除生命周期和手工新增/编辑 Memory 不在本轮范围。
+| 输出目录          | 实际输入与范围                                                                        | 原命令结果                     |
+| ----------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
+| `first/`          | `41d1a13d` 首轮诊断窗口：列表、模型、资源、创建                                       | 5 通过 / 4 失败，98.6s，exit 1 |
+| `core-repaired/`  | 首轮后审批联动修复工作树，随后纳入 `507f92d3`：模型、Skills、空白与 Preset 创建       | 4/4，17.8s，exit 0             |
+| `domains/`        | `507f92d3`：Memory、Audit 正常操作、取消、独立保存、Unknown 与失败恢复                | 5/5，24.7s，exit 0             |
+| `recovery-focus/` | `10bf6267`：基本/资源/创建恢复、只读与项目隔离、资源和 Audit 回焦、4 个旧合同适配回归 | 9 通过 / 1 失败，47.2s，exit 1 |
+| `last-fix/`       | `d93c300b`：创建 Unknown 原失败、资源 Unknown 键盘恢复、正常空白创建代表              | 3/3，8.3s，exit 0              |
 
-本轮复用与当前 `tests/account-captcha-web/package.json` / `package-lock.json` 完全匹配的仓外依赖；实测 Node 24.19.0、Playwright 1.56.1、Chromium 151.0.7922.173。自有静态端口为 5228，输出放在忽略的 `output/ai/frontend-f0-agent-completion-test/`，不消费视觉审查者的 5227 服务。以下命令从本工作树根目录执行；`--list` 仅证明用例可发现，不记作行为通过。
+首轮产品失败为审批模式切回自动时控件与草稿不一致；另外三项是测试仍定位旧 Skills 菜单、或名称选择器未包含必填标记。分别修复实现与测试前提后，四项定向复验通过，没有放宽创建或授权结果断言。`recovery-focus/` 的产品失败为创建 Unknown 查证成功、尚未回读时原名称和描述丢失；`last-fix/` 按原断言通过。独审另发现的普通资源保存和 Audit 完成后回焦问题在 `recovery-focus/` 复验通过，资源 Unknown 回焦在 `last-fix/` 复验通过。原失败的报告、截图和 trace 均保留；目前没有已观测但未闭环的功能失败。
+
+主要行为覆盖如下：
+
+- 列表不自动选首项，按身份打开独立详情、返回原行；四 Tab 共用当前对象标题和真实描述，基本草稿跨 Tab 保留，键盘保存/取消。列表筛选、分页、刷新和保存时间实际改变；分页用专用足量数据，常规列表不为测试缩小容量。
+- 空白创建与两种实际初始化组合；Preset 复制名称、描述、模型等允许字段，失效推荐明确提示，坏模型不被静默替换，不复制项目资源。主模型、推理等级、审批模式和无效引用联动可恢复。
+- 普通 Tool 授权和撤销、来源/读写/风险筛选、Core 不可禁、MCP 逐工具；Mount 全字段增改删；Secret 全候选安全用途、无值与旧引用保留；Skills 点名分配、启停和撤销，禁用保留配置。资源操作与基本草稿保存/取消隔离，另一个 Agent 不受影响。
+- Memory 类型、标签、重要性、来源和状态过滤，分页与完整修订，删除保留历史且不推进 Agent 配置版本；Audit 查看来源、Scope、状态与时间，撤销确认取消不变，真正撤销后留历史并不能再次撤销，基本取消不能恢复已撤销授权。
+- pending、error、conflict、异常版本、Unknown 的输入/目标保留和重复提交门禁。Memory/Audit 查证终态后、回读前不发布记录变更；回读后只改变原对象并解锁。创建 Unknown 离列表再恢复原输入，查证成功仍保留草稿，回读后进入确切的新 ID 且列表只有一条。资源 Unknown 用键盘经历“尚未观察到 → 再查询 → 回读 → 原复选框”，焦点全程可见，版本仅推进一次。
+- 只读直接地址、归档中/已归档/删除中项目，以及真实切换项目后的 namespace 隔离；1440 浅色和 390 深色的 header 横向几何、四 Tab 键盘、模型菜单/脏草稿对话框 normal 与 reduced motion。原生 200% 和四种尺寸/主题的整页亲看由本轮[独立视觉审查](review/README.md)负责，本轮行为 harness 未执行原生缩放用例。
+
+旧用例中重复的身份、统一草稿、旧 Memory 操作接口及“Unknown 永远待确认”七项已由当前行为用例替换：新合同要求四 Tab、独立资源保存、可查询确认终态后回读，不能继续断言旧结构或阻止恢复。保留并实际运行了 header、改名后新建不同 ID、两尺寸菜单/对话框键盘动效四项；General Back guard 与原生缩放入口仍保留，未计入本轮 25 项。
+
+本轮复用与 `tests/account-captcha-web/package.json` / `package-lock.json` 完全匹配的仓外依赖：Node 24.19.0、Playwright 1.56.1、Chromium 151.0.7922.173。自有静态端口 5228，输出前缀为忽略的 `output/ai/frontend-f0-agent-completion-test/`；未消费视觉审查者的 5227 服务。以下为实际分组命令，均从工作树根目录执行；每轮先运行相同选择器的 `--list`，发现检查不记作行为通过。`first` 当时仅有首批九项，当前该标签已扩为 21 项。
 
 ```sh
 export NODE_PATH=/workspace/shared/node/account-captcha-ac60fa262f0c44ae-node24.19.0-linux-x64/node_modules
 export F0_LEGACY=0 F0_PORT=5228
 export F0_OUTPUT="$PWD/output/ai/frontend-f0-agent-completion-test/first"
-node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\]' --list
 node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\]'
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-agent-completion-test/core-repaired"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\] (model|Skills|blank|Preset)'
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-agent-completion-test/domains"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\] (Memory|Audit|memory Unknown|audit Unknown|domain)'
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-agent-completion-test/recovery-focus"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\].*(basic pending|resources error|creation Unknown|readonly|resource Space|Audit completed)|\[agents-first\] settings header|\[agents-final\] (create validates|model menu)'
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-agent-completion-test/last-fix"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\].*(creation Unknown|resource Unknown keyboard|blank creation)'
 ```
 
-`507f92d3` 冻结后，`domains/` **5/5 通过**（24.7s，exit 0）：Memory 的重要性/来源过滤、完整修订分页、删除留历史；审批取消与真正撤销、状态/来源保留及基本配置取消隔离；两域 Unknown 先查询终态，回读前不发布记录变更且不解锁，回读后只改变原对象；读取/历史/命令失败、冲突与明确失败终态恢复。没有借旧轮次结果计入本轮分数。其余基本配置/资源/创建恢复及项目隔离用例已准备，尚未运行；独审发现的 Tool/Secret 即时保存回焦问题正由实现 owner 修复，待冻结后定向复验。
+五轮 server PID `606948 / 609446 / 611964 / 620079 / 623175` 均记录 `closed: true`，原 Playwright 命令全部实际退出，最终逐一核对 PID 均不存在；浏览器/context 随命令关闭。本轮没有创建原生缩放 profile 或正式 Vue 依赖软链。两个测试文件已通过格式与 JavaScript 语法检查。
 
-上述三轮自有服务 PID 606948 / 609446 / 611964 均已记录 `closed: true`，原 Playwright 命令已实际退出；首轮 PID 另已核不存在，后两轮终态仍待最后统一清理核对。测试未创建正式 Vue 依赖链接。
-
-真实浏览器流程检查页面行为，不证明任何后端事务、持久化、网络故障、执行时授权或生产接入。新失败按产品、测试前置条件、环境或观测问题归因，原报告保留；修复后只复验受影响路径。独立视觉接受与用户接受另行形成。
+这是合成前端原型的有限验证，不证明后端事务、持久化、执行时授权或生产接入。没有运行无关 Go/Vue 产品测试或全站矩阵，也没有覆盖所有参数组合。Agent 删除生命周期与手工新增/编辑 Memory 不在本轮范围。独立视觉接受与用户接受另行形成。
 
 ## Agent 独立详情与设置 header
 

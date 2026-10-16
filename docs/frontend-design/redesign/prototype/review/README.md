@@ -1,6 +1,28 @@
 # F0 独立视觉与交互审查
 
-## Agent 三 Tab 与独立保存职责：限定内部通过
+## Agent 四 Tab 完整内容：限定独立审查
+
+**结构、已观察整页视觉与下述交互范围内部通过，待用户实看。** 本轮仅 Agent 列表、创建及“基本配置 / 能力与资源 / 记忆 / 审计”，未扩大到全 F0 或其他设置栏目，也不代表用户已接受。审查者未参与设计或实现，先独立浏览、实际打开整页与浮层图，再检查操作和测试证据。
+
+正常整页输入为 `507f92d3`：四 Tab 在 1440×960 / 390×844、浅 / 深主题共 16 张，另列表与创建各 1440 浅、390 深，共 20 张均已亲看。顶部独立返回、真实 Agent 名称与描述、稳定四 Tab、开放正文及各组就近动作成立；基本配置手动保存，资源完整动作即时保存，记忆逐条操作，审计明确为可复用工具审批记录与撤销。Tools 展开较长，但候选用途、来源、读写与风险可连续扫描，折叠后不压住其他资源；手机 Memory 五项筛选占据较多首屏，第一条正文仍可辨。当前范围没有需重做的整体视觉阻塞。官方参照仍为下述实际亲看的导航、完整工作页、菜单和设置资料，只判断信息关系与表面完成度，不将参考的分栏、外框或精确数值强加给本页。
+
+上轮九类缺项已在本候选有对应任务入口和结果表达：Preset 预览/复制及创建初始化、模型/推理/审批、普通 Tool 与 Core 只读、审计记录及撤销、完整 Mount 字段、资源识别与继续读取、Skills 分配与生效说明、Memory 筛选/重要性/来源/逐修订历史、目录元信息与失败/待确认恢复。独审不把看到入口等同于所有分支行为通过；配置合法性、初始化结果、分页、只读、跨对象/项目及各故障终态的定向行为证据按[测试说明](../test-README.md)独立列示。Tools 的“功能”通过用途说明和名称/用途搜索表达，没有独立功能枚举下拉。
+
+已独立完成一条 390 深色普通动效旅程：列表进入 Reviewer → 基本描述留草稿 → 键盘进入资源 → 审计查看并撤销一条授权、返回原审批行 → 记忆删除一条 → 回基本配置草稿仍在 → 取消基本草稿后，审批撤销和记忆删除均未回滚 → 返回列表，焦点回到可见 Reviewer 行。Memory 删除后的焦点及下一 Tab、基本取消回焦也实际观察。另在 `eaadc400` 的不受焦点修复影响范围亲看 Memory 读取失败并重新读取恢复、Audit 空态、Preset 复制预览，以及通过真实表单保存长显示名/描述后的窄屏换行；没有用改 DOM 或遮挡横溢来制造通过。
+
+| 独审发现                                                                    | 修后定向结果                                                                                                                                                                                            |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `507f92d3`：Tools / Secret 用 Space 保存后焦点落 BODY，下一 Tab 跳全站 logo | `10bf6267`：两类各连续两次保存均回同一可见 checkbox，下一 Tab 继续下一项，2px 焦点环可见；普通成功路径关闭。                                                                                            |
+| `507f92d3`：Audit 详情底部撤销成功后焦点落屏外“刷新审批”，top=-63.77        | `10bf6267`：同现场 top=0.234、bottom=29.234，下一 Tab 到可见“返回审批列表”；关闭。                                                                                                                      |
+| `10bf6267`：资源 Unknown 后仍落 BODY                                        | `d93c300b`：原 390 深色现场 Space 后聚焦可见查询按钮，Enter 后聚焦回读按钮，再 Enter 回原已勾选且启用的 Web Search，Tab 继续 Install Skill；4 项通过、修后图已亲看，关闭。原 8 PASS / 1 FAIL 输出保留。 |
+
+动效与缩放由本独审实际执行：390 深色风险菜单和 Skills 对话框，普通模式逐帧观察到 130ms / 170ms 的透明度与位移收敛；减少动效首帧为完整内容、无空间位移。浮层稳定态、内部滚到底部、Escape 回原入口均亲看。首次使用 `Animation.finished` 等待动画完成时未返回的观察器记录保留，改用有界逐帧采样后完成，不把该等待问题算产品失败。原生 Chromium 200% 实测 outer=1440×960、inner=720×408、visualViewport=720×408.5、DPR=2、CSS zoom=1；通过 CDP 实际 viewport 亲看模型菜单、Skills 底部、Memory 历史及审计撤销确认，内容和操作可达，未见横向溢出。未以模拟窄 viewport 代替原生缩放。
+
+仅保留五张代表图，均来自上述 `507f92d3` 正常布局；后续焦点修复未改变 CSS 或整页结构：[1440 浅色基本配置](screenshots/agents-detail-1440-light.png)、[390 深色基本配置](screenshots/agents-detail-390-dark.png)、[1440 浅色工具权限展开](screenshots/agents-resources-1440-light.png)、[390 深色记忆](screenshots/agents-memory-390-dark.png)、[390 深色审计](screenshots/agents-audit-390-dark.png)。前四张替换既有代表图，不另存互补矩阵。列表旧代表图仍按其历史段落解释。
+
+复现从 `?page=agents&agent=agent-reviewer&fixture=baseline&scenario=normal&theme=dark` 进入，省略 view / `view=resources|memory|audit` 区分四 Tab；Unknown 焦点现场加 `resource_result=unknown`，展开工具后对 Web Search 按 Space。全部原始脚本、前后失败/成功、逐帧数据和图片位于忽略的 `output/ai/frontend-f0-refinement-review/agent-completion/`。环境为 Node 24.19.0、锁定 Playwright 1.56.1、Chromium 151.0.7922.173；所有观察均为合成样板，未验证真实后端、持久化或完整可访问性。全部独审 browser/context 已关闭；自有 5227（PID 609222 / session 38742）已 SIGTERM 并 join 原进程，exit 0，生命周期记录 closed=true。最终定向命令 exit 0、无 pageerror；未重跑不受影响的整页或全套旅程。未改产品源码、其他文档或 Git。
+
+## 此前 Agent 三 Tab 与独立保存职责：限定记录
 
 **本轮结构、正常整页视觉与实际关键旅程内部通过，待用户实看；不代表全 F0、完整可访问性或正式产品迁移通过。** 独立浏览器整页输入为 `3658426c`：基本配置、能力与资源、记忆在 1440×960 浅色及 390×844 深色共六张完整页面均已亲看。顶部返回列表独立于名称和真实描述，三个 Tab 的对象标题稳定，当前 Tab、正文分组和就近动作可辨；保持开放布局，输入边界与窄屏操作可见，无横溢。参考仍为下述已亲看的官方工作界面，判断信息关系与完成度，不据测试分数宣称视觉达标，也不要求有上级导航的详情标题与栏目首页绝对纵坐标相等。
 
@@ -8,7 +30,7 @@
 
 旅程另发现并定位页底取消后的焦点不可见：390×844 下名称字段获得焦点，但 top=-338.97、scrollY=781。作者仅修取消后的越界焦点滚动；在最终 `aaecb715` 按原现场用 Enter 确认后，名称 top=402.03、bottom=442.03、scrollY=40，2px 焦点环可见，已亲看修后图并关闭此项。`73f14182` 相对整页输入仅修异常回执、busy 取消门禁与异 scope 回焦；`aaecb715` 再仅修上述取消焦点，正常布局未变，未重复全部截图或主链。
 
-当前四张代表图为[1440 浅色基本配置](screenshots/agents-detail-1440-light.png)、[390 深色基本配置](screenshots/agents-detail-390-dark.png)、[1440 浅色能力与资源](screenshots/agents-resources-1440-light.png)、[390 深色记忆](screenshots/agents-memory-390-dark.png)；前两张替换旧详情图，列表图未改。复现从 `?page=agents&fixture=baseline&scenario=normal&theme=dark` 进入 Reviewer，直接地址以 `agent=agent-reviewer` 配合省略 view、`view=resources`、`view=memory` 区分三个 Tab。原始整页、状态图、旅程与修前后焦点记录留在 `output/ai/frontend-f0-refinement-review/agent-tabs/`；初次 harness 的重名入口及 option 角色选择器错误记录保留，修正后主链 exit 0。所有独审 browser/context 与自有 5227 服务均已关闭并 join，服务 exit 0。未改实现、未写 Git；三对象仍为合成 fixture，未验证真实后端或持久化。
+该轮四张代表图现已被顶部四 Tab 候选覆盖；旧原图仍在本段所列忽略输出。当前代表图为[1440 浅色基本配置](screenshots/agents-detail-1440-light.png)、[390 深色基本配置](screenshots/agents-detail-390-dark.png)、[1440 浅色能力与资源](screenshots/agents-resources-1440-light.png)、[390 深色记忆](screenshots/agents-memory-390-dark.png)；前两张替换旧详情图，列表图未改。复现从 `?page=agents&fixture=baseline&scenario=normal&theme=dark` 进入 Reviewer，直接地址以 `agent=agent-reviewer` 配合省略 view、`view=resources`、`view=memory` 区分三个 Tab。原始整页、状态图、旅程与修前后焦点记录留在 `output/ai/frontend-f0-refinement-review/agent-tabs/`；初次 harness 的重名入口及 option 角色选择器错误记录保留，修正后主链 exit 0。所有独审 browser/context 与自有 5227 服务均已关闭并 join，服务 exit 0。未改实现、未写 Git；三对象仍为合成 fixture，未验证真实后端或持久化。
 
 ## 此前 Agent 列表、独立详情与共享页头的限定记录
 

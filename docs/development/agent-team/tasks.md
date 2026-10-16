@@ -4,9 +4,9 @@
 
 2026-10-15 用户实看后未接受现有样板的信息结构与视觉品质，指出项目菜单多出项、项目设置结构与下拉样式错误、层次不清、与 Linear 差距明显以及动效质感不足。**F0 已重开返修，视觉系统数值待重新校准；F1—F8 正式产品迁移未开始。** 本轮从 `b6db5297` 接续，仍限隔离样板、设计文档与必要 harness，不修改产品 `web/src/` 或后端。正式来源见[设计 v2 入口](../../frontend-design/redesign/README.md)、[样板及复现](../../frontend-design/redesign/prototype/README.md)与[阶段计划](../../frontend-design/redesign/implementation-plan.md)。
 
-本轮沿[重设计方法](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)补齐 Agent 最终设置目标，四 Tab 首版已接入，当前测试、独审与受影响返修进行中。详情为“基本配置 / 能力与资源 / 记忆 / 审计”四个 Tab：基本配置手动保存，资源逐操作保存，记忆逐条操作；审计只查看可复用授权及撤销有效规则，不是设置变更日志。列表、Preset/初始化、推理与候选、工具/Core、挂载、Secret/Skills、Memory 完整浏览和结果恢复按[已确认蓝图](../../frontend-design/redesign/page-blueprints.md#53-项目设置11-个叶子)补齐，不按现有 Vue/API 接入程度删减目标。Agent 删除生命周期和手工 Memory 编辑规则仍未定；不扩其他页面。其余8个设置栏目仍为静态文字，MCP 仅改页头，Task 两文件仍未接入。工作保存在 `ai/frontend-f0-refinement-20261015`，本轮暂不合并 main。
+本轮沿[重设计方法](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)补齐 Agent 最终设置目标，本轮候选已完成限定功能检查与独立结构/视觉/交互审查，待用户实看。详情为“基本配置 / 能力与资源 / 记忆 / 审计”四个 Tab：基本配置手动保存，资源逐操作保存，记忆逐条操作；审计只查看可复用授权及撤销有效规则，不是设置变更日志。列表、Preset/初始化、推理与候选、工具/Core、挂载、Secret/Skills、Memory 完整浏览和结果恢复按[已确认蓝图](../../frontend-design/redesign/page-blueprints.md#53-项目设置11-个叶子)补齐，不按现有 Vue/API 接入程度删减目标。Agent 删除生命周期和手工 Memory 编辑规则仍未定；不扩其他页面。其余8个设置栏目仍为静态文字，MCP 仅改页头，Task 两文件仍未接入。工作保存在 `ai/frontend-f0-refinement-20261015`，本轮暂不合并 main。
 
-此前三 Tab 与独立保存的限定内部结果见[作者检查](../../frontend-design/redesign/prototype/test-README.md)和[独立审查](../../frontend-design/redesign/prototype/review/README.md)，保留原输入的通过、失败与复验事实，不代证本轮新增内容。当前未有四 Tab 整体通过或用户接受结论，F0 未定稿、设计值未冻结；后续按实际实现和受影响检查分别记录。分支与职责见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
+本轮[功能检查](../../frontend-design/redesign/prototype/test-README.md#agent-最终原型补齐本轮检查)与[独立审查](../../frontend-design/redesign/prototype/review/README.md#agent-四-tab-完整内容限定独立审查)已记录实际覆盖、原失败和定向修复；有效证据按输入与影响复用，不把多轮结果当作最终版本一次全量通过。此前三 Tab 与 general 的历史证据保留原含义。本轮内部结果不代表用户接受或整个 F0 完成，设计值未冻结，F1—F8 未开始；分支与职责见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
 
 ## 当前目标与工作包状态
 
