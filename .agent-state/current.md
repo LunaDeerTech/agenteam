@@ -1,6 +1,6 @@
-# 当前状态：新 Vue 系统账号设置四页已实现并完成限定验证
+# 当前状态：SMTP详情模态与上下文保持调整中
 
-2026-10-16。用户已接受中性炭灰深色与设置整框成果，相关源码已保存推送 `cd1a5df6`。本轮系统设置的用户、待注册邀请、账号安全和SMTP四页已实现，其他七页保持骨架；唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前七页与会话边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。六条真实链、分页与最终有限独审已通过，无未结阻断；候选冻结交root最终保存。独立测试实例已清理，公开24小时App仍保留；旧frp被SIGKILL成僵尸后已独立会话恢复转发，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果。UI反馈不代证公网通过，原用户TLS错误也不能只归因代理。
+2026-10-16。系统设置用户、待注册邀请、账号安全和SMTP四页的上一轮成果已保存推送 `5db51fe2`，远端匹配且当时工作树干净。用户继续明确：精简SMTP“测试与任务”默认说明，投递详情改模态窗口，发送测试/详情开关保留Tab、页长/页码、滚动与输入；本次正在实现，验证待负责人回报。唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前账号边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。旧49项检查、六条真实链及独审只证明此前输入，不代证本次改动。独立5250已清理，本轮后端不变、不恢复真实测试环境；公开r2旧后端与dev保留。旧frp死隧道已修复，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果；UI反馈不代证公网通过。
 
 ## 范围、组合与所有权
 
@@ -13,17 +13,18 @@
 | --- | --- |
 | `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
 | `/root/vue_integration` | 用户/邀请页面与唯一共享client、Session/transport、路由接线；最终源码已冻结。 |
-| `/root/account_contract/system_api_surface` | 账号安全/SMTP两页及专属API模块，复用共享owner；不参与自身独审。 |
+| `/root/account_contract/system_api_surface` | 本次SMTP交互的唯一产品写者，复用既有组件/请求边界；不参与自身独审。 |
 | `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；私有5250已清理，公开r2保留。 |
-| `/root/vue_tests` | 系统四页必要harness/测试与恢复说明；六条真实链通过，测试与README已冻结。 |
-| `/root/vue_visual_review` | 未参与实现的视觉、交互与适用安全独审；U1–U6关闭，最终图已上传并校验。 |
+| `/root/vue_tests` | 本次SMTP上下文保持的必要受控UI回归与README；旧真实API证据按原输入复用。 |
+| `/root/vue_visual_review` | 本次模态/说明/上下文的有限独审；此前U1–U6及图片保留原输入边界。 |
 
 ## 已打通的流程与检查边界
 
-- 本轮源码和测试已保存至 `0a824d41`，此前 `550d95c8` 推送亦成功；最终分页候选冻结待本次保存。后端生产修复仍为 `7aa9b503`，正式源码/测试/OpenAPI/说明已集成，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。验证用独立5250已核专用CA/nonce与内建首链，现已清理；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
-- 最终分页功能冻结输入通过 `npm run check --prefix web`：全web格式、9文件49/49 unit、vue-tsc与build。随后U6仅给PageSizeSelect根补一行position:relative，限定格式/差量检查与原输入独审复验通过，未重复全量unit或业务。页级动作位于标题右侧，description按需显示，表单保存/取消就近；三列表共用5/10/20/50页长（默认10），改值清游标历史并回第一页真实读取。旧骨架兼容2/2的输入为U4后、分页前dist；defaultfalse dist只作工程/预览构建，真实链使用5245 true经独立5250代理，不混同输入。
-- 本轮六条真实spec各1/1有效通过：users 38.6秒，security 11.5秒，invites run02 83.06秒，permissions run02 18.1秒，SMTP 18.9秒，pagination 10.2秒。覆盖真实目录/注册可见、安全冲突与原请求恢复、邀请投递/重试/限流/撤销/兑换、普通用户管理403但个人Session200，以及SMTP空保持/替换与丢响应恢复、202后读失败不重发、实际policy_rejected后人工重试至sink sent、移除认证及停用。分页另以真实只读目录确认默认10→5翻页→20/50回首无cursor及响应行数，定向unit 2/2（7.22秒）覆盖body尾部/迟到旧页长。SMTP输入为 `243a4560`，分页为最终功能候选；均用独立5250，非公开r2或外部邮箱。原分页unit失败、邀请run01 DOM断点失败及权限run01准备CSRF错误留在harness说明；邀请失败虽与HMR时间重叠，未认定唯一原因。作者浏览器/CLI与测试Session均已退出。
-- 最终有限独审以 `0a824d41` 加冻结分页/U5/U6差量为输入，U1–U6按各自原输入复验关闭。实际查看三列表1440浅色/390深色的页长、状态行、请求limit与回首页，SMTP原生200%及reduced motion、键盘/焦点；U6修后390根文档与视口均844高，无页底外溢。全为受控合成身份/响应，不代证真实后端或公网；[邀请原图](https://img.lunadeer.cn/i/2026/10/16/6ad1d97b6a56c.png)与[SMTP原图](https://img.lunadeer.cn/i/2026/10/16/6ad1d99969051.png)均已上传并匿名下载校验字节一致。独审浏览器/CLI退出，临时缩放profile已移除，无真实admin或公开服务变更。
+- 本次仅调整SMTP测试与任务的说明、详情模态及上下文保持，未改后端/API。源码、必要受控UI回归及独审在进行，尚无本次通过结论；不因打开/关闭窗口清分页或输入，也不以关闭代替原命令恢复。其余页面不随本次批量改动。
+- 此前四页最终成果已保存于 `5db51fe2`。后端生产修复仍为 `7aa9b503`，正式源码/测试/OpenAPI/说明已集成，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。验证用独立5250已核专用CA/nonce与内建首链，现已清理；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
+- 此前分页功能冻结输入通过 `npm run check --prefix web`：全web格式、9文件49/49 unit、vue-tsc与build。随后U6仅给PageSizeSelect根补一行position:relative，限定格式/差量检查与原输入独审复验通过，未重复全量unit或业务。页级动作位于标题右侧，description按需显示，表单保存/取消就近；三列表共用5/10/20/50页长（默认10），改值清游标历史并回第一页真实读取。旧骨架兼容2/2的输入为U4后、分页前dist；defaultfalse dist只作工程/预览构建，真实链使用5245 true经独立5250代理，不混同输入。
+- 此前六条真实spec各1/1有效通过：users 38.6秒，security 11.5秒，invites run02 83.06秒，permissions run02 18.1秒，SMTP 18.9秒，pagination 10.2秒。覆盖真实目录/注册可见、安全冲突与原请求恢复、邀请投递/重试/限流/撤销/兑换、普通用户管理403但个人Session200，以及SMTP空保持/替换与丢响应恢复、202后读失败不重发、实际policy_rejected后人工重试至sink sent、移除认证及停用。分页另以真实只读目录确认默认10→5翻页→20/50回首无cursor及响应行数，定向unit 2/2（7.22秒）覆盖body尾部/迟到旧页长。SMTP输入为 `243a4560`，分页为最终功能候选；均用独立5250，非公开r2或外部邮箱。原分页unit失败、邀请run01 DOM断点失败及权限run01准备CSRF错误留在harness说明；邀请失败虽与HMR时间重叠，未认定唯一原因。作者浏览器/CLI与测试Session均已退出。
+- 此前有限独审以 `0a824d41` 加冻结分页/U5/U6差量为输入，U1–U6按各自原输入复验关闭。实际查看三列表1440浅色/390深色的页长、状态行、请求limit与回首页，SMTP原生200%及reduced motion、键盘/焦点；U6修后390根文档与视口均844高，无页底外溢。全为受控合成身份/响应，不代证真实后端或公网；[邀请原图](https://img.lunadeer.cn/i/2026/10/16/6ad1d97b6a56c.png)与[SMTP原图](https://img.lunadeer.cn/i/2026/10/16/6ad1d99969051.png)均已上传并匿名下载校验字节一致。独审浏览器/CLI退出，临时缩放profile已移除，无真实admin或公开服务变更。
 - 此前深色仅改 `web/src/styles/tokens.css` 的dark语义色、`web/src/composables/useTheme.ts` 的浏览器主题色映射及 `web/index.html` 的meta。独审发现此前HTML缺theme-color，补标签后才具备实际更新目标。最终三源限定Prettier、build（含vue-tsc）及差量检查通过；实际DOM确认唯一meta随dark→light→dark更新，未称headless已验证原生浏览器栏像素。
 - 此前深色有限独审使用5245受控合成只读身份，实际查看1440同输入前后、390深色、两尺寸菜单及焦点/hover：层次可辨、无横溢，键盘菜单与Esc回焦通过；token对比度辅助检查亦通过。作者另看1440浅色，dark块外CSS逐字保持，无真实admin或SMTP操作，未重跑unit/业务/完整布局矩阵，浏览器均已退出。[中性炭灰原图](https://img.lunadeer.cn/i/2026/10/16/6ad1caedf1ecd.png)已上传并匿名下载校验一致，用户现已接受。
 - 此前设置整框仅改 `web/src/layouts/AppShell.vue`：按settings路由约束完整内容框最大1200px并居中，桌面外侧留白48px、中等宽32px、窄屏沿原5px；SettingsShell填满框内且内部标题/表单继续左齐，项目设置的项目导航随框收口，其他页面仍全宽。仅收窄内部的旧候选已被用户否定并撤回，SettingsShell相对基线无差异。限定Prettier、build（含vue-tsc）及差量格式检查通过，未新增unit或重跑业务旅程。
@@ -65,7 +66,7 @@ SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表�
 
 ## 保存与下一步
 
-本轮系统四页源码、测试、说明及最终独审已冻结，交root保存/推送；本状态不预写自身提交或宣称已合main/生产发布。其余七项系统设置仍为骨架，不自动扩展。系统全局配置验证只在已清理的独立实例执行，未改用户试用实例；后端准确committed修复随Git交付，公开r2继续旧版本。公网仍待身份标记及真实登录结果，公开SMTP仅受控sink；当前UI反馈不代证公网或外部邮件送达。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
+本次SMTP交互改动先按稳定WIP冻结保存，再补实际受影响检查与有限独审；不把此前四页完成结论当作本次已过。后端未改，独立5250不恢复，API命令证据沿原输入保留，新受控UI结果另记；不操作用户试用实例或真实邮箱。其余七项系统设置仍为骨架。公开r2保持旧后端，公网身份/登录及外部邮件送达限制不变。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
 
 ## 保留的既有恢复入口
 
