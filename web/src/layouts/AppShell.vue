@@ -87,7 +87,12 @@ const changeTheme = (value: string) => {
         />
       </div>
     </header>
-    <main id="main" class="app-main" tabindex="-1">
+    <main
+      id="main"
+      class="app-main"
+      :class="{ 'app-main--settings': route.meta.settingsScope }"
+      tabindex="-1"
+    >
       <ProjectNavigation v-if="route.meta.projectContext" />
       <SettingsShell v-if="route.meta.settingsScope"><slot /></SettingsShell>
       <section v-else class="standard-page" aria-labelledby="page-title">
@@ -182,6 +187,12 @@ const changeTheme = (value: string) => {
   border-radius: 10px;
   overflow: hidden;
 }
+.app-main--settings {
+  width: calc(100% - 96px);
+  max-width: 1200px;
+  align-self: center;
+  margin-inline: auto;
+}
 .standard-page {
   min-width: 0;
   min-height: 0;
@@ -219,6 +230,11 @@ const changeTheme = (value: string) => {
 .skip-link:focus {
   top: 8px;
 }
+@media (max-width: 1050px) {
+  .app-main--settings {
+    width: calc(100% - 64px);
+  }
+}
 @media (max-width: 760px) {
   .system-header {
     min-height: 48px;
@@ -247,6 +263,9 @@ const changeTheme = (value: string) => {
   .app-main {
     margin: 0 5px 5px;
     border-radius: 9px;
+  }
+  .app-main--settings {
+    width: calc(100% - 10px);
   }
   .standard-page {
     padding: 28px 19px 48px;
