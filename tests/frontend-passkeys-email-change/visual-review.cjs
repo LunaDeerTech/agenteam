@@ -773,7 +773,16 @@ async function p3(browser) {
       await button(page, "初始化邮箱").click();
       const dialog = modal(page, "初始化邮箱");
       await expect(field(dialog, "一次性授权")).toBeVisible();
-      await expect(dialog.getByRole("textbox")).toHaveCount(0);
+      await expect(dialog.locator("input")).toHaveCount(2);
+      await expect(field(dialog, "一次性授权")).toHaveAttribute(
+        "type",
+        "password",
+      );
+      await expect(field(dialog, "当前密码")).toHaveAttribute(
+        "type",
+        "password",
+      );
+      await expect(dialog.locator("select, input[type=email]")).toHaveCount(0);
       await shot(page, "p3-initialize-start-390-dark");
       await privateFill(
         field(dialog, "一次性授权"),
