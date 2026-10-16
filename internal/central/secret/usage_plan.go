@@ -11,7 +11,7 @@ import (
 )
 
 func accountOwner(owner sc.CredentialLeaseOwner) bool {
-	return owner.Details().Kind == sc.AccountDeliveryOwner || owner.Details().Kind == sc.AccountResponseOwner
+	return owner.Details().Kind == sc.AccountDeliveryOwner || owner.Details().Kind == sc.AccountResponseOwner || owner.Details().Kind == sc.OutboundProxyOwner
 }
 func (s *Service) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.UsageDependencies, error) {
 	if r.Validate() != nil {

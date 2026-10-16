@@ -48,7 +48,7 @@ func meetingM3ConfigurationPreflight(t *testing.T) {
 	workAppCheck(t, "meeting-complete-config", cfg.Validate())
 	runtime, enabled := cfg.ExecutionRuntime()
 	_, retry := cfg.SchedulerLaunchRetryPolicy()
-	if !enabled || !runtime.ToolLoop() || !retry || len(cfg.OutboundProxyOrigins()) != 0 {
+	if !enabled || !runtime.ToolLoop() || !retry {
 		t.Fatal("Meeting fixture lost the original runtime, scheduler retry or isolated peer route")
 	}
 	workAppCheck(t, "meeting-runtime-config", runtime.Validate())

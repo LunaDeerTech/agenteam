@@ -12,7 +12,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -23,7 +22,6 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -34,13 +32,6 @@ import (
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
 
-func proxyTestEnvironment(t *testing.T, values map[string]string) {
-	t.Helper()
-	for _, key := range []string{"HTTP_PROXY", "http_proxy", "HTTPS_PROXY", "https_proxy", "NO_PROXY", "no_proxy", "REQUEST_METHOD"} {
-		t.Setenv(key, values[key])
-	}
-}
-
 func proxyTestOrigin(t *testing.T, raw string) Origin {
 	t.Helper()
 	origin, err := ParseOrigin(raw)
@@ -48,132 +39,6 @@ func proxyTestOrigin(t *testing.T, raw string) Origin {
 		t.Fatal("test origin:", err)
 	}
 	return origin
-}
-
-func TestEnvironmentProxyRoutesSelection(t *testing.T) {
-	const gateway = "http://gateway.example:8080"
-	for _, tc := range []struct {
-		name, target string
-		env          map[string]string
-		want         bool
-	}{
-		{"none", "https://api.example", nil, false},
-		{"uppercase_https", "https://api.example", map[string]string{"HTTPS_PROXY": gateway}, true},
-		{"lowercase_https", "https://api.example", map[string]string{"https_proxy": gateway}, true},
-		{"http_does_not_select_https", "https://api.example", map[string]string{"HTTP_PROXY": gateway}, false},
-		{"bare_gateway_authority", "https://api.example", map[string]string{"HTTPS_PROXY": "gateway.example:8080"}, true},
-		{"no_proxy_exact", "https://api.example", map[string]string{"HTTPS_PROXY": gateway, "NO_PROXY": "api.example"}, false},
-		{"no_proxy_lowercase", "https://api.example", map[string]string{"https_proxy": gateway, "no_proxy": "api.example"}, false},
-		{"no_proxy_subdomain", "https://api.example", map[string]string{"HTTPS_PROXY": gateway, "NO_PROXY": ".example"}, false},
-		{"no_proxy_exact_port", "https://api.example:8443", map[string]string{"HTTPS_PROXY": gateway, "NO_PROXY": "api.example:8443"}, false},
-		{"no_proxy_different_port", "https://api.example:8443", map[string]string{"HTTPS_PROXY": gateway, "NO_PROXY": "api.example:443"}, true},
-		{"no_proxy_hostname_boundary", "https://otherapi.example", map[string]string{"HTTPS_PROXY": gateway, "NO_PROXY": "api.example"}, true},
-		{"no_proxy_wildcard", "https://api.example", map[string]string{"HTTPS_PROXY": gateway, "NO_PROXY": "*"}, false},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			proxyTestEnvironment(t, tc.env)
-			origin := proxyTestOrigin(t, tc.target)
-			routes, err := NewEnvironmentProxyRoutes([]Origin{origin})
-			if err != nil {
-				t.Fatal(err)
-			}
-			got, err := routes.UsesProxy(origin)
-			if err != nil || got != tc.want {
-				t.Fatalf("selection = %t, %v; want %t", got, err, tc.want)
-			}
-		})
-	}
-}
-
-func TestEnvironmentProxyRoutesExactOriginAndSnapshot(t *testing.T) {
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": "http://gateway.example:8080"})
-	origin := proxyTestOrigin(t, "https://API.Example./")
-	allowed := []Origin{origin}
-	routes, err := NewEnvironmentProxyRoutes(allowed)
-	if err != nil {
-		t.Fatal(err)
-	}
-	allowed[0] = proxyTestOrigin(t, "https://replacement.example")
-	t.Setenv("HTTPS_PROXY", "")
-	t.Setenv("NO_PROXY", "*")
-	for _, raw := range []string{"https://api.example", "https://api.example:443"} {
-		got, err := routes.UsesProxy(proxyTestOrigin(t, raw))
-		if err != nil || !got {
-			t.Fatalf("captured exact origin lost: %t %v", got, err)
-		}
-	}
-	for _, raw := range []string{"https://sub.api.example", "https://api.example:8443", "https://replacement.example"} {
-		got, err := routes.UsesProxy(proxyTestOrigin(t, raw))
-		if err == nil || got {
-			t.Fatal("unlisted origin selected the captured proxy")
-		}
-	}
-	if got, err := routes.UsesProxy(Origin{}); err == nil || got {
-		t.Fatal("invalid origin selected a route")
-	}
-	// Bypassed targets retain the ordinary direct policy rather than acquiring
-	// authority from the deployment's proxy origin list.
-	bypassed, err := NewEnvironmentProxyRoutes([]Origin{origin})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, err := bypassed.UsesProxy(proxyTestOrigin(t, "https://unlisted.example")); err != nil || got {
-		t.Fatal("NO_PROXY did not preserve the direct route")
-	}
-}
-
-func TestEnvironmentProxyRoutesRejectInvalidConfiguration(t *testing.T) {
-	origin := proxyTestOrigin(t, "https://api.example")
-	for _, raw := range []string{
-		"socks5://gateway.example:1080", "http://user:proxy-private-canary@gateway.example",
-		"http://gateway.example/private-canary", "http://gateway.example?key=proxy-private-canary",
-		"http://gateway.example#proxy-private-canary", "http://gateway.example:",
-		"http://gateway.example:0", "http://gateway.example:65536", "http://[broken",
-		"http://169.254.169.254", "http://metadata.google.internal",
-	} {
-		t.Run(strings.ReplaceAll(raw, "/", "_"), func(t *testing.T) {
-			proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": raw})
-			_, err := NewEnvironmentProxyRoutes([]Origin{origin})
-			if err == nil {
-				t.Fatal("invalid deployment proxy accepted")
-			}
-			proxyTestSafeFormatting(t, err)
-		})
-	}
-	proxyTestEnvironment(t, map[string]string{"HTTP_PROXY": "http://user:proxy-private-canary@gateway.example"})
-	if _, err := NewEnvironmentProxyRoutes([]Origin{origin}); err == nil {
-		t.Fatal("unused malformed HTTP_PROXY was silently accepted")
-	}
-	proxyTestEnvironment(t, nil)
-	for _, raw := range []string{"http://api.example", "https://127.0.0.1", "https://[::1]", "https://8.8.8.8", "https://localhost", "https://api.localhost", "https://metadata.google.internal"} {
-		if _, err := NewEnvironmentProxyRoutes([]Origin{proxyTestOrigin(t, raw)}); err == nil {
-			t.Fatal("unsafe proxy target origin accepted")
-		}
-	}
-	for _, origins := range [][]Origin{nil, {Origin{}}, {origin, origin}, make([]Origin, 33)} {
-		if _, err := NewEnvironmentProxyRoutes(origins); err == nil {
-			t.Fatal("invalid origin list accepted")
-		}
-	}
-}
-
-func TestEnvironmentProxyRoutesHideDeploymentConfiguration(t *testing.T) {
-	proxyTestEnvironment(t, map[string]string{
-		"HTTPS_PROXY": "https://proxy-private-canary.example:8443/",
-		"NO_PROXY":    "private-canary.internal",
-	})
-	routes, err := NewEnvironmentProxyRoutes([]Origin{proxyTestOrigin(t, "https://target-private-canary.example")})
-	if err != nil {
-		t.Fatal(err)
-	}
-	typ := reflect.TypeOf(routes)
-	for i := range typ.NumField() {
-		if typ.Field(i).PkgPath == "" {
-			t.Fatal("proxy route exposes mutable exported state")
-		}
-	}
-	proxyTestSafeFormatting(t, routes)
-	proxyTestSafeFormatting(t, struct{ routes ProxyRoutes }{routes})
 }
 
 func proxyTestSafeFormatting(t *testing.T, value any) {
@@ -202,15 +67,13 @@ type proxyTestResolver struct {
 func (r *proxyTestResolver) Lookup(context.Context, string) ([]netip.Addr, error) {
 	r.calls.Add(1)
 	if len(r.ips) == 0 {
-		return nil, errors.New("unexpected target DNS lookup")
+		return []netip.Addr{netip.MustParseAddr("8.8.8.8")}, nil
 	}
 	return append([]netip.Addr(nil), r.ips...), nil
 }
 
-// The loopback socket is the task-owned deployment gateway, not a target IP.
-// Gateway discovery, target TLS hostname verification, business writes and
-// client lifecycle run through the production proxy implementation and address
-// classifier. Target DNS is delegated to the trusted gateway.
+// The task-owned private gateway terminates tunnel protocols in these unit
+// fixtures. Numeric target bytes are asserted; these fixtures never dial them.
 type proxyTestGateway struct {
 	listener net.Listener
 	mu       sync.Mutex
@@ -222,7 +85,7 @@ type proxyTestGateway struct {
 
 func proxyTestStartGateway(t *testing.T, serve func(net.Conn)) *proxyTestGateway {
 	t.Helper()
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	listener, err := net.Listen("tcp", net.JoinHostPort(proxyTestPrivateIP(t), "0"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -279,8 +142,8 @@ func proxyTestReadConnect(t *testing.T, conn net.Conn) bool {
 		return false
 	}
 	defer request.Body.Close()
-	if request.Method != "CONNECT" || request.RequestURI != "api.example:443" || request.Host != "api.example:443" {
-		t.Error("CONNECT did not preserve the exact target hostname and port")
+	if request.Method != "CONNECT" || request.RequestURI != "8.8.8.8:443" || request.Host != "8.8.8.8:443" {
+		t.Error("CONNECT did not pin the approved numeric target and port")
 		return false
 	}
 	for name, values := range request.Header {
@@ -331,19 +194,19 @@ func proxyTestCertificate(t *testing.T, host string, extraHosts ...string) (tls.
 	return tls.Certificate{Certificate: [][]byte{leafDER}, PrivateKey: leafKey}, trust
 }
 
-func proxyTestClient(t *testing.T, trust TrustStore, resolver Resolver) (*Client, *policyState) {
+func proxyTestClient(t *testing.T, trust TrustStore, resolver Resolver, gateway *proxyTestGateway) (*Client, *policyState) {
 	t.Helper()
-	origin := proxyTestOrigin(t, "https://api.example")
-	routes, err := NewEnvironmentProxyRoutes([]Origin{origin})
-	if err != nil {
-		t.Fatal(err)
-	}
 	rules, err := NewRules()
 	if err != nil {
 		t.Fatal(err)
 	}
-	state := &policyState{mirror: policy(1, rules), available: true}
-	client, err := NewClientWithProxy(&PolicyService{data: func() *policyState { return state }}, trust, resolver, routes)
+	state := &policyState{mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
+	if gateway != nil {
+		addr := gateway.listener.Addr().(*net.TCPAddr)
+		state.proxy.mode = "proxy"
+		state.proxy.gateway = &ProxyGateway{Protocol: "http", Host: addr.IP.String(), Port: addr.Port}
+	}
+	client, err := NewClient(&PolicyService{data: func() *policyState { return state }}, trust, resolver)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -434,12 +297,8 @@ func TestProxyConnectTLSAndSameOriginCredentials(t *testing.T) {
 			t.Error("unexpected target path")
 		}
 	})
-	// The locked httpproxy version uses lowercase precedence. Both endpoints
-	// belong to this test so a precedence defect cannot touch existing services.
-	unselected := proxyTestStartGateway(t, func(net.Conn) { t.Error("uppercase proxy overrode lowercase selection") })
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": unselected.URL(), "https_proxy": gateway.URL()})
 	resolver := &proxyTestResolver{}
-	client, _ := proxyTestClient(t, trust, resolver)
+	client, _ := proxyTestClient(t, trust, resolver, gateway)
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	response, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, true, Limits{}))
@@ -452,11 +311,11 @@ func TestProxyConnectTLSAndSameOriginCredentials(t *testing.T) {
 		t.Fatal("tunneled response was not delivered")
 	}
 	decision := response.Decision()
-	if !decision.Sent || decision.RedirectCount != 1 || string(decision.AddressClass) != "trusted_proxy" || decision.Origin != "https://api.example:443" {
+	if !decision.Sent || decision.RedirectCount != 1 || decision.AddressClass != Public || decision.Origin != "https://api.example:443" {
 		t.Fatalf("wrong proxy decision: %+v", decision)
 	}
-	if business.Load() != 2 || handshakes.Load() != 2 || resolver.calls.Load() != 0 {
-		t.Fatal("proxy requests escaped the tunnel, target DNS was called, or redirect was lost")
+	if business.Load() != 2 || handshakes.Load() != 2 || resolver.calls.Load() != 2 {
+		t.Fatal("proxy requests escaped the tunnel, target DNS count changed, or redirect was lost")
 	}
 }
 
@@ -490,9 +349,8 @@ func TestProxyTLSFailuresSendNoBusinessRequest(t *testing.T) {
 					request.Body.Close()
 				}
 			})
-			proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 			resolver := &proxyTestResolver{}
-			client, _ := proxyTestClient(t, trust, resolver)
+			client, _ := proxyTestClient(t, trust, resolver, gateway)
 			ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 			defer cancel()
 			_, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, true, Limits{}))
@@ -505,7 +363,7 @@ func TestProxyTLSFailuresSendNoBusinessRequest(t *testing.T) {
 			case <-ctx.Done():
 				t.Fatal("failed target TLS did not close the gateway socket")
 			}
-			if business.Load() != 0 || resolver.calls.Load() != 0 || gateway.accepts.Load() != 1 {
+			if business.Load() != 0 || resolver.calls.Load() != 1 || gateway.accepts.Load() != 1 {
 				t.Fatal("TLS failure leaked business HTTP or retried outside its tunnel")
 			}
 		})
@@ -515,7 +373,7 @@ func TestProxyTLSFailuresSendNoBusinessRequest(t *testing.T) {
 func TestProxyHTTPSGatewayTLS(t *testing.T) {
 	for _, mode := range []string{"trusted", "wrong_gateway_hostname", "untrusted_gateway_ca"} {
 		t.Run(mode, func(t *testing.T) {
-			gatewaySAN := "127.0.0.1"
+			gatewaySAN := proxyTestPrivateIP(t)
 			if mode == "wrong_gateway_hostname" {
 				gatewaySAN = "other.example"
 			}
@@ -558,9 +416,9 @@ func TestProxyHTTPSGatewayTLS(t *testing.T) {
 				}
 				_, _ = io.WriteString(target, "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok")
 			})
-			proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": "https://" + gateway.listener.Addr().String()})
 			resolver := &proxyTestResolver{}
-			client, _ := proxyTestClient(t, trust, resolver)
+			client, state := proxyTestClient(t, trust, resolver, gateway)
+			state.proxy.gateway.Protocol = "https"
 			ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 			defer cancel()
 			response, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, true, Limits{}))
@@ -585,7 +443,7 @@ func TestProxyHTTPSGatewayTLS(t *testing.T) {
 			if mode == "trusted" {
 				want = 1
 			}
-			if connects.Load() != want || business.Load() != want || resolver.calls.Load() != 0 {
+			if connects.Load() != want || business.Load() != want || resolver.calls.Load() != 1 {
 				t.Fatal("HTTPS gateway TLS boundary leaked CONNECT/business bytes or bypassed its route")
 			}
 		})
@@ -610,9 +468,8 @@ func TestProxyConnectFailureAndResponseBudget(t *testing.T) {
 				n, _ := io.Copy(io.Discard, conn)
 				trailing <- n
 			})
-			proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 			resolver := &proxyTestResolver{}
-			client, _ := proxyTestClient(t, trust, resolver)
+			client, _ := proxyTestClient(t, trust, resolver, gateway)
 			ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 			defer cancel()
 			_, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, true, Limits{ResponseHeaderBytes: 256}))
@@ -628,7 +485,7 @@ func TestProxyConnectFailureAndResponseBudget(t *testing.T) {
 			case <-ctx.Done():
 				t.Fatal("rejected CONNECT did not close its socket")
 			}
-			if resolver.calls.Load() != 0 || gateway.accepts.Load() != 1 {
+			if resolver.calls.Load() != 1 || gateway.accepts.Load() != 1 {
 				t.Fatal("failed CONNECT fell back or retried")
 			}
 		})
@@ -662,9 +519,8 @@ func TestProxyCancellationClosesConnectAndTLSAndDrains(t *testing.T) {
 				close(ready)
 				_, _ = io.Copy(io.Discard, conn)
 			})
-			proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 			resolver := &proxyTestResolver{}
-			client, _ := proxyTestClient(t, trust, resolver)
+			client, _ := proxyTestClient(t, trust, resolver, gateway)
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			result := make(chan error, 1)
@@ -688,7 +544,7 @@ func TestProxyCancellationClosesConnectAndTLSAndDrains(t *testing.T) {
 			select {
 			case err := <-result:
 				if err == nil || SafeNetworkError(err).Decision().Sent || SafeNetworkError(err).Decision().Reason != ac.Cancelled {
-					t.Fatal("cancellation was not reported as zero business bytes")
+					t.Fatalf("cancellation was not reported as zero business bytes: %+v", SafeNetworkError(err).Decision())
 				}
 			case <-time.After(time.Second):
 				t.Fatal("cancellation did not release the caller")
@@ -704,7 +560,7 @@ func TestProxyCancellationClosesConnectAndTLSAndDrains(t *testing.T) {
 			if err := client.Drain(drainCtx); err != nil {
 				t.Fatal("cancelled proxy operation did not drain:", err)
 			}
-			if resolver.calls.Load() != 0 {
+			if resolver.calls.Load() != 1 {
 				t.Fatal("cancellation retried target DNS")
 			}
 		})
@@ -728,9 +584,8 @@ func TestProxyFirstBusinessWriteRechecksCurrentPolicy(t *testing.T) {
 			request.Body.Close()
 		}
 	})
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 	resolver := &proxyTestResolver{}
-	client, state := proxyTestClient(t, trust, resolver)
+	client, state := proxyTestClient(t, trust, resolver, gateway)
 	var observed atomic.Bool
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
@@ -751,8 +606,8 @@ func TestProxyFirstBusinessWriteRechecksCurrentPolicy(t *testing.T) {
 	case <-ctx.Done():
 		t.Fatal("denied first write did not close the tunnel")
 	}
-	if business.Load() != 0 || resolver.calls.Load() != 0 {
-		t.Fatal("revoked policy leaked a business request or fell back to target DNS")
+	if business.Load() != 0 || resolver.calls.Load() != 1 {
+		t.Fatal("revoked policy leaked a business request or repeated target DNS")
 	}
 }
 
@@ -772,33 +627,47 @@ func TestProxySentRequestDoesNotRetryAfterResponseDisconnect(t *testing.T) {
 		}
 		// Close after observing the whole request, before any response headers.
 	})
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 	resolver := &proxyTestResolver{}
-	client, _ := proxyTestClient(t, trust, resolver)
+	client, _ := proxyTestClient(t, trust, resolver, gateway)
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 	_, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, true, Limits{}))
 	if err == nil || !SafeNetworkError(err).Decision().Sent {
 		t.Fatal("response disconnect lost the real business-send fact")
 	}
-	if business.Load() != 1 || gateway.accepts.Load() != 1 || resolver.calls.Load() != 0 {
+	if business.Load() != 1 || gateway.accepts.Load() != 1 || resolver.calls.Load() != 1 {
 		t.Fatal("already-sent proxy request was retried")
 	}
 }
 
-func TestProxyNoProxyRetainsDirectAddressPolicy(t *testing.T) {
+func TestProxyDirectRetainsAddressPolicy(t *testing.T) {
 	_, trust := proxyTestCertificate(t, "api.example")
-	gateway := proxyTestStartGateway(t, func(net.Conn) { t.Error("NO_PROXY opened a proxy socket") })
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL(), "NO_PROXY": "api.example"})
+	gateway := proxyTestStartGateway(t, func(net.Conn) { t.Error("direct route opened a proxy socket") })
 	resolver := &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr("127.0.0.1")}}
-	client, _ := proxyTestClient(t, trust, resolver)
+	client, _ := proxyTestClient(t, trust, resolver, nil)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	_, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, false, Limits{}))
 	if err == nil || SafeNetworkError(err).Decision().Reason != ac.AddressForbidden || SafeNetworkError(err).Decision().Sent {
-		t.Fatal("NO_PROXY bypassed the direct loopback denial")
+		t.Fatal("direct route bypassed the direct loopback denial")
 	}
 	if resolver.calls.Load() != 1 || gateway.accepts.Load() != 0 {
-		t.Fatal("NO_PROXY did not take the direct DNS/policy path")
+		t.Fatal("direct route did not take the direct DNS/policy path")
 	}
+}
+
+func proxyTestPrivateIP(t *testing.T) string {
+	t.Helper()
+	addresses, err := net.InterfaceAddrs()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, address := range addresses {
+		prefix, err := netip.ParsePrefix(address.String())
+		if err == nil && prefix.Addr().Is4() && Classify(prefix.Addr()) == Private {
+			return prefix.Addr().String()
+		}
+	}
+	t.Fatal("owned private interface is required for proxy socket fixtures")
+	return ""
 }

@@ -34,14 +34,13 @@ const (
 )
 
 type Transport struct {
-	Policy      *outbound.PolicyService
-	Trust       outbound.TrustStore
-	Resolver    outbound.Resolver
-	ProxyRoutes outbound.ProxyRoutes
+	Policy   *outbound.PolicyService
+	Trust    outbound.TrustStore
+	Resolver outbound.Resolver
 }
 
 func (t Transport) newClient() (*outbound.Client, error) {
-	return outbound.NewClientWithProxy(t.Policy, t.Trust, t.Resolver, t.ProxyRoutes)
+	return outbound.NewClient(t.Policy, t.Trust, t.Resolver)
 }
 
 type Request struct {

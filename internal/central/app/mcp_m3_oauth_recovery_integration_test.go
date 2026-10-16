@@ -681,7 +681,7 @@ func TestMCPM3OAuthRecoveryChild(t *testing.T) {
 		},
 		outboundConstruct: func(ctx context.Context, cfg config.Config, actual *outboundRuntime) error {
 			actual.resolver = mcpM3Resolver{"mcp.fixture.test": peer}
-			client, err := outbound.NewClientWithProxy(actual.policy, cfg.OutboundTrust(), actual.resolver, actual.routes)
+			client, err := outbound.NewClient(actual.policy, cfg.OutboundTrust(), actual.resolver)
 			if err != nil {
 				return err
 			}

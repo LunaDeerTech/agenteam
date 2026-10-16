@@ -24,7 +24,9 @@ type pooledConn struct {
 	reader                      *bufio.Reader
 	origin                      Origin
 	peer                        netip.Addr
-	proxyKey                    string // gateway identity; peer is not an origin IP.
+	routeVersion                foundation.Version
+	targetPeer                  netip.Addr // approved target behind the gateway
+	proxied                     bool
 	idleAt                      time.Time
 	once                        sync.Once
 	owner                       *clientState
@@ -80,7 +82,6 @@ type clientState struct {
 	policy          *PolicyService
 	trust           TrustStore
 	resolver        Resolver
-	routes          ProxyRoutes
 	mu              sync.Mutex
 	stopped, forced bool
 	idle            map[string][]*pooledConn
@@ -95,12 +96,6 @@ func (s *clientState) notify() { close(s.changed); s.changed = make(chan struct{
 type Client struct{ data func() *clientState }
 
 func NewClient(policy *PolicyService, trust TrustStore, resolver Resolver) (*Client, error) {
-	return NewClientWithProxy(policy, trust, resolver, ProxyRoutes{})
-}
-
-// NewClientWithProxy accepts only composition-root proxy grants. The original
-// constructor remains direct-only, independent of the process environment.
-func NewClientWithProxy(policy *PolicyService, trust TrustStore, resolver Resolver, routes ProxyRoutes) (*Client, error) {
 	if policy == nil || policy.data == nil || trust.Validate() != nil {
 		return nil, invalid()
 	}
@@ -111,7 +106,7 @@ func NewClientWithProxy(policy *PolicyService, trust TrustStore, resolver Resolv
 			return nil, err
 		}
 	}
-	s := &clientState{policy: policy, trust: trust, resolver: resolver, routes: routes, idle: map[string][]*pooledConn{}, connections: map[*pooledConn]bool{}, active: map[*operation]bool{}, changed: make(chan struct{})}
+	s := &clientState{policy: policy, trust: trust, resolver: resolver, idle: map[string][]*pooledConn{}, connections: map[*pooledConn]bool{}, active: map[*operation]bool{}, changed: make(chan struct{})}
 	return &Client{data: func() *clientState { return s }}, nil
 }
 func (c *Client) state() *clientState { return c.data() }
@@ -240,7 +235,8 @@ type attempt struct {
 	profile        ProfileOptions
 	target         Target
 	addresses      []netip.Addr
-	proxy          *proxyRoute
+	proxy          *ProxyGateway
+	route          proxySnapshot
 	proxyAddresses []netip.Addr
 	sent           atomic.Bool
 	decisionMu     sync.Mutex
@@ -283,15 +279,21 @@ func (a *attempt) resolve() error {
 	if metadataHost(origin.Host()) {
 		return a.fail(ac.AddressForbidden, nil)
 	}
-	proxy, err := a.client.state().routes.route(origin)
+	route, err := a.client.state().policy.proxySnapshot()
 	if err != nil {
-		return a.fail(ac.OriginDenied, nil)
+		return a.fail(ac.PolicyUnavailable, err)
 	}
-	a.proxy = proxy
-	if proxy != nil {
-		a.addresses = nil // Never substitute the gateway for the origin's IPs.
-		return a.resolveProxy()
+	a.route = route
+	a.proxy = nil
+	if route.mode == "proxy" {
+		if route.gateway == nil {
+			return a.fail(ac.PolicyUnavailable, nil)
+		}
+		a.proxy = route.gateway
+	} else if route.mode != "direct" {
+		return a.fail(ac.PolicyUnavailable, nil)
 	}
+	a.proxyAddresses = nil
 	if ip, err := netip.ParseAddr(origin.Host()); err == nil {
 		a.addresses = []netip.Addr{ip.Unmap()}
 	} else {
@@ -311,6 +313,9 @@ func (a *attempt) resolve() error {
 			return a.fail(ac.AddressForbidden, nil)
 		}
 	}
+	if a.proxy != nil {
+		return a.resolveProxy()
+	}
 	return nil
 }
 
@@ -328,11 +333,12 @@ func (a *attempt) admit(peer netip.Addr) error {
 	a.decision.PolicyVersion = &v
 	a.decision.AddressClass = Public
 	a.decisionMu.Unlock()
-	if a.proxy != nil {
-		a.decisionMu.Lock()
-		a.decision.AddressClass = TrustedProxy
-		a.decisionMu.Unlock()
-		return a.admitProxy(peer)
+	current, err := a.client.state().policy.proxySnapshot()
+	if err != nil {
+		return a.fail(ac.PolicyUnavailable, err)
+	}
+	if current.version != a.route.version || current.mode != a.route.mode {
+		return a.fail(ac.PolicyUnavailable, errProxyChanged)
 	}
 	for _, ip := range a.addresses {
 		class := Classify(ip)
@@ -344,6 +350,9 @@ func (a *attempt) admit(peer netip.Addr) error {
 		if reason := p.Rules().check(ip, a.target.Origin().Port(), a.target.Origin().Scheme() == "http"); reason != "" {
 			return a.fail(reason, nil)
 		}
+	}
+	if a.proxy != nil {
+		return a.admitProxy(peer)
 	}
 	if peer.IsValid() && !slices.Contains(a.addresses, peer.Unmap()) {
 		return a.fail(ac.AddressForbidden, nil)
@@ -388,7 +397,7 @@ func (a *attempt) connect() (*pooledConn, error) {
 		return nil, a.fail(ac.AddressForbidden, err)
 	}
 	peer = remote.Addr().Unmap()
-	pc := &pooledConn{conn: conn, raw: conn, origin: a.target.Origin(), peer: peer, owner: a.client.state()}
+	pc := &pooledConn{conn: conn, raw: conn, origin: a.target.Origin(), peer: peer, targetPeer: peer, routeVersion: a.route.version, owner: a.client.state()}
 	s := a.client.state()
 	s.mu.Lock()
 	if s.forced {
@@ -456,7 +465,7 @@ func (w *firstWriter) Write(b []byte) (int, error) {
 		deadline = d
 	}
 	if err = w.pc.setTransportWriteDeadline(deadline); err != nil {
-		return 0, w.a.fail(ac.InternalError, err)
+		return 0, w.a.fail(w.a.reason(err, ac.InternalError), err)
 	}
 	n, err := w.pc.conn.Write(b)
 	if n > 0 {

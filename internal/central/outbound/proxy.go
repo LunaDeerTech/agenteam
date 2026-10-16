@@ -5,150 +5,51 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"fmt"
+	"encoding/base64"
+	"encoding/binary"
+	"errors"
 	"io"
-	"log/slog"
 	"net"
 	"net/http"
 	"net/netip"
-	"net/url"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
-	"golang.org/x/net/http/httpproxy"
 )
 
-// TrustedProxy describes a deployment gateway route, not an address class of
-// the remote origin. The gateway owns the origin DNS lookup and connection.
-const TrustedProxy AddressClass = "trusted_proxy"
+var errProxyChanged = errors.New("OUTBOUND_PROXY_CHANGED")
 
-// ProxyRoutes is an immutable composition-root grant for exact HTTPS origins.
-// Its zero value preserves the original direct-only client. It exposes neither
-// environment values nor a request-controlled proxy or TLS configuration.
-type ProxyRoutes struct {
-	selectRoute func(Origin) (*proxyRoute, error)
-}
-
-type proxyRoute struct{ origin Origin }
-
-// NewEnvironmentProxyRoutes snapshots the standard deployment proxy selection
-// and grants only the supplied origins. It performs no network I/O. Invalid
-// configured proxies fail closed rather than becoming an implicit direct route.
-// Proxy authentication is deliberately unsupported; userinfo is rejected.
-func NewEnvironmentProxyRoutes(origins []Origin) (ProxyRoutes, error) {
-	if len(origins) == 0 || len(origins) > 32 {
-		return ProxyRoutes{}, invalid()
-	}
-	allowed := make(map[string]bool, len(origins))
-	for _, origin := range origins {
-		if !proxyTargetAllowed(origin) || allowed[origin.String()] {
-			return ProxyRoutes{}, invalid()
-		}
-		allowed[origin.String()] = true
-	}
-	environment := httpproxy.FromEnvironment()
-	for _, raw := range []string{environment.HTTPProxy, environment.HTTPSProxy} {
-		if raw != "" {
-			if _, err := parseProxyRoute(raw); err != nil {
-				return ProxyRoutes{}, invalid()
-			}
-		}
-	}
-	choose := environment.ProxyFunc()
-	return ProxyRoutes{selectRoute: func(origin Origin) (*proxyRoute, error) {
-		if !origin.Valid() {
-			return nil, invalid()
-		}
-		if origin.Scheme() != "http" && origin.Scheme() != "https" {
-			return nil, nil // SMTP retains its original direct transport.
-		}
-		proxy, err := choose(&url.URL{Scheme: origin.Scheme(), Host: net.JoinHostPort(origin.Host(), strconv.Itoa(int(origin.Port())))})
-		if err != nil {
-			return nil, invalid()
-		}
-		if proxy == nil {
-			return nil, nil // NO_PROXY is selection, never failure fallback.
-		}
-		if !allowed[origin.String()] || !proxyTargetAllowed(origin) {
-			return nil, invalid()
-		}
-		return parseProxyRoute(proxy.String())
-	}}, nil
-}
-
-func proxyTargetAllowed(origin Origin) bool {
-	if !origin.Valid() || origin.Scheme() != "https" || metadataHost(origin.Host()) || origin.Host() == "localhost" || strings.HasSuffix(origin.Host(), ".localhost") {
-		return false
-	}
-	_, err := netip.ParseAddr(origin.Host())
-	return err != nil
-}
-
-func parseProxyRoute(raw string) (*proxyRoute, error) {
-	if !strings.Contains(raw, "://") {
-		raw = "http://" + raw
-	}
-	target, err := ParseTarget(raw)
-	if err != nil {
-		return nil, invalid()
-	}
-	u := target.URL()
-	if u.Path != "/" || u.RawPath != "" || u.RawQuery != "" || u.ForceQuery || metadataHost(target.Origin().Host()) {
-		return nil, invalid()
-	}
-	if ip, err := netip.ParseAddr(target.Origin().Host()); err == nil && !proxyGatewayAddressAllowed(ip) {
-		return nil, invalid()
-	}
-	return &proxyRoute{origin: target.Origin()}, nil
-}
-
-func (r ProxyRoutes) route(origin Origin) (*proxyRoute, error) {
-	if !origin.Valid() {
-		return nil, invalid()
-	}
-	if r.selectRoute == nil {
-		return nil, nil
-	}
-	return r.selectRoute(origin)
-}
-
-// UsesProxy validates the captured route without resolving or dialing either
-// endpoint. A true result is a gateway authorization, not proof of reachability
-// or of the origin's DNS/address class behind that gateway.
-func (r ProxyRoutes) UsesProxy(origin Origin) (bool, error) {
-	proxy, err := r.route(origin)
-	return proxy != nil, err
-}
-
-func (r ProxyRoutes) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "outbound_proxy_routes") }
-func (r ProxyRoutes) MarshalJSON() ([]byte, error) { return []byte(`"outbound_proxy_routes"`), nil }
-func (r ProxyRoutes) LogValue() slog.Value         { return slog.StringValue("outbound_proxy_routes") }
-
-// These addresses identify configured deployment infrastructure, not an
-// arbitrary business target. In particular a loopback gateway never changes
-// Classify(loopback) or grants direct loopback target access.
 func proxyGatewayAddressAllowed(ip netip.Addr) bool {
-	switch Classify(ip) {
-	case Public, Private, Loopback:
-		return true
-	default:
-		return false
-	}
+	class := Classify(ip)
+	return class == Public || class == Private
 }
 
 func (a *attempt) resolveProxy() error {
 	ctx, cancel := context.WithTimeout(a.ctx, a.profile.Limits.DNS)
 	defer cancel()
-	host := a.proxy.origin.Host()
+	host := a.proxy.Host
+	if metadataHost(host) || a.proxy.Port < 1 || a.proxy.Port > 65535 {
+		return a.fail(ac.AddressForbidden, nil)
+	}
 	if ip, err := netip.ParseAddr(host); err == nil {
 		a.proxyAddresses = []netip.Addr{ip.Unmap()}
 	} else {
-		// Gateway discovery follows the deployment's normal resolver, including
-		// hosts. Origin DNS is performed by the explicitly trusted gateway.
-		ips, err := net.DefaultResolver.LookupNetIP(ctx, "ip", host)
+		var ips []netip.Addr
+		var err error
+		if strings.Contains(host, ".") {
+			// Qualified gateway names receive the same complete A/AAAA resolution as
+			// business targets, independently of the target's address approval.
+			ips, err = a.client.state().resolver.Lookup(ctx, host)
+		} else {
+			// An explicitly configured single-label deployment gateway may use the
+			// deployment resolver, including hosts and search domains. Approval still
+			// uses one complete hosts snapshot or both DNS families for one candidate.
+			ips, err = resolveDeploymentGateway(ctx, host, a.client.state().resolver)
+		}
 		if err != nil {
 			return a.fail(a.reason(err, ac.DNSFailed), err)
 		}
@@ -165,10 +66,75 @@ func (a *attempt) resolveProxy() error {
 	return nil
 }
 
+// Deployment discovery may use hosts/search, but never supplies approved IPs
+// from a best-effort lookup. Hosts is read as one complete snapshot; otherwise
+// discovery chooses one canonical candidate and the strict resolver approves
+// both A and AAAA for that exact candidate without search or family fallback.
+func resolveDeploymentGateway(ctx context.Context, host string, resolver Resolver) ([]netip.Addr, error) {
+	f, err := os.Open("/etc/hosts")
+	if err != nil && !os.IsNotExist(err) {
+		return nil, errDNS
+	}
+	if err == nil {
+		raw, readErr := io.ReadAll(io.LimitReader(f, (1<<20)+1))
+		_ = f.Close()
+		if readErr != nil || len(raw) > 1<<20 {
+			return nil, errDNS
+		}
+		ips, err := proxyDeploymentHosts(raw, host)
+		if err != nil || len(ips) != 0 {
+			return ips, err
+		}
+	}
+	deployment := &net.Resolver{PreferGo: true, StrictErrors: true}
+	return proxyCanonicalGateway(ctx, host, deployment.LookupCNAME, resolver)
+}
+
+func proxyDeploymentHosts(raw []byte, host string) ([]netip.Addr, error) {
+	var ips []netip.Addr
+	for _, line := range strings.Split(string(raw), "\n") {
+		line, _, _ = strings.Cut(line, "#")
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		for _, alias := range fields[1:] {
+			if strings.ToLower(strings.TrimSuffix(alias, ".")) != host {
+				continue
+			}
+			ip, err := netip.ParseAddr(fields[0])
+			if err != nil || ip.Zone() != "" {
+				return nil, errDNS
+			}
+			ips = append(ips, ip.Unmap())
+			break
+		}
+	}
+	ips = uniqueIPs(ips)
+	if len(ips) > 64 {
+		return nil, errDNS
+	}
+	return ips, nil
+}
+
+func proxyCanonicalGateway(ctx context.Context, host string, discover func(context.Context, string) (string, error), resolver Resolver) ([]netip.Addr, error) {
+	canonical, err := discover(ctx, host)
+	if err != nil {
+		return nil, errDNS
+	}
+	canonical, err = normalizeHost(canonical)
+	if err != nil || metadataHost(canonical) {
+		return nil, errDNS
+	}
+	if _, err := netip.ParseAddr(canonical); err == nil {
+		return nil, errDNS
+	}
+	return resolver.Lookup(ctx, canonical)
+}
+
 func (a *attempt) admitProxy(peer netip.Addr) error {
-	route, err := a.client.state().routes.route(a.target.Origin())
-	if err != nil || route == nil || !route.origin.Equal(a.proxy.origin) || len(a.proxyAddresses) == 0 {
-		return a.fail(ac.OriginDenied, nil)
+	if len(a.proxyAddresses) == 0 {
+		return a.fail(ac.AddressForbidden, nil)
 	}
 	for _, ip := range a.proxyAddresses {
 		if !proxyGatewayAddressAllowed(ip) {
@@ -182,16 +148,17 @@ func (a *attempt) admitProxy(peer netip.Addr) error {
 }
 
 func (a *attempt) matchesConnection(pc *pooledConn) bool {
-	if a.proxy != nil {
-		return pc.proxyKey == a.proxy.origin.String() && containsAddress(a.proxyAddresses, pc.peer)
+	if pc.routeVersion != a.route.version || pc.proxied != (a.proxy != nil) {
+		return false
 	}
-	return pc.proxyKey == "" && containsAddress(a.addresses, pc.peer)
+	if a.proxy != nil {
+		return containsAddress(a.proxyAddresses, pc.peer) && containsAddress(a.addresses, pc.targetPeer)
+	}
+	return containsAddress(a.addresses, pc.peer)
 }
 
 func (a *attempt) connectProxy() (*pooledConn, error) {
 	s := a.client.state()
-	// Drain must also join a cancelled dial/CONNECT/TLS operation, even before
-	// a socket has been registered and after the request context has fired.
 	s.mu.Lock()
 	s.writers++
 	s.mu.Unlock()
@@ -209,10 +176,9 @@ func (a *attempt) connectProxy() (*pooledConn, error) {
 	var conn net.Conn
 	var peer netip.Addr
 	var dialErr error
-	port := a.proxy.origin.Port()
 	for _, ip := range a.proxyAddresses {
 		dialer := net.Dialer{}
-		conn, dialErr = dialer.DialContext(ctx, "tcp", net.JoinHostPort(ip.String(), strconv.Itoa(int(port))))
+		conn, dialErr = dialer.DialContext(ctx, "tcp", net.JoinHostPort(ip.String(), strconv.Itoa(a.proxy.Port)))
 		if dialErr == nil {
 			peer = ip
 			break
@@ -226,11 +192,11 @@ func (a *attempt) connectProxy() (*pooledConn, error) {
 		return nil, a.fail(a.reason(dialErr, ac.InternalError), dialErr)
 	}
 	remote, err := netip.ParseAddrPort(conn.RemoteAddr().String())
-	if err != nil || remote.Port() != port || remote.Addr().Unmap() != peer {
+	if err != nil || int(remote.Port()) != a.proxy.Port || remote.Addr().Unmap() != peer {
 		_ = conn.Close()
 		return nil, a.fail(ac.AddressForbidden, nil)
 	}
-	pc := &pooledConn{conn: conn, raw: conn, origin: a.target.Origin(), peer: peer, proxyKey: a.proxy.origin.String(), owner: s}
+	pc := &pooledConn{conn: conn, raw: conn, origin: a.target.Origin(), peer: peer, targetPeer: a.addresses[0], routeVersion: a.route.version, proxied: true, owner: s}
 	s.mu.Lock()
 	if s.forced {
 		s.mu.Unlock()
@@ -247,16 +213,26 @@ func (a *attempt) connectProxy() (*pooledConn, error) {
 			pc.close()
 		}
 	}()
-	if a.proxy.origin.Scheme() == "https" {
-		if err := a.proxyTLS(pc, a.proxy.origin.Host()); err != nil {
+	if a.proxy.Protocol == "https" {
+		if err := a.proxyTLS(pc, a.proxy.Host); err != nil {
 			return nil, err
 		}
 	}
-	if err := a.proxyConnect(pc); err != nil {
+	switch a.proxy.Protocol {
+	case "http", "https":
+		err = a.proxyConnect(pc)
+	case "socks5":
+		err = a.proxySOCKS(pc)
+	default:
+		err = a.fail(ac.PolicyUnavailable, nil)
+	}
+	if err != nil {
 		return nil, err
 	}
-	if err := a.proxyTLS(pc, a.target.Origin().Host()); err != nil {
-		return nil, err
+	if a.target.Origin().Scheme() == "https" {
+		if err := a.proxyTLS(pc, a.target.Origin().Host()); err != nil {
+			return nil, err
+		}
 	}
 	pc.reader = bufio.NewReader(pc.conn)
 	ok = true
@@ -274,61 +250,218 @@ func (a *attempt) proxyTLS(pc *pooledConn, hostname string) error {
 	return nil
 }
 
-func (a *attempt) proxyConnect(pc *pooledConn) error {
-	// CONNECT contains only the exact authorized authority. No origin request
-	// header, query, body, credential or sent state participates in this step.
-	authority := net.JoinHostPort(a.target.Origin().Host(), strconv.Itoa(int(a.target.Origin().Port())))
-	wire := "CONNECT " + authority + " HTTP/1.1\r\nHost: " + authority + "\r\n\r\n"
-	if len(wire) > a.profile.Limits.RequestHeaderBytes {
-		return a.fail(ac.ResponseLimit, nil)
-	}
+// Every proxy protocol write (including authentication) is serialized with a
+// configuration update. Secret bytes are built, written and cleared inside
+// the credential callback and never retained by a connection or HTTP request.
+func (a *attempt) proxyWrite(pc *pooledConn, build func(func([]byte) error) error) error {
 	release, err := a.client.state().policy.state().gate.acquire(a.ctx, false)
 	if err != nil {
 		return a.fail(a.reason(err, ac.Cancelled), err)
 	}
-	if err = a.admit(pc.peer); err != nil {
-		release()
+	defer release()
+	if err := a.admit(pc.peer); err != nil {
 		return err
 	}
 	deadline := time.Now().Add(2 * time.Second)
 	if d, ok := a.ctx.Deadline(); ok && d.Before(deadline) {
 		deadline = d
 	}
-	err = pc.conn.SetWriteDeadline(deadline)
-	if err == nil {
-		var n int
-		n, err = io.WriteString(pc.conn, wire)
+	if err := pc.conn.SetWriteDeadline(deadline); err != nil {
+		return a.fail(a.reason(err, ac.InternalError), err)
+	}
+	defer pc.conn.SetWriteDeadline(time.Time{})
+	err = build(func(wire []byte) error {
+		n, err := pc.conn.Write(wire)
 		if err == nil && n != len(wire) {
 			err = io.ErrShortWrite
 		}
-	}
-	release()
+		return err
+	})
 	if err != nil {
 		return a.fail(a.reason(err, ac.InternalError), err)
 	}
-	_ = pc.conn.SetWriteDeadline(time.Time{})
-	// Model generation may wait longer for its origin response. Establishing
-	// a deployment tunnel retains the ordinary response-header ceiling.
-	deadline = time.Now().Add(min(a.profile.Limits.ResponseHeaders, defaultResponseHeadersTimeout))
+	return nil
+}
+
+func (a *attempt) proxyReadDeadline(pc *pooledConn) error {
+	deadline := time.Now().Add(min(a.profile.Limits.ResponseHeaders, defaultResponseHeadersTimeout))
 	if d, ok := a.ctx.Deadline(); ok && d.Before(deadline) {
 		deadline = d
 	}
-	if err := pc.conn.SetReadDeadline(deadline); err != nil {
+	return pc.conn.SetReadDeadline(deadline)
+}
+
+func (a *attempt) proxyConnect(pc *pooledConn) error {
+	authority := net.JoinHostPort(pc.targetPeer.String(), strconv.Itoa(int(a.target.Origin().Port())))
+	prefix := []byte("CONNECT " + authority + " HTTP/1.1\r\nHost: " + authority + "\r\n")
+	err := a.proxyWrite(pc, func(write func([]byte) error) error {
+		send := func(password []byte) error {
+			capacity := len(prefix) + 2
+			if a.proxy.CredentialPresent {
+				capacity += len("Proxy-Authorization: Basic ") + base64.StdEncoding.EncodedLen(len(a.proxy.Username)+1+len(password)) + 2
+			}
+			wire := make([]byte, 0, capacity)
+			wire = append(wire, prefix...)
+			defer func() { clear(wire) }()
+			if a.proxy.CredentialPresent {
+				plain := append([]byte(a.proxy.Username+":"), password...)
+				defer clear(plain)
+				wire = append(wire, "Proxy-Authorization: Basic "...)
+				wire = base64.StdEncoding.AppendEncode(wire, plain)
+				wire = append(wire, '\r', '\n')
+			}
+			wire = append(wire, '\r', '\n')
+			if len(wire) > a.profile.Limits.RequestHeaderBytes {
+				return errHeaderLimit
+			}
+			return write(wire)
+		}
+		if a.proxy.CredentialPresent {
+			if a.route.credential == nil {
+				return invalid()
+			}
+			ctx, cancel := context.WithTimeout(a.ctx, 2*time.Second)
+			defer cancel()
+			return a.route.credential(ctx, send)
+		}
+		return send(nil)
+	})
+	if err != nil {
+		return err
+	}
+	if err := a.proxyReadDeadline(pc); err != nil {
 		return a.fail(a.reason(err, ac.InternalError), err)
 	}
 	reader := bufio.NewReader(pc.conn)
 	header, err := readHeaderBlock(reader, a.profile.Limits.ResponseHeaderBytes)
 	if err != nil {
-		if err == errHeaderLimit {
+		if errors.Is(err, errHeaderLimit) {
 			return a.fail(ac.ResponseLimit, nil)
 		}
 		return a.fail(a.reason(err, ac.InternalError), err)
 	}
 	response, err := http.ReadResponse(bufio.NewReader(bytes.NewReader(header)), &http.Request{Method: "CONNECT"})
-	if err != nil || response.StatusCode != http.StatusOK || response.ProtoMajor != 1 || response.ProtoMinor > 1 || len(response.TransferEncoding) != 0 || response.ContentLength > 0 || reader.Buffered() != 0 {
+	if err != nil {
 		return a.fail(ac.InternalError, nil)
 	}
-	_ = response.Body.Close() // Header-only parsing owns no live socket reader.
+	_ = response.Body.Close()
+	if response.StatusCode != http.StatusOK || response.ProtoMajor != 1 || response.ProtoMinor > 1 || len(response.TransferEncoding) != 0 || response.ContentLength > 0 {
+		return a.fail(ac.InternalError, nil)
+	}
+	_ = pc.conn.SetReadDeadline(time.Time{})
+	// SMTP may send its greeting in the same packet as the CONNECT response.
+	if reader.Buffered() != 0 {
+		pc.conn = &proxyBufferedConn{Conn: pc.conn, reader: reader}
+	}
+	return nil
+}
+
+type proxyBufferedConn struct {
+	net.Conn
+	reader *bufio.Reader
+}
+
+func (c *proxyBufferedConn) Read(p []byte) (int, error) { return c.reader.Read(p) }
+
+func (a *attempt) proxySOCKS(pc *pooledConn) error {
+	method := byte(0)
+	if a.proxy.CredentialPresent {
+		method = 2
+	}
+	write := func(wire []byte) error {
+		return a.proxyWrite(pc, func(send func([]byte) error) error { return send(wire) })
+	}
+	read := func(wire []byte) error {
+		if err := a.proxyReadDeadline(pc); err != nil {
+			return a.fail(a.reason(err, ac.InternalError), err)
+		}
+		if _, err := io.ReadFull(pc.conn, wire); err != nil {
+			return a.fail(a.reason(err, ac.InternalError), err)
+		}
+		return nil
+	}
+	if err := write([]byte{5, 1, method}); err != nil {
+		return err
+	}
+	var answer [2]byte
+	if err := read(answer[:]); err != nil {
+		return err
+	}
+	if answer != [2]byte{5, method} {
+		return a.fail(ac.CredentialDenied, nil)
+	}
+	if method == 2 {
+		err := a.proxyWrite(pc, func(send func([]byte) error) error {
+			if a.route.credential == nil {
+				return invalid()
+			}
+			ctx, cancel := context.WithTimeout(a.ctx, 2*time.Second)
+			defer cancel()
+			return a.route.credential(ctx, func(password []byte) error {
+				if len(a.proxy.Username) == 0 || len(a.proxy.Username) > 255 || len(password) == 0 || len(password) > 255 {
+					return invalid()
+				}
+				wire := make([]byte, 0, 3+len(a.proxy.Username)+len(password))
+				wire = append(wire, 1, byte(len(a.proxy.Username)))
+				wire = append(wire, a.proxy.Username...)
+				wire = append(wire, byte(len(password)))
+				wire = append(wire, password...)
+				defer clear(wire)
+				return send(wire)
+			})
+		})
+		if err != nil {
+			return err
+		}
+		if err := read(answer[:]); err != nil {
+			return err
+		}
+		if answer != [2]byte{1, 0} {
+			return a.fail(ac.CredentialDenied, nil)
+		}
+	}
+	wire := []byte{5, 1, 0}
+	if pc.targetPeer.Is4() {
+		ip := pc.targetPeer.As4()
+		wire = append(wire, 1)
+		wire = append(wire, ip[:]...)
+	} else {
+		ip := pc.targetPeer.As16()
+		wire = append(wire, 4)
+		wire = append(wire, ip[:]...)
+	}
+	wire = binary.BigEndian.AppendUint16(wire, a.target.Origin().Port())
+	if err := write(wire); err != nil {
+		return err
+	}
+	var head [4]byte
+	if err := read(head[:]); err != nil {
+		return err
+	}
+	if head[0] != 5 || head[1] != 0 || head[2] != 0 {
+		return a.fail(ac.InternalError, nil)
+	}
+	var length int
+	switch head[3] {
+	case 1:
+		length = 4
+	case 4:
+		length = 16
+	case 3:
+		var n [1]byte
+		if err := read(n[:]); err != nil {
+			return err
+		}
+		if n[0] == 0 {
+			return a.fail(ac.InternalError, nil)
+		}
+		length = int(n[0])
+	default:
+		return a.fail(ac.InternalError, nil)
+	}
+	if err := read(make([]byte, length+2)); err != nil {
+		return err
+	}
 	_ = pc.conn.SetReadDeadline(time.Time{})
 	return nil
 }

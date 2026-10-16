@@ -405,7 +405,7 @@ func TestKnowledgeM3AppConfiguration(t *testing.T) {
 		runtime, enabled := cfg.ExecutionRuntime()
 		retrieval, indexed := cfg.RetrievalRuntime()
 		_, retry := cfg.SchedulerLaunchRetryPolicy()
-		if !enabled || !runtime.ToolLoop() || !indexed || retrieval.Dimensions() != 4096 || !retry || len(cfg.OutboundProxyOrigins()) != 1 {
+		if !enabled || !runtime.ToolLoop() || !indexed || retrieval.Dimensions() != 4096 || !retry {
 			t.Fatal("complete Knowledge App configuration or origin deduplication differs")
 		}
 	}
@@ -424,15 +424,13 @@ func knowledgeM3Configuration(t *testing.T, base []string, endpoints []string, a
 			origins = append(origins, origin)
 		}
 	}
-	raw, err := json.Marshal(origins)
-	workAppCheck(t, "knowledge-live-origins", err)
 	runtimeConfig := strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1)
 	if agentSources {
 		// Keep the real Scheduler from re-launching a completed work task
 		// during this source-result observation, as in the M1 workflow fixture.
 		runtimeConfig = strings.Replace(runtimeConfig, `"relaunch_skip_count":0`, `"relaunch_skip_count":240`, 1)
 	}
-	env := append(slices.Clone(base), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+runtimeConfig, `AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME={"backend":"native_pg_fts","dimensions":4096}`, "AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS="+string(raw), "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
+	env := append(slices.Clone(base), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+runtimeConfig, `AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME={"backend":"native_pg_fts","dimensions":4096}`, "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
 	if ca, present := os.LookupEnv("AGENTEAM_CENTRAL_OUTBOUND_CA_FILE"); present {
 		env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+ca)
 	}

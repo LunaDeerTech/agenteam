@@ -83,13 +83,17 @@ type PolicyStatus struct {
 	Version   *foundation.Version `json:"version,omitempty"`
 }
 type policyState struct {
-	store     Store
-	audit     ac.Appender
-	auth      Authorizations
-	gate      sendGate
-	mu        sync.Mutex
-	mirror    Policy
-	available bool
+	store             Store
+	audit             ac.Appender
+	auth              Authorizations
+	gate              sendGate
+	mu                sync.Mutex
+	mirror            Policy
+	available         bool
+	proxy             proxySnapshot
+	proxyAvailable    bool
+	proxyDependencies *ProxyDependencies
+	pending           map[string]foundation.CommandIdentity
 }
 type PolicyService struct{ data func() *policyState }
 
@@ -108,7 +112,7 @@ func NewPolicyService(store Store, appender ac.Appender, auth Authorizations) (*
 	if nilPort(store) || nilPort(appender) {
 		return nil, invalid()
 	}
-	s := &policyState{store: store, audit: appender, auth: auth}
+	s := &policyState{store: store, audit: appender, auth: auth, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	return &PolicyService{data: func() *policyState { return s }}, nil
 }
 func (s *PolicyService) state() *policyState { return s.data() }
@@ -116,7 +120,7 @@ func (s *PolicyService) Status() PolicyStatus {
 	d := s.state()
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	out := PolicyStatus{Available: d.available}
+	out := PolicyStatus{Available: d.available && d.proxyAvailable && len(d.pending) == 0}
 	if d.mirror.Version() > 0 {
 		v := d.mirror.Version()
 		out.Version = &v
@@ -127,7 +131,7 @@ func (s *PolicyService) snapshot() (Policy, error) {
 	d := s.state()
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	if !d.available {
+	if !d.available || !d.proxyAvailable || len(d.pending) != 0 {
 		return Policy{}, unavailable(nil)
 	}
 	return d.mirror, nil
@@ -136,6 +140,9 @@ func (s *PolicyService) unavailable() {
 	d := s.state()
 	d.mu.Lock()
 	d.available = false
+	if d.proxyDependencies != nil {
+		d.proxyAvailable = false
+	}
 	d.mu.Unlock()
 }
 
@@ -154,7 +161,7 @@ func (s *PolicyService) publish(p Policy) error {
 		return unavailable(nil)
 	}
 	d.mirror = p
-	d.available = true
+	d.available = len(d.pending) == 0
 	return nil
 }
 func policyLock() foundation.LockKey {
@@ -183,32 +190,9 @@ func (s *PolicyService) Reload(ctx context.Context) error {
 		return unavailable(err)
 	}
 	defer release()
-	cause, err := recoveryCause()
-	if err != nil {
-		s.unavailable()
-		return err
-	}
-	var p Policy
-	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
-		// A disconnected COMMIT can still be pending in the original backend.
-		// The DB lock waits for that writer's actual durable outcome; an ordinary
-		// MVCC read could otherwise republish the pre-commit version as available.
-		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: policyLock(), Mode: foundation.Shared}}); err != nil {
-			return err
-		}
-		e, err := s.state().store.InTx(tx)
-		if err != nil {
-			return err
-		}
-		p, err = readPolicy(ctx, e)
-		return err
-	})
-	if result.State() != foundation.Committed {
-		s.unavailable()
-		return resultError(result)
-	}
-	return s.publish(p)
+	return s.recoverCurrentLocked(ctx)
 }
+
 func recoveryCause() (foundation.TransactionCause, error) {
 	id, err := foundation.NewID[struct{}]()
 	if err != nil {
@@ -418,11 +402,18 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 		return nil
 	})
 	if result.State() == foundation.Committed {
-		// A replay returns its original safe result even when the mirror is
-		// unavailable. It must neither publish old rules nor claim recovery.
+		pending := s.commandPending(meta.Identity)
 		if changed {
 			if err := s.publish(next); err != nil {
-				return UpdateResult{}, err
+				return UpdateResult{}, committedRecoveryError(err)
+			}
+		}
+		// A normal save cannot resolve another command's Unknown. A replay,
+		// or this pending command's fresh committed retry, can reconcile the
+		// complete current state while retaining its historical receipt.
+		if (!changed || pending) && s.recoveryRequired() {
+			if err := s.recoverAfterPolicyCommandLocked(ctx); err != nil {
+				return UpdateResult{}, committedRecoveryError(err)
 			}
 		}
 		return out, nil
@@ -430,10 +421,11 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 	if result.State() != foundation.Unknown {
 		return UpdateResult{}, resultError(result)
 	}
-	s.unavailable()
+	s.recordPending(meta.Identity)
 	// COMMIT has already been attempted. Never turn a missing receipt or a
 	// failed verification into "not committed"; retain the original cause.
 	original := result.Cause()
+	var verifiedFound bool
 	verified := s.state().store.WithinTx(ctx, original, func(ctx context.Context, tx foundation.Tx) error {
 		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: ck, Mode: foundation.Shared}, {Key: policyLock(), Mode: foundation.Shared}, {Key: userKey, Mode: foundation.Shared}}); err != nil {
 			return err
@@ -445,20 +437,16 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 		if err != nil {
 			return err
 		}
-		var found bool
-		out, found, err = readReceipt(ctx, e, key, digest)
-		if err != nil {
-			return err
-		}
-		if !found {
-			return unavailable(nil)
-		}
-		next, err = readPolicy(ctx, e)
+		out, verifiedFound, err = readReceipt(ctx, e, key, digest)
 		return err
 	})
 	if verified.State() == foundation.Committed {
-		if err := s.publish(next); err == nil {
-			return out, nil
+		if err := s.recoverAfterPolicyCommandLocked(ctx); err == nil {
+			if verifiedFound {
+				return out, nil
+			}
+		} else if verifiedFound {
+			return UpdateResult{}, committedRecoveryError(err)
 		}
 	}
 	return UpdateResult{}, failure(foundation.CommitUnknown, ac.PolicyUnavailable, unknownCause{cause: func() foundation.TransactionCause { return original }})

@@ -3,7 +3,7 @@
   "info": {
     "title": "agenteam System outbound policy HTTP",
     "version": "0.1.0",
-    "description": "Only GET and PUT at the exact path. All other methods, including HEAD, return 405 with Allow: GET, PUT; HEAD errors have no body. No HEAD fallback, lookup, reload, connectivity probe, pagination or UI. Original Host/Origin/Fetch-Metadata and clean Path/RawPath checks precede routing/auth/body, without redirects, CORS or forwarded-header trust. Exactly one outer RequestID/recovery middleware. Explicit authorized DTOs are the only rule disclosure; ordinary engine formatting remains redacted. Successful response JSON is limited to 1 MiB."
+    "description": "Only GET and PUT at the two exact paths. All other methods, including HEAD, return 405 with Allow: GET, PUT; HEAD errors have no body. No HEAD fallback, lookup, reload, connectivity probe or pagination. Original Host/Origin/Fetch-Metadata and clean Path/RawPath checks precede routing/auth/body, without redirects, CORS or forwarded-header trust. Exactly one outer RequestID/recovery middleware. Explicit authorized DTOs are the only rule disclosure; ordinary engine formatting remains redacted. Successful response JSON is limited to 1 MiB."
   },
   "paths": {
     "/api/v1/system/outbound-policy": {
@@ -126,6 +126,136 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OutboundPolicyUpdateResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/system/outbound-policy/proxy": {
+      "get": {
+        "operationId": "getSystemOutboundProxy",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator safe projection; independent canonical version. No password, Secret reference or transport capability is returned. Observation is not a command receipt.",
+        "responses": {
+          "200": {
+            "description": "Current safe proxy configuration.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity from the outer middleware; caller input is ignored."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundProxySettings"
+                }
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateSystemOutboundProxy",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "System administrator, current Session, same-origin CSRF and Idempotency-Key. Atomic version CAS, encrypted Secret mapping, Audit and original receipt. Same key/body/version replays the original receipt; different semantics conflict. Credentials use keyed semantic MAC. New requests read current DB-backed routing; enabled proxy never silently falls back to direct. A gateway identity change with a saved credential requires a replacement password or explicit remove, including while mode is direct. Unknown commands retain the exact key/body/version for explicit replay; current GET is never a receipt.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Origin"
+          },
+          {
+            "$ref": "#/components/parameters/Key"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON at most 16 KiB. gateway=null requires mode=direct and credential_action=remove. direct may retain a complete gateway and credentials without using them. Password omission with keep preserves the credential; a nonempty password replaces it; remove forbids password and requires an empty username. Username/password authentication is a pair.",
+          "x-max-json-bytes": 16384,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutboundProxyUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Original command receipt only; version is the applied command version and is not replaced by a later current value.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "type": "string",
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "type": "string",
+                  "const": "no-referrer"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                },
+                "description": "One server-owned request identity from the outer middleware; caller input is ignored."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundProxyUpdateReceipt"
                 }
               }
             }
@@ -331,11 +461,184 @@
             "$ref": "./common.json#/components/schemas/Instant"
           }
         }
+      },
+      "OutboundProxyGatewayInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "protocol",
+          "host",
+          "port",
+          "username"
+        ],
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "http",
+              "https",
+              "socks5"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253,
+            "description": "Canonical ASCII DNS name (single-label gateway allowed) or canonical IP, no URL, credentials, zone, path or port. Block-always addresses are forbidden."
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "At most 255 UTF-8 bytes, no controls. HTTP/HTTPS username cannot contain colon."
+          }
+        }
+      },
+      "OutboundProxyGateway": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "protocol",
+          "host",
+          "port",
+          "username",
+          "credential_present"
+        ],
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "http",
+              "https",
+              "socks5"
+            ]
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 253,
+            "description": "Canonical ASCII DNS name (single-label gateway allowed) or canonical IP, no URL, credentials, zone, path or port. Block-always addresses are forbidden."
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "At most 255 UTF-8 bytes, no controls. HTTP/HTTPS username cannot contain colon."
+          },
+          "credential_present": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OutboundProxySettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "mode",
+          "gateway"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "proxy"
+            ]
+          },
+          "gateway": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OutboundProxyGateway"
+              }
+            ]
+          }
+        }
+      },
+      "OutboundProxyUpdateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "mode",
+          "gateway",
+          "credential_action"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "proxy"
+            ]
+          },
+          "gateway": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OutboundProxyGatewayInput"
+              }
+            ]
+          },
+          "credential_action": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "remove"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "writeOnly": true,
+            "description": "1–255 UTF-8 bytes; NUL, CR and LF forbidden. Never returned or included in audit/receipt."
+          }
+        }
+      },
+      "OutboundProxyUpdateReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "audit_id",
+          "created_at"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
       }
     },
     "responses": {
       "Problem": {
-        "description": "Safe RFC 9457 Problem. 400 invalid input; 401 unauthenticated/revoked (clear only selected Session cookie); 403 current authority/CSRF/Origin denied; 404 unknown path; 405 with Allow: GET, PUT (HEAD has no body); 409 version/key/state conflict; 413 total JSON body exceeds 1 MiB; 415 unsupported media/encoding; 503 unbound/unavailable/CommitUnknown/shutdown; 500 internal error. COMMIT_UNKNOWN preserves commit_state=unknown and the existing retry_hint=lookup, but this domain has no lookup route: explicitly replay the original PUT/key/body with current legal CSRF. GET is never a command receipt. No private rules, keys or nested causes in a Problem.",
+        "description": "Safe RFC 9457 Problem. 400 invalid input; 401 unauthenticated/revoked (ordinary authentication errors do not clear Session cookies); 403 current authority/CSRF/Origin denied; 404 unknown path; 405 with Allow: GET, PUT (HEAD has no body); 409 version/key/state conflict; 413 total JSON body exceeds 1 MiB; 415 unsupported media/encoding; 503 unbound/unavailable/CommitUnknown/shutdown; 500 internal error. COMMIT_UNKNOWN preserves commit_state=unknown. Existing rule commands retain retry_hint=lookup compatibility; proxy commands use retry_hint=replay. This domain has no lookup route: explicitly replay the original PUT/key/body with current legal CSRF. A confirmed commit followed by failed current-state recovery preserves commit_state=committed and retry_hint=replay. GET is never a command receipt. No private rules, keys or nested causes in a Problem.",
         "headers": {
           "Cache-Control": {
             "schema": {

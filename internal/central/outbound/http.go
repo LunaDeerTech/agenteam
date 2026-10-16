@@ -421,6 +421,9 @@ func (a *attempt) roundTrip(req *http.Request) (*exchangeResponse, error) {
 			var e error
 			pc, e = a.connect()
 			if e != nil {
+				if tries == 0 && errors.Is(e, errProxyChanged) && a.ctx.Err() == nil {
+					continue
+				}
 				return nil, e
 			}
 		}
@@ -441,7 +444,7 @@ func (a *attempt) roundTrip(req *http.Request) (*exchangeResponse, error) {
 		if errors.As(err, &ne) {
 			reason = ne.Decision().Reason
 		}
-		if a.sent.Load() || tries == 1 || a.ctx.Err() != nil || reason != ac.InternalError && reason != ac.Timeout {
+		if a.sent.Load() || tries == 1 || a.ctx.Err() != nil || reason != ac.InternalError && reason != ac.Timeout && !errors.Is(err, errProxyChanged) {
 			return nil, err
 		}
 		if req.Body != nil && req.Body != http.NoBody {

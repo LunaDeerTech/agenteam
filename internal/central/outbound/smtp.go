@@ -144,6 +144,10 @@ func (c *Conn) BeginSend(ctx context.Context) error {
 	if err != nil {
 		return fail(a.fail(a.reason(err, ac.Cancelled), err))
 	}
+	if !a.matchesConnection(s.pc) {
+		release()
+		return fail(a.fail(ac.PolicyUnavailable, errProxyChanged))
+	}
 	if err = a.admit(s.pc.peer); err != nil {
 		release()
 		return fail(err)

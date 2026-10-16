@@ -78,7 +78,7 @@ func mcpM3ConfigurationPreflight(t *testing.T) {
 	workAppCheck(t, "mcp-complete-config", cfg.Validate())
 	runtime, enabled := cfg.ExecutionRuntime()
 	_, retry := cfg.SchedulerLaunchRetryPolicy()
-	if !enabled || !runtime.ToolLoop() || !retry || len(cfg.OutboundProxyOrigins()) != 0 {
+	if !enabled || !runtime.ToolLoop() || !retry {
 		t.Fatal("MCP fixture lost the original Tool loop, scheduler retry or isolated route")
 	}
 	workAppCheck(t, "mcp-runtime-config", runtime.Validate())
@@ -608,7 +608,7 @@ func newMCPM3AppWithOrigin(t *testing.T, peer *mcpfixture.Provider, network *net
 			actual.resolver = resolver
 			// Model builds its adapter later; MCP consumes this shared client.
 			// Both retain the real policy, trust and proxy route implementation.
-			client, err := outbound.NewClientWithProxy(actual.policy, cfg.OutboundTrust(), actual.resolver, actual.routes)
+			client, err := outbound.NewClient(actual.policy, cfg.OutboundTrust(), actual.resolver)
 			if err != nil {
 				return err
 			}

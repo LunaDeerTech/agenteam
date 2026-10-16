@@ -282,7 +282,7 @@ func TestOutboundWireOutputAndRedaction(t *testing.T) {
 	}
 }
 
-func TestOutboundSchemaMatchesTwoOperationsAndClosedWire(t *testing.T) {
+func TestOutboundSchemaMatchesFourOperationsAndClosedWire(t *testing.T) {
 	b, err := os.ReadFile("../../../../api/openapi/outbound-policy.json")
 	if err != nil {
 		t.Fatal(err)
@@ -301,12 +301,16 @@ func TestOutboundSchemaMatchesTwoOperationsAndClosedWire(t *testing.T) {
 			} `json:"schemas"`
 		} `json:"components"`
 	}
-	if json.Unmarshal(b, &spec) != nil || spec.OpenAPI != "3.1.0" || len(spec.Paths) != 1 {
+	if json.Unmarshal(b, &spec) != nil || spec.OpenAPI != "3.1.0" || len(spec.Paths) != 2 {
 		t.Fatal("invalid OpenAPI")
 	}
 	methods := spec.Paths[policyPath]
 	if len(methods) != 2 || methods["get"].OperationID != "getSystemOutboundPolicy" || methods["put"].OperationID != "updateSystemOutboundPolicy" {
 		t.Fatal("route/OpenAPI mismatch")
+	}
+	proxy := spec.Paths[proxyPath]
+	if len(proxy) != 2 || proxy["get"].OperationID != "getSystemOutboundProxy" || proxy["put"].OperationID != "updateSystemOutboundProxy" {
+		t.Fatal("proxy route/OpenAPI mismatch")
 	}
 	want := map[string][]string{"OutboundRuleInput": {"cidr", "ports"}, "OutboundRule": {"cidr", "ports", "allow_http"}, "OutboundPolicy": {"version", "rules"}, "OutboundPolicyUpdateInput": {"expected_version", "rules"}, "OutboundPolicyUpdateResult": {"version", "rule_count", "audit_id", "created_at"}}
 	for name, required := range want {

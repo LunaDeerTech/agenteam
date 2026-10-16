@@ -170,6 +170,12 @@ func PolicyMetadata(version foundation.Version, ruleCount int) (Metadata, error)
 	}
 	return metadata(PolicyUpdate, metadataWire{Version: version.String(), RuleCount: foundation.Progress(ruleCount).String()})
 }
+func ProxyMetadata(version foundation.Version) (Metadata, error) {
+	if version.Validate() != nil {
+		return Metadata{}, invalid("metadata")
+	}
+	return metadata(ProxyUpdate, metadataWire{Version: version.String()})
+}
 func DenialMetadata(consumer Consumer, reason Reason, policyVersion foundation.Version) (Metadata, error) {
 	if !consumer.Valid() || !reason.Valid() || policyVersion.Validate() != nil {
 		return Metadata{}, invalid("metadata")
@@ -428,6 +434,8 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 		names = []string{"version", "rotation_id", "count"}
 	case RotationFailed:
 		names = []string{"version", "rotation_id", "count", "reason"}
+	case ProxyUpdate:
+		names = []string{"version"}
 	case PolicyUpdate:
 		names = []string{"version", "rule_count"}
 	case AccessDeny:
@@ -524,6 +532,8 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 			return Metadata{}, invalid("metadata")
 		}
 		return MasterMetadata(action, version, w.RotationID, count, w.Reason)
+	case ProxyUpdate:
+		return ProxyMetadata(version)
 	case PolicyUpdate:
 		count, e := foundation.ParseProgress(w.RuleCount)
 		if e != nil || count > 256 {

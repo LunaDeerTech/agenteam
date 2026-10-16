@@ -28,6 +28,7 @@ const (
 	RotationComplete       Action = "secret.master.rotation.complete"
 	RotationFailed         Action = "secret.master.rotation.failed"
 	PolicyUpdate           Action = "outbound.policy.update"
+	ProxyUpdate            Action = "outbound.proxy.update"
 	AccessDeny             Action = "outbound.access.deny"
 	ObjectUploadComplete   Action = "object.upload.complete"
 	ObjectUploadFailed     Action = "object.upload.failed"
@@ -50,7 +51,7 @@ func (a Action) Valid() bool {
 		return true
 	}
 	switch a {
-	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve, MasterRegister, RotationStart, RotationComplete, RotationFailed, PolicyUpdate, AccessDeny:
+	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve, MasterRegister, RotationStart, RotationComplete, RotationFailed, PolicyUpdate, ProxyUpdate, AccessDeny:
 		return true
 	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete, ObjectTransferIssue, ObjectTransferComplete, ObjectTransferRevoke, ArtifactCreate, ArtifactList, ArtifactRead, ArtifactDownload, OutboxDeliveryRequeue:
 		return true
@@ -271,7 +272,7 @@ func NewEntry(f EntryFields) (Entry, error) {
 		if f.Action == RotationFailed && f.Outcome != Failed || f.Action != RotationFailed && f.Outcome != Success {
 			return Entry{}, invalid("outcome")
 		}
-	case PolicyUpdate:
+	case PolicyUpdate, ProxyUpdate:
 		if s.Kind != identity.System || r.Kind != PolicyResource {
 			return Entry{}, invalid("entry")
 		}
@@ -396,7 +397,7 @@ func ProducerFor(action Action) Producer {
 		return SecretProducer
 	case MasterRegister, RotationStart, RotationComplete, RotationFailed:
 		return MasterProducer
-	case PolicyUpdate:
+	case PolicyUpdate, ProxyUpdate:
 		return PolicyProducer
 	case AccessDeny:
 		return AccessProducer

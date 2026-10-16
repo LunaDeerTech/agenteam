@@ -59,7 +59,7 @@ func m1LiveMetadata(selection, optIn, base, model string) (*m1LiveConfiguration,
 	return &m1LiveConfiguration{BaseURL: base, Model: model}, nil
 }
 
-func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.Resolver, routes outbound.ProxyRoutes) error {
+func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.Resolver) error {
 	if c == nil || resolver == nil {
 		return errors.New("M1 live preflight dependency missing")
 	}
@@ -68,17 +68,6 @@ func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.R
 	target, err := outbound.ParseTarget(c.BaseURL)
 	if err != nil {
 		return errors.New("M1 live target rejected")
-	}
-	proxy, err := routes.UsesProxy(target.Origin())
-	if err != nil {
-		return errors.New("M1 live configured proxy route rejected")
-	}
-	if proxy {
-		// The exact configured origin delegates destination resolution to a
-		// trusted gateway. Origin DNS and a gateway's peer address are not
-		// interchangeable. The real client still checks route, peer and TLS.
-		c.proxyRoute, c.qualified = true, true
-		return nil
 	}
 	addresses, err := resolver.Lookup(ctx, target.Origin().Host())
 	if err != nil || len(addresses) == 0 {
@@ -115,14 +104,10 @@ func TestM1AppLiveWorkflow(t *testing.T) {
 	configuration, err := m1LiveMetadata(os.Getenv("AGENTEAM_M1_CASE"), os.Getenv("AGENTEAM_M1_LIVE_OPT_IN"), os.Getenv("DEV_CHAT_BASE_URL"), os.Getenv("DEV_CHAT_MODEL"))
 	workAppCheck(t, "m1-live-metadata", err)
 	configuration.deadline = started.Add(m1LiveTotalBudget)
-	target, err := outbound.ParseTarget(configuration.BaseURL)
-	workAppCheck(t, "m1-live-route-target", err)
-	routes, err := outbound.NewEnvironmentProxyRoutes([]outbound.Origin{target.Origin()})
-	workAppCheck(t, "m1-live-configured-routes", err)
 	resolver, err := outbound.SystemResolver()
 	workAppCheck(t, "m1-live-system-resolver", err)
 	preflight, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	err = configuration.preflight(preflight, resolver, routes)
+	err = configuration.preflight(preflight, resolver)
 	cancel()
 	workAppCheck(t, "m1-live-route-preflight", err)
 	t.Logf("M1_LIVE_ROUTE explicit_origin=true trusted_proxy=%t tls_verification=true", configuration.proxyRoute)
@@ -298,7 +283,7 @@ func TestM1LivePreparation(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			err = c.preflight(context.Background(), m1LiveResolverFunc(func(context.Context, string) ([]netip.Addr, error) { return v.addresses, v.err }), outbound.ProxyRoutes{})
+			err = c.preflight(context.Background(), m1LiveResolverFunc(func(context.Context, string) ([]netip.Addr, error) { return v.addresses, v.err }))
 			if (err == nil) != v.want || c.qualified != v.want {
 				t.Fatal("preflight qualification differs")
 			}

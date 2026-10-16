@@ -104,7 +104,7 @@ func (k Keyring) mac(kid, purpose string, parts ...[]byte) ([]byte, error) {
 		return nil, unavailable(nil)
 	}
 	switch purpose {
-	case "command-v1", "anonymous-cookie-v1", "csrf-v1", "privacy-counter-v1":
+	case "command-v1", "anonymous-cookie-v1", "csrf-v1", "privacy-counter-v1", "outbound-proxy-command-v1":
 	default:
 		return nil, invalid()
 	}
@@ -118,6 +118,13 @@ func (k Keyring) mac(kid, purpose string, parts ...[]byte) ([]byte, error) {
 	}
 	return h.Sum(nil), nil
 }
+
+// OutboundProxyMAC uses a separate domain for the proxy command's semantic
+// fingerprint. Password-dependent command digests must not be unkeyed hashes.
+func (k Keyring) OutboundProxyMAC(kid string, parts ...[]byte) ([]byte, error) {
+	return k.mac(kid, "outbound-proxy-command-v1", parts...)
+}
+func (k Keyring) OutboundProxyMACKey() string { return k.current() }
 func (k Keyring) check(kid, purpose string, signature []byte, parts ...[]byte) error {
 	want, e := k.mac(kid, purpose, parts...)
 	if e != nil {

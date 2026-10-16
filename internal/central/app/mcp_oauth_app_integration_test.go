@@ -54,7 +54,7 @@ func mcpOAuthAppAuthorizationExchangeWith(t *testing.T, throughHTTP bool,
 		v.root.cfg = guardConfiguration(t, env)
 		d.outboundConstruct = func(ctx context.Context, cfg config.Config, actual *outboundRuntime) error {
 			actual.resolver = appFixtureResolver{address}
-			client, e := outbound.NewClientWithProxy(actual.policy, cfg.OutboundTrust(), actual.resolver, actual.routes)
+			client, e := outbound.NewClient(actual.policy, cfg.OutboundTrust(), actual.resolver)
 			if e != nil {
 				return e
 			}

@@ -67,13 +67,23 @@ func openAuditStore(t *testing.T, cfg postgres.Config) *postgres.Store {
 }
 func newAuditFixture(t *testing.T) *auditFixture {
 	t.Helper()
+	return newAuditFixtureWithMigrationParent(t, nil)
+}
+
+// The migrator enforces cfg.StartupTimeout. Callers that exercise that startup
+// budget can supply their test context without extending business operations.
+func newAuditFixtureWithMigrationParent(t *testing.T, migrationParent context.Context) *auditFixture {
+	t.Helper()
 	db := pgfixture.NewDatabase(t)
 	cfg := db.Config(t, nil)
 	m, err := postgres.NewMigrator(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if state := m.Migrate(auditContext(t)); !state.Migrated {
+	if migrationParent == nil {
+		migrationParent = auditContext(t)
+	}
+	if state := m.Migrate(migrationParent); !state.Migrated {
 		t.Fatal(state.Fault)
 	}
 	store := openAuditStore(t, cfg)

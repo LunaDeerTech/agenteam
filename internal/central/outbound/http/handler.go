@@ -56,7 +56,7 @@ func (h *systemHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.boundary.WriteProblem(w, r, err)
 		return
 	}
-	if r.URL.Path != policyPath {
+	if r.URL.Path != policyPath && r.URL.Path != proxyPath {
 		h.boundary.WriteProblem(w, r, fault(foundation.NotFound))
 		return
 	}
@@ -91,7 +91,9 @@ func (h *systemHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body []byte
-	if r.Method == http.MethodGet {
+	if r.URL.Path == proxyPath {
+		body, err = h.proxyCall(w, r, actor)
+	} else if r.Method == http.MethodGet {
 		err = noBody(r)
 		if err == nil {
 			err = beforeCall(ctx)

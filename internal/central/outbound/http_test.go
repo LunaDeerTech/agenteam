@@ -116,17 +116,17 @@ func TestRequestValidationAndResponseHeaderBudget(t *testing.T) {
 func TestFirstWriteLinearizesAndSlowWriteReleasesGate(t *testing.T) {
 	rule, _ := NewRule("10.20.0.0/16", AllPorts(), true)
 	rules, _ := NewRules(rule)
-	ps := &policyState{mirror: policy(1, rules), available: true}
+	ps := &policyState{mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	policyService := &PolicyService{data: func() *policyState { return ps }}
 	state := &clientState{policy: policyService, connections: map[*pooledConn]bool{}, changed: make(chan struct{})}
 	client := &Client{data: func() *clientState { return state }}
 	target, _ := ParseTarget("http://10.20.1.1:8080/")
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
-	a := &attempt{ctx: ctx, client: client, target: target, addresses: []netip.Addr{netip.MustParseAddr("10.20.1.1")}}
+	a := &attempt{route: proxySnapshot{version: 1, mode: "direct"}, ctx: ctx, client: client, target: target, addresses: []netip.Addr{netip.MustParseAddr("10.20.1.1")}}
 	conn, peer := net.Pipe()
 	defer peer.Close()
-	pc := &pooledConn{conn: conn, raw: conn, origin: target.Origin(), peer: a.addresses[0], owner: state}
+	pc := &pooledConn{conn: conn, raw: conn, routeVersion: 1, origin: target.Origin(), peer: a.addresses[0], owner: state}
 	state.connections[pc] = true
 	defer pc.close()
 	writer := &firstWriter{a: a, pc: pc, first: true}
@@ -241,9 +241,9 @@ func TestExchangeRejectsGeneratedHeaderOverflowWithZeroPeerBytes(t *testing.T) {
 			t.Fatal(err)
 		}
 		limits.RequestHeaderBytes = bytes.Index(wire.Bytes(), []byte("\r\n\r\n")) + 3
-		a := &attempt{ctx: ctx, client: client, profile: ProfileOptions{Limits: limits}, target: target, addresses: []netip.Addr{netip.MustParseAddr("10.20.1.1")}}
+		a := &attempt{route: proxySnapshot{version: 1, mode: "direct"}, ctx: ctx, client: client, profile: ProfileOptions{Limits: limits}, target: target, addresses: []netip.Addr{netip.MustParseAddr("10.20.1.1")}}
 		raw, peer := net.Pipe()
-		pc := &pooledConn{conn: raw, raw: raw, reader: bufio.NewReader(raw), origin: target.Origin(), peer: a.addresses[0], owner: client.state()}
+		pc := &pooledConn{conn: raw, raw: raw, reader: bufio.NewReader(raw), routeVersion: 1, origin: target.Origin(), peer: a.addresses[0], owner: client.state()}
 		client.state().connections[pc] = true
 		received := make(chan []byte, 1)
 		go func() { b, _ := io.ReadAll(peer); peer.Close(); received <- b }()
@@ -310,7 +310,7 @@ func boundaryState(t *testing.T) (*Client, *policyState, Target, context.Context
 		t.Fatal(err)
 	}
 	rules, _ := NewRules(rule)
-	ps := &policyState{mirror: policy(1, rules), available: true}
+	ps := &policyState{mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	policyService := &PolicyService{data: func() *policyState { return ps }}
 	state := &clientState{policy: policyService, idle: map[string][]*pooledConn{}, connections: map[*pooledConn]bool{}, active: map[*operation]bool{}, changed: make(chan struct{})}
 	client := &Client{data: func() *clientState { return state }}
@@ -328,10 +328,10 @@ func TestUnsupportedProtocolClosesBeforeBodyDrain(t *testing.T) {
 	client, _, target, ctx, cancel := boundaryState(t)
 	defer cancel()
 	limits, _ := normalizeLimits(Limits{ResponseHeaders: 600 * time.Millisecond}, false)
-	a := &attempt{ctx: ctx, client: client, profile: ProfileOptions{Limits: limits}, target: target, addresses: []netip.Addr{netip.MustParseAddr("10.20.1.1")}}
+	a := &attempt{route: proxySnapshot{version: 1, mode: "direct"}, ctx: ctx, client: client, profile: ProfileOptions{Limits: limits}, target: target, addresses: []netip.Addr{netip.MustParseAddr("10.20.1.1")}}
 	conn, peer := net.Pipe()
 	defer peer.Close()
-	pc := &pooledConn{conn: conn, raw: conn, reader: bufio.NewReader(conn), origin: target.Origin(), peer: a.addresses[0], owner: client.state()}
+	pc := &pooledConn{conn: conn, raw: conn, reader: bufio.NewReader(conn), routeVersion: 1, origin: target.Origin(), peer: a.addresses[0], owner: client.state()}
 	client.state().connections[pc] = true
 	defer pc.close()
 	ready := make(chan struct{})
@@ -394,11 +394,11 @@ func TestSMTPDeadlineCannotExtendFirstWrite(t *testing.T) {
 			raw, peer := net.Pipe()
 			defer peer.Close()
 			observed := &boundaryWriteBarrier{Conn: raw, entered: make(chan struct{})}
-			pc := &pooledConn{conn: observed, raw: observed, origin: target.Origin(), peer: netip.MustParseAddr("10.20.1.1"), owner: client.state()}
+			pc := &pooledConn{conn: observed, raw: observed, routeVersion: 1, origin: target.Origin(), peer: netip.MustParseAddr("10.20.1.1"), owner: client.state()}
 			client.state().connections[pc] = true
 			op := &operation{ctx: ctx, cancel: cancel, owner: client.state()}
 			client.state().active[op] = true
-			a := &attempt{ctx: ctx, client: client, target: target, addresses: []netip.Addr{pc.peer}}
+			a := &attempt{route: proxySnapshot{version: 1, mode: "direct"}, ctx: ctx, client: client, target: target, addresses: []netip.Addr{pc.peer}}
 			state := &smtpState{op: op, pc: pc, client: client, a: a, writer: &firstWriter{a: a, pc: pc, first: true}, started: true, active: true, stop: func() {}}
 			conn := &Conn{data: func() *smtpState { return state }}
 			defer conn.Close()

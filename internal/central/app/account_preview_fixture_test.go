@@ -29,7 +29,9 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -70,7 +72,11 @@ func TestAccountPreviewFixture(t *testing.T) {
 	if port == "" {
 		port = "5250"
 	}
-	if port != "5250" && port != "5254" {
+	outboundPreview := os.Getenv("AGENTEAM_OUTBOUND_PREVIEW") == "1"
+	if outboundPreview && port != "5260" {
+		t.Fatal("outbound preview requires dedicated owned 5260")
+	}
+	if port != "5250" && port != "5254" && !(outboundPreview && port == "5260") {
 		t.Fatal("preview TLS port must be 5250 or 5254")
 	}
 	localOrigin := "https://localhost:" + port
@@ -80,6 +86,9 @@ func TestAccountPreviewFixture(t *testing.T) {
 	}
 	if origin != localOrigin && origin != "https://mcpc-terra.lunadeer.cn:18443" && origin != "https://154.12.86.233:18443" {
 		t.Fatal("preview origin is not an explicitly supported HTTPS endpoint")
+	}
+	if outboundPreview && origin != localOrigin {
+		t.Fatal("outbound preview must stay local")
 	}
 	originURL, err := url.Parse(origin)
 	previewCheck(t, "preview origin", err)
@@ -172,7 +181,11 @@ func TestAccountPreviewFixture(t *testing.T) {
 	}
 	previewConfigureSMTP(t, ctx, cfg, core, transport, smtp, endpoint)
 	credentials := previewBootstrapCredentials(t, cfg.AccountRecoveryLog())
-	frontend, _ := url.Parse("http://127.0.0.1:5245")
+	frontendAddress := "http://127.0.0.1:5245"
+	if outboundPreview {
+		frontendAddress = "http://127.0.0.1:5246"
+	}
+	frontend, _ := url.Parse(frontendAddress)
 	apiProxy := httputil.NewSingleHostReverseProxy(backend)
 	webProxy := httputil.NewSingleHostReverseProxy(frontend)
 	proxyTransport := &http.Transport{Proxy: nil}
@@ -232,6 +245,18 @@ func TestAccountPreviewFixture(t *testing.T) {
 		"stop_file": filepath.Join(private, "stop"), "started_at": startedAt, "expires_at": deadline.Add(-time.Minute),
 		"smtp_control": "http://" + net.JoinHostPort(smtp.PrivateIP, "9000"), "smtp_nonce": smtp.Nonce,
 		"smtp_endpoint_id": endpoint.ID, "database_fixture": os.Getenv(pgfixture.Env), "database_name": db.Name,
+	}
+	if outboundPreview {
+		regular := previewOutboundRegular(t, ctx, cfg, core, smtp, endpoint)
+		manifest["regular_credentials"] = regular
+		manifest["test_scope"] = "system-outbound-policy-proxy"
+		manifest["proxy_gateway"] = previewOutboundGateway(t, ctx, smtp, endpoint)
+		sidecar := map[string]string{"test_scope": "system-outbound-policy-proxy", "runtime_file": filepath.Join(private, "runtime.json"), "nonce": nonce}
+		data, e := json.Marshal(sidecar)
+		previewCheck(t, "outbound scope encoding", e)
+		scopePath := filepath.Join(private, "outbound-owned.json")
+		previewCheck(t, "outbound scope", os.WriteFile(scopePath, data, 0600))
+		t.Cleanup(func() { _ = os.Remove(scopePath) })
 	}
 	raw, err := json.Marshal(manifest)
 	previewCheck(t, "private manifest encoding", err)
@@ -460,4 +485,168 @@ func previewFirstChain(t *testing.T, ctx context.Context, origin, localAddress s
 	}
 	request(http.MethodPost, "/api/v1/sessions/logout", struct{}{}, csrf, http.StatusNoContent)
 	request(http.MethodGet, "/api/v1/session", nil, "", http.StatusUnauthorized)
+}
+
+// A second, ordinary account is created through the same invitation/delivery/
+// redemption protocols as the UI. Only this task's SMTP sink sees its token.
+func previewOutboundRegular(t *testing.T, ctx context.Context, cfg config.Config, core *account.Service, smtp *smtpfixture.Fixture, endpoint smtpfixture.Endpoint) previewCredential {
+	t.Helper()
+	actor, e := fixtureAccountActor(ctx, cfg, core)
+	previewCheck(t, "ordinary seed login", e)
+	email := "outbound-reader@example.test"
+	input, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: actor, Key: foundation.IdempotencyKey(guardID[struct{}](t).String()), Email: email})
+	previewCheck(t, "ordinary seed invitation", e)
+	_, e = core.CreateInvitation(ctx, input)
+	previewCheck(t, "ordinary invitation command", e)
+	var link string
+	delivery, stop := context.WithTimeout(ctx, 20*time.Second)
+	defer stop()
+	for {
+		e = smtp.UseLastMessage(delivery, endpoint.ID, func(raw []byte) error {
+			for _, word := range strings.Fields(string(raw)) {
+				if strings.Contains(word, "/invite#") {
+					u, e := url.Parse(word)
+					if e == nil {
+						link = u.Fragment
+					}
+				}
+			}
+			if link == "" {
+				return errors.New("owned invitation link missing")
+			}
+			return nil
+		})
+		if e == nil {
+			break
+		}
+		if !errors.Is(e, smtpfixture.ErrMessageUnavailable) {
+			previewCheck(t, "ordinary delivered link", e)
+		}
+		select {
+		case <-delivery.Done():
+			t.Fatal("ordinary invitation delivery deadline")
+		case <-time.After(100 * time.Millisecond):
+		}
+	}
+	parts := strings.Split(link, ".")
+	link = ""
+	if len(parts) != 2 {
+		t.Fatal("owned invitation link format")
+	}
+	id, e := foundation.ParseID[c.Invitation](parts[0])
+	previewCheck(t, "ordinary invitation id", e)
+	tokenMaterial, e := sc.NewSecretMaterial([]byte(parts[1]))
+	parts = nil
+	previewCheck(t, "ordinary invitation material", e)
+	defer tokenMaterial.Destroy()
+	token, e := c.NewInvitationToken(id, tokenMaterial)
+	previewCheck(t, "ordinary invitation token", e)
+	password, e := pgfixture.RandomHex(24)
+	previewCheck(t, "ordinary password", e)
+	material, e := sc.NewSecretMaterial([]byte(password))
+	previewCheck(t, "ordinary password material", e)
+	defer material.Destroy()
+	anonymous, e := core.NewAnonymousContext(ctx)
+	previewCheck(t, "ordinary anonymous context", e)
+	defer anonymous.Cookie.Destroy()
+	defer anonymous.CSRF.Destroy()
+	browser, e := core.VerifyAnonymousContext(ctx, anonymous.Cookie, anonymous.CSRF)
+	previewCheck(t, "ordinary browser", e)
+	redeem, e := c.NewInvitationRedeem(c.RedeemFields{Browser: browser, Key: foundation.IdempotencyKey(guardID[struct{}](t).String()), Token: token, Username: "outbound-reader", DisplayName: "Outbound reader", Password: material, Confirmation: material})
+	previewCheck(t, "ordinary redeem request", e)
+	_, e = core.RedeemInvitation(ctx, redeem)
+	previewCheck(t, "ordinary redeem", e)
+	return previewCredential{Email: email, Password: password}
+}
+
+// This gateway is owned by the fixture and accepts CONNECT only to its own SMTP
+// sink. It is not an external relay, and no runtime configuration selects it
+// until a test explicitly saves that gateway through the administrator API.
+func previewOutboundGateway(t *testing.T, ctx context.Context, smtp *smtpfixture.Fixture, endpoint smtpfixture.Endpoint) map[string]any {
+	t.Helper()
+	addresses, e := net.InterfaceAddrs()
+	previewCheck(t, "proxy private interface", e)
+	var host string
+	for _, address := range addresses {
+		prefix, e := netip.ParsePrefix(address.String())
+		if e == nil && prefix.Addr().Is4() && outbound.Classify(prefix.Addr()) == outbound.Private {
+			host = prefix.Addr().String()
+			break
+		}
+	}
+	if host == "" {
+		t.Fatal("owned private gateway interface unavailable")
+	}
+	listener, e := net.Listen("tcp", net.JoinHostPort(host, "0"))
+	previewCheck(t, "owned gateway listen", e)
+	allowed := net.JoinHostPort(smtp.PrivateIP, strconv.Itoa(endpoint.Port))
+	server := &http.Server{ReadHeaderTimeout: 2 * time.Second, ErrorLog: log.New(io.Discard, "", 0)}
+	var mu sync.Mutex
+	var calls sync.WaitGroup
+	stopped := false
+	active := make(map[net.Conn]bool)
+	server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		if stopped {
+			mu.Unlock()
+			return
+		}
+		calls.Add(1)
+		mu.Unlock()
+		defer calls.Done()
+		if r.Method != http.MethodConnect || r.Host != allowed {
+			http.Error(w, "owned target required", http.StatusForbidden)
+			return
+		}
+		upstream, e := (&net.Dialer{Timeout: 2 * time.Second}).DialContext(r.Context(), "tcp", allowed)
+		if e != nil {
+			http.Error(w, "owned target unavailable", http.StatusBadGateway)
+			return
+		}
+		downstream, rw, e := w.(http.Hijacker).Hijack()
+		if e != nil {
+			_ = upstream.Close()
+			return
+		}
+		defer downstream.Close()
+		defer upstream.Close()
+		mu.Lock()
+		if stopped {
+			mu.Unlock()
+			return
+		}
+		active[downstream], active[upstream] = true, true
+		mu.Unlock()
+		defer func() { mu.Lock(); delete(active, downstream); delete(active, upstream); mu.Unlock() }()
+		_ = downstream.SetDeadline(time.Now().Add(20 * time.Second))
+		_ = upstream.SetDeadline(time.Now().Add(20 * time.Second))
+		if _, e = rw.WriteString("HTTP/1.1 200 Connection Established\r\n\r\n"); e != nil {
+			return
+		}
+		if rw.Flush() != nil {
+			return
+		}
+		joined := make(chan struct{})
+		go func() { _, _ = io.Copy(upstream, rw); _ = upstream.Close(); close(joined) }()
+		_, _ = io.Copy(downstream, upstream)
+		_ = downstream.Close()
+		<-joined
+	})
+	done := make(chan error, 1)
+	go func() { done <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		mu.Lock()
+		stopped = true
+		for conn := range active {
+			_ = conn.Close()
+		}
+		mu.Unlock()
+		_ = server.Close()
+		calls.Wait()
+		if e := <-done; !errors.Is(e, http.ErrServerClosed) {
+			t.Error("owned gateway shutdown failed")
+		}
+	})
+	port := listener.Addr().(*net.TCPAddr).Port
+	return map[string]any{"protocol": "http", "host": host, "port": port}
 }

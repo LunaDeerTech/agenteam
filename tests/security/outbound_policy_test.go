@@ -140,7 +140,7 @@ func (a rejectedPolicyAudit) AppendInTx(ctx context.Context, tx foundation.Tx, e
 	return ac.AppendReceipt{}, errors.New("audit-failure-canary")
 }
 func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
-	f := newAuditFixture(t)
+	f := newAuditFixtureWithMigrationParent(t, t.Context())
 	ctx := auditContext(t)
 	failed := outboundPolicy(t, f, rejectedPolicyAudit{f.service})
 	r := policyRules(t, "10.9.0.0/16")
@@ -164,7 +164,8 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 		t.Fatal(e)
 	}
 	// The fixture corrupts a stored typed rule, then restores the original v3.
-	// A successful old replay is not a cache reload or an availability claim.
+	// The historical receipt cannot recover invalid current state. Only the
+	// separately locked authoritative observation may restore admission.
 	_, e = f.store.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET rules='[{"cidr":"127.0.0.0/8","ports":"all"}]'`)
 	if e != nil {
 		t.Fatal(e)
@@ -172,16 +173,21 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 	if e = s.Reload(ctx); e == nil || s.Status().Available {
 		t.Fatal("invalid DB policy allowed")
 	}
+	_, e = s.UpdatePolicy(ctx, f.actor, k1, r)
+	var committed *foundation.Fault
+	if !errors.As(e, &committed) || committed.CommitState != foundation.Committed || committed.RetryHint != "replay" || s.Status().Available {
+		t.Fatal("historical receipt bypassed invalid current snapshot or lost committed fact")
+	}
 	_, e = f.store.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET rules='[]'`)
 	if e != nil {
 		t.Fatal(e)
 	}
 	got, e := s.UpdatePolicy(ctx, f.actor, k1, r)
-	if e != nil || got != first || s.Status().Available {
-		t.Fatal("receipt incorrectly recovered mirror", e)
+	if e != nil || got != first || !s.Status().Available || s.Status().Version == nil || *s.Status().Version != 3 {
+		t.Fatal("replay failed to retain original receipt and recover authoritative current v3", e)
 	}
-	if e = s.Reload(ctx); e != nil || !s.Status().Available || *s.Status().Version != 3 {
-		t.Fatal("explicit reload did not recover current", e)
+	if e = f.store.QueryRow(ctx, `SELECT version,(SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts),(SELECT count(*) FROM agenteam_audit.audit_records) FROM agenteam_outbound.outbound_policy`).Scan(&version, &receipts, &audits); e != nil || version != 3 || receipts != 2 || audits != 2 {
+		t.Fatal("recovery duplicated business version, receipt or audit", e)
 	}
 }
 func TestOutboundPolicyRealCommitUnknown(t *testing.T) {

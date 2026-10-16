@@ -36,7 +36,7 @@ sh tests/m1-app-workflow/run.sh
 
 `AGENTEAM_M1_CASE=live` 选择 `^TestM1AppLiveWorkflow$`，同时必须设置 `AGENTEAM_M1_LIVE_OPT_IN=external-model-read-write-run-review`。两层选择缺任一即拒绝；普通两个 case 会继续剔除所有 `DEV_CHAT_*` 与 live opt-in。实际运行沿上方同一命令/依赖，只增加这两个选择值，并使用会话已配置的 `DEV_CHAT_BASE_URL`、`DEV_CHAT_MODEL`、`DEV_CHAT_API_KEY`。不要把 KEY 写进命令文本、README、日志或证据。
 
-测试先核非秘密 URL/Model 元数据，并将该 URL 的唯一 HTTPS Origin 交给正式 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 配置。App 与 Model adapter 复用同一不可变代理路由。环境原 HTTP(S)_PROXY/NO_PROXY 与 CA 值保持；精确允许的 Origin 若命中代理，由可信网关解析目标，不能再用本地目标 DNS NXDOMAIN 先行否定。NO_PROXY 或无代理命中仍沿原 SystemResolver A/AAAA、地址分类与策略门。没有代理故障后直连降级，也不把网关 IP 当成目标 IP 或声称它证明目标地址为 public。
+测试先核非秘密 URL/Model 元数据，并保留目标完整 A/AAAA、地址分类、TLS/CA 与出站规则门。Central 不再从环境代理或部署 origin 白名单选路；代理必须由独立数据库实例内的 System 管理入口显式配置，App 与 Model Client 每次请求读取同一运行时配置。默认新数据库为 direct，代理启用失败不直连降级。本目录旧 live 结果仅代表其当时组合；现有 live harness 的元数据预检沿严格目标 DNS，不自动迁移旧代理环境。未经本轮实际运行，不以历史 live 结果声称新 DB 代理外网可用。
 
 只有显式 live 且所选正式路由预检合格后，才读取配置 KEY 并写入本轮新数据库的正式 Secret；实际网关连接、原目标 TLS/SNI、系统与配置 CA、凭据来源和 Close/Join 仍由正式 outbound 执行。保留出站 policy，不注入 ownedIP、fixture CA、私网 allowrule、预设模型响应或合成凭据。Runner 使用原环境白名单，浏览器子进程继续剔除 `DEV_CHAT_*`。独立 owned outbound fixture 可能由官方测试栈一并创建，但 live Model 不消费它。
 

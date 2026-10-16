@@ -28,6 +28,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	outboundhttp "github.com/LunaDeerTech/agenteam/internal/central/outbound/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
@@ -560,11 +561,20 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if mcpAuthority != nil {
 		secretUsage = m3SecretUsage{model: usage, mcp: mcpAuthority}
 	}
+	proxyStore, ok := db.(outbound.Store)
+	if !ok {
+		return errors.New("OUTBOUND_STORE_UNAVAILABLE")
+	}
+	proxyAuthority, err := outbound.NewProxySecretAuthority(proxyStore, secretUsage)
+	if err != nil {
+		return err
+	}
+	secretUsage = proxyAuthority
 	secrets, err := createSecret(cfg, db, auditor, authority, secretUsage, projectUsage.projects, secretWrites)
 	if err != nil {
 		return err
 	}
-	transport, err := createOutbound(cfg, db, auditor, authority)
+	transport, err := createOutbound(cfg, db, auditor, authority, secrets, proxyAuthority, objects.guard)
 	if err != nil {
 		return err
 	}
@@ -1129,6 +1139,9 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	deps.objects = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (objectStorage, error) {
 		if err := objects.runtime.Initialize(ctx); err != nil {
+			return objects, err
+		}
+		if err := transport.policy.RecoverProxyCredentials(ctx); err != nil {
 			return objects, err
 		}
 		if err := ctx.Err(); err != nil {

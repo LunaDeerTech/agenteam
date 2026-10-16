@@ -56,7 +56,7 @@ func TestSystemOutboundPolicyHTTPRootSharedInstance(t *testing.T) {
 			return err
 		}
 	})
-	address := a.address(t)
+	address := rootRouteAddress(t, a)
 	if constructed.Load() != 1 || runtime == nil || a.owned.outbound() != runtime {
 		t.Fatal("root did not retain exactly its one constructed policy/client runtime")
 	}
@@ -269,16 +269,19 @@ func TestSystemOutboundPolicyHTTPRootSharedInstance(t *testing.T) {
 	if runtime.policy.Status().Available {
 		t.Fatal("HTTP GET implicitly reloaded the mirror")
 	}
-	if !bytes.Equal(first, callHTTP("PUT", body, firstKey)) || runtime.policy.Status().Available {
-		t.Fatal("old receipt implicitly recovered an unavailable mirror")
-	}
 	requestTarget(ac.PolicyUnavailable)
 	targetCount(1)
-	if err = runtime.policy.Reload(ctx); err != nil {
-		t.Fatal("explicit maintenance recovery failed", err)
+	// A replay preserves its v2 receipt but separately reloads the locked
+	// current rule/proxy rows. The receipt alone never reopens admission.
+	if !bytes.Equal(first, callHTTP("PUT", body, firstKey)) {
+		t.Fatal("recovery changed the original historical receipt")
 	}
 	if status := runtime.policy.Status(); !status.Available || status.Version == nil || *status.Version != 3 {
-		t.Fatal("maintenance recovery did not restore current v3")
+		t.Fatal("replay recovery did not retain current v3 rules")
+	}
+	proxyCurrent, err := runtime.policy.GetProxy(ctx, actor)
+	if err != nil || proxyCurrent.Version != 1 || proxyCurrent.Mode != "direct" || proxyCurrent.Gateway != nil {
+		t.Fatal("replay recovery changed the current default proxy", err)
 	}
 	requestTarget(ac.PrivateNotAllowed)
 	targetCount(1)

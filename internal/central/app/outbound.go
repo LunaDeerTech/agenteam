@@ -8,7 +8,11 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
+	objc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
 
 type egress interface {
@@ -21,7 +25,6 @@ type outboundRuntime struct {
 	policy   *outbound.PolicyService
 	client   *outbound.Client
 	resolver outbound.Resolver // nil retains the default system resolver.
-	routes   outbound.ProxyRoutes
 	stopped  atomic.Bool
 }
 
@@ -37,7 +40,7 @@ func (o *outboundRuntime) Status() outbound.PolicyStatus {
 	return s
 }
 
-func createOutbound(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority) (*outboundRuntime, error) {
+func createOutbound(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, secrets *secret.Service, proxyAuthority *outbound.ProxySecretAuthority, guard *object.ProcessGuard) (*outboundRuntime, error) {
 	store, ok := db.(outbound.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("OUTBOUND_STORE_UNAVAILABLE")
@@ -46,16 +49,27 @@ func createOutbound(cfg config.Config, db database, auditing *audit.Service, aut
 	if err != nil {
 		return nil, err
 	}
-	var routes outbound.ProxyRoutes
-	if origins := cfg.OutboundProxyOrigins(); len(origins) != 0 {
-		routes, err = outbound.NewEnvironmentProxyRoutes(origins)
-		if err != nil {
-			return nil, err
-		}
+	if err = policy.BindProxy(outbound.ProxyDependencies{Processes: outboundProcessAuthority{guard}, Secrets: secrets, Authority: proxyAuthority, CurrentMACKey: cfg.AccountKeyring().OutboundProxyMACKey, MAC: cfg.AccountKeyring().OutboundProxyMAC}); err != nil {
+		return nil, err
 	}
-	client, err := outbound.NewClientWithProxy(policy, cfg.OutboundTrust(), nil, routes)
+	client, err := outbound.NewClient(policy, cfg.OutboundTrust(), nil)
 	if err != nil {
 		return nil, err
 	}
-	return &outboundRuntime{policy: policy, client: client, routes: routes}, nil
+	return &outboundRuntime{policy: policy, client: client}, nil
+}
+
+// This adapter retains the exact original guard through actual outbound join.
+type outboundProcessAuthority struct{ guard *object.ProcessGuard }
+
+func (a outboundProcessAuthority) CurrentProxyProcess() (string, error) {
+	id, err := a.guard.CurrentProcess()
+	return id.String(), err
+}
+func (a outboundProcessAuthority) ConfirmProxyProcessStopped(ctx context.Context, raw string) error {
+	id, err := foundation.ParseID[objc.Process](raw)
+	if err != nil {
+		return err
+	}
+	return a.guard.ConfirmStopped(ctx, id)
 }

@@ -96,9 +96,8 @@ func TestModelResponseHeaderPhaseExcludesConnectFailures(t *testing.T) {
 		_, _ = io.WriteString(conn, "HTTP/1.1 407 Proxy Authentication Required\r\nContent-Length: 0\r\n\r\n")
 		_, _ = io.Copy(io.Discard, conn)
 	})
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 	resolver := &proxyTestResolver{}
-	client, _ := proxyTestClient(t, trust, resolver)
+	client, _ := proxyTestClient(t, trust, resolver, gateway)
 	profile := proxyTestProfile(t, false, Limits{ResponseHeaders: 20 * time.Second, Overall: 25 * time.Second})
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -111,8 +110,8 @@ func TestModelResponseHeaderPhaseExcludesConnectFailures(t *testing.T) {
 	case <-ctx.Done():
 		t.Fatal("CONNECT failure did not close the original proxy socket")
 	}
-	if gateway.accepts.Load() != 1 || resolver.calls.Load() != 0 {
-		t.Fatal("CONNECT failure retried or resolved its target directly")
+	if gateway.accepts.Load() != 1 || resolver.calls.Load() != 1 {
+		t.Fatal("CONNECT failure retried or did not resolve the target exactly once")
 	}
 	responseHeadersTestDrain(t, client)
 }
@@ -165,9 +164,8 @@ func TestModelResponseHeadersDefaultTimeoutAndExplicitSuccess(t *testing.T) {
 			_, _ = io.WriteString(target, "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok")
 		}
 	})
-	proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 	resolver := &proxyTestResolver{}
-	client, _ := proxyTestClient(t, trust, resolver)
+	client, _ := proxyTestClient(t, trust, resolver, gateway)
 	ctx, cancel := context.WithTimeout(context.Background(), 24*time.Second)
 	defer cancel()
 	type outcome struct {
@@ -236,7 +234,7 @@ func TestModelResponseHeadersDefaultTimeoutAndExplicitSuccess(t *testing.T) {
 			t.Fatal("delayed-response gateway sockets did not join")
 		}
 	}
-	if !seenClosed["/default"] || !seenClosed["/extended"] || requests.Load() != 2 || gateway.accepts.Load() != 2 || resolver.calls.Load() != 0 {
+	if !seenClosed["/default"] || !seenClosed["/extended"] || requests.Load() != 2 || gateway.accepts.Load() != 2 || resolver.calls.Load() != 2 {
 		t.Fatal("delayed response lost socket ownership or retried its sent request")
 	}
 	responseHeadersTestDrain(t, client)
@@ -255,7 +253,19 @@ func TestModelResponseHeadersRetainShorterOperationDeadline(t *testing.T) {
 				_, _ = io.WriteString(conn, "HTTP/1.1 200 Connection Established\r\n\r\n")
 				target := tls.Server(conn, &tls.Config{MinVersion: tls.VersionTLS12, Certificates: []tls.Certificate{certificate}})
 				defer target.Close()
-				request, err := http.ReadRequest(bufio.NewReader(target))
+				reader := bufio.NewReader(target)
+				// Establish the owned tunnel and target TLS before measuring
+				// the existing 100ms response-wait deadline on its next use.
+				warmup, err := http.ReadRequest(reader)
+				if err != nil {
+					t.Error("warmup did not reach origin HTTP")
+					return
+				}
+				warmup.Body.Close()
+				if _, err = io.WriteString(target, "HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok"); err != nil {
+					return
+				}
+				request, err := http.ReadRequest(reader)
 				if err != nil {
 					t.Error("short-deadline request did not reach origin HTTP")
 					return
@@ -264,9 +274,17 @@ func TestModelResponseHeadersRetainShorterOperationDeadline(t *testing.T) {
 				close(ready)
 				_, _ = io.Copy(io.Discard, target)
 			})
-			proxyTestEnvironment(t, map[string]string{"HTTPS_PROXY": gateway.URL()})
 			resolver := &proxyTestResolver{}
-			client, _ := proxyTestClient(t, trust, resolver)
+			client, _ := proxyTestClient(t, trust, resolver, gateway)
+			warmup, err := client.Do(context.Background(), proxyTestRequest(t), proxyTestProfile(t, false, Limits{}))
+			if err != nil {
+				t.Fatal("warmup failed:", err)
+			}
+			if _, err = io.ReadAll(warmup.Body()); err != nil {
+				warmup.Close()
+				t.Fatal("warmup response failed:", err)
+			}
+			warmup.Close()
 			limits := Limits{ResponseHeaders: 20 * time.Second, Overall: 25 * time.Second}
 			parentLimit := 100 * time.Millisecond
 			if source == "overall" {
@@ -305,7 +323,7 @@ func TestModelResponseHeadersRetainShorterOperationDeadline(t *testing.T) {
 			case <-time.After(time.Second):
 				t.Fatal("short operation deadline did not close the original socket")
 			}
-			if gateway.accepts.Load() != 1 || resolver.calls.Load() != 0 {
+			if gateway.accepts.Load() != 1 || resolver.calls.Load() != 2 {
 				t.Fatal("timed-out sent request retried or escaped its proxy")
 			}
 			responseHeadersTestDrain(t, client)
