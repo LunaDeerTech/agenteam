@@ -4,7 +4,7 @@
 
 2026-10-17，用户明确要求将当前全部前端重建成果合入并推送 `main`，后续默认直接在 `main` 继续，不再保留长期重建分支。root 已将完整重建输入 `a9bbd0482ac5e63d1191f34cb912451e6c211151` 快进交付并普通推送到 `main`，远端提交已通过 `ls-remote` 确认；后续本轮仅同步工作流与收尾文档。主工作树使用 `main` 并跟踪 `origin/main`。产品源码与已部署 `3b7570d4` 一致，差异仅为文档。本轮不重建、不重新部署，复用输入未变的适用检查；本页下方保留各次真实结果、历史失败和未验证范围。
 
-Git 收尾已完成：逐对象核实后删除33个远端旧分支、33个本地旧分支及25个辅助 worktree；worktree 均为普通移除。当前本地仅 `main` 和 `/workspace/agenteam` 主工作树；远端仅 `main` 与 `ai/task-comments-20261013@4fee289d`，后者因独有评论实现及验证尚未完整交付而保留。跟踪引用仅 `origin/HEAD`、`origin/main` 和该评论分支，持久 fetchspec 仅保留 main；恢复时按[状态说明](README.md#新环境先发现再恢复)显式发现仍在远端的隔离任务。
+Git 收尾已完成：前轮逐对象核实后删除33个远端旧分支、33个本地旧分支及25个辅助 worktree；worktree 均为普通移除。用户随后明确弃用基于旧 UI/接口的 `ai/task-comments-20261013` 评论实现，root 已按核实 tip 的精确 lease 删除该远端分支及对应本机跟踪引用，远端查询确认仅剩 `main`；该分支没有本地分支或 worktree。旧评论实现未合入 main，未来做到任务详情时按新 UI/接口重新实现，不再恢复或迁移该旧实现，也未为本次弃用新增备份或归档。当前本地仅 `main` 和 `/workspace/agenteam` 主工作树，跟踪引用仅 `origin/HEAD`、`origin/main`，持久 fetchspec 仅保留 main；后续默认从主线继续。
 
 9份必要失败诊断原件已等值保留在私有目录 `/workspace/scratch/main-merge-cleanup-20261017-retained/`，映射与内容不入Git。清理后只读终核 actual0：25个辅助路径均已不存在；原 Central、Vue、FRP 四进程身份保持，当前 `3b7570d4` 恢复 manifest 与固定前端完好。原预览依赖的真实 `web/node_modules` 和 Playwright 目录均在主树，未迁移依赖；私有配置、业务数据和备份保留。workspace 可用约6.77GiB，本次释放约5.83GiB。原部署身份、恢复命令及证据边界见下节；快照不保存进程，后续须重新核实实际身份。以下“前轮/此前”中的分支、路径和状态属于原轮记录，不作为当前活动分支清单。
 
@@ -349,6 +349,5 @@ M3 明确范围已正式交付 main；接受范围、原失败和未覆盖边界
 
 - Model 原测试和 helper 的恢复说明见 [Model harness](m3-model-runtime/reproduction/README.md)与[原工作卡](../docs/development/work-items/m3-model-runtime.md)。既有 compile-only 结果不等于本轮执行测试。
 - 固定检索选型、排名、来源和 bootstrap 见[检索恢复入口](m3-retrieval-selection/README.md)；公开向量沿用 [runtime-embeddings-v2](m3-model-runtime/runtime-embeddings-v2/manifest.json) 的 gzip。Meeting SQL 测试和已审截图的位置沿上述正式工作卡恢复。
-- 远端 `origin/ai/task-comments-20261013` 继续保留，保存尚未合入 main 的“不改变任务状态的独立追加评论”API、迁移、服务、UI 与测试，完整任务未交付；本轮不接管、不清理，也不改写其旧失败或验收事实。恢复该任务须另核分支实际代码、差异与会话归属，不能把其旧 `current.md` 当作本轮状态。
 
 M3 后继缺口、完整 Lifecycle/全平台 Runner、生产 SPA/部署恢复和完整 D24/D25 token 流仍按原卡评估；`update-meeting`、`comment-meeting` 的可写语义仍未定义、未注册、未接受。不自动进入 M4、E01 或生产发布。
