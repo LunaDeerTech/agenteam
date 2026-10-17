@@ -451,7 +451,11 @@ func (r *pickerReasoningReview) configurationChecks(t *testing.T, embedding, tog
 	} {
 		bad := pickerReasoningSelectionInput(selected, embedding, toggle, "on", "")
 		tc.mutate(bad)
-		r.call(t, http.MethodPut, "model-selection", r.key(t), bad, http.StatusBadRequest)
+		want := http.StatusBadRequest
+		if tc.name == "effort-undeclared" || tc.name == "levels-have-no-toggle" {
+			want = http.StatusUnprocessableEntity
+		}
+		r.call(t, http.MethodPut, "model-selection", r.key(t), bad, want)
 		if !reflect.DeepEqual(selected, r.selection(t)) {
 			t.Fatal("invalid choice changed selection", tc.name)
 		}
@@ -467,8 +471,8 @@ func (r *pickerReasoningReview) mutationChecks(t *testing.T, embedding, thinking
 	beforeModel := r.call(t, http.MethodGet, "models/"+thinking, "", nil, http.StatusOK)
 	bad := pickerReasoningCopy(t, thinkingInput)
 	bad["capabilities"].(map[string]any)["reasoning_toggle_mode"] = nil
-	r.call(t, http.MethodPut, "models/"+thinking, r.key(t), map[string]any{"expected_version": "1", "input": bad}, http.StatusBadRequest)
-	r.call(t, http.MethodDelete, "models/"+thinking, r.key(t), map[string]any{"expected_version": "1", "replacement": effort}, http.StatusBadRequest)
+	r.call(t, http.MethodPut, "models/"+thinking, r.key(t), map[string]any{"expected_version": "1", "input": bad}, http.StatusUnprocessableEntity)
+	r.call(t, http.MethodDelete, "models/"+thinking, r.key(t), map[string]any{"expected_version": "1", "replacement": effort}, http.StatusUnprocessableEntity)
 	if !bytes.Equal(beforeModel, r.call(t, http.MethodGet, "models/"+thinking, "", nil, http.StatusOK)) || !reflect.DeepEqual(beforeSelection, r.selection(t)) {
 		t.Fatal("incompatible mutation lost the selected model or reasoning choice")
 	}
