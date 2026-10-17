@@ -302,17 +302,25 @@ func mcpM3EnableMediaModel(t *testing.T, v *executionSchedulerApp) {
 	mcpM3QueryCheck(t, "mcp-media-model-locate", v.admin.QueryRow(v.ctx, `SELECT m.id::text FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$1 AND m.provider_model_id='mcp-agent'`, v.a.String()).Scan(&model))
 	path := "/api/v1/projects/" + v.a.String() + "/models/" + model
 	var before struct {
-		ID      mc.ModelID    `json:"id"`
-		Input   mc.ModelInput `json:"input"`
-		Version f.Version     `json:"version"`
+		ID      mc.ModelID      `json:"id"`
+		Input   json.RawMessage `json:"input"`
+		Version f.Version       `json:"version"`
 	}
 	mcpM3HTTP(t, v, "media-model-get", http.MethodGet, path, nil, "", http.StatusOK, &before)
-	if before.ID.String() != model || before.Input.Validate() != nil || before.Version.Validate() != nil {
+	var modelInput mc.ModelInput
+	workAppCheck(t, "mcp-media-model-input", json.Unmarshal(before.Input, &modelInput))
+	if before.ID.String() != model || modelInput.Validate() != nil || before.Version.Validate() != nil {
 		t.Fatal("mcp-stage=media-model-get invalid current model")
 	}
-	before.Input.Capabilities.InputModalities = []string{"text", "image", "file"}
+	// Preserve the public GET's complete DTO. The internal Capabilities type
+	// omits nil context_length/max_output, while PUT requires explicit nulls.
+	var input, capabilities map[string]json.RawMessage
+	workAppCheck(t, "mcp-media-model-public-input", json.Unmarshal(before.Input, &input))
+	workAppCheck(t, "mcp-media-model-public-capabilities", json.Unmarshal(input["capabilities"], &capabilities))
+	capabilities["input_modalities"] = workAppJSON(t, []string{"text", "image", "file"})
+	input["capabilities"] = workAppJSON(t, capabilities)
 	var receipt mc.CommandReceipt
-	mcpM3HTTP(t, v, "media-model-update", http.MethodPut, path, map[string]any{"expected_version": before.Version, "input": before.Input}, guardID[struct{}](t).String(), http.StatusOK, &receipt)
+	mcpM3HTTP(t, v, "media-model-update", http.MethodPut, path, map[string]any{"expected_version": before.Version, "input": input}, guardID[struct{}](t).String(), http.StatusOK, &receipt)
 	var after struct {
 		Input   mc.ModelInput `json:"input"`
 		Version f.Version     `json:"version"`

@@ -13,12 +13,15 @@ import (
 
 func TestExecutionToolFactsCaptureProfileIsExplicitAndClosed(t *testing.T) {
 	p := providerRecord{Input: providerInput{Protocol: mc.OpenAIChat, Enabled: true, Options: json.RawMessage(`{}`)}}
-	m := modelRecord{Input: mc.ModelInput{Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{ToolCalls: true, Reasoning: true, InputModalities: []string{"text", "image", "file"}, OutputModalities: []string{"text"}}}}
+	m := modelRecord{Input: mc.ModelInput{Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{ToolCalls: true, Reasoning: true, InputModalities: []string{"text", "image", "file"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text", "json_schema"}}}}
 	sel := mc.SelectionRef{Kind: "direct"}
 	before, _ := json.Marshal(m)
 	revision, err := toolFactsResolutionProfile(&p, &m, sel)
 	if err != nil || revision != toolFactsCaptureRevision || revision == wire.OpenAIChatTextRevision {
 		t.Fatal("distinct configuration-only profile", err)
+	}
+	if revision, err := toolResolutionProfile(&p, &m, sel, true); err != nil || revision != wire.OpenAIChatToolsRevision {
+		t.Fatal("unused schema capability blocked runnable text tools profile", err)
 	}
 	after, _ := json.Marshal(m)
 	if string(before) != string(after) {

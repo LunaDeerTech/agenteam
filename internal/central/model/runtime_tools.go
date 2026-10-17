@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"slices"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
@@ -16,7 +17,7 @@ func prepareRuntimeToolInput(ctx context.Context, request mc.ModelRequest, mode 
 		return mc.ModelRequest{}, fault(f.InvalidArgument)
 	}
 	s, c := request.Model.Snapshot, request.Model.Snapshot.Capabilities
-	if mode != wire.JSONResponse || !runtimeSupportedOwner(request) || request.RetryClass != mc.AgentRetry || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || s.CredentialRef == nil || request.Model.CredentialLease == nil {
+	if mode != wire.JSONResponse || !runtimeSupportedOwner(request) || request.RetryClass != mc.AgentRetry || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !slices.Contains(c.StructuredOutputModes, "text") || s.CredentialRef == nil || request.Model.CredentialLease == nil {
 		return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
 	}
 	if err := runtimeMediaCapabilities(request.Messages, c); err != nil {

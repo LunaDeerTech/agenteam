@@ -28,6 +28,7 @@ func jsonToolsReply(name, arguments, finish string) []byte {
 func TestJSONToolsRequestHistoryAndChoice(t *testing.T) {
 	r, o := jsonToolsInput(t)
 	r.Snapshot.Capabilities.Streaming = true
+	r.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
 	r.Messages = append(r.Messages,
 		mc.Message{Role: "assistant", Parts: []mc.MessagePart{{ToolCall: &mc.ToolCallPart{ID: "previous", Name: "old_tool", Arguments: json.RawMessage(`{"x":9007199254740993}`)}}}},
 		mc.Message{Role: "tool", Parts: []mc.MessagePart{{ToolResult: &mc.ToolResultPart{CallID: "previous", IsError: true, Parts: []mc.ResultPart{{Text: &mc.TextPart{Text: "original error\u0000text"}}}}}}})
@@ -41,6 +42,10 @@ func TestJSONToolsRequestHistoryAndChoice(t *testing.T) {
 		req.Body.Close()
 		if err != nil {
 			t.Fatal(err)
+		}
+		var fields map[string]json.RawMessage
+		if json.Unmarshal(raw, &fields) != nil || fields["response_format"] != nil {
+			t.Fatal("unused schema capability changed the requested response format")
 		}
 		var body struct {
 			Messages []struct {
@@ -89,6 +94,13 @@ func TestJSONToolsRequestRejectsIncompleteHistoryAndUnsupportedMode(t *testing.T
 		"named-absent": func(r *Request) { r.ToolChoice = mc.ToolChoice{Kind: "named", Name: "absent"} },
 		"parallel":     func(r *Request) { r.Snapshot.Capabilities.ParallelToolCalls = true },
 		"stream":       func(r *Request) { r.Mode = SSEResponse; r.Snapshot.Capabilities.Streaming = true },
+		"schema-response": func(r *Request) {
+			r.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
+			r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "result", Schema: json.RawMessage(`{"type":"object"}`)}
+		},
+		"no-text-response": func(r *Request) {
+			r.Snapshot.Capabilities.StructuredOutputModes = []string{"json_schema"}
+		},
 		"old-revision": func(r *Request) { r.Snapshot.Identity.AdapterRevision = OpenAIChatTextRevision },
 		"oversize":     func(r *Request) { r.Messages[0].Parts[0].Text.Text = strings.Repeat("<", 3<<20) },
 	} {
@@ -98,6 +110,9 @@ func TestJSONToolsRequestRejectsIncompleteHistoryAndUnsupportedMode(t *testing.T
 			req, _, err := prepare(r, o)
 			if err == nil || req != nil {
 				t.Fatal("rejected request produced HTTP request")
+			}
+			if name == "schema-response" || name == "no-text-response" {
+				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
 			}
 		})
 	}

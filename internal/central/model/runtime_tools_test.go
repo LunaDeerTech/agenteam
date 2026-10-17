@@ -31,6 +31,7 @@ func runtimeToolRequest(t *testing.T) mc.ModelRequest {
 func TestRuntimeToolsAcceptsFirstAndFullSuccessorInput(t *testing.T) {
 	r := runtimeToolRequest(t)
 	r.Model.Snapshot.Capabilities.Streaming = true
+	r.Model.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
 	if _, err := prepareRuntimeInput(context.Background(), r, wire.JSONResponse); err != nil {
 		t.Fatal(err)
 	}
@@ -72,6 +73,13 @@ func TestRuntimeToolsRejectsChangedAndHistoricalProfiles(t *testing.T) {
 		"parallel":      func(r *mc.ModelRequest) { r.Model.Snapshot.Capabilities.ParallelToolCalls = true },
 		"missing-lease": func(r *mc.ModelRequest) { r.Model.CredentialLease = nil },
 		"schema":        func(r *mc.ModelRequest) { r.Input.SchemaVersion = 99 },
+		"schema-response": func(r *mc.ModelRequest) {
+			r.Model.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
+			r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "result", Schema: json.RawMessage(`{"type":"object"}`)}
+		},
+		"no-text-response": func(r *mc.ModelRequest) {
+			r.Model.Snapshot.Capabilities.StructuredOutputModes = []string{"json_schema"}
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			r := runtimeToolRequest(t)
@@ -79,6 +87,9 @@ func TestRuntimeToolsRejectsChangedAndHistoricalProfiles(t *testing.T) {
 			out, err := prepareRuntimeInput(context.Background(), r, wire.JSONResponse)
 			if err == nil || len(out.Messages) > 0 {
 				t.Fatal("invalid tools profile accepted")
+			}
+			if name == "schema-response" || name == "no-text-response" {
+				requireCode(t, err, f.CapabilityUnsupported)
 			}
 		})
 	}

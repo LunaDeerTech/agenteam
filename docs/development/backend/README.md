@@ -56,6 +56,8 @@ Chat text、structured 与 Embeddings 必须注入同一 `Budget`，共用全局
 
 Chat 配置必须声明 `text` 输入、固定 `text` 输出，可以额外保存 `image`、`file` 输入能力。纯文本调用不要求传入媒体；实际附件必须满足声明及来源授权。当前多模态组合候选将 PNG/JPEG/WEBP/非动画 GIF 编为原生图片、PDF 编为原生文件，plain/Markdown/DOCX 明确提取正文；不支持的 MIME 拒绝，不读取任意 URL/path，不静默把原生文件降级。组合 App 与权限/清退验证尚未完成，不能将候选源码当作已验证部署能力。Embedding 当前固定 `text → vector`，不接受 Chat 的 tools、streaming、reasoning、结构化输出能力或 `max_output`。Chat 的 JSON Schema 支持通过 `structured_output_modes` 声明；共享总结 selector 仍要求 `json_schema`。
 
+工具调用同样区分能力声明与本次请求：模型同时声明 `text`、`json_schema` 时，可以执行 `ResponseFormat=text` 的工具调用，编码不发送 `response_format`。本轮移除旧 tools profile 对额外 schema 能力的误拒；仍拒绝实际请求 tools + `ResponseFormat=json_schema`，未增加该 wire 组合，也不改变旧验收或 STOP 的历史范围。非空输出模式列表必须包含 `text`；只声明 `json_schema` 的模型仍不能走文本工具 profile。
+
 `reasoning` 只声明模型是否支持推理。`reasoning_efforts` 是最多 32 项的 `{name,value}` 列表：`name` 是去除首尾空白后 1–64 个 Unicode 码点的显示名称，禁止控制字符；`value` 是最多 32 字节的 ASCII 字母、数字或 `-_.:`，用于真实请求。名称和值分别唯一。`reasoning=false` 要求空列表；`true` 配空列表表示支持推理但无可调等级。服务端拒绝未规范化的名称，不替调用者猜等级或修改值。
 
 模型配置使用可空字符串 `notes` 作为纯备注（最多 2000 个 Unicode 码点、8000 UTF-8 字节）；主标识始终为原有最多 256 字节的 `provider_model_id`。备注不进入调用、快照身份或 Usage。内部历史命名 `ModelIdentity.ModelName` 新捕获值也是该 canonical ID，供应商名称校验不变。00151 属发布前结构调整，旧开发数据可重建，不兼容旧显示名快照。

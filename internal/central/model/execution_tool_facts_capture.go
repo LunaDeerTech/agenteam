@@ -57,7 +57,9 @@ func toolResolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selec
 		return "", fault(f.InvalidState)
 	}
 	c := m.Input.Capabilities
-	if selection.Kind != "direct" || p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !executable && c.Streaming || !c.SupportsTextInput() || !slices.Equal(c.OutputModalities, []string{"text"}) || len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
+	// An additional schema capability does not request structured output. This
+	// profile still requires text for each actual tools request.
+	if selection.Kind != "direct" || p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !executable && c.Streaming || !c.SupportsTextInput() || !slices.Equal(c.OutputModalities, []string{"text"}) || len(c.StructuredOutputModes) != 0 && !slices.Contains(c.StructuredOutputModes, "text") {
 		return "", fault(f.CapabilityUnsupported)
 	}
 	if executable {

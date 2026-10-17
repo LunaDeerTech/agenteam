@@ -8,24 +8,26 @@
 
 严格本机TLS/leaf/SPKI、基础设施nonce及新增 `/__instance__/release.json` 的b9d/后端SHA匹配通过；live200、匿名受保护API401，ready503仍为既有DEPENDENCY_UNBOUND。真实浏览器登录200、模型接入空态、添加供应商打开/取消、平台模型用途及模型选择器打开/取消、五个系统GET200通过；无配置写入、模型调用或SMTP发送。logout204→session401，CLI/Chromium实际exit0，临时relay关闭且socket0。原映射仍是18443→TLS5256→Central5257/Vue5245，服务保留；本轮公网匿名校验经继承代理及域名CONNECT均curl60（证书主名openai.com与目标IP不匹配），独立直连curl7，均未取得公网nonce。`https://154.12.86.233:18443` 是原目标入口，当前不能称公网验证成功；FRP存活和旧login/start日志不代公网归属证明。
 
-## 当前多模态工作索引（代码已落盘，联调未完成）
+## 当前多模态工作索引（实现已汇总，最后真实验证待完成）
 
-以下四树从已部署的b9d开始；实现源码已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，目前为组合WIP，尚未正式接受。root负责全部Git与最终集成；公开服务继续使用顶部b9d冻结快照，不随主树开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。代码落盘不等于完整真实链已通过。
+以下四树从已部署的b9d开始；实现已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，当前包含core `aa6e9f2c`全部代码，尚待最终Git保存与验收收口。root负责Git；公开服务仍使用顶部b9d冻结快照，不随主树开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
 
-| 工作树 / 分支                                                                             | Owner / 恢复输入                                                          |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`；HEAD `3c68105b`，核心产品 `681d423f`             |
-| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers`；`db036954` 已纳入core与tests   |
-| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`；HEAD `d2ce97f9`，产品 `8e6f2bef`                      |
-| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`；HEAD `a9fe773d`，含Task必需工具回复夹具修正 |
+| 工作树 / 分支                                                                             | Owner / 恢复输入                                                        |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`；HEAD `aa6e9f2c`                                |
+| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers`；`db036954` 已纳入core与tests |
+| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`；HEAD `d2ce97f9`，产品 `8e6f2bef`                    |
+| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`；`037c0614` 唯一App-c在途                  |
 
-作者定向单元与App生产构建已通过。Vue新增18项定向用例、最终类型/格式/生产打包通过；作者两尺寸及独立合成浏览器已覆盖文本/附件、格式和能力拒绝、Unknown原key/body、纯文本回答、键盘移除回焦及原生200%/reduced-motion。最后附件移除焦点问题已修复并原场景通过；首大请求单例超时、准备/回执fixture失配及ENOSPC打包失败保留原边界，最终打包使用独占 `/tmp` 输出。截图与UI详细验证见[模型工作项](../docs/development/work-items/frontend-model-catalog.md)，不能作为真实后端解析或外部模型调用证明。
+作者定向单元与App生产构建已通过。Vue新增18项定向用例、最终类型/格式/生产打包通过；作者两尺寸及独立合成浏览器已覆盖文本/附件、格式和能力拒绝、Unknown原key/body、纯文本回答、键盘移除回焦及原生200%/reduced-motion。最后附件移除焦点问题已修复并原场景通过；首大请求单例超时、准备/回执fixture失配及ENOSPC打包失败保留原边界。截图与UI详细验证见[模型工作项](../docs/development/work-items/frontend-model-catalog.md)；浏览器使用受控API，不代表真实浏览器后端E2E。
 
-独立真实App前两次整链实际退出1：第一次上传内容MIME与begin夹具不一致，第二次Task初始required-tool阶段误回stop；均仅修测试夹具，两批自有容器、网络和进程已精确清退。第二轮已到Task `dispatch=sent`，但末端PNG精确字节断言尚未执行，不能宣称Task图片wire闭环。第三版改为真实builtin read-task与successor，唯一App-c session22989仍在编译；Task完整附件与后继快照、Meeting/Summary、inline管理API、MCP及权限/生命周期边界尚待最终结果。
+独立受控真实App已分轮通过Task/Meeting/Summary链（43.13s）与inline管理API（43.75s）。后者覆盖媒体wire、有界UTF-8回答、同key仅一次出站、严格DTO、超限/能力拒绝以及撤销admin后的receipt重放403；MCP unsupported路径另通过54.17s。首次两次整链因上传MIME夹具与Task required-tool回复夹具不符失败，修后通过，不追认首次成功。
 
-直接外部协议探针共三次：PNG成功，原生PDF两次HTTP400，原因未定；这不是App验证，不证明完整混合输入可用。后端已准备opt-in外部混合输入App测试，尚未执行，不追加探针推断成功。下一步是收齐第三次受控App链的实际结果与资源清退，再进行已授权的完整App外部混合验证；真实门槛未完成前保持WIP。
+Lifecycle原case发现三层产品校验误把模型支持json_schema当作本次请求使用工具schema；作者已窄修、5项顶层检查通过且独立静审认可，保持原能力声明的动态复验尚待。MCP supported首轮因nullable DTO字段遗漏返回400，测试fixture已修待复验。当前唯一App-c输入为tests `037c0614`；最后顺序为收齐原case复验、MCP supported，再执行一次真实App环境模型PNG+DOCX混合输入，不提前记通过。
 
-Vue全部浏览器已退出，私有Vite 5281暂留供可能的组合调用，仍由Vue owner管理；恢复须按 `/workspace/scratch/chat-multimodal-vue/vite-owner.json` 核验进程身份，未获最终清退窗口前不动。公开5245/5256、b9d生产快照与真实用户数据未因本轮开发改变。
+此前三次直接外部协议探针为PNG成功、原生PDF两次HTTP400且原因未定；它们不是App验证，PDF成功仍未证实。受控真实链通过不扩大为真实外部供应商全格式支持。
+
+已完成App批次资源按owner精确清退；一次PG清理15秒失败后仅补清owned空网络，实际资源归零，保留原清理失败。Vue全部浏览器退出，自有Vite核身份后TERM，原launcher33438实际143，进程/子进程与5281监听清零且端口可绑定；无消费者的独占 `/tmp` 生产outDir已删除，浏览器profile无残留。正式harness、截图、失败证据及共享依赖/工具保留。最终在途App由独立owner继续管理；公开5245/5256/5257与18443目标、b9d快照及真实用户数据未因本轮开发改变，公网仍未取得nonce。
 
 ## 前轮模型备注与选择思考配置
 

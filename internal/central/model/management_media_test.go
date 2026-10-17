@@ -88,3 +88,24 @@ func TestManagementChatAnswerProjection(t *testing.T) {
 		}
 	}
 }
+
+func TestManagementChatInputExactFieldNames(t *testing.T) {
+	for name, raw := range map[string]string{
+		"input_alias":       `{"Text":"x","attachments":[]}`,
+		"input_mixed_alias": `{"text":"x","Text":"replacement","attachments":[]}`,
+		"attachment_alias":  `{"text":"x","attachments":[{"Name":"a.txt","media_type":"text/plain","data_base64":"YQ=="}]}`,
+		"mime_alias":        `{"text":"x","attachments":[{"name":"a.txt","Media_Type":"text/plain","data_base64":"YQ=="}]}`,
+		"data_alias":        `{"text":"x","attachments":[{"name":"a.txt","media_type":"text/plain","DATA_BASE64":"YQ=="}]}`,
+		"nested_unknown":    `{"text":"x","attachments":[{"name":"a.txt","media_type":"text/plain","data_base64":"YQ==","object_key":"forbidden"}]}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := decodeManagementMedia(json.RawMessage(raw)); err == nil {
+				t.Fatal("accepted a noncanonical field name")
+			}
+		})
+	}
+	input, err := decodeManagementMedia(json.RawMessage(`{"text":"x","attachments":[{"name":"a.txt","media_type":"text/plain","data_base64":"YQ=="}]}`))
+	if err != nil || input.Text != "x" || len(input.Attachments) != 1 || input.Attachments[0].Name != "a.txt" {
+		t.Fatal("exact lowercase field names were rejected")
+	}
+}

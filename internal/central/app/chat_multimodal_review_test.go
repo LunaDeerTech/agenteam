@@ -16,14 +16,18 @@ import (
 	"net/netip"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mt "github.com/LunaDeerTech/agenteam/internal/central/meeting/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
@@ -170,6 +174,390 @@ func TestChatMultimodalIndependentReview(t *testing.T) {
 	chatMultimodalDocumentWire(t, chatMultimodalWire(t, summaryState.Requests[0], r.secret), pdf, docx, docxMarker)
 	independentProxyNoSecret(t, []byte(v.root.logs.String()), r.secret, v.cookie, v.csrf)
 	t.Log("CHAT_MULTIMODAL_REVIEW task_png_and_successor=true meeting_pdf_and_parsed_docx=true summary_media=true exact_object_bytes=true original_app_joined=true external_model=false")
+}
+
+// The administrative inline path has its own strict HTTP input and receipt.
+// It shares the real media encoder/transport; it creates no Project upload.
+func TestChatMultimodalInlineIndependentReview(t *testing.T) {
+	r, w := chatMultimodalReviewApp(t, nil)
+	v := r.app
+	const marker = "INLINE-DOCX-BODY-913027"
+	picture := chatMultimodalFile{name: "inline.png", media: "image/png", body: chatMultimodalPNG(t)}
+	docx := chatMultimodalFile{name: "inline.docx", media: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", body: knowledgeM3DOCX(t, marker)}
+	// The 8192-byte boundary splits a three-byte rune. The safe projection
+	// must keep valid UTF-8, while the complete response is still inspected.
+	wantAnswer := strings.Repeat("a", 8191)
+	wire := memoryM3TextReply(t, wantAnswer+"€tail", 1)
+	scenario, err := w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", Wire: &wire})
+	workAppCheck(t, "multimodal-inline-peer", err)
+	catalog := &pickerReasoningReview{app: v, secret: r.secret}
+	var credential struct {
+		ID string `json:"credential_id"`
+	}
+	workAppCheck(t, "multimodal-inline-credential", json.Unmarshal(r.call(t, http.MethodPost, "/api/v1/system/model-credentials", guardID[struct{}](t).String(), map[string]string{"value": r.secret}, http.StatusOK), &credential))
+	provider := catalog.provider(t, scenario, credential.ID)
+	input := pickerReasoningInput("chat", "inline-multimodal", "Inline media boundary")
+	input["capabilities"].(map[string]any)["input_modalities"] = []string{"text", "image", "file"}
+	modelID := catalog.model(t, provider, input)
+	path := "/api/v1/system/models/" + modelID + "/test"
+	attachment := func(file chatMultimodalFile) map[string]any {
+		return map[string]any{"name": file.name, "media_type": file.media, "data_base64": base64.StdEncoding.EncodeToString(file.body)}
+	}
+	request := func(text string, files []any) map[string]any {
+		return map[string]any{"expected_version": "1", "provider_version": "1", "input": map[string]any{"text": text, "attachments": files}}
+	}
+	key := guardID[struct{}](t).String()
+	intent := request("Read both supplied attachments.", []any{attachment(picture), attachment(docx)})
+	raw := r.call(t, http.MethodPost, path, key, intent, http.StatusOK)
+	var result model.ManagementResult
+	workAppCheck(t, "multimodal-inline-result", json.Unmarshal(raw, &result))
+	if result.OperationID == "" || result.Outcome != "succeeded" || result.Reason != nil || result.ModelID != modelID || result.ProviderID != provider || result.ModelVersion != 1 || result.ProviderVersion != 1 || result.Items != nil || result.AnswerText == nil || *result.AnswerText != wantAnswer || !utf8.ValidString(*result.AnswerText) || !result.AnswerTruncated || result.DurationMS < 0 || result.DurationMS > 120000 || result.CreatedAt.Validate() != nil {
+		t.Fatal("inline media lost its bounded safe answer or original receipt")
+	}
+	if !bytes.Equal(raw, r.call(t, http.MethodPost, path, key, intent, http.StatusOK)) {
+		t.Fatal("inline same-key replay changed its persisted receipt")
+	}
+	r.call(t, http.MethodPost, path, key, request("Changed input.", []any{attachment(picture), attachment(docx)}), http.StatusConflict)
+	// Reject forged object selectors and case aliases before managed I/O.
+	forged := attachment(picture)
+	forged["object_id"] = guardID[struct{}](t).String()
+	r.call(t, http.MethodPost, path, guardID[struct{}](t).String(), request("Reject forged source.", []any{forged}), http.StatusBadRequest)
+	aliased := attachment(picture)
+	aliased["Name"] = aliased["name"]
+	delete(aliased, "name")
+	r.call(t, http.MethodPost, path, guardID[struct{}](t).String(), request("Reject case alias.", []any{aliased}), http.StatusBadRequest)
+	oversized := chatMultimodalFile{name: "too-large.txt", media: "text/plain", body: bytes.Repeat([]byte("x"), (1<<20)+1)}
+	r.call(t, http.MethodPost, path, guardID[struct{}](t).String(), request("Reject before provider.", []any{attachment(oversized)}), http.StatusRequestEntityTooLarge)
+	unsupported := chatMultimodalFile{name: "unsupported.bin", media: "application/octet-stream", body: []byte("owned unsupported input")}
+	r.call(t, http.MethodPost, path, guardID[struct{}](t).String(), request("Reject unsupported format.", []any{attachment(unsupported)}), http.StatusUnprocessableEntity)
+	var completed, released, active int
+	workAppCheck(t, "multimodal-inline-owned-leases", v.admin.QueryRow(v.ctx, `SELECT
+ (SELECT count(*) FROM agenteam_model.management_operations WHERE credential_id=$1 AND result IS NOT NULL),
+ (SELECT count(*) FROM agenteam_secret.secret_leases WHERE credential_id=$1 AND owner_kind='model_management_request' AND released),
+ (SELECT count(*) FROM agenteam_secret.secret_leases WHERE credential_id=$1 AND NOT released)`, credential.ID).Scan(&completed, &released, &active))
+	if completed != 1 || released != 1 || active != 0 {
+		t.Fatal("inline replay or rejected input acquired another provider lease", completed, released, active)
+	}
+	// Current authority also applies to a stored successful media receipt.
+	_, err = v.admin.Exec(v.ctx, `UPDATE agenteam_account.users SET role='user' WHERE id=$1`, v.actor.Details().UserID)
+	workAppCheck(t, "multimodal-inline-revoke-owned-admin", err)
+	r.call(t, http.MethodPost, path, key, intent, http.StatusForbidden)
+	chatMultimodalReviewStop(t, v)
+	state := w.joinedPeer(t, scenario, 1, 1)
+	parts := chatMultimodalWire(t, state.Requests[0], r.secret)
+	chatMultimodalPNGWire(t, parts, picture)
+	textMatches, files := 0, 0
+	for _, part := range parts {
+		if part.Type == "file" {
+			files++
+		}
+		if part.Type == "text" && strings.Contains(part.Text, marker) {
+			textMatches++
+		}
+	}
+	if files != 0 || textMatches != 1 || strings.Contains(state.Requests[0].Body, base64.StdEncoding.EncodeToString(docx.body)) {
+		t.Fatal("inline DOCX did not use the shared extracted-text path")
+	}
+	independentProxyNoSecret(t, []byte(v.root.logs.String()), r.secret, v.cookie, v.csrf)
+	t.Log("CHAT_MULTIMODAL_INLINE_REVIEW http_input=true shared_media_wire=true bounded_utf8_answer=true same_key_single_send=true strict_and_size_rejected=true current_replay_authority=true original_app_joined=true")
+}
+
+// One Task supplies both lifecycle boundaries: editing its current attachment
+// list cannot rewrite an existing successor, and cancellation after the next
+// original read has closed must prevent that successor's application write.
+func TestChatMultimodalLifecycleIndependentReview(t *testing.T) {
+	gate := &chatMultimodalReadGate{seen: make(map[string]bool), hits: make(chan chatMultimodalReadHit, 2), errors: make(chan error, 1), stop: make(chan struct{})}
+	defer close(gate.stop)
+	r, w := chatMultimodalReviewApp(t, gate.observe)
+	v := r.app
+	defer func() {
+		if t.Failed() {
+			memoryM3Diagnose(t, v, "multimodal-lifecycle")
+		}
+	}()
+	taskID := guardID[wc.Task](t)
+	var toolID string
+	workAppCheck(t, "multimodal-lifecycle-original-tool", v.admin.QueryRow(v.ctx, `SELECT tool_id FROM agenteam_tool.identities WHERE stable_key='builtin:read-task'`).Scan(&toolID))
+	tool, err := f.ParseID[id.Tool](toolID)
+	workAppCheck(t, "multimodal-lifecycle-tool-id", err)
+	scenario, err := w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: []netfixture.WireScenario{
+		memoryM3ToolReply(t, tool, map[string]any{"task_id": taskID.String()}, 1),
+		memoryM3TextReply(t, "This cancelled successor must never be sent.", 2),
+	}})
+	workAppCheck(t, "multimodal-lifecycle-peer", err)
+	catalog := &pickerReasoningReview{app: v, secret: r.secret}
+	var credential struct {
+		ID string `json:"credential_id"`
+	}
+	workAppCheck(t, "multimodal-lifecycle-credential", json.Unmarshal(r.call(t, http.MethodPost, "/api/v1/system/model-credentials", guardID[struct{}](t).String(), map[string]string{"value": r.secret}, http.StatusOK), &credential))
+	provider := catalog.provider(t, scenario, credential.ID)
+	input := pickerReasoningInput("chat", "lifecycle-multimodal", "Current source permission")
+	caps := input["capabilities"].(map[string]any)
+	caps["tool_calls"] = true
+	caps["input_modalities"] = []string{"text", "image", "file"}
+	modelID := catalog.model(t, provider, input)
+	embedding := catalog.model(t, provider, pickerReasoningInput("embedding", "lifecycle-unused-embedding", ""))
+	catalog.selectSummary(t, embedding, modelID, "default", "")
+	modelIdentity, err := f.ParseID[mc.Model](modelID)
+	workAppCheck(t, "multimodal-lifecycle-model-id", err)
+	agents := meetingM3CreateAgents(t, v, modelIdentity)
+	picture := r.upload(t, v.a, "lifecycle.png", "image/png", chatMultimodalPNG(t))
+	foreign := r.upload(t, v.b, "other-project.png", "image/png", chatMultimodalPNG(t))
+	sprint := memoryM3CreateSprint(t, v)
+	base := "/api/v1/projects/" + v.a.String()
+	foreignTask := guardID[wc.Task](t)
+	r.call(t, http.MethodPost, base+"/tasks", guardID[struct{}](t).String(), map[string]any{"request": map[string]any{
+		"task_id": foreignTask, "sprint_id": sprint.ID, "title": "Reject cross-project image", "type": "task", "priority": "medium", "plan": "Do not read another Project's attachment.", "attachments": []string{foreign.ref.ArtifactID.String()},
+	}}, http.StatusNotFound)
+	r.call(t, http.MethodPost, base+"/meetings", guardID[struct{}](t).String(), map[string]any{
+		"agents": agents[:1], "mode": "sequential", "content_nodes": []mt.InlineNode{
+			{Type: "text", Text: "Do not read another Project's attachment."},
+			{Type: "file", Reference: &mt.Reference{Kind: "file", ID: foreign.ref.ArtifactID.String(), Label: foreign.name}},
+		},
+	}, http.StatusNotFound)
+	var rejectedTasks, meetings int
+	workAppCheck(t, "multimodal-cross-project-no-mutation", v.admin.QueryRow(v.ctx, `SELECT
+ (SELECT count(*) FROM agenteam_work.tasks WHERE id=$1),
+ (SELECT count(*) FROM agenteam_meeting.sessions WHERE project_id=$2)`, foreignTask.String(), v.a.String()).Scan(&rejectedTasks, &meetings))
+	if rejectedTasks != 0 || meetings != 0 {
+		t.Fatal("cross-project media refusal persisted a business mutation")
+	}
+	t.Log("CHAT_MULTIMODAL_LIFECYCLE_REVIEW stage=cross_project_refused")
+	var created wc.TaskMutation
+	v.httpSeed(t, "/tasks", map[string]any{"request": map[string]any{
+		"task_id": taskID, "sprint_id": sprint.ID, "title": "Frozen original image", "type": "task", "priority": "medium", "plan": "Read the original image.", "attachments": []string{picture.ref.ArtifactID.String()},
+	}}, &created)
+	_, err = v.planning.transitions.TransferTask(v.ctx, v.actor, executionSchedulerAppMeta(t, &created.Task.Version), v.a, taskID, wc.TaskTransfer{TargetState: wc.TaskStateTodo, AssigneeAgentID: &agents[0], AddBlockers: []wc.TaskBlockerCreate{}, ResolveBlockerIDs: []wc.TaskBlockerID{}})
+	workAppCheck(t, "multimodal-lifecycle-assign", err)
+	var objectID string
+	workAppCheck(t, "multimodal-original-object-identity", v.admin.QueryRow(v.ctx, `SELECT object_id FROM agenteam_artifact.artifacts WHERE project_id=$1 AND id=$2`, v.a.String(), picture.ref.ArtifactID.String()).Scan(&objectID))
+	gate.mu.Lock()
+	gate.app, gate.object = v, objectID
+	gate.mu.Unlock()
+	_, err = v.planning.sprints.StartSprint(v.ctx, v.actor, executionSchedulerAppMeta(t, &sprint.Version), v.a, sprint.ID)
+	workAppCheck(t, "multimodal-lifecycle-start", err)
+	v.store.releaseDirectory()
+	first := gate.await(t, v.ctx)
+	state, err := w.network.State(v.ctx, scenario)
+	workAppCheck(t, "multimodal-before-first-application-write", err)
+	if len(state.Requests) != 0 {
+		t.Fatal("source-close barrier did not precede the first application request")
+	}
+	path := base + "/tasks/" + taskID.String()
+	var current wc.Task
+	workAppCheck(t, "multimodal-lifecycle-current-task", json.Unmarshal(r.call(t, http.MethodGet, path, "", nil, http.StatusOK), &current))
+	var updated wc.TaskMutation
+	workAppCheck(t, "multimodal-omitted-attachments-receipt", json.Unmarshal(r.call(t, http.MethodPatch, path, guardID[struct{}](t).String(), map[string]any{"expected_version": current.Version, "request": map[string]any{"title": "Edited current title"}}, http.StatusOK), &updated))
+	if len(updated.Task.Attachments) != 1 || updated.Task.Attachments[0] != picture.ref.ArtifactID {
+		t.Fatal("omitted Task attachments did not retain the original selection")
+	}
+	workAppCheck(t, "multimodal-cleared-attachments-receipt", json.Unmarshal(r.call(t, http.MethodPatch, path, guardID[struct{}](t).String(), map[string]any{"expected_version": updated.Task.Version, "request": map[string]any{"attachments": []string{}}}, http.StatusOK), &updated))
+	if updated.Task.Attachments == nil || len(updated.Task.Attachments) != 0 {
+		t.Fatal("explicit empty Task attachments did not clear the current selection")
+	}
+	t.Log("CHAT_MULTIMODAL_LIFECYCLE_REVIEW stage=current_task_edited_before_first_write")
+	close(first.resume)
+	second := gate.await(t, v.ctx)
+	if second.lease == first.lease {
+		t.Fatal("successor reused the previous source lease")
+	}
+	// The second original read still targets the frozen Object even though the
+	// current Task is empty. Its released lease is observed, never read for it.
+	state, err = w.network.State(v.ctx, scenario)
+	workAppCheck(t, "multimodal-successor-before-application-write", err)
+	if len(state.Requests) != 1 {
+		t.Fatal("source-close barrier did not precede the successor application request")
+	}
+	chatMultimodalPNGWire(t, chatMultimodalWire(t, state.Requests[0], r.secret), picture)
+	var executionID string
+	workAppCheck(t, "multimodal-lifecycle-original-execution", v.admin.QueryRow(v.ctx, `SELECT id FROM agenteam_execution.executions WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2`, v.a.String(), taskID.String()).Scan(&executionID))
+	execution, err := f.ParseID[id.Execution](executionID)
+	workAppCheck(t, "multimodal-lifecycle-execution-id", err)
+	workAppCheck(t, "multimodal-current-cleared-task", json.Unmarshal(r.call(t, http.MethodGet, path, "", nil, http.StatusOK), &current))
+	if len(current.Attachments) != 0 {
+		t.Fatal("Task readback restored the frozen attachment to current state")
+	}
+	var detail struct {
+		Execution ec.TaskExecution `json:"execution"`
+	}
+	executionPath := taskExecutionReadPath(v.a, taskID.String(), execution)
+	workAppCheck(t, "multimodal-current-execution-version", json.Unmarshal(r.call(t, http.MethodGet, executionPath, "", nil, http.StatusOK), &detail))
+	var cancelled ec.CancelResult
+	workAppCheck(t, "multimodal-cancel-after-read", json.Unmarshal(r.call(t, http.MethodPost, executionPath+"/cancel", guardID[struct{}](t).String(), map[string]any{"expected_version": detail.Execution.Version, "expected_task_version": current.Version}, http.StatusOK), &cancelled))
+	if cancelled.Replayed || cancelled.Receipt.Execution.ID != execution || cancelled.Receipt.Execution.CancelRequestedAt == nil || cancelled.Receipt.Execution.Version != detail.Execution.Version+1 || cancelled.Receipt.Task.Version != current.Version+1 {
+		t.Fatal("read-after-cancel boundary lost its original cancellation receipt")
+	}
+	close(second.resume)
+	chatMultimodalAwaitCancelled(t, v, execution)
+	t.Log("CHAT_MULTIMODAL_LIFECYCLE_REVIEW stage=read_successor_cancelled")
+	chatMultimodalReviewStop(t, v)
+	w.joinedPeer(t, scenario, 1, 1)
+	var readers, sourceReleases, unretired, unreleased int
+	workAppCheck(t, "multimodal-lifecycle-original-joins", v.admin.QueryRow(v.ctx, `SELECT
+ (SELECT count(*) FROM agenteam_object.object_leases l JOIN agenteam_object.objects o ON o.id=l.object_id WHERE o.project_id=$1 AND l.state='active' AND l.owner_kind IN ('reader','source','writer')),
+ (SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$2 AND owner_kind='source' AND state='released'),
+ (SELECT count(*) FROM agenteam_model.calls WHERE project_id=$1 AND NOT retired),
+ (SELECT count(*) FROM agenteam_secret.secret_leases WHERE credential_id=$3 AND NOT released)`, v.a.String(), objectID, credential.ID).Scan(&readers, &sourceReleases, &unretired, &unreleased))
+	if readers != 0 || sourceReleases != 2 || unretired != 0 || unreleased != 0 {
+		t.Fatal("cancelled successor retained its original readers or calls", readers, sourceReleases, unretired, unreleased)
+	}
+	independentProxyNoSecret(t, []byte(v.root.logs.String()), r.secret, v.cookie, v.csrf)
+	t.Log("CHAT_MULTIMODAL_LIFECYCLE_REVIEW cross_project_refused=true current_attachment_clear=true frozen_successor_source=true cancel_after_actual_read=true successor_http_requests=0 original_reader_and_app_joined=true")
+}
+
+type chatMultimodalReadHit struct {
+	lease  string
+	resume chan struct{}
+}
+
+type chatMultimodalReadGate struct {
+	mu     sync.Mutex
+	app    *executionSchedulerApp
+	object string
+	seen   map[string]bool
+	hits   chan chatMultimodalReadHit
+	errors chan error
+	stop   chan struct{}
+}
+
+func (g *chatMultimodalReadGate) observe(cause f.TransactionCause, result f.CommitResult) {
+	if cause.Details().Owner != "object" || result.State() != f.Committed {
+		return
+	}
+	g.mu.Lock()
+	v, objectID := g.app, g.object
+	g.mu.Unlock()
+	if v == nil || objectID == "" {
+		return
+	}
+	// Ordinary SourceReads cleanup uses a random cleanup cause. Match the
+	// exact owned Object and actual released source-lease identities instead.
+	ctx, cancel := context.WithTimeout(v.ctx, 2*time.Second)
+	var leases []string
+	err := v.store.QueryRow(ctx, `SELECT COALESCE(array_agg(id::text ORDER BY id),ARRAY[]::text[]) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source' AND state='released'`, objectID).Scan(&leases)
+	cancel()
+	if err != nil {
+		select {
+		case g.errors <- err:
+		default:
+		}
+		return
+	}
+	for _, lease := range leases {
+		g.mu.Lock()
+		fresh := !g.seen[lease]
+		g.seen[lease] = true
+		g.mu.Unlock()
+		if !fresh {
+			continue
+		}
+		hit := chatMultimodalReadHit{lease: lease, resume: make(chan struct{})}
+		select {
+		case g.hits <- hit:
+		case <-g.stop:
+			return
+		case <-v.ctx.Done():
+			return
+		}
+		// This observer runs after the real Store transaction has returned.
+		// It owns no Work/Execution/Object lock and never opens a media reader.
+		select {
+		case <-hit.resume:
+		case <-g.stop:
+		case <-v.ctx.Done():
+		}
+	}
+}
+
+func (g *chatMultimodalReadGate) await(t *testing.T, parent context.Context) chatMultimodalReadHit {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(parent, 30*time.Second)
+	defer cancel()
+	select {
+	case hit := <-g.hits:
+		return hit
+	case err := <-g.errors:
+		t.Fatalf("original source-release observation failed: %v", err)
+	case <-ctx.Done():
+		t.Fatal("original source reader did not reach its bounded release barrier")
+	}
+	return chatMultimodalReadHit{}
+}
+
+func chatMultimodalAwaitCancelled(t *testing.T, v *executionSchedulerApp, execution id.ExecutionID) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(v.ctx, 30*time.Second)
+	defer cancel()
+	tick := time.NewTicker(25 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		var status string
+		workAppCheck(t, "multimodal-original-cancellation-terminal", v.admin.QueryRow(ctx, `SELECT status FROM agenteam_execution.executions WHERE id=$1`, execution.String()).Scan(&status))
+		if ec.Status(status).Terminal() {
+			if status != string(ec.Cancelled) {
+				t.Fatal("original media Execution finished with an unexpected terminal state", status)
+			}
+			return
+		}
+		select {
+		case <-ctx.Done():
+			t.Fatal("original media cancellation did not join within its budget")
+		case <-tick.C:
+		}
+	}
+}
+
+func chatMultimodalReviewApp(t *testing.T, observer func(f.TransactionCause, f.CommitResult)) (*chatMultimodalReview, *m1Workflow) {
+	t.Helper()
+	network, err := netfixture.Load()
+	workAppCheck(t, "multimodal-boundary-owned-network", err)
+	address, err := netip.ParseAddr(network.PrivateIP)
+	workAppCheck(t, "multimodal-boundary-owned-address", err)
+	var transport *outboundRuntime
+	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
+		env := guardEnvironment(t, v.root.db)
+		for key, value := range memoryM3Settings() {
+			env = append(env, "AGENTEAM_CENTRAL_"+key+"="+value)
+		}
+		env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile)
+		v.root.cfg = guardConfiguration(t, env)
+		diagnose := m1CommitObserver(t)
+		v.store.observeCommit = func(cause f.TransactionCause, result f.CommitResult) {
+			diagnose(cause, result)
+			if observer != nil {
+				observer(cause, result)
+			}
+		}
+		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
+			actual.resolver, transport = appFixtureResolver{address}, actual
+			return nil
+		}
+	})
+	if transport == nil {
+		t.Fatal("multimodal boundary requires original outbound assembly")
+	}
+	m1AllowOwnedPeer(t, v, transport, network)
+	return &chatMultimodalReview{app: v, secret: "owned-multimodal-" + guardID[struct{}](t).String()}, &m1Workflow{app: v, network: network}
+}
+
+func chatMultimodalReviewStop(t *testing.T, v *executionSchedulerApp) {
+	t.Helper()
+	v.runtime.StopAdmission()
+	// The inline-only case never launches a Project scheduler. Release the
+	// constructor's original discovery hold after admission has stopped.
+	v.store.releaseDirectory()
+	v.store.releaseLookup()
+	drain, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	err := v.runtime.Drain(drain)
+	cancel()
+	workAppCheck(t, "multimodal-boundary-drain", err)
+	v.requestStop()
+	usageAppWait(t, v.root.done, "multimodal-boundary-original-return")
+	workAppCheck(t, "multimodal-boundary-original-exit", v.root.err)
+	if !v.runtime.Joined() || !v.assembly.Joined() || !v.root.owned.producersJoined() {
+		t.Fatal("multimodal boundary owners have not joined")
+	}
+	memoryM3GuardReleased(t, v.workAppFixture)
 }
 
 type chatMultimodalReview struct {

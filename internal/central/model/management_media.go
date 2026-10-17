@@ -1,12 +1,11 @@
 package model
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
+
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	media "github.com/LunaDeerTech/agenteam/internal/central/model/media"
-	"io"
 )
 
 type managementMediaDigest struct {
@@ -42,28 +41,28 @@ func decodeManagementMedia(raw json.RawMessage) (*media.Input, error) {
 	if len(raw) == 0 {
 		return nil, nil
 	}
-	if bytes.Equal(raw, []byte("null")) {
+	// RawMessage bypasses the outer HTTP DTO's field-name checks. Decode exact
+	// map keys here instead of encoding/json's case-insensitive struct matching.
+	// The outer DecodeJSON still rejects duplicate keys at every nesting level.
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil || len(fields) != 2 || fields["text"] == nil || fields["attachments"] == nil {
 		return nil, fault(f.InvalidArgument)
 	}
-	var dto struct {
-		Text        *string `json:"text"`
-		Attachments *[]struct {
-			Name      *string `json:"name"`
-			MediaType *string `json:"media_type"`
-			Data      *string `json:"data_base64"`
-		} `json:"attachments"`
-	}
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if decoder.Decode(&dto) != nil || decoder.Decode(new(any)) != io.EOF || dto.Text == nil || dto.Attachments == nil {
+	var text *string
+	var attachments []map[string]json.RawMessage
+	if json.Unmarshal(fields["text"], &text) != nil || text == nil || json.Unmarshal(fields["attachments"], &attachments) != nil || attachments == nil {
 		return nil, fault(f.InvalidArgument)
 	}
-	out := &media.Input{Text: *dto.Text, Attachments: make([]media.Attachment, 0, len(*dto.Attachments))}
-	for _, a := range *dto.Attachments {
-		if a.Name == nil || a.MediaType == nil || a.Data == nil {
+	out := &media.Input{Text: *text, Attachments: make([]media.Attachment, 0, len(attachments))}
+	for _, a := range attachments {
+		if len(a) != 3 || a["name"] == nil || a["media_type"] == nil || a["data_base64"] == nil {
 			return nil, fault(f.InvalidArgument)
 		}
-		out.Attachments = append(out.Attachments, media.Attachment{Name: *a.Name, MediaType: *a.MediaType, DataBase64: *a.Data})
+		var name, mediaType, data *string
+		if json.Unmarshal(a["name"], &name) != nil || name == nil || json.Unmarshal(a["media_type"], &mediaType) != nil || mediaType == nil || json.Unmarshal(a["data_base64"], &data) != nil || data == nil {
+			return nil, fault(f.InvalidArgument)
+		}
+		out.Attachments = append(out.Attachments, media.Attachment{Name: *name, MediaType: *mediaType, DataBase64: *data})
 	}
 	return out, nil
 }
