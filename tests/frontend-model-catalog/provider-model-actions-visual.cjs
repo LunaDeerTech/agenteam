@@ -90,8 +90,8 @@ function sampleModel(n, type, modelId) {
         output_modalities: [type === "chat" ? "text" : "vector"],
         reasoning_efforts: [],
         structured_output_modes: type === "chat" ? ["json_schema"] : [],
-        context_length: 8192,
-        max_output: 1024,
+        context_length: "8192",
+        max_output: "1024",
       },
     },
   };
@@ -190,6 +190,15 @@ async function setup(c) {
         next_cursor: "synthetic-model-page-2",
       });
     }
+    if (method === "GET" && ep === mp + "/deletion-impact")
+      return reply({
+        model_id: models[0].id,
+        version: models[0].version,
+        reference_count: "0",
+        reference_groups: [],
+        replacement_requirement: "none",
+        delete_blocker: null,
+      });
     if (method === "GET" && ep === mp) {
       if (s.failModelRead) return route.abort("connectionfailed");
       return reply(models[0]);
@@ -430,6 +439,14 @@ async function edit({ p, s }) {
     "sample-chat",
   );
   await shot(p, "edit-model-desktop");
+  stage = "edit-delete-cancel";
+  await btn(d, "删除模型").click();
+  const deletion = p.getByRole("dialog", { name: "删除模型", exact: true });
+  await expect(deletion).toContainText("当前共有 0 处引用。");
+  await btn(deletion, "取消").click();
+  await expect(deletion).toHaveCount(0);
+  await expect(btn(d, "删除模型")).toBeFocused();
+  assert.equal(s.requests.length, 0);
   stage = "edit-cancel";
   await d.getByLabel("模型名称", { exact: true }).fill("尚未保存的合成名称");
   await btn(d, "取消").click();
@@ -464,6 +481,7 @@ async function edit({ p, s }) {
   return {
     ...testDetail,
     cancelZeroWrites: true,
+    nestedDeleteCancelFocus: true,
     editedFullInput: true,
     listUpdatedDespiteRefreshFailure: true,
     focus: true,

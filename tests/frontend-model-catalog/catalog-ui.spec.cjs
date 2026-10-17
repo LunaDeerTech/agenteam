@@ -9,9 +9,12 @@ const {
   providerStats,
 } = require("./owned-fixture.cjs");
 
-async function menu(page, model, action) {
-  await page.getByRole("button", { name: `${model}操作`, exact: true }).click();
-  await page.getByRole("menuitem", { name: action, exact: true }).click();
+async function rowAction(page, modelID, action) {
+  const row = page
+    .getByRole("table", { name: "供应商模型", exact: true })
+    .getByRole("row")
+    .filter({ has: page.getByRole("cell", { name: modelID, exact: true }) });
+  await row.getByRole("button", { name: action, exact: true }).click();
 }
 
 async function setCapabilities(scope, type) {
@@ -24,7 +27,7 @@ async function setCapabilities(scope, type) {
 }
 
 async function testModel(page, name, message) {
-  await menu(page, name, "测试");
+  await rowAction(page, name, "测试");
   const dialog = page.getByRole("dialog", { name: "测试模型", exact: true });
   await dialog.getByRole("button", { name: "开始测试", exact: true }).click();
   await expect(dialog.getByText(message, { exact: true })).toBeVisible();
@@ -92,7 +95,7 @@ test("one real supplier configures credentials and mixed models, discovers, impo
   await dialog.getByRole("button", { name: "保存", exact: true }).click();
   await expect(dialog.getByText("模型已保存。", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "完成", exact: true }).click();
-  await menu(page, `${name}/owned-rejected`, "编辑");
+  await rowAction(page, "owned-rejected", "编辑");
   dialog = page.getByRole("dialog", { name: "编辑模型", exact: true });
   await dialog
     .getByLabel("模型名称", { exact: true })
@@ -213,9 +216,9 @@ test("one real supplier configures credentials and mixed models, discovers, impo
   expect((await providerStats(page, owned)).discovery).toBe(
     before.discovery + 1,
   );
-  await testModel(page, `${name}/owned-chat`, "本次测试成功。");
-  await testModel(page, `${name}/owned-embedding`, "本次测试成功。");
-  await testModel(page, `${name}/owned-rejected`, "供应商拒绝了请求。");
+  await testModel(page, "owned-chat", "本次测试成功。");
+  await testModel(page, "owned-embedding", "本次测试成功。");
+  await testModel(page, "owned-rejected", "供应商拒绝了请求。");
   let observed = await providerStats(page, owned);
   expect(
     observed.chat === before.chat + 2 &&
@@ -237,7 +240,7 @@ test("one real supplier configures credentials and mixed models, discovers, impo
       throw new Error("OWNED_UI_ACCEPTED_RESPONSE_LOSS_FAILED");
     }
   });
-  await menu(page, `${name}/owned-chat`, "测试");
+  await rowAction(page, "owned-chat", "测试");
   dialog = page.getByRole("dialog", { name: "测试模型", exact: true });
   await dialog.getByRole("button", { name: "开始测试", exact: true }).click();
   await expect(

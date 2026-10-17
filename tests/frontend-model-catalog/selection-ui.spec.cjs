@@ -264,13 +264,21 @@ test("anchored global picker searches across pages and suppliers, drafts once an
   await page.goto(`${owned.origin}/system/models/${chat.provider}`, {
     waitUntil: "domcontentloaded",
   });
-  const menu = page.getByRole("button", {
-    name: `${chat.display}操作`,
+  const row = page
+    .getByRole("table", { name: "供应商模型", exact: true })
+    .getByRole("row")
+    .filter({
+      has: page.getByRole("cell", { name: chat.remoteID, exact: true }),
+    });
+  const editor = page.getByRole("dialog", { name: "编辑模型", exact: true });
+  const deleteTrigger = editor.getByRole("button", {
+    name: "删除模型",
     exact: true,
   });
   const openDelete = async () => {
-    await menu.click();
-    await page.getByRole("menuitem", { name: "删除", exact: true }).click();
+    if (!(await editor.isVisible()))
+      await row.getByRole("button", { name: "编辑", exact: true }).click();
+    await deleteTrigger.click();
   };
   await openDelete();
   let deletion = page.getByRole("dialog", { name: "删除模型", exact: true });
@@ -282,7 +290,7 @@ test("anchored global picker searches across pages and suppliers, drafts once an
   ).toBeDisabled();
   await deletion.getByRole("button", { name: "取消", exact: true }).click();
   await expect(deletion).toHaveCount(0);
-  await expect(menu).toBeFocused();
+  await expect(deleteTrigger).toBeFocused();
   expect((await api(page, `/system/models/${chat.model}`)).status).toBe(200);
   await openDelete();
   deletion = page.getByRole("dialog", { name: "删除模型", exact: true });
