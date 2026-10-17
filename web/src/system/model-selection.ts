@@ -22,10 +22,10 @@ export const platformPurposes = [
 export type PlatformPurpose = (typeof platformPurposes)[number];
 export type ModelPurpose = PlatformPurpose;
 export const purposeLabels: Record<ModelPurpose, string> = {
-  embedding: "向量模型",
-  summary: "总结模型",
-  reranker: "重排模型",
-  image: "图像生成模型",
+  embedding: "向量模型（Embedding）",
+  summary: "总结模型（Chat）",
+  reranker: "重排模型（Rerank）",
+  image: "图像生成模型（Image Generation）",
 };
 export const purposeDescriptions: Record<ModelPurpose, string> = {
   embedding: "将知识库和记忆文本转换为向量，用于语义检索；需文本向量模型。",

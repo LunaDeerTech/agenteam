@@ -164,7 +164,7 @@ test("anchored global picker searches across pages and suppliers, drafts once an
   await expect(
     page.getByRole("heading", { name: "平台模型用途", exact: true }).first(),
   ).toBeVisible();
-  const { trigger, panel } = await openPicker(page, "选择总结模型");
+  const { trigger, panel } = await openPicker(page, "选择总结模型（Chat）");
   await expect(panel).not.toHaveAttribute("aria-modal", "true");
   await expect(panel.getByRole("option")).toHaveCount(10);
   await expect(option(page, panel, chat.display)).toHaveCount(0);
@@ -218,12 +218,17 @@ test("anchored global picker searches across pages and suppliers, drafts once an
   expect((await api(page, "/system/model-selection")).value).toEqual(
     initialSelection.value,
   );
-  const vector = await openPicker(page, "选择向量模型");
+  const vector = await openPicker(page, "选择向量模型（Embedding）");
   await search(page, vector.panel, embedding.remoteID);
   await expect(vector.panel.getByRole("option")).toHaveCount(1);
   await option(page, vector.panel, embedding.display).click();
   await expect(vector.panel).toHaveCount(0);
-  for (const label of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
+  for (const label of [
+    "向量模型（Embedding）",
+    "总结模型（Chat）",
+    "重排模型（Rerank）",
+    "图像生成模型（Image Generation）",
+  ])
     await expect(
       page.getByRole("button", {
         name: new RegExp(`^选择${label}(?:，当前 .*)?$`),

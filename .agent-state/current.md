@@ -1,5 +1,7 @@
 # 当前状态：ModelPicker锚定浮层与全局搜索已完成适用验证
 
+2026-10-17 用户命名微调：四用途展示名改为“向量模型（Embedding）”“总结模型（Chat）”“重排模型（Rerank）”“图像生成模型（Image Generation）”，仅共享标签与必要精确定位器随动；限定格式、3个CJS语法及既有页面读取/清除2项用例通过，未新增测试、重跑浏览器/完整工程矩阵或启动服务，用途key/API不变。
+
 2026-10-17，起点`857d94a3`。用户已确认ModelPicker改为触发选框下方的可复用锚定浮层，一层跨供应商模型列表与搜索、当前勾选和不可选原因；空选框“点击选择模型”，已选“供应商名称/模型ID”始终可见，hover只改样式。四用途各有短描述，image显示“图像生成模型”，重排/图像生成明确尚未绑定。后台提供真实全局查询，禁止前端拼供应商各页；单summary保存、草稿与Unknown不改。
 
 account_backend在`/workspace/agenteam-model-picker-backend`（`ai/model-picker-backend-20261017`），proxy_copy在`/workspace/agenteam-model-picker-vue`（`ai/model-picker-vue-20261017`），runtime在`/workspace/agenteam-model-picker-tests`（`ai/model-picker-tests-20261017`）；root负责集成/Git，组件规范由Vue owner维护。后端生产`d95dffb2`稳定，Vue最终`1b8bd205`含分页重试回焦修复`575db175`；前一主树产品集成`82ff92d6`。GET/HEAD `/system/models`的全局查询与安全provider投影已落地；合同沿[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。本轮仍只交图床匿名校验后的截图，不部署公网、不动现用户数据或外部SMTP。

@@ -343,9 +343,9 @@ async function setup(c, o = {}) {
 }
 
 let stage = "setup";
-const trigger = (p, purpose = "总结模型") =>
+const trigger = (p, purpose = "总结模型（Chat）") =>
   p.getByRole("button", { name: new RegExp("^选择" + purpose + "(?:，|$)") });
-const popup = (p, purpose = "总结模型") =>
+const popup = (p, purpose = "总结模型（Chat）") =>
   p.getByRole("dialog", { name: "选择" + purpose, exact: true });
 const search = (p) =>
   p.getByRole("combobox", { name: "搜索供应商或模型", exact: true });
@@ -393,7 +393,7 @@ async function geometry(p, anchor, panel, expected) {
   );
   return { side, anchor: a, panel: r };
 }
-async function expand(p, purpose = "总结模型", method = "click") {
+async function expand(p, purpose = "总结模型（Chat）", method = "click") {
   const t = trigger(p, purpose);
   await t[method]();
   const panel = popup(p, purpose);
@@ -406,7 +406,9 @@ async function desktop({ p, s }) {
   stage = "desktop-page";
   await expect(trigger(p)).toHaveText(label(s, 10));
   await expect(
-    p.getByRole("heading", { name: /^图像生成模型\s*可选$/ }),
+    p.getByRole("heading", {
+      name: /^图像生成模型（Image Generation）\s*可选$/,
+    }),
   ).toBeVisible();
   await expect(p.locator(".purpose-description")).toHaveCount(4);
   await expect(btn(p, "保存")).toHaveCount(1);
@@ -496,7 +498,7 @@ async function desktop({ p, s }) {
   await expect(btn(panel, "下一页")).toBeFocused();
   await p.keyboard.press("Tab");
   await expect(panel).toHaveCount(0);
-  await expect(trigger(p, "重排模型")).toBeFocused();
+  await expect(trigger(p, "重排模型（Rerank）")).toBeFocused();
   assert.equal(s.writes.length, 0, "picker interactions are drafts only");
   return {
     firstGeometry,
@@ -513,7 +515,7 @@ async function narrow({ p, s }) {
   await overflow(p);
   await shot(p, "long-page-390-light");
   stage = "narrow-touch-anchor";
-  const { t, panel } = await expand(p, "总结模型", "tap");
+  const { t, panel } = await expand(p, "总结模型（Chat）", "tap");
   const firstGeometry = await geometry(p, t, panel);
   await shot(p, "03-long-picker-390-light");
   await option(panel, label(s, 11)).scrollIntoViewIfNeeded();
@@ -534,10 +536,10 @@ async function narrow({ p, s }) {
   await expect(t).toHaveText(label(s, 12));
   await expect(t).toBeFocused();
   stage = "narrow-bottom-flip-scroll";
-  const bottom = trigger(p, "图像生成模型");
+  const bottom = trigger(p, "图像生成模型（Image Generation）");
   await bottom.scrollIntoViewIfNeeded();
   await bottom.tap();
-  const lower = popup(p, "图像生成模型");
+  const lower = popup(p, "图像生成模型（Image Generation）");
   await expect(lower.getByRole("option").first()).toBeVisible();
   const flipGeometry = await geometry(p, bottom, lower, "above");
   const scroll = p.locator(".settings-main");
@@ -633,7 +635,7 @@ async function keyboardDetail({ p, s }) {
   await expect(search(panel)).toBeFocused();
   await p.keyboard.press("Shift+Tab");
   await expect(panel).toHaveCount(0);
-  await expect(trigger(p, "向量模型")).toBeFocused();
+  await expect(trigger(p, "向量模型（Embedding）")).toBeFocused();
   await expect(t).toHaveText(label(s, 10));
   stage = "keyboard-pagination-error-retry-focus";
   await t.click();

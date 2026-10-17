@@ -192,7 +192,7 @@ async function run(browser, width, theme) {
     });
     await trigger.click();
     const panel = page.getByRole("dialog", {
-      name: "选择总结模型",
+      name: "选择总结模型（Chat）",
       exact: true,
     });
     await expect(panel).toBeVisible();

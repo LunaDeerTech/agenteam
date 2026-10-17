@@ -259,10 +259,10 @@ describe("platform model selections", () => {
         .findAll('button[aria-label^="选择"]')
         .map((item) => item.attributes("aria-label")?.split("，")[0]),
     ).toEqual([
-      "选择向量模型",
-      "选择总结模型",
-      "选择重排模型",
-      "选择图像生成模型",
+      "选择向量模型（Embedding）",
+      "选择总结模型（Chat）",
+      "选择重排模型（Rerank）",
+      "选择图像生成模型（Image Generation）",
     ]);
     expect(view.text()).toMatch(/Vector Provider\s*\/\s*upstream-10/);
     expect(view.text()).toMatch(/Chat Provider\s*\/\s*upstream-11/);
@@ -623,7 +623,9 @@ describe("platform model selections", () => {
     await click("保存");
     expect(writes).toHaveLength(1);
     expect(JSON.parse(writes[0]!.body).image).toBe(id(14));
-    await wrapper!.get('[aria-label="清除图像生成模型"]').trigger("click");
+    await wrapper!
+      .get('[aria-label="清除图像生成模型（Image Generation）"]')
+      .trigger("click");
     puts = () => json(receipt(id(1), "6"));
     await click("保存");
     expect(JSON.parse(writes[1]!.body)).toMatchObject({
