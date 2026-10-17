@@ -18,10 +18,17 @@ async function rowAction(page, modelID, action) {
 }
 
 async function setCapabilities(scope, type) {
-  await scope.getByLabel("输入模态", { exact: true }).fill("text");
   await scope
-    .getByLabel("输出模态", { exact: true })
-    .fill(type === "embedding" ? "vector" : "text");
+    .getByRole("group", { name: "输入模态", exact: true })
+    .getByRole("checkbox", { name: "文本", exact: true })
+    .check();
+  await scope
+    .getByRole("group", { name: "输出模态", exact: true })
+    .getByRole("checkbox", {
+      name: type === "embedding" ? "向量" : "文本",
+      exact: true,
+    })
+    .check();
   if (type === "chat")
     await scope.getByLabel("结构化输出", { exact: true }).fill("json_schema");
 }
