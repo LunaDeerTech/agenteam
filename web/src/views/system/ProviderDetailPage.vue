@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { UiButton, UiMenu, UiTabs } from "../../components/ui";
 import SystemList from "../../components/system/SystemList.vue";
 import ProviderEditor from "../../components/system/ProviderEditor.vue";
 import ModelEditorDialog from "../../components/system/ModelEditorDialog.vue";
+import ModelStatusSwitch from "../../components/system/ModelStatusSwitch.vue";
 import ModelDiscoveryDialog from "../../components/system/ModelDiscoveryDialog.vue";
 import ModelTestDialog from "../../components/system/ModelTestDialog.vue";
 import CatalogDeleteDialog from "../../components/system/CatalogDeleteDialog.vue";
@@ -17,7 +25,6 @@ import { useSettingsHeading } from "../../layouts/settingsHeading";
 import { accountEnabled } from "../../account/transport";
 import {
   catalogError,
-  modelDisplayName,
   editableProtocols,
   getProvider,
   listModels,
@@ -36,16 +43,40 @@ const reading = ref(false);
 const error = shallowRef<unknown>();
 const tab = ref(route.query.tab === "config" ? "config" : "models");
 const configLocked = ref(false);
+const lockedRows = ref(new Set<string>());
+const pageLocked = computed(
+  () => configLocked.value || !!lockedRows.value.size,
+);
+const listView = ref<{
+  focusResults: (options?: { scroll?: boolean }) => Promise<void>;
+}>();
+function rowLocked(id: string, locked: boolean) {
+  const next = new Set(lockedRows.value);
+  if (locked) next.add(id);
+  else next.delete(id);
+  lockedRows.value = next;
+}
+function modelSaved(model: CatalogModel) {
+  list.updateItem(
+    (item) => item.id === model.id,
+    (item) => ({ ...item, ...model }),
+  );
+}
+async function modelDeleted() {
+  await list.refresh({ preserve: true });
+  await nextTick();
+  await listView.value?.focusResults({ scroll: false });
+}
 const tabs = computed(() => [
   {
     value: "models",
     label: "模型",
-    disabled: configLocked.value && tab.value !== "models",
+    disabled: pageLocked.value && tab.value !== "models",
   },
   {
     value: "config",
     label: "配置",
-    disabled: configLocked.value && tab.value !== "config",
+    disabled: pageLocked.value && tab.value !== "config",
   },
 ]);
 const modelEditing = ref(false);
@@ -64,7 +95,7 @@ const capability = computed(() =>
   ),
 );
 const headerActions = computed(() => [
-  { id: "refresh", label: "刷新", disabled: configLocked.value },
+  { id: "refresh", label: "刷新", disabled: pageLocked.value },
   {
     id: "discovery",
     label: "发现模型",
@@ -76,6 +107,7 @@ const headerActions = computed(() => [
   { id: "delete", label: "删除供应商", disabled: !editable.value },
 ]);
 function headerAction(action: string) {
+  if (pageLocked.value || !access.allowed.value) return;
   if (action === "refresh") {
     void load();
     void list.refresh();
@@ -87,27 +119,19 @@ function headerAction(action: string) {
   }
 }
 function modelAction(model: CatalogModel, action: string) {
+  if (pageLocked.value || list.pending.value || !editable.value) return;
   selectedModel.value = model;
   if (action === "edit") modelEditing.value = true;
-  if (action === "test") testing.value = true;
-  if (action === "delete") {
-    deleting.value = true;
-  }
+  if (action === "test" && canTest(model)) testing.value = true;
 }
-function rowActions(model: CatalogModel) {
-  return [
-    { id: "edit", label: "编辑", disabled: !editable.value },
-    {
-      id: "test",
-      label: "测试",
-      disabled:
-        !editable.value ||
-        !capability.value?.test ||
-        !model.input.enabled ||
-        !provider.value?.input.enabled,
-    },
-    { id: "delete", label: "删除", disabled: !editable.value },
-  ];
+function canTest(model: CatalogModel) {
+  return (
+    editable.value &&
+    capability.value?.test &&
+    capability.value.model_types.includes(model.input.type) &&
+    model.input.enabled &&
+    provider.value?.input.enabled
+  );
 }
 function deleted() {
   if (selectedModel.value) {
@@ -129,6 +153,7 @@ async function loadCapabilities() {
 
 const editable = computed(
   () =>
+    access.allowed.value &&
     !!provider.value &&
     editableProtocols.includes(provider.value.input.protocol),
 );
@@ -168,6 +193,7 @@ watch(
     sequence++;
     provider.value = undefined;
     configLocked.value = false;
+    lockedRows.value = new Set();
     modelEditing.value =
       discovering.value =
       testing.value =
@@ -198,7 +224,7 @@ onBeforeUnmount(() => {
       <UiButton
         v-if="tab === 'models'"
         variant="primary"
-        :disabled="!editable || configLocked"
+        :disabled="!editable || pageLocked || list.pending.value"
         @click="
           selectedModel = undefined;
           modelEditing = true;
@@ -208,7 +234,7 @@ onBeforeUnmount(() => {
       <UiMenu
         label="更多"
         :items="headerActions"
-        :disabled="!provider || reading || configLocked"
+        :disabled="!provider || reading || pageLocked || list.pending.value"
         @select="headerAction"
       />
     </SettingsPageActions>
@@ -232,11 +258,12 @@ onBeforeUnmount(() => {
             <UiButton @click="loadCapabilities">重新读取能力</UiButton>
           </div>
           <SystemList
+            ref="listView"
             :list="list"
             :row-key="(item) => item.id"
             label="模型接入"
             empty-text="此供应商尚未添加模型。"
-            :disabled="!access.allowed.value"
+            :disabled="!access.allowed.value || pageLocked"
           >
             <template #table="{ items }"
               ><div class="model-table-scroll">
@@ -244,42 +271,65 @@ onBeforeUnmount(() => {
                   <thead>
                     <tr>
                       <th>模型</th>
-                      <th>名称</th>
                       <th>类型</th>
-                      <th>状态</th>
+                      <th>启用</th>
                       <th><span class="sr-only">操作</span></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="model in items" :key="model.id">
                       <td>
-                        {{
-                          modelDisplayName(
-                            provider.input.name,
-                            model.input.provider_model_id,
-                          )
-                        }}
+                        {{ model.input.provider_model_id }}
                       </td>
-                      <td>{{ model.input.name }}</td>
                       <td>
-                        {{
-                          modelTypeChoices.find(
-                            (type) => type.value === model.input.type,
-                          )?.label
-                        }}
+                        <span class="model-type-tag">
+                          {{
+                            modelTypeChoices.find(
+                              (type) => type.value === model.input.type,
+                            )?.label
+                          }}</span
+                        >
                       </td>
-                      <td>{{ model.input.enabled ? "已启用" : "已停用" }}</td>
-                      <td>
-                        <UiMenu
-                          :label="`${modelDisplayName(provider.input.name, model.input.provider_model_id)}操作`"
-                          :items="rowActions(model)"
-                          @select="modelAction(model, $event)"
+                      <td
+                        class="model-status-cell"
+                        :class="{ 'is-active': lockedRows.has(model.id) }"
+                      >
+                        <ModelStatusSwitch
+                          :provider="provider"
+                          :model="model"
+                          :disabled="
+                            list.pending.value ||
+                            (pageLocked && !lockedRows.has(model.id))
+                          "
+                          @saved="modelSaved"
+                          @locked="rowLocked(model.id, $event)"
                         />
+                      </td>
+                      <td>
+                        <div class="model-row-actions">
+                          <UiButton
+                            :disabled="
+                              !editable || pageLocked || list.pending.value
+                            "
+                            @click="modelAction(model, 'edit')"
+                            >编辑</UiButton
+                          >
+                          <UiButton
+                            :disabled="
+                              !canTest(model) ||
+                              pageLocked ||
+                              list.pending.value
+                            "
+                            @click="modelAction(model, 'test')"
+                            >测试</UiButton
+                          >
+                        </div>
                       </td>
                     </tr>
                   </tbody>
-                </table></div
-            ></template>
+                </table>
+              </div></template
+            >
           </SystemList>
         </div>
         <ProviderEditor
@@ -297,7 +347,8 @@ onBeforeUnmount(() => {
         v-model:open="modelEditing"
         :provider="provider"
         :model="selectedModel"
-        @saved="list.refresh()"
+        @saved="list.refresh({ preserve: true })"
+        @deleted="modelDeleted"
       />
       <ModelDiscoveryDialog
         v-model:open="discovering"
@@ -320,12 +371,21 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
-.model-actions {
+.model-row-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
+}
+.model-type-tag {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  padding: 2px 7px;
+  font-size: var(--font-size-caption);
+  white-space: nowrap;
 }
 .model-table-scroll {
   position: relative;
@@ -335,7 +395,7 @@ onBeforeUnmount(() => {
   border-collapse: collapse;
   width: 100%;
   font-size: 13px;
-  min-width: 560px;
+  min-width: 0;
   text-align: left;
 }
 .model-table th {
@@ -355,5 +415,53 @@ onBeforeUnmount(() => {
 .model-table th:last-child,
 .model-table td:last-child {
   padding-right: 0;
+}
+.model-table th:nth-child(2),
+.model-table td:nth-child(2),
+.model-table th:last-child,
+.model-table td:last-child {
+  width: 1%;
+  white-space: nowrap;
+}
+.model-status-cell {
+  min-width: 56px;
+}
+@media (max-width: 600px) {
+  .model-table thead {
+    display: none;
+  }
+  .model-table tbody {
+    display: block;
+  }
+  .model-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .model-table td,
+  .model-table td:nth-child(2),
+  .model-table td:last-child {
+    width: auto;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .model-table td:first-child {
+    grid-column: 1 / -1;
+  }
+  .model-status-cell {
+    grid-column: 2;
+    justify-self: end;
+  }
+  .model-status-cell.is-active {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+  .model-table td:last-child {
+    grid-column: 1 / -1;
+  }
 }
 </style>

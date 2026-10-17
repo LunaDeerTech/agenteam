@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   reactive,
   ref,
@@ -10,6 +11,7 @@ import {
 import { UiButton, UiDialog } from "../ui";
 import ModelFormFields from "./ModelFormFields.vue";
 import CatalogCommandFeedback from "./CatalogCommandFeedback.vue";
+import CatalogDeleteDialog from "./CatalogDeleteDialog.vue";
 import { useCatalogCommand } from "../../system/useCatalogCommand";
 import { useSystemAccess } from "../../system/requests";
 import { AccountError } from "../../account/transport";
@@ -19,6 +21,7 @@ import {
   catalogOperation,
   catalogError,
   getModel,
+  editableProtocols,
   type Provider,
   type CatalogModel,
   type CatalogReceipt,
@@ -31,6 +34,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:open": [value: boolean];
   saved: [value: CatalogModel];
+  deleted: [];
 }>();
 const access = useSystemAccess();
 const write = useCatalogCommand<CatalogReceipt>();
@@ -38,6 +42,8 @@ const draft = reactive(modelDraft(props.provider.input.protocol));
 const baseline = shallowRef<CatalogModel>();
 const initial = ref("");
 const discarding = ref(false);
+const deleting = ref(false);
+const removed = ref(false);
 const reading = ref(false);
 const receipt = shallowRef<CatalogReceipt>();
 const canonical = shallowRef<CatalogModel>();
@@ -55,6 +61,34 @@ const locked = computed(
     write.observing.value ||
     reading.value,
 );
+const readOnly = computed(
+  () =>
+    !access.allowed.value ||
+    !editableProtocols.includes(props.provider.input.protocol),
+);
+const canDelete = computed(
+  () =>
+    !!baseline.value &&
+    !readOnly.value &&
+    !locked.value &&
+    !dirty.value &&
+    !receipt.value &&
+    !write.error.value &&
+    !error.value,
+);
+function beginDelete() {
+  if (canDelete.value) deleting.value = true;
+}
+async function deletionOpen(value: boolean) {
+  deleting.value = value;
+  if (!value && removed.value) {
+    clear();
+    emit("update:open", false);
+    await nextTick();
+    await nextTick();
+    emit("deleted");
+  }
+}
 const conflict = computed(
   () =>
     write.error.value instanceof AccountError &&
@@ -67,12 +101,14 @@ function clear() {
   issue.value = "";
   receipt.value = canonical.value = undefined;
   reading.value = discarding.value = false;
+  deleting.value = removed.value = false;
   Object.assign(draft, modelDraft(props.provider.input.protocol));
   baseline.value = undefined;
   initial.value = JSON.stringify(draft);
 }
 function close(force = false) {
-  if (locked.value) return;
+  if (locked.value || deleting.value || (receipt.value && !canonical.value))
+    return;
   if (dirty.value && !force) {
     discarding.value = true;
     return;
@@ -120,7 +156,13 @@ async function readLatest() {
   }
 }
 async function save() {
-  if (locked.value || receipt.value || conflict.value || !access.allowed.value)
+  if (
+    locked.value ||
+    deleting.value ||
+    receipt.value ||
+    conflict.value ||
+    readOnly.value
+  )
     return;
   issue.value = "";
   let input;
@@ -183,8 +225,8 @@ useLeaveProtection(() => props.open && (dirty.value || locked.value));
     :title="
       discarding ? '放弃尚未保存的编辑？' : model ? '编辑模型' : '添加模型'
     "
-    :close-on-escape="!locked"
-    :close-on-outside="!locked"
+    :close-on-escape="!locked && !deleting && !(receipt && !canonical)"
+    :close-on-outside="!locked && !deleting && !(receipt && !canonical)"
     @update:open="close()"
   >
     <div v-if="discarding" class="account-form">
@@ -202,10 +244,12 @@ useLeaveProtection(() => props.open && (dirty.value || locked.value));
         {{ catalogError(error)
         }}<UiButton :loading="reading" @click="readSaved">重新读取</UiButton>
       </div>
-      <UiButton :disabled="reading" @click="close(true)">完成</UiButton>
+      <UiButton :disabled="reading || !canonical" @click="close(true)"
+        >完成</UiButton
+      >
     </div>
     <form v-else class="account-form" @submit.prevent="save">
-      <fieldset :disabled="locked" class="model-editor-fields">
+      <fieldset :disabled="locked || readOnly" class="model-editor-fields">
         <ModelFormFields :draft="draft" :protocol="provider.input.protocol" />
       </fieldset>
       <p v-if="issue" role="alert" class="form-feedback">{{ issue }}</p>
@@ -226,17 +270,33 @@ useLeaveProtection(() => props.open && (dirty.value || locked.value));
       <UiButton v-if="conflict" :loading="reading" @click="readLatest"
         >读取最新版本，保留草稿</UiButton
       >
-      <div class="form-actions">
+      <div class="model-editor-actions">
         <UiButton
-          variant="primary"
-          type="submit"
-          :loading="write.busy.value"
-          :disabled="locked || conflict"
-          >保存</UiButton
-        ><UiButton :disabled="locked" @click="close()">取消</UiButton>
+          v-if="model"
+          variant="danger"
+          :disabled="!canDelete"
+          @click="beginDelete"
+          >删除模型</UiButton
+        >
+        <div class="form-actions">
+          <UiButton
+            variant="primary"
+            type="submit"
+            :loading="write.busy.value"
+            :disabled="locked || conflict || readOnly"
+            >保存</UiButton
+          ><UiButton :disabled="locked" @click="close()">取消</UiButton>
+        </div>
       </div>
     </form>
   </UiDialog>
+  <CatalogDeleteDialog
+    :open="deleting"
+    :provider="provider"
+    :model="baseline"
+    @update:open="deletionOpen"
+    @deleted="removed = true"
+  />
 </template>
 <style scoped>
 .model-editor-fields {
@@ -244,5 +304,14 @@ useLeaveProtection(() => props.open && (dirty.value || locked.value));
   padding: 0;
   margin: 0;
   min-width: 0;
+}
+.model-editor-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.model-editor-actions > .form-actions {
+  margin-left: auto;
 }
 </style>
