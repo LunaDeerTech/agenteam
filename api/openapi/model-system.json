@@ -2707,7 +2707,8 @@
           "reasoning_efforts",
           "structured_output_modes",
           "context_length",
-          "max_output"
+          "max_output",
+          "reasoning_toggle_mode"
         ],
         "properties": {
           "tool_calls": {
@@ -2791,6 +2792,14 @@
                 "type": "null"
               }
             ]
+          },
+          "reasoning_toggle_mode": {
+            "enum": [
+              null,
+              "enable_thinking",
+              "thinking_type"
+            ],
+            "description": "Explicit OpenAI-compatible request dialect, only Chat with reasoning=true and no effort levels. null supports provider default only. enable_thinking uses a top-level boolean; thinking_type uses thinking.type=enabled/disabled. Never inferred from model ID."
           }
         },
         "description": "Reasoning capability does not enable a request setting. Explicit choices must match a declared value; absent choices use the provider default. reasoning=false requires no efforts. max_output must not exceed context_length when both are present.",
@@ -2813,6 +2822,28 @@
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "reasoning_toggle_mode": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reasoning_toggle_mode"
+              ]
+            },
+            "then": {
+              "properties": {
+                "reasoning": {
+                  "const": true
+                },
+                "reasoning_efforts": {
+                  "maxItems": 0
+                }
+              }
+            }
           }
         ]
       },
@@ -2820,7 +2851,7 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "name",
+          "notes",
           "provider_model_id",
           "type",
           "enabled",
@@ -2830,10 +2861,11 @@
           "capabilities"
         ],
         "properties": {
-          "name": {
+          "notes": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 128
+            "maxLength": 2000,
+            "description": "Optional display-only notes, at most 2000 Unicode code points / 8000 UTF-8 bytes; empty is allowed. Never sent as the upstream model ID.",
+            "pattern": "^[^\\u0000]*$"
           },
           "provider_model_id": {
             "type": "string",
@@ -2951,6 +2983,9 @@
                     },
                     "max_output": {
                       "type": "null"
+                    },
+                    "reasoning_toggle_mode": {
+                      "type": "null"
                     }
                   }
                 }
@@ -3000,6 +3035,9 @@
                     },
                     "output_modalities": {
                       "const": []
+                    },
+                    "reasoning_toggle_mode": {
+                      "type": "null"
                     }
                   }
                 }
@@ -3051,6 +3089,9 @@
                       "const": [
                         "image"
                       ]
+                    },
+                    "reasoning_toggle_mode": {
+                      "type": "null"
                     }
                   }
                 }
@@ -3200,12 +3241,12 @@
                 ],
                 "properties": {
                   "embedding": {
-                    "$ref": "./common.json#/components/schemas/ID"
+                    "$ref": "#/components/schemas/ModelChoice"
                   },
                   "reranker": {
                     "oneOf": [
                       {
-                        "$ref": "./common.json#/components/schemas/ID"
+                        "$ref": "#/components/schemas/ModelChoice"
                       },
                       {
                         "type": "null"
@@ -3215,7 +3256,7 @@
                   "image": {
                     "oneOf": [
                       {
-                        "$ref": "./common.json#/components/schemas/ID"
+                        "$ref": "#/components/schemas/ModelChoice"
                       },
                       {
                         "type": "null"
@@ -3223,7 +3264,7 @@
                     ]
                   },
                   "summary": {
-                    "$ref": "./common.json#/components/schemas/ID"
+                    "$ref": "#/components/schemas/ModelChoice"
                   }
                 }
               },
@@ -3253,12 +3294,12 @@
             "$ref": "./common.json#/components/schemas/Version"
           },
           "embedding": {
-            "$ref": "./common.json#/components/schemas/ID"
+            "$ref": "#/components/schemas/ModelChoice"
           },
           "reranker": {
             "oneOf": [
               {
-                "$ref": "./common.json#/components/schemas/ID"
+                "$ref": "#/components/schemas/ModelChoice"
               },
               {
                 "type": "null"
@@ -3268,7 +3309,7 @@
           "image": {
             "oneOf": [
               {
-                "$ref": "./common.json#/components/schemas/ID"
+                "$ref": "#/components/schemas/ModelChoice"
               },
               {
                 "type": "null"
@@ -3276,7 +3317,7 @@
             ]
           },
           "summary": {
-            "$ref": "./common.json#/components/schemas/ID"
+            "$ref": "#/components/schemas/ModelChoice"
           }
         }
       },
@@ -4059,6 +4100,60 @@
                 "type": "null"
               }
             ]
+          }
+        }
+      },
+      "ReasoningChoice": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode"
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "default",
+                  "on",
+                  "off"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode",
+              "value"
+            ],
+            "properties": {
+              "mode": {
+                "const": "effort"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_.:-]{1,32}$"
+              }
+            }
+          }
+        ],
+        "description": "default omits reasoning fields. on/off require a declared toggle mapping. effort requires an exact declared value. Non-Chat choices allow default only."
+      },
+      "ModelChoice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "model_id",
+          "reasoning"
+        ],
+        "properties": {
+          "model_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "reasoning": {
+            "$ref": "#/components/schemas/ReasoningChoice"
           }
         }
       }

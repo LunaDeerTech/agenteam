@@ -243,7 +243,7 @@ func (v *textRuntimeFixture) request(t *testing.T, key string) mc.ModelRequest {
 		t.Fatal("real platform selection read", err)
 	}
 	embedding := v.base.model(t, v.base.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel)
-	_, err = v.base.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.base.meta(t, newID[struct{}](t).String()), ExpectedVersion: selection.Version, Selection: mc.PlatformSelection{ID: selection.ID, Version: selection.Version, Embedding: embedding.ID, Summary: modelID}})
+	_, err = v.base.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.base.meta(t, newID[struct{}](t).String()), ExpectedVersion: selection.Version, Selection: mc.PlatformSelection{ID: selection.ID, Version: selection.Version, Embedding: mc.DefaultModelChoice(embedding.ID), Summary: mc.DefaultModelChoice(modelID)}})
 	if err != nil {
 		t.Fatal("real platform summary selection update", err)
 	}

@@ -19,7 +19,7 @@ func (v *currentResolutionFixture) selectMemory(t *testing.T, m mc.ModelView) f.
 		t.Fatal(e)
 	}
 	embed := v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel)
-	receipt, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: embed.ID, Summary: m.ID}})
+	receipt, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: mc.DefaultModelChoice(embed.ID), Summary: mc.DefaultModelChoice(m.ID)}})
 	if e != nil {
 		t.Fatal(e)
 	}

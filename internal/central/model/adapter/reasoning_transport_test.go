@@ -13,7 +13,8 @@ import (
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 )
 
-func TestReasoningPreparedRequestOwnedTLSTransport(t *testing.T) {
+func reasoningTestTransport(t *testing.T) (*httptest.Server, *http.Client, <-chan []byte) {
+	t.Helper()
 	// Exercise the prepared wire request over an owned TLS connection. The
 	// outbound policy, credential lease and database lifecycle are tested elsewhere.
 	bodies := make(chan []byte, 1)
@@ -29,6 +30,11 @@ func TestReasoningPreparedRequestOwnedTLSTransport(t *testing.T) {
 	t.Cleanup(server.Close)
 	client := server.Client()
 	client.Timeout = 5 * time.Second
+	return server, client, bodies
+}
+
+func TestReasoningPreparedRequestOwnedTLSTransport(t *testing.T) {
+	server, client, bodies := reasoningTestTransport(t)
 	for _, profile := range []struct {
 		name  string
 		input func(*testing.T) (Request, CallOptions)
@@ -62,6 +68,9 @@ func TestReasoningPreparedRequestOwnedTLSTransport(t *testing.T) {
 					t.Fatal(err)
 				}
 				effort, present := body["reasoning_effort"]
+				if body["enable_thinking"] != nil || body["thinking"] != nil {
+					t.Fatal("effort selection acquired a reasoning toggle field")
+				}
 				if selection == "custom" {
 					if string(effort) != `"custom:deep"` {
 						t.Fatalf("provider effort got %s; wanted declared value, not display name", effort)

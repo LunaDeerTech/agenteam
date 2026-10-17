@@ -15,8 +15,8 @@ import (
 func TestOpenAIProviderFamilyCapturesTwoExistingRuntimeAdapters(t *testing.T) {
 	chat := runtimePureRequest(t)
 	p := providerRecord{ID: chat.Model.Snapshot.Identity.ProviderID.String(), Input: providerInput{Name: "Shared OpenAI", Protocol: mc.OpenAICompatible, BaseURL: chat.Model.Snapshot.Endpoint, CredentialID: chat.Model.Snapshot.CredentialRef.Details().ID.String(), Enabled: true, Options: json.RawMessage(`{}`)}}
-	chatModel := modelRecord{ID: chat.Model.Snapshot.Identity.ModelID.String(), ProviderID: p.ID, Input: mc.ModelInput{Name: "Chat", ProviderModelID: "chat-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: chat.Model.Snapshot.Capabilities.Clone()}}
-	embedding := modelRecord{ID: mustID[mc.Model](t).String(), ProviderID: p.ID, Input: mc.ModelInput{Name: "Embedding", ProviderModelID: "embedding-model", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}}
+	chatModel := modelRecord{ID: chat.Model.Snapshot.Identity.ModelID.String(), ProviderID: p.ID, Input: mc.ModelInput{Notes: "Chat", ProviderModelID: "chat-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: chat.Model.Snapshot.Capabilities.Clone()}}
+	embedding := modelRecord{ID: mustID[mc.Model](t).String(), ProviderID: p.ID, Input: mc.ModelInput{Notes: "Embedding", ProviderModelID: "embedding-model", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}}
 	for _, m := range []*modelRecord{&chatModel, &embedding} {
 		if e := modelPolicy(m.Input, p.Input.Protocol); e != nil {
 			t.Fatal("family rejects saved supported model", e)
@@ -96,6 +96,6 @@ func TestOpenAIProviderFamilySystemCreateAndCapabilities(t *testing.T) {
 		t.Fatal("capabilities do not match shared family", string(raw))
 	}
 	// Invalid capability combinations remain rejected under the family.
-	bad := mc.ModelInput{Name: "bad", ProviderModelID: "bad", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}
+	bad := mc.ModelInput{Notes: "bad", ProviderModelID: "bad", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}
 	requireCode(t, modelPolicy(bad, mc.OpenAICompatible), f.CapabilityUnsupported)
 }

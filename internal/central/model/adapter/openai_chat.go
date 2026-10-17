@@ -51,6 +51,41 @@ type Request struct {
 	ResponseFormat mc.ResponseFormat
 	Mode           ResponseMode
 }
+
+type thinkingWire struct {
+	Type string `json:"type"`
+}
+
+type reasoningWireFields struct {
+	ReasoningEffort string        `json:"reasoning_effort,omitempty"`
+	EnableThinking  *bool         `json:"enable_thinking,omitempty"`
+	Thinking        *thinkingWire `json:"thinking,omitempty"`
+}
+
+func reasoningFields(snapshot mc.ConfigSnapshot) (reasoningWireFields, error) {
+	fields := reasoningWireFields{ReasoningEffort: snapshot.ReasoningEffort}
+	if snapshot.ReasoningEnabled == nil {
+		return fields, nil
+	}
+	if snapshot.Capabilities.ReasoningToggleMode == nil {
+		return reasoningWireFields{}, invalid()
+	}
+	enabled := *snapshot.ReasoningEnabled
+	switch *snapshot.Capabilities.ReasoningToggleMode {
+	case "enable_thinking":
+		fields.EnableThinking = &enabled
+	case "thinking_type":
+		kind := "disabled"
+		if enabled {
+			kind = "enabled"
+		}
+		fields.Thinking = &thinkingWire{Type: kind}
+	default:
+		return reasoningWireFields{}, invalid()
+	}
+	return fields, nil
+}
+
 type CallOptions struct {
 	ProjectID  identity.ProjectID
 	Context    outbound.CallContext
@@ -219,15 +254,19 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 		n := int64(*c.MaxOutput)
 		maxOutput = &n
 	}
+	reasoning, err := reasoningFields(r.Snapshot)
+	if err != nil {
+		return fail(err)
+	}
 	body := struct {
-		Model           string                `json:"model"`
-		Messages        []wireMessage         `json:"messages"`
-		Stream          bool                  `json:"stream"`
-		Options         map[string]bool       `json:"stream_options,omitempty"`
-		MaxOutput       *int64                `json:"max_completion_tokens,omitempty"`
-		Format          *structuredWireFormat `json:"response_format,omitempty"`
-		ReasoningEffort string                `json:"reasoning_effort,omitempty"`
-	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput, Format: format, ReasoningEffort: r.Snapshot.ReasoningEffort}
+		reasoningWireFields
+		Model     string                `json:"model"`
+		Messages  []wireMessage         `json:"messages"`
+		Stream    bool                  `json:"stream"`
+		Options   map[string]bool       `json:"stream_options,omitempty"`
+		MaxOutput *int64                `json:"max_completion_tokens,omitempty"`
+		Format    *structuredWireFormat `json:"response_format,omitempty"`
+	}{reasoningWireFields: reasoning, Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput, Format: format}
 	if body.Stream {
 		body.Options = map[string]bool{"include_usage": true}
 	}

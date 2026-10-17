@@ -92,7 +92,7 @@ func TestModelPlatformEmbeddingResolutionSelection(t *testing.T) {
 			t.Fatal(e)
 		}
 		next := state.Configured.Clone()
-		next.Summary = chat.ID
+		next.Summary = mc.DefaultModelChoice(chat.ID)
 		receipt, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: next})
 		if e != nil || receipt.Version != state.Version+1 {
 			t.Fatal("four-purpose version", e)
@@ -192,13 +192,13 @@ func TestModelPlatformEmbeddingResolutionSelection(t *testing.T) {
 			t.Fatal(e)
 		}
 		bad := state.Configured.Clone()
-		bad.Embedding = projectModel.ID
+		bad.Embedding = mc.DefaultModelChoice(projectModel.ID)
 		if _, e = v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: bad}); e == nil {
 			t.Fatal("Project model admitted to platform selector")
 		}
 		// Controlled negative storage only; restore the original selector bytes.
 		v.sql(t, `UPDATE agenteam_model.platform_selection SET embedding_id=$1 WHERE singleton`, projectModel.ID.String())
-		defer v.sql(t, `UPDATE agenteam_model.platform_selection SET embedding_id=$1 WHERE singleton`, state.Configured.Embedding.String())
+		defer v.sql(t, `UPDATE agenteam_model.platform_selection SET embedding_id=$1 WHERE singleton`, state.Configured.Embedding.ModelID.String())
 		for _, purpose := range []mc.Purpose{mc.KnowledgeEmbedding, mc.MemoryEmbedding} {
 			r := v.request(t, purpose)
 			p, e := v.resolving.DiscoverResolve(testContext(t), r)

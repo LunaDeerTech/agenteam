@@ -39,7 +39,7 @@ func platformEmbeddingTestRequest(t *testing.T, purpose mc.Purpose) mc.ResolveRe
 }
 
 func platformEmbeddingTestProfile() (providerRecord, modelRecord) {
-	return providerRecord{Input: providerInput{Name: "embedding-provider", Protocol: mc.OpenAIEmbeddings, BaseURL: "https://embedding.example/v1", Enabled: true, Options: json.RawMessage(`{}`)}}, modelRecord{Input: mc.ModelInput{Name: "embedding-model", ProviderModelID: "fixed-model", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}}
+	return providerRecord{Input: providerInput{Name: "embedding-provider", Protocol: mc.OpenAIEmbeddings, BaseURL: "https://embedding.example/v1", Enabled: true, Options: json.RawMessage(`{}`)}}, modelRecord{Input: mc.ModelInput{Notes: "embedding-model", ProviderModelID: "fixed-model", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}}
 }
 
 func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
@@ -64,7 +64,7 @@ func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
 				if e != nil || string(before) != string(after) {
 					t.Fatal("profile changed configured capabilities", e)
 				}
-				d := resolutionSnapshotDTO{Format: 1, ID: mustID[mc.Snapshot](t), ProjectID: r.Consumer.ProjectID, Identity: mc.ModelIdentity{ProviderID: mustID[mc.Provider](t), ModelID: mustID[mc.Model](t), ProviderName: p.Input.Name, ModelName: m.Input.Name, ProviderModelID: m.Input.ProviderModelID, Protocol: p.Input.Protocol, Profile: p.Input.Protocol.Profile(), ModelType: m.Input.Type, AdapterRevision: revision}, Endpoint: p.Input.BaseURL, Parameters: m.Input.Parameters, RequestOverwrite: m.Input.RequestOverwrite, HeaderOverwrite: map[string]string{}, Capabilities: m.Input.Capabilities.Clone()}
+				d := resolutionSnapshotDTO{Format: 1, ID: mustID[mc.Snapshot](t), ProjectID: r.Consumer.ProjectID, Identity: mc.ModelIdentity{ProviderID: mustID[mc.Provider](t), ModelID: mustID[mc.Model](t), ProviderName: p.Input.Name, ModelName: m.Input.ProviderModelID, ProviderModelID: m.Input.ProviderModelID, Protocol: p.Input.Protocol, Profile: p.Input.Protocol.Profile(), ModelType: m.Input.Type, AdapterRevision: revision}, Endpoint: p.Input.BaseURL, Parameters: m.Input.Parameters, RequestOverwrite: m.Input.RequestOverwrite, HeaderOverwrite: map[string]string{}, Capabilities: m.Input.Capabilities.Clone()}
 				snapshot, e := d.snapshot()
 				if e != nil || snapshot.Identity.Profile != mc.OpenAIEmbeddingsV1 || !reflect.DeepEqual(snapshot.Capabilities, m.Input.Capabilities) {
 					t.Fatal("snapshot does not preserve the accepted float profile", e)

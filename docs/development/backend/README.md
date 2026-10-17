@@ -58,7 +58,13 @@ Chat 配置必须声明 `text` 输入、固定 `text` 输出，可以额外保�
 
 `reasoning` 只声明模型是否支持推理。`reasoning_efforts` 是最多 32 项的 `{name,value}` 列表：`name` 是去除首尾空白后 1–64 个 Unicode 码点的显示名称，禁止控制字符；`value` 是最多 32 字节的 ASCII 字母、数字或 `-_.:`，用于真实请求。名称和值分别唯一。`reasoning=false` 要求空列表；`true` 配空列表表示支持推理但无可调等级。服务端拒绝未规范化的名称，不替调用者猜等级或修改值。
 
-Agent 可以选择已声明的 `value`，也可以不选。明确选择在配置校验、解析事务和不可变 Model snapshot 中绑定，并进入后续轮次语义摘要；OpenAI-compatible Chat 的既有 text、structured 和 tools JSON 编码路径仅在明确选择时写固定字段 `reasoning_effort`。未选时省略该字段，保留上游默认；Summary、Memory 与管理测试没有新增等级选择，也不强加默认等级。其它协议、任意 `parameters`/request/header overwrite 以及原 STOP 范围未因此开放。
+模型配置使用可空字符串 `notes` 作为纯备注（最多 2000 个 Unicode 码点、8000 UTF-8 字节）；主标识始终为原有最多 256 字节的 `provider_model_id`。备注不进入调用、快照身份或 Usage。内部历史命名 `ModelIdentity.ModelName` 新捕获值也是该 canonical ID，供应商名称校验不变。00151 属发布前结构调整，旧开发数据可重建，不兼容旧显示名快照。
+
+平台用途是单一版本资源，每项为 `{model_id,reasoning}`，`reasoning` 是 `{mode:"default"}`、`{mode:"on"}`、`{mode:"off"}` 或 `{mode:"effort",value}`。非 Chat 只能 `default`；空等级模型只有显式声明 `reasoning_toggle_mode` 后才允许 on/off；等级模型允许 default 或已声明 value。切换模型不继承旧选择。已引用模型不能删除当前选择依赖的等级/映射，删除替换保留选择且验证目标能力。普通停用仍保留引用，后续调用按现有 enabled 门拒绝。
+
+`reasoning_toggle_mode` 为 `null`、`enable_thinking` 或 `thinking_type`，仅 Chat + reasoning=true + 空等级列表可设置非空。两种固定兼容方言分别写顶层 `enable_thinking:boolean` 与 `thinking:{type:"enabled"|"disabled"}`，不是 OpenAI 通用标准，也不按 model ID 猜测。依据为 [Model Studio 深度思考](https://help.aliyun.com/zh/model-studio/deep-thinking) 与 [DeepSeek Thinking Mode](https://api-docs.deepseek.com/guides/thinking_mode)。未配置映射的空等级模型只能保留供应商默认，不能把省略宣称为关闭。
+
+可信 resolver 从平台已保存的 summary 选择捕获等级或 bool 及映射；Memory/Meeting 仍只提供用途 selector，不能注入自己的推理值。不可变 snapshot、重试和后继输入保留原选择，不重新读取新配置。Agent 的既有等级选择继续写固定 `reasoning_effort`；default 省略所有推理字段、off 明确写 false/disabled。text、structured、tools 编码都遵守此规则；管理测试仍不强加推理默认。任意 parameters/request/header overwrite、真实媒体调用与原 STOP 范围未因此开放。
 
 ## 构建与验证
 

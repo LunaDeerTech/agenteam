@@ -83,7 +83,7 @@ func configurationWriteSix(t *testing.T, v *configurationWriteFixture, prefix, f
 		restore()
 		restored = true
 	}
-	modelBody["name"] = "HTTP Project chat updated"
+	modelBody["notes"] = "HTTP Project chat updated"
 	run("model.update", "PUT", mpath, map[string]any{"expected_version": "1", "input": modelBody})
 	run("model.delete", "DELETE", mpath, map[string]any{"expected_version": "2", "replacement": nil})
 	run("provider.delete", "DELETE", ppath, map[string]any{"expected_version": "2"})

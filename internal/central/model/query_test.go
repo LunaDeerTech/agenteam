@@ -53,7 +53,7 @@ func TestModelCursorBindsStableUserQueryAndOriginalWatermark(t *testing.T) {
 	}
 }
 func TestModelUnconfiguredSelectionIsExplicitAbsence(t *testing.T) {
-	r := &selectionRecord{ID: mustID[struct{}](t).String(), Version: 1}
+	r := &selectionRecord{SummaryReasoning: mc.ReasoningChoice{Mode: "default"}, ID: mustID[struct{}](t).String(), Version: 1}
 	v, e := selectionView(r)
 	if e != nil || v.Configured != nil || v.Version != 1 {
 		t.Fatal("technical identity invented empty model selection", e)

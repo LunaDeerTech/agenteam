@@ -175,7 +175,7 @@ func projectProviderInput() mc.ProviderInput {
 	return mc.ProviderInput{Name: "Project provider", Protocol: mc.OpenAIChat, BaseURL: "https://project-provider.example/api", Enabled: true, Options: json.RawMessage(`{}`)}
 }
 func projectModelInput() mc.ModelInput {
-	return mc.ModelInput{Name: "Project chat", ProviderModelID: "explicit-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"json_schema"}}}
+	return mc.ModelInput{Notes: "Project chat", ProviderModelID: "explicit-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"json_schema"}}}
 }
 func (v *projectConfigurationFixture) projectProvider(t *testing.T, ref *sc.CredentialRef) mc.ProviderView {
 	t.Helper()

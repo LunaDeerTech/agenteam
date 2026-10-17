@@ -160,7 +160,7 @@ func managementSelectionConsistent(ctx context.Context, x postgres.SQLExecutor) 
 		return strings.Compare(a.Role, b.Role)
 	})
 	var raw []byte
-	err = x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort FROM agenteam_model.references WHERE owner_kind='platform_selector' ORDER BY owner_id,role LIMIT 5) platform`).Scan(&raw)
+	err = x.QueryRow(ctx, `SELECT coalesce(jsonb_agg(jsonb_build_object('Kind',owner_kind,'Owner',owner_id::text,'Role',role,'Project',coalesce(project_id::text,''),'Model',model_id::text,'Version',owner_version::text,'Effort',reasoning_effort,'ReasoningMode',reasoning_mode) ORDER BY owner_id,role),'[]'::jsonb) FROM (SELECT owner_kind,owner_id,role,project_id,model_id,owner_version,reasoning_effort,reasoning_mode FROM agenteam_model.references WHERE owner_kind='platform_selector' ORDER BY owner_id,role LIMIT 5) platform`).Scan(&raw)
 	if err != nil {
 		return managementReadError(err)
 	}

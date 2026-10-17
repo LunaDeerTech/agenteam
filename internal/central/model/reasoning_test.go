@@ -10,7 +10,7 @@ import (
 )
 
 func TestReasoningModelDefinitionAndSummaryDefault(t *testing.T) {
-	input := mc.ModelInput{Name: "reasoning", ProviderModelID: "custom-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{Reasoning: true, InputModalities: []string{"text", "image", "file"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text", "json_schema"}, ReasoningEfforts: []mc.ReasoningEffort{{Name: "Deep", Value: "custom:deep"}}}}
+	input := mc.ModelInput{Notes: "reasoning", ProviderModelID: "custom-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{Reasoning: true, InputModalities: []string{"text", "image", "file"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text", "json_schema"}, ReasoningEfforts: []mc.ReasoningEffort{{Name: "Deep", Value: "custom:deep"}}}}
 	p := providerRecord{Input: providerInput{Protocol: mc.OpenAIChat, Enabled: true, Options: json.RawMessage(`{}`)}}
 	for _, efforts := range [][]mc.ReasoningEffort{input.Capabilities.ReasoningEfforts, nil} {
 		m := input.Clone()

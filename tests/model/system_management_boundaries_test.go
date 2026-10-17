@@ -339,8 +339,8 @@ func TestSystemModelManagementReadAuthorityAndAtomicity(t *testing.T) {
 			t.Fatal("preview precondition")
 		}
 		selection := managementSelection(t, v)
-		replacement := selection["embedding"]
-		selection["embedding"] = embed
+		replacement := selection["embedding"].(map[string]any)["model_id"]
+		selection["embedding"] = httpModelChoice(embed)
 		v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), selection).want(t, 200)
 		current := managementImpact(t, v, embed)
 		if current.Version != before.Version || current.ReferenceCount != 1 {

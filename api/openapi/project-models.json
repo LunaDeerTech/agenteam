@@ -4592,7 +4592,8 @@
           "reasoning_efforts",
           "structured_output_modes",
           "context_length",
-          "max_output"
+          "max_output",
+          "reasoning_toggle_mode"
         ],
         "properties": {
           "tool_calls": {
@@ -4692,6 +4693,14 @@
                 "type": "null"
               }
             ]
+          },
+          "reasoning_toggle_mode": {
+            "enum": [
+              null,
+              "enable_thinking",
+              "thinking_type"
+            ],
+            "description": "Explicit OpenAI-compatible request dialect, only Chat with reasoning=true and no effort levels. null supports provider default only. enable_thinking uses a top-level boolean; thinking_type uses thinking.type=enabled/disabled. Never inferred from model ID."
           }
         },
         "allOf": [
@@ -4727,6 +4736,28 @@
             },
             "then": {
               "properties": {
+                "reasoning_efforts": {
+                  "maxItems": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "reasoning_toggle_mode": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reasoning_toggle_mode"
+              ]
+            },
+            "then": {
+              "properties": {
+                "reasoning": {
+                  "const": true
+                },
                 "reasoning_efforts": {
                   "maxItems": 0
                 }
@@ -4795,7 +4826,7 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "name",
+          "notes",
           "provider_model_id",
           "type",
           "enabled",
@@ -4805,14 +4836,11 @@
           "capabilities"
         ],
         "properties": {
-          "name": {
+          "notes": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 128,
-            "not": {
-              "pattern": "\u0000"
-            },
-            "description": "UTF-8, at most 128 code points and 512 bytes; NUL forbidden."
+            "maxLength": 2000,
+            "description": "Optional display-only notes, at most 2000 Unicode code points / 8000 UTF-8 bytes; empty is allowed. Never sent as the upstream model ID.",
+            "pattern": "^[^\\u0000]*$"
           },
           "provider_model_id": {
             "type": "string",
@@ -4942,6 +4970,9 @@
                     },
                     "max_output": {
                       "type": "null"
+                    },
+                    "reasoning_toggle_mode": {
+                      "type": "null"
                     }
                   }
                 }
@@ -5026,10 +5057,11 @@
           "id",
           "provider_id",
           "scope",
-          "name",
+          "notes",
           "provider_name",
           "version",
-          "capabilities"
+          "capabilities",
+          "provider_model_id"
         ],
         "properties": {
           "id": {
@@ -5040,15 +5072,6 @@
           },
           "scope": {
             "$ref": "#/components/schemas/AvailableScope"
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 128,
-            "not": {
-              "pattern": "\u0000"
-            },
-            "description": "UTF-8, at most 128 code points and 512 bytes; NUL forbidden."
           },
           "provider_name": {
             "type": "string",
@@ -5064,6 +5087,17 @@
           },
           "capabilities": {
             "$ref": "#/components/schemas/Capabilities"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Optional display-only notes, at most 2000 Unicode code points / 8000 UTF-8 bytes; empty is allowed. Never sent as the upstream model ID."
+          },
+          "provider_model_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Canonical upstream ID; maximum 256 UTF-8 bytes."
           }
         },
         "description": "Exactly seven safe fields from the one-statement enabled Provider + enabled chat Model union of System and the requested Project. This is configured availability, not a claim that endpoint/model invocation succeeded."

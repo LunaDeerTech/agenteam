@@ -151,7 +151,7 @@ func TestModelMeetingSummaryUnknown(t *testing.T) {
 			var otherReceipt mc.CommandReceipt
 			if mode == "different-after-rollback" {
 				different := request
-				different.Selection.Summary = other
+				different.Selection.Summary = mc.DefaultModelChoice(other)
 				otherReceipt, e = base.service.UpdatePlatformSelection(testContext(t), different)
 				if e != nil {
 					t.Fatal("different request after confirmed rollback", e)

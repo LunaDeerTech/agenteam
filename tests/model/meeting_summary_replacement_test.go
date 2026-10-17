@@ -27,7 +27,7 @@ func TestModelMeetingSummaryReplacement(t *testing.T) {
 			t.Fatal("summary replacement", e)
 		}
 		selected := v.summary(t)
-		if selected.Configured == nil || selected.Configured.Summary != next || selected.Version != 3 {
+		if selected.Configured == nil || selected.Configured.Summary.ModelID != next || selected.Version != 3 {
 			t.Fatal("canonical Summary did not move")
 		}
 		before = v.summaryFacts(t)
@@ -123,7 +123,7 @@ func TestModelMeetingSummaryReplacement(t *testing.T) {
 		}
 		s := v.summary(t)
 		p, e := v.service.GetPlatformSelection(testContext(t), v.admin)
-		if e != nil || s.Version != summary.Version+1 || s.Configured == nil || s.Configured.Summary != next || p.Version != legacy.Version+1 || p.Configured == nil || p.Configured.Summary != next {
+		if e != nil || s.Version != summary.Version+1 || s.Configured == nil || s.Configured.Summary.ModelID != next || p.Version != legacy.Version+1 || p.Configured == nil || p.Configured.Summary.ModelID != next {
 			t.Fatal("owners not changed once", e)
 		}
 		var refs, afterEvents int64

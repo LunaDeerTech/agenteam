@@ -49,6 +49,7 @@ type httpCapabilities struct {
 	ParallelToolCalls     *bool                `json:"parallel_tool_calls"`
 	Streaming             *bool                `json:"streaming"`
 	Reasoning             *bool                `json:"reasoning"`
+	ReasoningToggleMode   json.RawMessage      `json:"reasoning_toggle_mode"`
 	InputModalities       []string             `json:"input_modalities"`
 	OutputModalities      []string             `json:"output_modalities"`
 	ReasoningEfforts      []mc.ReasoningEffort `json:"reasoning_efforts"`
@@ -61,6 +62,10 @@ func (d httpCapabilities) input() (mc.Capabilities, error) {
 	if d.ToolCalls == nil || d.ParallelToolCalls == nil || d.Streaming == nil || d.Reasoning == nil || d.InputModalities == nil || d.OutputModalities == nil || d.ReasoningEfforts == nil || d.StructuredOutputModes == nil {
 		return mc.Capabilities{}, fault(f.InvalidArgument)
 	}
+	var toggle *string
+	if len(d.ReasoningToggleMode) == 0 || json.Unmarshal(d.ReasoningToggleMode, &toggle) != nil {
+		return mc.Capabilities{}, fault(f.InvalidArgument)
+	}
 	contextLength, err := httpNullableCount(d.ContextLength)
 	if err != nil {
 		return mc.Capabilities{}, err
@@ -69,11 +74,11 @@ func (d httpCapabilities) input() (mc.Capabilities, error) {
 	if err != nil {
 		return mc.Capabilities{}, err
 	}
-	return mc.Capabilities{ToolCalls: *d.ToolCalls, ParallelToolCalls: *d.ParallelToolCalls, Streaming: *d.Streaming, Reasoning: *d.Reasoning, InputModalities: d.InputModalities, OutputModalities: d.OutputModalities, ReasoningEfforts: d.ReasoningEfforts, StructuredOutputModes: d.StructuredOutputModes, ContextLength: contextLength, MaxOutput: maxOutput}, nil
+	return mc.Capabilities{ToolCalls: *d.ToolCalls, ParallelToolCalls: *d.ParallelToolCalls, Streaming: *d.Streaming, Reasoning: *d.Reasoning, ReasoningToggleMode: toggle, InputModalities: d.InputModalities, OutputModalities: d.OutputModalities, ReasoningEfforts: d.ReasoningEfforts, StructuredOutputModes: d.StructuredOutputModes, ContextLength: contextLength, MaxOutput: maxOutput}, nil
 }
 
 type httpModelInput struct {
-	Name             *string           `json:"name"`
+	Notes            *string           `json:"notes"`
 	ProviderModelID  *string           `json:"provider_model_id"`
 	Type             *mc.ModelType     `json:"type"`
 	Enabled          *bool             `json:"enabled"`
@@ -84,14 +89,14 @@ type httpModelInput struct {
 }
 
 func (d httpModelInput) input() (mc.ModelInput, error) {
-	if d.Name == nil || d.ProviderModelID == nil || d.Type == nil || d.Enabled == nil || !httpObject(d.Parameters) || !httpObject(d.RequestOverwrite) || d.HeaderOverwrite == nil || d.Capabilities == nil {
+	if d.Notes == nil || d.ProviderModelID == nil || d.Type == nil || d.Enabled == nil || !httpObject(d.Parameters) || !httpObject(d.RequestOverwrite) || d.HeaderOverwrite == nil || d.Capabilities == nil {
 		return mc.ModelInput{}, fault(f.InvalidArgument)
 	}
 	c, err := d.Capabilities.input()
 	if err != nil {
 		return mc.ModelInput{}, err
 	}
-	return mc.ModelInput{Name: *d.Name, ProviderModelID: *d.ProviderModelID, Type: *d.Type, Enabled: *d.Enabled, Parameters: d.Parameters, RequestOverwrite: d.RequestOverwrite, HeaderOverwrite: d.HeaderOverwrite, Capabilities: c}, nil
+	return mc.ModelInput{Notes: *d.Notes, ProviderModelID: *d.ProviderModelID, Type: *d.Type, Enabled: *d.Enabled, Parameters: d.Parameters, RequestOverwrite: d.RequestOverwrite, HeaderOverwrite: d.HeaderOverwrite, Capabilities: c}, nil
 }
 
 func httpObject(v json.RawMessage) bool {
@@ -162,19 +167,19 @@ type httpModelView struct {
 
 func httpModelDTO(v mc.ModelView) httpModelView {
 	p, c := v.Input, v.Input.Capabilities
-	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]mc.ReasoningEffort{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput)}
+	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, httpRawNullable(c.ReasoningToggleMode), append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]mc.ReasoningEffort{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput)}
 	headers := p.HeaderOverwrite
 	if headers == nil {
 		headers = map[string]string{}
 	}
-	return httpModelView{v.ID, v.ProviderID, httpModelInput{&p.Name, &p.ProviderModelID, &p.Type, &p.Enabled, p.Parameters, p.RequestOverwrite, headers, caps}, v.Version, v.CreatedAt, v.UpdatedAt}
+	return httpModelView{v.ID, v.ProviderID, httpModelInput{&p.Notes, &p.ProviderModelID, &p.Type, &p.Enabled, p.Parameters, p.RequestOverwrite, headers, caps}, v.Version, v.CreatedAt, v.UpdatedAt}
 }
 
 type httpConfiguredSelection struct {
-	Embedding mc.ModelID  `json:"embedding"`
-	Summary   mc.ModelID  `json:"summary"`
-	Reranker  *mc.ModelID `json:"reranker"`
-	Image     *mc.ModelID `json:"image"`
+	Embedding mc.ModelChoice  `json:"embedding"`
+	Summary   mc.ModelChoice  `json:"summary"`
+	Reranker  *mc.ModelChoice `json:"reranker"`
+	Image     *mc.ModelChoice `json:"image"`
 }
 
 func httpSelectionDTO(v PlatformSelectionState) any {
@@ -255,4 +260,20 @@ func httpListQuery(r *http.Request, models bool) (SystemQuery, mc.ProviderID, er
 		}
 	}
 	return out, zero, nil
+}
+
+func httpNullableModelChoice(v json.RawMessage) (*mc.ModelChoice, error) {
+	if len(v) == 0 {
+		return nil, fault(f.InvalidArgument)
+	}
+	if bytes.Equal(bytes.TrimSpace(v), []byte("null")) {
+		return nil, nil
+	}
+	var out mc.ModelChoice
+	d := json.NewDecoder(bytes.NewReader(v))
+	d.DisallowUnknownFields()
+	if d.Decode(&out) != nil || out.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	return &out, nil
 }

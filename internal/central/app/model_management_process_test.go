@@ -169,9 +169,9 @@ func TestModelManagementProxyReplayAndCredentialDeletion(t *testing.T) {
 	}
 	previewCheck(t, "save management model", json.Unmarshal(call(http.MethodPost, "models", key(), map[string]any{
 		"provider_id": providerID, "input": map[string]any{
-			"name": "Owned management chat", "provider_model_id": providerModel, "type": mc.ChatModel, "enabled": true,
+			"notes": "Owned management chat", "provider_model_id": providerModel, "type": mc.ChatModel, "enabled": true,
 			"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
-			"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false,
+			"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil,
 				"input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{},
 				"structured_output_modes": []string{}, "context_length": nil, "max_output": nil},
 		},
@@ -182,9 +182,9 @@ func TestModelManagementProxyReplayAndCredentialDeletion(t *testing.T) {
 	}
 	previewCheck(t, "save family embedding model", json.Unmarshal(call(http.MethodPost, "models", key(), map[string]any{
 		"provider_id": providerID, "input": map[string]any{
-			"name": "Owned management embedding", "provider_model_id": "owned-management-embedding", "type": mc.EmbeddingModel, "enabled": true,
+			"notes": "Owned management embedding", "provider_model_id": "owned-management-embedding", "type": mc.EmbeddingModel, "enabled": true,
 			"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
-			"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false,
+			"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil,
 				"input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{},
 				"structured_output_modes": []string{}, "context_length": nil, "max_output": nil},
 		},

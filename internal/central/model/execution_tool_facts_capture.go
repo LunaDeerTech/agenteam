@@ -74,7 +74,7 @@ func (p resolutionCaptureProfile) requireDraft(r mc.ResolveRequest, d resolution
 		return err
 	}
 	s := d.Snapshot
-	if r.Source == mc.CurrentSelectionSource && s.ReasoningEffort != r.ReasoningEffort {
+	if !resolutionReasoningMatches(resolutionRequest(r), s) {
 		return fault(f.InvalidArgument)
 	}
 	if p == defaultResolutionCapture {

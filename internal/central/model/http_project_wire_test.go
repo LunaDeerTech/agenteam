@@ -29,8 +29,8 @@ func projectHTTPValues(t *testing.T) (id.ProjectID, mc.ProviderView, mc.ModelVie
 	model, _ := f.ParseID[mc.Model](projectHTTPTestModel)
 	pv := mc.ProviderView{ID: provider, Scope: scope, Input: mc.ProviderInput{Name: "private_provider_name", Protocol: mc.OpenAIChat, BaseURL: "https://private-endpoint.example/v1", Options: json.RawMessage(`{"private_option":"<>&"}`)}, Version: 9007199254740993, CreatedAt: at, UpdatedAt: at}
 	count := mc.TokenCount(math.MaxInt64)
-	mv := mc.ModelView{ID: model, ProviderID: provider, Scope: scope, Input: mc.ModelInput{Name: "model", ProviderModelID: "private_model_name", Type: mc.ChatModel, Parameters: json.RawMessage(`{"private_parameter":1}`), RequestOverwrite: json.RawMessage(`{"private_request":"value"}`), HeaderOverwrite: map[string]string{"X-Private-Canary": "private_header_value"}, Capabilities: mc.Capabilities{Streaming: true, InputModalities: []string{"text"}, OutputModalities: []string{"text"}, ContextLength: &count}}, Version: math.MaxInt64, CreatedAt: at, UpdatedAt: at}
-	av := AvailableChatModel{ID: model, ProviderID: provider, Scope: scope, Name: mv.Input.Name, ProviderName: pv.Input.Name, Version: mv.Version, Capabilities: mv.Input.Capabilities}
+	mv := mc.ModelView{ID: model, ProviderID: provider, Scope: scope, Input: mc.ModelInput{Notes: "model", ProviderModelID: "public_provider_model_id", Type: mc.ChatModel, Parameters: json.RawMessage(`{"private_parameter":1}`), RequestOverwrite: json.RawMessage(`{"private_request":"value"}`), HeaderOverwrite: map[string]string{"X-Private-Canary": "private_header_value"}, Capabilities: mc.Capabilities{Streaming: true, InputModalities: []string{"text"}, OutputModalities: []string{"text"}, ContextLength: &count}}, Version: math.MaxInt64, CreatedAt: at, UpdatedAt: at}
+	av := AvailableChatModel{ID: model, ProviderID: provider, Scope: scope, Notes: mv.Input.Notes, ProviderModelID: mv.Input.ProviderModelID, ProviderName: pv.Input.Name, Version: mv.Version, Capabilities: mv.Input.Capabilities}
 	if pv.Validate() != nil || mv.Validate() != nil {
 		t.Fatal("invalid synthetic baseline")
 	}
@@ -96,10 +96,10 @@ func TestProjectModelHTTPPureWireProjection(t *testing.T) {
 	var page struct{ Items []json.RawMessage }
 	_ = json.Unmarshal(cases[2].body, &page)
 	_ = json.Unmarshal(page.Items[0], &item)
-	if len(item) != 7 {
+	if len(item) != 8 {
 		t.Fatal("catalog fields", len(item))
 	}
-	for _, secret := range []string{"private-endpoint", "private_option", "private_parameter", "private_request", "private_model_name", "X-Private-Canary", "private_header_value", "credential_ref", "created_at"} {
+	for _, secret := range []string{"private-endpoint", "private_option", "private_parameter", "private_request", "X-Private-Canary", "private_header_value", "credential_ref", "created_at"} {
 		if bytes.Contains(cases[2].body, []byte(secret)) {
 			t.Fatal("catalog leak", secret)
 		}
@@ -153,7 +153,7 @@ func TestProjectModelHTTPPureRejectWholeInvalidResult(t *testing.T) {
 			t.Fatal("invalid model published")
 		}
 	}
-	for _, mutate := range []func(*AvailableChatModel){func(v *AvailableChatModel) { v.Scope = other }, func(v *AvailableChatModel) { v.ProviderName = "" }, func(v *AvailableChatModel) { v.Name = string([]byte{255}) }, func(v *AvailableChatModel) {
+	for _, mutate := range []func(*AvailableChatModel){func(v *AvailableChatModel) { v.Scope = other }, func(v *AvailableChatModel) { v.ProviderName = "" }, func(v *AvailableChatModel) { v.Notes = string([]byte{255}) }, func(v *AvailableChatModel) {
 		v.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "bad value", Value: "bad value"}}
 		v.Capabilities.Reasoning = true
 	}, func(v *AvailableChatModel) { v.Version = 0 }} {
@@ -318,9 +318,9 @@ negative=[]
 for n in ['Provider','Model']:
  for key,val in [('extra',True),('version',1),('version','9223372036854775808'),('id','invalid'),('scope',{'kind':'system'})]:
   v=copy.deepcopy(values[n]);v[key]=val;negative.append((n,v))
-for key in ['base_url','protocol','options','credential_ref','provider_model_id','parameters','request_overwrite','header_overwrite','created_at']:
+for key in ['base_url','protocol','options','credential_ref','parameters','request_overwrite','header_overwrite','created_at']:
  v=copy.deepcopy(values['AvailableChatModelPage']);v['items'][0][key]='private';negative.append(('AvailableChatModelPage',v))
-for field in ['input_modalities','output_modalities','reasoning_efforts','structured_output_modes','context_length','max_output']:
+for field in ['reasoning_toggle_mode','input_modalities','output_modalities','reasoning_efforts','structured_output_modes','context_length','max_output']:
  v=copy.deepcopy(values['Model']);del v['input']['capabilities'][field];negative.append(('Model',v))
 for field,val in [('input_modalities',None),('input_modalities',['text','text']),('input_modalities',['future']),('structured_output_modes',['future']),('reasoning_efforts',['x']),('parallel_tool_calls',True),('context_length',1),('max_output','0')]:
  v=copy.deepcopy(values['Model']);v['input']['capabilities'][field]=val;negative.append(('Model',v))

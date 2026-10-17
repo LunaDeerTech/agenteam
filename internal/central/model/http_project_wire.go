@@ -84,6 +84,7 @@ type projectHTTPCapabilities struct {
 	ParallelToolCalls     bool                 `json:"parallel_tool_calls"`
 	Streaming             bool                 `json:"streaming"`
 	Reasoning             bool                 `json:"reasoning"`
+	ReasoningToggleMode   *string              `json:"reasoning_toggle_mode"`
 	InputModalities       []string             `json:"input_modalities"`
 	OutputModalities      []string             `json:"output_modalities"`
 	ReasoningEfforts      []mc.ReasoningEffort `json:"reasoning_efforts"`
@@ -108,7 +109,7 @@ type projectHTTPProviderDTO struct {
 	UpdatedAt f.Instant                `json:"updated_at"`
 }
 type projectHTTPModelInput struct {
-	Name             string                  `json:"name"`
+	Notes            string                  `json:"notes"`
 	ProviderModelID  string                  `json:"provider_model_id"`
 	Type             mc.ModelType            `json:"type"`
 	Enabled          bool                    `json:"enabled"`
@@ -127,13 +128,14 @@ type projectHTTPModelDTO struct {
 	UpdatedAt  f.Instant             `json:"updated_at"`
 }
 type projectHTTPAvailableDTO struct {
-	ID           mc.ModelID              `json:"id"`
-	ProviderID   mc.ProviderID           `json:"provider_id"`
-	Scope        projectHTTPScope        `json:"scope"`
-	Name         string                  `json:"name"`
-	ProviderName string                  `json:"provider_name"`
-	Version      f.Version               `json:"version"`
-	Capabilities projectHTTPCapabilities `json:"capabilities"`
+	ID              mc.ModelID              `json:"id"`
+	ProviderID      mc.ProviderID           `json:"provider_id"`
+	Scope           projectHTTPScope        `json:"scope"`
+	Notes           string                  `json:"notes"`
+	ProviderModelID string                  `json:"provider_model_id"`
+	ProviderName    string                  `json:"provider_name"`
+	Version         f.Version               `json:"version"`
+	Capabilities    projectHTTPCapabilities `json:"capabilities"`
 }
 type projectHTTPPage[T any] struct {
 	Items      []T     `json:"items"`
@@ -284,7 +286,7 @@ func (b *projectHTTPBound) reasoningEfforts(values []mc.ReasoningEffort) bool {
 func (b *projectHTTPBound) capabilities(c mc.Capabilities) bool {
 	// All ten field names, punctuation, four booleans, and two nullable quoted
 	// int64s fit below 384 bytes. Array elements are counted separately.
-	return b.add(384) && b.strings(c.InputModalities, 6) && b.strings(c.OutputModalities, 6) &&
+	return (c.ReasoningToggleMode == nil || b.text(*c.ReasoningToggleMode, 32)) && b.add(416) && b.strings(c.InputModalities, 6) && b.strings(c.OutputModalities, 6) &&
 		b.strings(c.StructuredOutputModes, 11) && b.reasoningEfforts(c.ReasoningEfforts)
 }
 func (b *projectHTTPBound) provider(v mc.ProviderView) bool {
@@ -295,7 +297,7 @@ func (b *projectHTTPBound) provider(v mc.ProviderView) bool {
 }
 func (b *projectHTTPBound) model(v mc.ModelView) bool {
 	p := v.Input
-	if !b.add(512) || !b.text(p.Name, 512) || !b.text(p.ProviderModelID, 256) || !b.text(string(p.Type), 32) ||
+	if !b.add(512) || !b.text(p.Notes, 8000) || !b.text(p.ProviderModelID, 256) || !b.text(string(p.Type), 32) ||
 		!b.raw(p.Parameters) || !b.raw(p.RequestOverwrite) || !b.room(len(p.HeaderOverwrite), 6) || !b.add(2+2*len(p.HeaderOverwrite)) {
 		return false
 	}
@@ -316,7 +318,7 @@ func (b *projectHTTPBound) model(v mc.ModelView) bool {
 	return b.capabilities(p.Capabilities)
 }
 func (b *projectHTTPBound) available(v AvailableChatModel) bool {
-	return b.add(384) && b.text(v.Name, 512) && b.text(v.ProviderName, 512) && b.capabilities(v.Capabilities)
+	return b.add(384) && b.text(v.Notes, 8000) && b.text(v.ProviderModelID, 256) && b.text(v.ProviderName, 512) && b.capabilities(v.Capabilities)
 }
 func (b *projectHTTPBound) page(count int, next string, q ProjectQuery) bool {
 	if q.Limit < 1 || q.Limit > 100 || count > q.Limit || count < 0 || count == 0 && next != "" ||
@@ -353,7 +355,7 @@ func projectHTTPCaps(c mc.Capabilities) projectHTTPCapabilities {
 	if copy.StructuredOutputModes == nil {
 		copy.StructuredOutputModes = []string{}
 	}
-	return projectHTTPCapabilities{copy.ToolCalls, copy.ParallelToolCalls, copy.Streaming, copy.Reasoning,
+	return projectHTTPCapabilities{copy.ToolCalls, copy.ParallelToolCalls, copy.Streaming, copy.Reasoning, copy.ReasoningToggleMode,
 		copy.InputModalities, copy.OutputModalities, copy.ReasoningEfforts, copy.StructuredOutputModes, copy.ContextLength, copy.MaxOutput}
 }
 func projectHTTPProviderValue(v mc.ProviderView, project id.ProjectID) (projectHTTPProviderDTO, error) {
@@ -380,19 +382,25 @@ func projectHTTPModelValue(v mc.ModelView, project id.ProjectID) (projectHTTPMod
 		headers[key] = value
 	}
 	return projectHTTPModelDTO{v.ID, v.ProviderID, scope,
-		projectHTTPModelInput{p.Name, p.ProviderModelID, p.Type, p.Enabled, bytes.Clone(p.Parameters), bytes.Clone(p.RequestOverwrite), headers, projectHTTPCaps(p.Capabilities)},
+		projectHTTPModelInput{p.Notes, p.ProviderModelID, p.Type, p.Enabled, bytes.Clone(p.Parameters), bytes.Clone(p.RequestOverwrite), headers, projectHTTPCaps(p.Capabilities)},
 		v.Version, v.CreatedAt, v.UpdatedAt}, nil
 }
 func projectHTTPName(value string) bool {
 	return value != "" && len(value) <= 512 && utf8.ValidString(value) && !strings.ContainsRune(value, 0) && utf8.RuneCountInString(value) <= 128
 }
+func projectHTTPNotes(s string) bool {
+	return len(s) <= 8000 && utf8.ValidString(s) && utf8.RuneCountInString(s) <= 2000 && !strings.ContainsRune(s, 0)
+}
+func projectHTTPModelID(s string) bool {
+	return len(s) > 0 && len(s) <= 256 && utf8.ValidString(s) && !strings.ContainsRune(s, 0)
+}
 func projectHTTPAvailableValue(v AvailableChatModel, project id.ProjectID) (projectHTTPAvailableDTO, error) {
 	scope, ok := projectHTTPReadScope(v.Scope, project, true)
 	if !ok || v.ID.Validate() != nil || v.ProviderID.Validate() != nil || v.Version.Validate() != nil ||
-		!projectHTTPName(v.Name) || !projectHTTPName(v.ProviderName) || v.Capabilities.Validate() != nil {
+		!projectHTTPNotes(v.Notes) || !projectHTTPModelID(v.ProviderModelID) || !projectHTTPName(v.ProviderName) || v.Capabilities.Validate() != nil {
 		return projectHTTPAvailableDTO{}, unavailable(nil)
 	}
-	return projectHTTPAvailableDTO{v.ID, v.ProviderID, scope, v.Name, v.ProviderName, v.Version, projectHTTPCaps(v.Capabilities)}, nil
+	return projectHTTPAvailableDTO{v.ID, v.ProviderID, scope, v.Notes, v.ProviderModelID, v.ProviderName, v.Version, projectHTTPCaps(v.Capabilities)}, nil
 }
 func projectHTTPMarshal(ctx context.Context, value any) ([]byte, error) {
 	if err := projectHTTPContext(ctx); err != nil {

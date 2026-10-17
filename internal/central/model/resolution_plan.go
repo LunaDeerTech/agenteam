@@ -68,7 +68,7 @@ func (d resolutionRequestDTO) validate() error {
 	}
 	switch d.Source {
 	case mc.CurrentSelectionSource:
-		if d.ServingSnapshotID != nil || d.ServingGenerationID != "" || d.Selection == nil || (mc.SelectionRequest{Consumer: d.Consumer, ModelRef: d.ModelRef, Selection: *d.Selection}).Validate() != nil {
+		if d.ServingSnapshotID != nil || d.ServingGenerationID != "" || d.Selection == nil || d.Selection.Kind == "platform" && d.ReasoningEffort != "" || (mc.SelectionRequest{Consumer: d.Consumer, ModelRef: d.ModelRef, Selection: *d.Selection}).Validate() != nil {
 			return unavailable(nil)
 		}
 	case mc.ServingSnapshotSource:
@@ -121,12 +121,13 @@ type resolutionSnapshotDTO struct {
 	HeaderOverwrite                 map[string]string
 	Capabilities                    mc.Capabilities
 	ReasoningEffort                 string `json:"reasoning_effort,omitempty"`
+	ReasoningEnabled                *bool  `json:"reasoning_enabled,omitempty"`
 	CredentialID, CredentialProject string
 	SelectionVersion                *f.Version
 }
 
 func (d resolutionSnapshotDTO) snapshot() (mc.ConfigSnapshot, error) {
-	s := mc.ConfigSnapshot{ID: d.ID, Identity: d.Identity, Endpoint: d.Endpoint, Parameters: bytes.Clone(d.Parameters), RequestOverwrite: bytes.Clone(d.RequestOverwrite), HeaderOverwrite: d.HeaderOverwrite, Capabilities: d.Capabilities.Clone(), ReasoningEffort: d.ReasoningEffort, SelectionVersion: d.SelectionVersion}
+	s := mc.ConfigSnapshot{ID: d.ID, Identity: d.Identity, Endpoint: d.Endpoint, Parameters: bytes.Clone(d.Parameters), RequestOverwrite: bytes.Clone(d.RequestOverwrite), HeaderOverwrite: d.HeaderOverwrite, Capabilities: d.Capabilities.Clone(), ReasoningEffort: d.ReasoningEffort, ReasoningEnabled: d.ReasoningEnabled, SelectionVersion: d.SelectionVersion}
 	if d.Format != 1 || d.ProjectID.Validate() != nil || d.CredentialID == "" && d.CredentialProject != "" {
 		return s, unavailable(nil)
 	}

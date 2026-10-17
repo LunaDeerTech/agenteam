@@ -44,7 +44,7 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	meetingSummarySettingsReceipt(t, receipt, original)
 	meetingSummarySettingsSafeBody(t, "receipt", meetingSummarySettingsPath, receipt, original)
 	configured := request(v.adminBrowser, "GET", "", nil).want(t, 200)
-	if out := configured.object(t); out["configured"].(map[string]any)["summary"] != plain.String() || out["version"] != "2" {
+	if out := configured.object(t); out["configured"].(map[string]any)["summary"].(map[string]any)["model_id"] != plain.String() || out["version"] != "2" {
 		t.Fatal("shared summary model not selected")
 	}
 	meetingSummarySettingsSafeBody(t, "configured", meetingSummarySettingsPath, configured)
@@ -54,7 +54,7 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	same := v.choice(t, plain)
 	meetingSummarySettingsReceipt(t, request(v.adminBrowser, "PUT", string(same.Key), meetingSummarySettingsBody(same)), same)
 	different := meetingSummarySettingsBody(original)
-	different["summary"] = next.String()
+	different["summary"] = mc.DefaultModelChoice(next)
 	request(v.adminBrowser, "PUT", string(original.Key), different).problem(t, 409, f.IdempotencyKeyReused)
 	clearBody := meetingSummarySettingsBody(same)
 	clearBody["summary"] = nil
@@ -199,7 +199,7 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 		httpSameFacts(t, stable, v.summaryFacts(t))
 		meetingSummarySettingsSafeBody(t, "lookup", "/api/v1/system/model-commands/lookup", lookup, original)
 		changed := meetingSummarySettingsBody(original)
-		changed["summary"] = next.String()
+		changed["summary"] = mc.DefaultModelChoice(next)
 		meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "PUT", meetingSummarySettingsPath, string(original.Key), changed).problem(t, 409, f.IdempotencyKeyReused)
 		// A later disabled model is still observed, and the original receipt survives
 		// both disable and formal atomic replacement/deletion at a higher version.
@@ -212,7 +212,7 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 			t.Fatal(e)
 		}
 		current := meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "GET", meetingSummarySettingsPath, "", nil).want(t, 200).object(t)
-		if current["configured"].(map[string]any)["summary"] != target.String() {
+		if current["configured"].(map[string]any)["summary"].(map[string]any)["model_id"] != target.String() {
 			t.Fatal("disabled reference erased")
 		}
 		impactPath := "/api/v1/system/models/" + target.String() + "/deletion-impact"

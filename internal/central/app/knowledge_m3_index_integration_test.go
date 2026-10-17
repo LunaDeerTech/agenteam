@@ -220,7 +220,7 @@ func knowledgeM3RetentionModels(t *testing.T, v *executionSchedulerApp, scenario
 	}
 	knowledgeM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	var receipt mc.CommandReceipt
-	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "summary": memory, "reranker": nil, "image": nil}, &receipt)
+	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": mc.DefaultModelChoice(embedding), "summary": mc.DefaultModelChoice(memory), "reranker": nil, "image": nil}, &receipt)
 	return embeddingProvider, credential
 }
 
@@ -511,7 +511,7 @@ func knowledgeM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentSou
 	}
 	knowledgeM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	var receipt mc.CommandReceipt
-	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "summary": memory, "reranker": nil, "image": nil}, &receipt)
+	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": mc.DefaultModelChoice(embedding), "summary": mc.DefaultModelChoice(memory), "reranker": nil, "image": nil}, &receipt)
 	if agentSources {
 		if agentModel.Validate() != nil || agentModel == memory {
 			t.Fatal("Knowledge Agent and structured platform Model profiles were not distinct")
@@ -523,7 +523,7 @@ func knowledgeM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentSou
 
 func knowledgeM3ModelInput(t *testing.T, profile, upstream string) mc.ModelInput {
 	t.Helper()
-	input := mc.ModelInput{Name: "Knowledge M3 " + profile, ProviderModelID: upstream, Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), HeaderOverwrite: map[string]string{}, Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, ReasoningEfforts: []mc.ReasoningEffort{}, StructuredOutputModes: []string{}}}
+	input := mc.ModelInput{Notes: "Knowledge M3 " + profile, ProviderModelID: upstream, Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), HeaderOverwrite: map[string]string{}, Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, ReasoningEfforts: []mc.ReasoningEffort{}, StructuredOutputModes: []string{}}}
 	switch profile {
 	case "embedding":
 		input.Type = mc.EmbeddingModel

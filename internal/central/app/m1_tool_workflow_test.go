@@ -300,7 +300,7 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 	workAppCheck(t, "m1-provider", err)
 	providerVersion := receipt.Version
-	v.httpSeed(t, "/models", map[string]any{"provider_id": provider, "input": map[string]any{"name": "M1 model", "provider_model_id": modelName, "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": maxOutput}}}, &receipt)
+	v.httpSeed(t, "/models", map[string]any{"provider_id": provider, "input": map[string]any{"notes": "M1 model", "provider_model_id": modelName, "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": maxOutput}}}, &receipt)
 	modelID, err := f.ParseID[mc.Model](receipt.ResourceID)
 	workAppCheck(t, "m1-model", err)
 	var reviewProvider mc.ProviderID
@@ -310,7 +310,7 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 		reviewProvider, err = f.ParseID[mc.Provider](receipt.ResourceID)
 		workAppCheck(t, "m1-review-provider", err)
 		reviewVersion = receipt.Version
-		v.httpSeed(t, "/models", map[string]any{"provider_id": reviewProvider, "input": map[string]any{"name": "M1 review model", "provider_model_id": reviewName, "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": maxOutput}}}, &receipt)
+		v.httpSeed(t, "/models", map[string]any{"provider_id": reviewProvider, "input": map[string]any{"notes": "M1 review model", "provider_model_id": reviewName, "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": maxOutput}}}, &receipt)
 		w.reviewModel, err = f.ParseID[mc.Model](receipt.ResourceID)
 		workAppCheck(t, "m1-review-model", err)
 	}

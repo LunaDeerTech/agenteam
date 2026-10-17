@@ -13,6 +13,7 @@ type referenceRecord struct {
 	Kind, Owner, Role, Project, Model string
 	Version                           f.Version
 	Effort                            string
+	ReasoningMode                     string
 }
 
 func selectionReferences(s *selectionRecord) []referenceRecord {
@@ -22,13 +23,18 @@ func selectionReferences(s *selectionRecord) []referenceRecord {
 	}
 	for _, v := range []struct{ role, id string }{{"embedding", s.Embedding}, {"image", s.Image}, {"reranker", s.Reranker}, {"summary", s.Summary}} {
 		if v.id != "" {
-			out = append(out, referenceRecord{Kind: "platform_selector", Owner: s.ID, Role: v.role, Model: v.id, Version: s.Version})
+			r := referenceRecord{Kind: "platform_selector", Owner: s.ID, Role: v.role, Model: v.id, Version: s.Version, ReasoningMode: "default"}
+			if v.role == "summary" {
+				r.ReasoningMode = s.SummaryReasoning.Mode
+				r.Effort = s.SummaryReasoning.Value
+			}
+			out = append(out, r)
 		}
 	}
 	return out
 }
 func loadReferences(ctx context.Context, x postgres.SQLExecutor, where string, value string) ([]referenceRecord, error) {
-	rows, e := x.Query(ctx, `SELECT owner_kind,owner_id::text,role,project_id::text,model_id::text,owner_version,reasoning_effort FROM agenteam_model.references WHERE `+where+` ORDER BY owner_kind,owner_id,role`, value)
+	rows, e := x.Query(ctx, `SELECT owner_kind,owner_id::text,role,project_id::text,model_id::text,owner_version,reasoning_effort,reasoning_mode FROM agenteam_model.references WHERE `+where+` ORDER BY owner_kind,owner_id,role`, value)
 	if e != nil {
 		return nil, unavailable(e)
 	}
@@ -37,7 +43,7 @@ func loadReferences(ctx context.Context, x postgres.SQLExecutor, where string, v
 	for rows.Next() {
 		var r referenceRecord
 		var project *string
-		if e = rows.Scan(&r.Kind, &r.Owner, &r.Role, &project, &r.Model, &r.Version, &r.Effort); e != nil {
+		if e = rows.Scan(&r.Kind, &r.Owner, &r.Role, &project, &r.Model, &r.Version, &r.Effort, &r.ReasoningMode); e != nil {
 			return nil, unavailable(e)
 		}
 		if project != nil {
@@ -112,13 +118,16 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
 	oldChanged := false
 	for _, ref := range refs {
 
-		if ref.Owner != old.ID || ref.Version != old.Version || ref.Project != "" || ref.Effort != "" {
+		if ref.Owner != old.ID || ref.Version != old.Version || ref.Project != "" {
 			return fault(f.ResourceBusy)
 		}
 		if next == nil && (ref.Role == "embedding" || ref.Role == "summary") {
 			return fault(f.InvalidState)
 		}
 		if next != nil {
+			if e = compatibleReferencedReasoning(ref, plan.BeforeModel.Input, next.Input); e != nil {
+				return e
+			}
 			if e = selectionCompatible(ref.Role, next.Input, ref.Effort); e != nil {
 				return e
 			}
@@ -182,6 +191,9 @@ func (s *Service) prepareSelectionModels(ctx context.Context, p *preparedCommand
 		if m == nil {
 			return fault(f.NotFound)
 		}
+		if ref.choice().ValidateFor(m.Input) != nil {
+			return fault(f.CapabilityUnsupported)
+		}
 		if e = selectionCompatible(ref.Role, m.Input, ref.Effort); e != nil {
 			return e
 		}
@@ -195,5 +207,26 @@ func (s *Service) prepareSelectionModels(ctx context.Context, p *preparedCommand
 		p.plan.Models = append(p.plan.Models, *m)
 		p.plan.Providers = append(p.plan.Providers, *provider)
 	}
+	return nil
+}
+
+func (r referenceRecord) choice() mc.ReasoningChoice {
+	if r.Kind == "platform_selector" {
+		return mc.ReasoningChoice{Mode: r.ReasoningMode, Value: r.Effort}
+	}
+	if r.Effort != "" {
+		return mc.ReasoningChoice{Mode: "effort", Value: r.Effort}
+	}
+	return mc.ReasoningChoice{Mode: "default"}
+}
+
+// Disabling a referenced model remains legal. Removing the exact selected
+// capability requires changing the selection first.
+func compatibleReferencedReasoning(r referenceRecord, before, after mc.ModelInput) error {
+	choice := r.choice()
+	if choice.ValidateFor(after) != nil {
+		return fault(f.CapabilityUnsupported)
+	}
+
 	return nil
 }
