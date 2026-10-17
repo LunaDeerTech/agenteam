@@ -29,7 +29,7 @@ const model = (): CatalogModel => ({
   created_at: at,
   updated_at: at,
   input: {
-    name: "Recovery Model",
+    notes: "Recovery Model",
     provider_model_id: "upstream-original",
     type: "chat",
     enabled: false,
@@ -41,6 +41,7 @@ const model = (): CatalogModel => ({
       parallel_tool_calls: false,
       streaming: true,
       reasoning: false,
+      reasoning_toggle_mode: null,
       input_modalities: ["text"],
       output_modalities: ["text"],
       reasoning_efforts: [],
@@ -237,15 +238,17 @@ describe("confirmed model editor recovery", () => {
     expect(document.querySelector('[role="listbox"]')).toBeNull();
     const label = wrapper!
       .findAll("label")
-      .find((item) => item.text() === "备注")!;
-    await wrapper!
-      .get(`input[id="${label.attributes("for")}"]`)
-      .setValue("Saved Model");
+      .find((item) => item.text() === "备注（可选）")!;
+    await label.get("textarea").setValue("");
     readModel = () => json({ code: "INTERNAL" }, 500);
     await wrapper!.get("form").trigger("submit");
     await flushPromises();
     expect(writes()).toHaveLength(1);
-    expect(JSON.parse(writes()[0]!.body).input.type).toBe("chat");
+    expect(JSON.parse(writes()[0]!.body).input).toMatchObject({
+      type: "chat",
+      notes: "",
+    });
+    expect(JSON.parse(writes()[0]!.body).input).not.toHaveProperty("name");
     expect(modelReads()).toHaveLength(1);
     expect(wrapper!.text()).toContain("保存已完成，最新模型尚未读回。");
     expect(button("完成").attributes("disabled")).toBeDefined();

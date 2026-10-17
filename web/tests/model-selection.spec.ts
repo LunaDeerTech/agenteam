@@ -4,6 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CatalogModel, Provider } from "../src/system/model-catalog";
 const id = (n: number) =>
   `019a0000-0000-7000-8000-${String(n).padStart(12, "0")}`;
+const choice = (n: number) => ({
+  model_id: id(n),
+  reasoning: { mode: "default" as const },
+});
 const at = "2026-10-16T12:00:00.000000Z";
 const identity = () => ({
   user: {
@@ -53,7 +57,7 @@ const model = (n: number, embedding = false): CatalogModel => ({
   created_at: at,
   updated_at: at,
   input: {
-    name: `Model ${n}`,
+    notes: `Model ${n}`,
     provider_model_id: `upstream-${n}`,
     type: embedding ? "embedding" : "chat",
     enabled: true,
@@ -65,6 +69,7 @@ const model = (n: number, embedding = false): CatalogModel => ({
       parallel_tool_calls: false,
       streaming: false,
       reasoning: false,
+      reasoning_toggle_mode: null,
       input_modalities: ["text"],
       output_modalities: [embedding ? "vector" : "text"],
       reasoning_efforts: [],
@@ -91,8 +96,8 @@ const selection = (version = "4") => ({
   id: id(1),
   version,
   configured: {
-    embedding: id(10),
-    summary: id(11),
+    embedding: choice(10),
+    summary: choice(11),
     reranker: null,
     image: null,
   },
@@ -101,8 +106,8 @@ const selectionPath = "/system/model-selection";
 const selectionInput = (version = "4") => ({
   id: id(1),
   expected_version: version,
-  embedding: id(12),
-  summary: id(11),
+  embedding: choice(12),
+  summary: choice(11),
   reranker: null,
   image: null,
 });
@@ -375,8 +380,8 @@ describe("platform model selections", () => {
         ? json({
             ...selection(),
             configured: {
-              embedding: id(10),
-              memory: id(11),
+              embedding: choice(10),
+              memory: choice(11),
               reranker: null,
               image: null,
             },
@@ -406,7 +411,7 @@ describe("platform model selections", () => {
     expect(writes[0]!.path).toBe(selectionPath);
     expect(JSON.parse(writes[0]!.body)).toEqual({
       ...selectionInput(),
-      summary: id(13),
+      summary: choice(13),
     });
     expect(wrapper!.text()).toContain("已保存。");
     expect(button("保存").attributes("disabled")).toBeDefined();
@@ -425,7 +430,7 @@ describe("platform model selections", () => {
     expect(writes[0]!.path).toBe(selectionPath);
     expect(JSON.parse(writes[0]!.body)).toEqual({
       ...selectionInput(),
-      summary: id(13),
+      summary: choice(13),
     });
     expect(writes[0]!.key).toBeTruthy();
     for (const purpose of ["嵌入模型", "总结模型", "重排模型", "图像生成模型"])
@@ -445,8 +450,8 @@ describe("platform model selections", () => {
         ? json({
             ...selection("5"),
             configured: {
-              embedding: id(12),
-              summary: id(13),
+              embedding: choice(12),
+              summary: choice(13),
               reranker: null,
               image: null,
             },
@@ -493,7 +498,7 @@ describe("platform model selections", () => {
       expect(writes[1]!.path).toBe(selectionPath);
       expect(JSON.parse(writes[1]!.body)).toEqual({
         ...selectionInput(version),
-        summary: id(13),
+        summary: choice(13),
       });
       expect(writes[1]!.key).not.toBe(writes[0]!.key);
       expect(wrapper!.text()).toContain("已保存。");
@@ -610,7 +615,7 @@ describe("platform model selections", () => {
       path === selectionPath
         ? json({
             ...selection(),
-            configured: { ...selection().configured, image: id(14) },
+            configured: { ...selection().configured, image: choice(14) },
           })
         : path === `/system/models/${id(14)}`
           ? json(imageModel)
@@ -622,7 +627,7 @@ describe("platform model selections", () => {
     await pick("嵌入模型", true);
     await click("保存");
     expect(writes).toHaveLength(1);
-    expect(JSON.parse(writes[0]!.body).image).toBe(id(14));
+    expect(JSON.parse(writes[0]!.body).image).toEqual(choice(14));
     await wrapper!
       .get('[aria-label="清除图像生成模型（Image Generation）"]')
       .trigger("click");

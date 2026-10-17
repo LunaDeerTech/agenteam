@@ -33,6 +33,7 @@ const capabilities = {
   parallel_tool_calls: false,
   streaming: true,
   reasoning: false,
+  reasoning_toggle_mode: null,
   input_modalities: ["text"],
   output_modalities: ["text"],
   reasoning_efforts: [],
@@ -151,7 +152,7 @@ const capabilities = {
                   created_at: at,
                   updated_at: at,
                   input: {
-                    name: "默认对话模型",
+                    notes: "默认对话模型",
                     provider_model_id: "gpt-4.1",
                     type: "chat",
                     enabled: true,

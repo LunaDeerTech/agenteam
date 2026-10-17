@@ -28,7 +28,7 @@ const model = (): CatalogModel => ({
   created_at: at,
   updated_at: at,
   input: {
-    name: "Status Model",
+    notes: "Status Model",
     provider_model_id: "upstream-chat",
     type: "chat",
     enabled: true,
@@ -40,6 +40,7 @@ const model = (): CatalogModel => ({
       parallel_tool_calls: false,
       streaming: true,
       reasoning: true,
+      reasoning_toggle_mode: null,
       input_modalities: ["text", "image"],
       output_modalities: ["text"],
       reasoning_efforts: [
@@ -279,7 +280,7 @@ it("retains the requested status after a conflict and explicitly applies it with
     version: "7",
     input: {
       ...model().input,
-      name: "Refreshed Model",
+      notes: "Refreshed Model",
       provider_model_id: "upstream-refreshed",
       parameters: { temperature: 0.8 },
       request_overwrite: { metadata: { purpose: "refreshed" } },
