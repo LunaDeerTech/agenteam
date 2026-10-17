@@ -1,6 +1,6 @@
 # 新 Vue 模型接入与平台模型用途
 
-状态：2026-10-17 已授权实施，起点 `97ac04e3`。本卡是本包共同合同，前轮及五用途平级、单保存调整已完成下述适用验证，不以前轮、旧D09或旧前端结果替代本次结果。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 原包起点 `97ac04e3`；当前从 `0c182e08` 实施统一总结模型。记忆与会议共用真实单配置，四用途整组保存；此前五用途、两资源的页面调整及验证保留为历史，不替代本次验证。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -10,7 +10,7 @@
 | --- | --- |
 | `/system/models` | “模型接入”先呈现供应商列表；页头右侧新建供应商，配置在弹窗中。 |
 | `/system/models/:providerId` | 独立供应商详情，以模型列表为主体；返回目录恢复列表位置/焦点。供应商设置、凭据配置、手工添加/编辑模型、发现选择导入和测试结果使用对应弹窗，不纵向堆叠全部表单。 |
-| `/system/model-selection` | 独立的平台用途页；向量、记忆、重排、图像与会议摘要五用途平级，整页一个保存动作，内部保留既有两资源的版本与命令。“重新获取”位于页面标题行右侧，保存仍贴近表单。 |
+| `/system/model-selection` | 独立的平台用途页；向量、总结、重排、图像四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；候选与已选模型显示为“供应商名称/模型ID”。 |
 
 完整出口是供应商与凭据配置→模型手工添加或发现勾选导入→显式真实测试→合法用途可选。复用SettingsShell、SystemList、UiDialog和共享页头动作；目录使用宽正文，标题无需装饰描述。页级动作在标题右侧，表单保存/取消贴近字段。宽窄、空态、读取失败、权限失效、409、Unknown、取消及返回焦点在对应任务中闭环。
 
@@ -34,13 +34,17 @@
 
 ## 3. 用途、删除影响与恢复
 
-`GET /system/model-selection`→`{id,version,configured:null|{embedding,memory,reranker,image}}`；PUT发送`{id,expected_version,embedding,memory,reranker,image}`。embedding与memory必填，reranker/image可null；候选按模型type、能力及当前启用/可用状态判断，同一openai-compatible供应商下可分别选择chat与embedding模型。未配置null不等于读取失败。
+唯一 `GET /system/model-selection`→`{id,version,configured:null|{embedding,summary,reranker,image}}`；PUT发送`{id,expected_version,embedding,summary,reranker,image}`。四字段均须显式提供：embedding与summary必填，reranker/image可null。embedding须为当前启用的System embedding模型；summary须为当前启用的System chat模型、供应商亦启用，并具备`json_schema`能力。候选按模型type、能力及当前启用状态判断，同一openai-compatible供应商可分别提供chat与embedding模型；未配置null不等于读取失败。
 
-会议摘要沿既有 `/system/model-selection/meeting-summary` GET/PUT：`{id,version,model:ID|null}`与`{id,expected_version,model:ID}`。页面五用途平级、只设一个保存按钮；后端不改，内部两资源仍各持id、version和原命令。正常页不显示第二标题或资源拆分说明。保存只校验并写入有改动的资源，未改动资源尚未配置不阻塞本次保存；按平台四用途→会议摘要串行；首失败、409或Unknown即停止。每个严格receipt确认后推进该资源baseline，后续保存跳过已完成资源；全部草稿已确认才显示整页保存成功，部分成功仅在异常恢复时提示。
+“总结模型”同时供Memory提取、整理、reflect与Meeting摘要/首轮标题使用。两类消费者统一解析`SummarySelector='summary'`，平台引用role为`summary`，各自的业务Purpose、提示词、用量归属和生命周期保持。系统只存一个用途配置、一个id/version和`model.selection.update`回执；删除旧独立meeting-summary HTTP/command/store/owner/锁，旧路由返回404，旧memory字段严格拒绝。Project既有`project_summary`未绑定预留契约不属第二个System配置，本轮不删除或启用。
 
-Unknown查询仅观察，须用原key/body确认；确认后若尚有未提交草稿，由唯一保存动作继续。409显式重读并采用新版本时保留未完成草稿；放弃只撤未完成本地草稿，不回滚已确认写入。成功不依赖后续GET；重读失败不使成功PUT重发。当前单保存行为覆盖旧分区双保存指令，历史验证按原输入保留。
+`json_schema`是共享模型的能力门；Memory沿既有结构化输出调用，Meeting本轮只切selector，仍以`ResponseFormat=text`、空Tools生成并解析固定JSON envelope，不额外重做会议生成流程。
 
-模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除引用。
+页面维护一份四字段草稿，单次PUT原子保存整组，取消或无改动不写入；不再串行写两个资源，也不存在用途保存的部分成功。409保留草稿，显式重读并采用最新版本；Unknown冻结原key/body/version，lookup仅观察，须由原Execute返回匹配receipt才确认。已确认成功后的GET失败仅重读，不再次PUT；放弃未确认草稿不宣称服务端已回滚。模型名称统一显示为“供应商名称/模型ID”。
+
+00149仅重置System用途配置及其平台引用、移除旧独立配置表，再初始化version1的未配置单例；不自动选择任一旧模型、不保留旧接口兼容。账号、SMTP、供应商/模型/凭据及业务Purpose不因此重置。本轮仅在新建隔离库验证，现有公开实例保持。
+
+模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。总结模型仅有共享平台引用，替代仍须为启用的System chat且支持`json_schema`，同事务替换该引用并推进整组版本；新调用使用新选择，已接受调用保持原snapshot。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除引用。
 
 既有配置/Secret的lookup只观察历史身份，`found/observed=true`不能证明本次body匹配，false也不证明未提交或可换key。Unknown冻结原method/path/key/body/version；用户显式恢复时必须由原Execute严格核对原材料并返回匹配receipt后才终结，不仅凭lookup显示成功。lookup可以辅助核对，不能代原Execute。Secret原材料仅留该命令owner内存，确认、放弃或身份失效后清理；不写本地存储、日志或URL。已确认receipt后的GET失败仅重读，不再次执行成功写入。409保留非秘密草稿并显式采用新版本；Secret已知未提交（not_started或not_committed）的409须清秘密输入，显式读取新凭据版本后重新填写，不能沿用Unknown的原材料恢复；权限失效清本包数据，不伪造Session注销。
 
@@ -64,7 +68,9 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 ## 5. 实施与验收边界
 
-account_backend唯一维护后端/API/schema及00147、00148；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
+account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
+
+统一总结模型目前处于实施中：Vue四用途单资源及名称展示已冻结，作者17项受影响单测、type/build通过；独立UI、四字段真实保存、两消费者解析与引用替换、能力拒绝及409/Unknown尚待本轮接受，暂未取得新截图。以下结果均属此前冻结输入，不能据此宣称新selector已完成或已部署。
 
 首链为供应商/凭据→模型→测试→用途保存与刷新；并检查部分完成、权限/CSRF、409、Unknown原请求终结、引用阻断、能力不支持与取消。发现/test使用任务拥有的模拟供应商和真实App/Secret/出站实现，不用用户现有凭据或外部供应商实发。页面核桌面/窄屏、键盘/modal回焦、返回列表与部分结果；现系统导航10项需要新检查，旧11项通过事实保留为历史。新family已完成下述真实链；先前冻结输入的权限/生命周期等未变结果仅限定复用，不把旧协议整页或旧配置链当作新family验收。
 
@@ -79,7 +85,7 @@ account_backend唯一维护后端/API/schema及00147、00148；proxy_copy唯一�
 
 r3原链actual exit0，App/TLS/供应商join，4容器+4网络及4专属目录清零；风险fixture另6资源/3目录亦清零。Vue5281 TERM后原wait143且无进程/监听，5282/5283无监听；5288仅确认进程/监听已无，旧launcher wait不可恢复。两个测试二进制按原SHA删除，必要私有证据保持0700/0600、不入Git；既有公开服务和用户数据未操作。
 
-前轮四张示例图均由视觉owner上传并匿名下载核对；用途旧分区图仅保留历史，当前五用途单保存以其后的新图为准。截图证明页面呈现，不替代真实API验收，也不代表公网已更新：
+前轮四张示例图均由视觉owner上传并匿名下载核对；旧分区、五用途单保存及名称调整图仅保留对应历史输入，不作为本轮四用途页面证明。截图证明页面呈现，不替代真实API验收，也不代表公网已更新：
 
 | 页面 | 原图 |
 | --- | --- |

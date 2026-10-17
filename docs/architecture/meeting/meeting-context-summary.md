@@ -369,7 +369,7 @@ Turn.running
 
 Summary 更新仍属于 Turn Runtime 的 finalize 控制流程，但 Summary 内容只消费 MeetingMessage，不需要把 Turn 对象注入模型上下文。
 
-首轮 finalize 同时生成一次 Meeting.title 与四字段 Summary，使用系统 `platform.meeting_summary` 为本次逻辑生成固化的同一个 Model snapshot、同次普通文本模型调用和相同 Message 边界。服务端解析校验后在同一事务写入标题与 Summary；成功之前 Turn 保持 finalizing。生成前 UI 展示“新会议”，不阻断首轮 Agent 执行。后续 finalize 仅更新 Summary，不因讨论变化或 regenerate 改写已生成标题。
+首轮 finalize 同时生成一次 Meeting.title 与四字段 Summary，使用系统 `platform.summary` 为本次逻辑生成固化的同一个 Model snapshot、同次普通文本模型调用和相同 Message 边界。服务端解析校验后在同一事务写入标题与 Summary；成功之前 Turn 保持 finalizing。生成前 UI 展示“新会议”，不阻断首轮 Agent 执行。后续 finalize 仅更新 Summary，不因讨论变化或 regenerate 改写已生成标题。
 
 Summary 更新是同步 finalize 步骤：
 
@@ -420,7 +420,7 @@ Summary Updater：
 - 不创建 Agent Execution；
 - 不读取 DecisionRequest / Approval Request 作为会话事实；
 - 固定通过统一 Model System 调用 chat Model；
-- 使用系统管理员统一配置的 `platform.meeting_summary`，保留本 Project/Meeting consumer 事实；
+- 使用系统管理员统一配置的 `platform.summary`，保留本 Project/Meeting consumer 事实；
 - 只执行普通 text generation；
 - 不暴露任何 Tools；
 - 不发起 Tool Calling；
@@ -428,22 +428,22 @@ Summary Updater：
 - 不作为 Agent 出现在 Meeting；
 - invocation / token usage 进入平台统一 Model Usage 记录。
 
-Summary Model 只要求：
+共享总结 Model 要求：
 
 - `type = chat`；
 - 新生成选择 enabled System Model，不接受 Project Model；
-- 支持 text input / output。
+- 支持 text input / output 与`json_schema`。
 
 不要求：
 
 - tool calling；
 - parallel tool calls；
-- image / file input；
-- structured output。
+- image / file input。
 
-Summary 请求使用普通 Unified Chat Model Contract，并显式保持：
+Summary 请求使用普通 Unified Chat Model Contract，本轮只统一 selector，保留现有调用格式：
 
 ```text
+ResponseFormat = text
 tools = []
 ```
 
@@ -458,7 +458,7 @@ tools = []
 }
 ```
 
-这里的 JSON 只是普通文本输出格式，不要求 Model 具备 `structured_output` capability。
+这是会议固定的输出 envelope；共享总结模型须支持`json_schema`，服务端仍校验字段与内容。能力门不替代输出校验，不改变 Summary 的事务与生命周期边界。
 
 首轮输出在上述 envelope 中额外包含非空 `title` string，服务端将其写入 `Meeting.title`，不向 `MeetingRollingSummary` 增加第五字段。首轮解析须同时验证标题与四个摘要文本；标题或摘要不合法时整步失败，不能只提交其中一部分。生成标题不创建 MeetingMessage 或 Agent Execution。
 
@@ -477,12 +477,12 @@ tools = []
 系统管理员统一配置：
 
 ```text
-platform.meeting_summary -> enabled System chat Model
+summary_model_ref -> enabled System chat Model + json_schema
 ```
 
-该用途覆盖 Meeting Rolling Summary initial/update（含首轮标题），有独立 singleton / version，不加入原四用途整组 PUT。Project 消费系统选择，不保存模型引用、不在创建时复制初值，也不提供 override。System 平台模型用途页提供独立编辑/保存区，Project 会议配置不提供第二套选择器。
+该用途覆盖 Meeting Rolling Summary initial/update（含首轮标题），与 Memory 的提取、整理和 reflect 共用`SummarySelector = summary`；平台四用途是单个配置、版本与整组 PUT，没有独立 Meeting 配置。Project 消费系统选择，不保存模型引用、不在创建时复制初值，也不提供 override。用途页只设一个保存动作；Project 既有未绑定预留端口不因此启用。
 
-该配置只选择已有 enabled System chat Model，不重复配置 Provider、Model 参数或 reasoning effort，也不要求 json_schema。初始未配置时不猜默认模型、不阻止 Project 创建；选择后本范围不提供清空。停用保留原引用，删除必须同事务替换为合法 Model。
+该配置只选择已有 enabled System chat Model 并要求`json_schema`，不重复配置 Provider、Model 参数或 reasoning effort。初始未配置时不猜默认模型、不阻止 Project 创建；选择后本范围不提供清空。停用保留原引用，删除必须同事务替换为合法 Model。
 
 MeetingSummaryUpdater 每个新逻辑 generation 通过 Model Resolver 解析当前选择，并固化 selector version / Model snapshot；同一已接受调用及重试保持原 snapshot，不因管理员后来切换或停用而热换模型。当前 selector GET 不修改历史记录。此处是目标契约，配置库、Resolution 与真实 Meeting consumer 仍须分别实施验收。
 

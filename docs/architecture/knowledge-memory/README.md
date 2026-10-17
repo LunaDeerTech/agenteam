@@ -68,7 +68,7 @@ flowchart TB
     subgraph Models["Platform Model Selection"]
         Embed["embedding_model_ref"]
         Rank["reranker_model_ref?"]
-        MemoryModel["memory_model_ref"]
+        MemoryModel["summary_model_ref"]
     end
 
     Project --> Document
@@ -245,14 +245,14 @@ Knowledge / Memory 使用平台级模型选择：
 ~~~text
 embedding_model_ref   -> required System embedding Model
 reranker_model_ref    -> optional System reranker Model
-memory_model_ref      -> required System chat Model
+summary_model_ref     -> required System chat Model + json_schema
 ~~~
 
 其中：
 
 - embedding_model_ref：Knowledge index 与 Memory retrieval embedding；
 - reranker_model_ref：Knowledge query / Memory recall 的可选第二阶段 rerank；
-- memory_model_ref：Memory extraction、consolidation、reflect reasoning。
+- summary_model_ref：Memory extraction、consolidation、reflect reasoning，与 Meeting Summary 共用平台总结 selector 和配置版本；业务 Purpose 与内容边界不合并。
 
 Memory 不继承某个 Agent 当前 chat model。
 

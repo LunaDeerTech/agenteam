@@ -21,7 +21,7 @@ Runtime 负责：
 - Tool input validation；
 - namespace binding；
 - Secret / sensitive-data 前置处理；
-- memory_model_ref 解析；
+- summary_model_ref 解析；
 - retain extraction；
 - related Memory retrieval；
 - consolidation；
@@ -58,7 +58,7 @@ read
 read + reason
 ~~~
 
-基于 recall 的 Memory 结果使用 memory_model_ref 做更高层归纳 / reasoning，但不写 Memory。
+基于 recall 的 Memory 结果使用 summary_model_ref 做更高层归纳 / reasoning，但不写 Memory。
 
 只有 retain 产生长期 Memory mutation。
 
@@ -124,10 +124,10 @@ Agent Execution terminal 时不自动：
 
 ## 6. Platform Model Selection
 
-新增：
+Memory 与 Meeting 共用平台“总结模型”，HTTP字段与运行 selector 均为`summary`，架构引用表示为：
 
 ~~~text
-memory_model_ref
+summary_model_ref
 ~~~
 
 约束：
@@ -136,7 +136,8 @@ memory_model_ref
 - enabled；
 - 平台级，不按 Project 配置；
 - 不继承当前 Agent.chat model；
-- 必须能够可靠满足 Memory structured output contract。
+- 必须具备`json_schema`并可靠满足 Memory structured output contract；
+- 与 Meeting 共用一份选择和平台用途版本，Memory 的 Purpose、提示词、namespace 与业务生命周期保持。
 
 用途：
 
@@ -151,7 +152,7 @@ embedding_model_ref
 reranker_model_ref?
 ~~~
 
-## 7. memory_model_ref Resolution
+## 7. summary_model_ref Resolution
 
 每次 Memory model invocation 都先解析当前 PlatformModelSelection。
 
@@ -172,7 +173,7 @@ Memory Runtime
 
 任何 retain 内容在进入：
 
-- memory_model_ref；
+- summary_model_ref；
 - embedding model；
 - lexical index；
 
@@ -523,7 +524,7 @@ Runtime：
 3. call Memory Retrieval Adapter；
 4. return ranked active Memory。
 
-recall 不调用 memory_model_ref 做二次总结。
+recall 不调用 summary_model_ref 做二次总结。
 
 因此 recall：
 
@@ -565,7 +566,7 @@ reflect(query)
 
 语义：
 
-> 在当前 Agent Memory namespace 上先 recall，再用 memory_model_ref 对相关 Memory 做只读综合推理。
+> 在当前 Agent Memory namespace 上先 recall，再用 summary_model_ref 对相关 Memory 做只读综合推理。
 
 流程：
 
@@ -574,7 +575,7 @@ flowchart LR
     Query["reflect(query)"]
     Recall["Memory Recall"]
     Context["Ranked Memories"]
-    Model["memory_model_ref"]
+    Model["summary_model_ref"]
     Answer["Reasoned Answer"]
 
     Query --> Recall
@@ -632,7 +633,7 @@ Observation Consolidator
 
 Extraction 和 Consolidation 必须使用统一 Model System 的 structured output capability。
 
-如果所选 memory_model_ref 无法可靠提供 schema-constrained output：
+如果所选 summary_model_ref 无法可靠提供 schema-constrained output：
 
 - 配置阶段应阻止选择；
 - 或 Runtime 启动 invocation 前返回 model capability error。
@@ -665,11 +666,11 @@ retain Tool 返回结构化安全错误。
 
 Agent 可以移除 Secret 值后重新 retain。
 
-### memory_model_ref unavailable
+### summary_model_ref unavailable
 
 retain / reflect Tool error。
 
-recall 不依赖 memory_model_ref，可以继续工作。
+recall 不依赖 summary_model_ref，可以继续工作。
 
 ### embedding unavailable
 
@@ -876,7 +877,7 @@ Memory rebuild
 7. consolidation 只允许操作提供给 Model 的 related Memories。
 8. UPDATE / DELETE 必须同时校验 namespace、合法输入目标、当前 active 状态和 expected revision。
 9. retain batch 不部分提交。
-10. memory_model_ref 是平台级 System chat Model，不继承 Agent model。
+10. summary_model_ref 是平台级 System chat Model，不继承 Agent model。
 11. structured mutation 不用自由文本 regex 解析。
 12. Execution 结束不自动生成 Memory。
 13. 明确未提交的 revision/目标 active 冲突只内部重算一次，新增模型调用与 proposal 真实留证/计量；未知提交结果沿幂等恢复。

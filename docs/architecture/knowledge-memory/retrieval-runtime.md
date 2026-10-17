@@ -576,7 +576,7 @@ Memory recall adapter
     ↓
 ranked active memories
     ↓
-memory_model_ref reasoning
+summary_model_ref reasoning
     ↓
 read-only answer
 ~~~

@@ -197,7 +197,7 @@ Provider 和 ModelConfig 支持物理删除，不要求长期保留 disabled 记
 
 #### 删除 chat Model
 
-如果待删除 chat Model 仍被 Agent.model_ref 或系统 `platform.meeting_summary` selector 引用，用户侧必须先通过删除确认弹窗选择替代 chat Model。
+如果待删除 chat Model 仍被 Agent.model_ref 或系统 `platform.summary` selector 引用，用户侧必须先通过删除确认弹窗选择替代 chat Model。
 
 确认删除时，服务端以一个事务性操作完成：
 
@@ -207,7 +207,7 @@ Provider 和 ModelConfig 支持物理删除，不要求长期保留 disabled 记
 4. 同事务把所有受影响 Agent.model_ref 与系统 selector 更新为替代 Model，分别更新其版本；
 5. 完成后物理删除原 ModelConfig。
 
-System chat Model 可能被多个 Project 的 Agent 及系统 Meeting Summary selector 引用，因此其替代 Model 必须是对全部受影响 Project 可见的 enabled System chat Model。Summary 替换只更新系统 selector，不批量改写 Project 配置；同一 Model 还被 Memory 等用途引用时，替代必须同时满足各用途约束。
+System chat Model 可能被多个 Project 的 Agent 及共享总结 selector 引用，因此其替代 Model 必须是对全部受影响 Project 可见的 enabled System chat Model。总结替代还须支持`json_schema`；同事务只更新一次共享引用并推进平台用途版本，不批量改写 Project 配置。Memory 与 Meeting 的新调用随后解析同一选择，已接受调用保持原 snapshot。
 
 Project chat Model 只影响所属 Project，可以替换为该 Project 当前可见的 enabled System chat Model 或 Project chat Model。
 
@@ -219,9 +219,8 @@ Project chat Model 只影响所属 Project，可以替换为该 Project 当前�
 
 - embedding_model_ref：必须先选择另一个 enabled System embedding Model，不能清空；
 - reranker_model_ref：可以选择另一个 enabled System reranker Model，也可以清空；
-- memory_model_ref：必须先选择另一个 enabled System chat Model，不能清空；
+- summary_model_ref：必须先选择另一个 enabled System chat Model，且支持`json_schema`，不能清空；
 - image_generation_model_ref：可以选择另一个 enabled System image_generation Model，也可以清空。
-- 独立 `platform.meeting_summary`：必须先选择另一个 enabled System chat Model，不能清空。
 
 selector 更新完成后才能物理删除对应 ModelConfig。
 
@@ -258,7 +257,7 @@ flowchart TB
     Project["Project Model Config"]
 
     Chat["chat"]
-    MemoryChat["System chat<br/>memory_model_ref"]
+    SummaryChat["System chat + json_schema<br/>summary_model_ref"]
     Emb["embedding"]
     Rank["reranker"]
     Image["image_generation"]
@@ -267,6 +266,7 @@ flowchart TB
     Select["PlatformModelSelection"]
     KM["Knowledge / Memory"]
     MemoryRuntime["Agent Memory Runtime"]
+    MeetingSummary["Meeting Summary Generator"]
     ImageTool["Builtin generate-image Tool"]
 
     ChatAdapter["Unified Chat Model Contract"]
@@ -275,7 +275,7 @@ flowchart TB
     ImageAdapter["Image Generation Adapter"]
 
     System --> Chat
-    System --> MemoryChat
+    System --> SummaryChat
     System --> Emb
     System --> Rank
     System --> Image
@@ -287,7 +287,7 @@ flowchart TB
 
     Emb --> Select
     Rank --> Select
-    MemoryChat --> Select
+    SummaryChat --> Select
     Image --> Select
 
     Select --> KM
@@ -296,6 +296,8 @@ flowchart TB
 
     Select --> MemoryRuntime
     MemoryRuntime --> ChatAdapter
+    Select --> MeetingSummary
+    MeetingSummary --> ChatAdapter
 
     Select --> ImageTool
     ImageTool --> ImageAdapter
@@ -307,7 +309,7 @@ flowchart TB
 
 Agent 通过 `model_ref` 选择当前 Project 可用的 chat Model，然后由 Agent Loop 通过 Unified Chat Model Contract 调用。
 
-此外，System chat Model 还可以作为平台内部用途 Model，例如 `memory_model_ref` 和系统 `platform.meeting_summary`。Meeting Summary 只选择 System chat Model；Project chat Model 仍用于本 Project Agent 等原有合法用途。不同 consumer 共用 Unified Chat Model Contract，但拥有各自独立的 selector、prompt、usage metadata 与业务生命周期。
+此外，System chat Model 可作为平台“总结模型”：`summary_model_ref`对应唯一的`SummarySelector = summary`，供 Memory 与 Meeting 共用。它仅接受启用的 System chat Model，并要求`json_schema`能力；Project chat Model 仍用于本 Project Agent 等原有合法用途。两个 consumer 共用该 selector 与 Unified Chat Model Contract，分别保留 prompt、Purpose、usage metadata 和业务生命周期。
 
 System Provider 和 Project Provider 都可以配置 chat Model。
 
@@ -374,83 +376,55 @@ image_generation Model 第一阶段只能由 System Provider 配置。
 
 ### Platform Model Selection
 
-平台基础设施保留原四个模型用途 selector，并为 Meeting Summary 保存独立 selector：
+平台基础设施用一个 PlatformModelSelection 保存四个用途，配置、版本和保存回执均为一份：
 
 ~~~text
 PlatformModelSelection
 ├── embedding_model_ref
+├── summary_model_ref
 ├── reranker_model_ref?
-├── memory_model_ref
 └── image_generation_model_ref?
-
-Meeting Summary Selection（独立 singleton / version）
-└── platform.meeting_summary
 ~~~
 
-它们只保存已配置 ModelConfig 的稳定 ID，不在 selector 中重复配置 Model 本身。
+这些字段只保存 ModelConfig 的稳定 ID，不重复配置 Model。HTTP对应`embedding / summary / reranker / image`，`summary_model_ref`的运行 selector 与平台引用 role 均为`summary`；不再保留独立 Memory 或 Meeting Summary 配置。
 
 约束：
 
-~~~text
-embedding_model_ref
--> System Model
--> type = embedding
+- embedding_model_ref：必填、启用的 System embedding Model；
+- summary_model_ref：必填、启用的 System chat Model，供应商亦启用，支持`json_schema`；
+- reranker_model_ref：可空、启用的 System reranker Model；
+- image_generation_model_ref：可空、启用的 System image_generation Model。
 
-reranker_model_ref
--> System Model
--> type = reranker
--> optional
+整组初始可未配置；保存时 embedding 与 summary 必填，另两字段显式可空。所有用途都是平台配置，不支持 Project override，通过唯一`/system/model-selection`原子更新四字段与版本，不存在第二次会议配置写入。早期开发直接重建用途配置，不从旧 Memory 或 Meeting 选择自动迁移。
 
-memory_model_ref
--> System Model
--> type = chat
--> required
--> 用于 Agent Memory extraction / consolidation / reflect
-
-image_generation_model_ref
--> System Model
--> type = image_generation
--> optional
-
-platform.meeting_summary
--> System Model
--> type = chat
--> required for Meeting Summary generation
--> 不要求 json_schema / structured output
-~~~
-
-所有这些 selector 都是平台级配置，不支持 Project override。原四项保持原整组配置与版本；Meeting Summary 使用独立状态、singleton 和版本，不作为第五字段加入原四项 PUT。
-
-Knowledge / Memory 共用同一组 embedding / reranker selector。
-
-Agent Memory 的 extraction / consolidation / reflect 使用 memory_model_ref，不继承当前 Agent 的 chat Model，也不支持 Project override。所选 Model 必须能够可靠满足 Memory Runtime 的 structured output contract。
+Knowledge / Memory 共用 embedding / reranker。Memory 的 extraction / consolidation / reflect 与 Meeting Rolling Summary initial/update（含首轮标题）共用 summary，不继承 Agent 的 chat Model；两者各自的输出契约、Purpose、用量与业务生命周期保持独立。
 
 如果 `image_generation_model_ref` 未配置，则平台没有可用的默认 image generation backend，`generate-image` Tool 不应作为可执行 Tool 暴露给 Agent。
 
 ### 系统 Meeting Summary Model
 
-系统管理员统一配置逻辑 `platform.meeting_summary`，用于 Meeting Rolling Summary initial/update（含首轮标题）。Project 消费系统选择，不保存或在创建时复制模型初值，也不提供 override；Agent compaction 沿原 Execution snapshot，其他 Purpose 与 Execution Summary read model 不变。
+Meeting Rolling Summary initial/update（含首轮标题）与 Memory 共用系统管理员配置的`platform.summary`（`summary_model_ref`）。Project 消费系统选择，不保存或在创建时复制模型初值，也不提供 override；Agent compaction 沿原 Execution snapshot，其他 Purpose 与 Execution Summary read model 不变。
 
-该独立 selector：
+该共享 selector：
 
 - 保存稳定 ModelConfig ID；
-- 由系统管理员显式选择 enabled System `type = chat` Model，不接受 Project Model；
+- 由系统管理员显式选择 enabled System `type = chat` Model，要求`json_schema`，不接受 Project Model；
 - 初始可以未配置，不猜默认模型，也不阻止 Project 创建；未配置时 Summary 生成明确失败；
 - 一旦选择，本范围不提供清空；停用保留引用并阻止新生成，删除必须同事务替换为合法 Model；
 - 新逻辑 generation 解析当前选择并固化 selector version / Model snapshot；已接受的同一逻辑调用及重试继续使用原 snapshot，不因当前选择变化热换模型。
 
-这是已确认的目标契约；独立配置库及后续 Resolution / consumer 绑定须分别实施验收，本文不声明其已可运行。
+这是已确认的目标契约；统一配置、Resolution 与两个 consumer 的绑定须按当前工作项分别验收，本文不以设计声明代替运行结果。Project 既有未绑定预留端口不因此启用。
 
 它不要求所选 Model 支持：
 
 - Tool Calling；
 - parallel Tool Calling；
-- structured output；
 - image / file input。
 
-Meeting Summary Generator 只执行普通 text generation，调用时：
+Meeting Summary Generator 按会议固定输出 envelope 生成并校验内容；共享 selector 的`json_schema`能力门不改变会议内容与提交边界，本轮保留现有调用格式：
 
 ```text
+ResponseFormat = text
 tools = []
 ```
 
@@ -576,26 +550,20 @@ Project Provider 的 Model type 固定为 chat，UI 不允许选择其他类型�
 
 ~~~text
 Embedding Model        -> System embedding Model
+Summary Model          -> System chat Model + json_schema
 Reranker Model         -> optional System reranker Model
-Memory Model           -> System chat Model
 Image Generation Model -> optional System image_generation Model
 ~~~
 
 这些 selector 只选择已有 Model，不在这里编辑 Model 参数。
 
-其中 Memory Model 只允许选择 enabled System chat Model，并且该 Model 必须支持 Memory Runtime 所需的 structured output contract。
+总结模型供 Memory 与 Meeting 共用，只允许选择 enabled System chat Model，并且支持`json_schema`。
 
 Agent 配置页只消费当前 Project 可用的 chat Model，并根据所选 Model 的 parameters.capabilities.reasoning_efforts 展示 reasoning_effort 选项。
 
-System 平台模型用途同页提供独立编辑/保存区域：
+System 平台模型用途页将向量、总结、重排、图像四项平级展示，只有一个保存动作；“重新获取”位于标题行右侧，模型显示“供应商名称/模型ID”。一份四字段草稿对应一个资源版本与回执，409保留草稿，Unknown沿原命令恢复，不拆分保存或制造部分成功。
 
-```text
-Meeting Summary Model -> enabled System chat Model
-```
-
-它编辑独立 `platform.meeting_summary`，明确显示未配置状态；保存成功不等于运行调用已可用。原四用途仍按原整组保存。Project 会议配置只说明消费系统统一模型，不提供本地选择器或第二个编辑入口；本说明不新增 Project 只读 HTTP。
-
-该选择器不展示 Agent Capability、Tools 或 reasoning effort 配置；Meeting Summary Generator 只执行普通 text generation。
+未配置状态须明确显示；保存成功不等于真实调用已可用。Project 会议配置只说明消费系统统一模型，不提供本地选择器或第二个编辑入口，也不因此新增 Project 只读 HTTP。用途页不展示 Agent Capability、Tools 或 reasoning effort 配置。
 
 ## 第一阶段实现边界
 
@@ -606,8 +574,8 @@ Meeting Summary Model -> enabled System chat Model
 - 显式 Provider + ModelConfig；
 - System Provider 支持 chat / embedding / reranker / image_generation，Project Provider 只支持 chat；
 - 非 chat 首版分别采用已验证的 OpenAI Embeddings、Jina Rerank、OpenAI 图片生成 profile；
-- PlatformModelSelection：embedding / optional reranker / memory / optional image_generation；
-- Agent model_ref / reasoning_effort 与独立系统 platform.meeting_summary selector；
+- PlatformModelSelection：embedding / summary / optional reranker / optional image_generation，一份配置与版本；
+- Agent model_ref / reasoning_effort 与 Memory、Meeting 共用的系统 summary selector；
 - 会议辅助请求使用独立 meeting consumer，用途与关联 identity 由正式 usage 契约定义；
 - Provider Credential secret reference；
 - Provider / Model 物理删除、引用替换与历史 snapshot 保留约束。

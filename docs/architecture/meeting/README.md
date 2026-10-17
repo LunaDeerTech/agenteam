@@ -411,13 +411,13 @@ Summary 至少包含：
 
 四个字段都由 Meeting Summary Generator 使用 LLM 从当前全部 MeetingMessage 中重新生成，不使用上一版 Summary 做增量输入。goals 同时概括讨论主题与目标；首轮同次调用额外生成 Meeting.title 并共同提交，标题不属于 Summary 的第五字段，后续不重写标题。
 
-Summary Generator 使用系统管理员统一配置的独立用途：
+Summary Generator 与 Memory 使用系统管理员统一配置的总结用途：
 
 ```text
-platform.meeting_summary
+summary_model_ref（SummarySelector = summary）
 ```
 
-新逻辑生成必须选择 enabled System chat Model，Project 不保存或复制初值、不提供 override；初始未配置不阻止 Project 创建，但 Summary 生成明确失败。同一已接受调用及重试保持固化的 selector version / Model snapshot。Summary 调用只做普通 text generation，不暴露任何 Tools，也不创建 Agent Execution。
+新逻辑生成必须选择 enabled System chat Model 且支持`json_schema`，Project 不保存或复制初值、不提供 override；初始未配置不阻止 Project 创建，但 Summary 生成明确失败。同一已接受调用及重试保持固化的 selector version / Model snapshot。Summary 按会议固定输出 envelope 生成并校验，不暴露 Tools，也不创建 Agent Execution；其 Purpose 与用量归属保持 meeting，不因共享模型而并入 Memory。
 
 Summary 是派生语义摘要，不是：
 

@@ -167,7 +167,7 @@ Model System
 2. 一个 Provider 固定一个 Protocol；
 3. 显式 Provider + ModelConfig；
 4. System Provider 支持 chat / embedding / reranker / image_generation，Project Provider 只支持 chat；
-5. PlatformModelSelection：embedding / optional reranker / memory / optional image_generation；
+5. PlatformModelSelection：embedding / summary / optional reranker / optional image_generation，一份配置与版本；
 6. Model Resolver；
 7. Resolved Model Snapshot；
 8. chat parameters.capabilities 与 Provider Adapter 职责分离；
@@ -182,8 +182,8 @@ Model System
 17. embedding / reranker / image generation 的独立 Adapter，首版分别支持 OpenAI Embeddings / Jina Rerank / OpenAI 图片生成及经实际验证的兼容 profile，不以兼容标签代替 conformance；
 18. image_generation 通过 Builtin generate-image Tool 消费；
 19. usage normalization，并把逐真实请求统计交给独立 Token Usage 模块；会议辅助调用使用 meeting consumer，Agent 发言仍归 Agent；
-20. 系统统一 `platform.meeting_summary` 与 System 平台模型用途同页独立配置 UI；独立 singleton/version，不改变原四用途整组配置，Project 不保存或复制该选择；
-21. Provider / Model 物理删除、Agent model_ref 与系统 Meeting Summary selector 的同事务替换、原四用途引用处理，以及历史 snapshot 保留。
+20. Memory 与 Meeting 共用系统总结模型`summary`，要求 enabled System chat + `json_schema`；四用途同页单次原子保存，Project 不保存或复制该选择；
+21. Provider / Model 物理删除、Agent model_ref 与四用途引用的同事务替换；共享总结引用仅更新一次，替代保持`json_schema`约束，历史 snapshot 保留。
 
 第一阶段不要求：
 

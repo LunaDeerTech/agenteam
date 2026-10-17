@@ -54,7 +54,7 @@ AppShell组织系统导航、项目上下文和内容区；“个人设置”只
 
 ## 模型接入与平台模型用途（实施中）
 
-仅保留 `/system/models` 模型接入和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。新建仅使用`openai-compatible`供应商family，一份地址/凭据管理chat与embedding模型，类型在模型上明确；旧协议记录只读、不迁移。设置分类名为“模型配置”，上述URL不变。平台用途“重新获取”在标题行右侧，五项（含会议摘要）平级、整页单保存；内部只串行写有改动的既有资源，分别确认版本与回执，失败即停、后续跳过成功项，具体恢复按工作项。配置与凭据的独立命令不变；旧分区保存验收保留为历史，不作为当前页面指令。
+仅保留 `/system/models` 模型接入和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。新建仅使用`openai-compatible`供应商family，一份地址/凭据管理chat与embedding模型，类型在模型上明确；旧协议记录只读、不迁移。设置分类名为“模型配置”，上述URL不变。平台用途“重新获取”在标题行右侧，向量、总结、重排、图像四项平级，共用一个配置/版本/回执，整页单次原子保存；总结模型供记忆与会议共同解析，须为启用的System chat且支持`json_schema`。模型显示为“供应商名称/模型ID”。删除旧memory字段和meeting-summary独立API，具体恢复按工作项；配置与凭据的独立命令不变。旧五用途/双资源保存验收保留为历史，不作为当前页面指令。
 
 发现、逐项导入和真实测试仅按[本包合同](../work-items/frontend-model-catalog.md)的协议能力开放；配置保存不自动调用供应商。未知结果保原请求并按相应命令恢复，不能只凭历史lookup认定本次材料已提交。先在owned App与模拟供应商联调，不使用当前公网实例或用户凭据。原页面与旧D09通过只证明其原输入，新组合结果以当前状态为准。
 
