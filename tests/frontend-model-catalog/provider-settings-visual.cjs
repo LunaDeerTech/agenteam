@@ -1,5 +1,5 @@
 // Independent controlled visual review. All API routes are synthetic and unknown origins fail closed.
-// Usage: node provider-settings-visual.cjs --base-url http://127.0.0.1:5281 --owned provider-settings-visual --input <frozen-revision> --run <label> [--only layout|status|config|narrow]
+// Usage: node provider-settings-visual.cjs --base-url http://127.0.0.1:5281 --owned provider-settings-visual --input <frozen-revision> --run <label> [--only layout|status|config|narrow|feedback]
 // Output: ignored output/ai/provider-settings-visual/<label>. No real backend, external provider, credentials or public routes.
 const { createRequire } = require("node:module");
 const lockedRequire = createRequire(
@@ -445,7 +445,7 @@ async function layout({ p, s }) {
     p.getByRole("cell", { name: "OpenAI/sample-embedding", exact: true }),
   ).toBeVisible();
   await shot(p, "models-tab-1440-dark");
-  await p.getByRole("link", { name: "模型接入", exact: true }).click();
+  await p.getByRole("link", { name: "← 模型接入", exact: true }).click();
   await expect(
     p.getByRole("link", { name: "OpenAI", exact: true }),
   ).toBeFocused();
@@ -492,10 +492,12 @@ async function layout({ p, s }) {
   await btn(panel, "放弃编辑").focus();
   await p.keyboard.press("Enter");
   await expect(field(panel, "供应商名称")).toHaveValue("OpenAI");
-  assert(
-    await panel.evaluate((e) => e.contains(document.activeElement)),
-    "discarding an inline draft must retain focus in the configuration task",
-  );
+  await expect
+    .poll(() => panel.evaluate((e) => e.contains(document.activeElement)), {
+      message:
+        "discarding an inline draft must retain focus in the configuration task",
+    })
+    .toBe(true);
   return {
     listSwitches: true,
     configButtonRoute: true,
@@ -512,12 +514,19 @@ async function status({ p, s }) {
   const control = switchFor(p, "OpenAI"),
     own = row(p, "OpenAI"),
     focusIssues = [];
+  s.focusIssues = focusIssues;
+  const checkFocus = async (label) => {
+    try {
+      await expect(control).toBeFocused();
+    } catch {
+      focusIssues.push(label);
+    }
+  };
   await control.focus();
   await p.keyboard.press("Space");
   await expect(control).toHaveAttribute("aria-checked", "false");
   await expect(control).toBeEnabled();
-  if (!(await control.evaluate((e) => e === document.activeElement)))
-    focusIssues.push("normal-save");
+  await checkFocus("normal-save");
   assert.equal(writes(s, providerPath(1)).length, 1);
   stage = "switch-rejected-and-cancel";
   s.nextProvider = "reject";
@@ -527,8 +536,7 @@ async function status({ p, s }) {
   await btn(own, "取消更改").focus();
   await p.keyboard.press("Enter");
   await expect(control).toBeEnabled();
-  if (!(await control.evaluate((e) => e === document.activeElement)))
-    focusIssues.push("cancel-rejected");
+  await checkFocus("cancel-rejected");
   stage = "switch-unknown-original-request";
   s.nextProvider = "unknown";
   await control.click();
@@ -537,6 +545,15 @@ async function status({ p, s }) {
   await expect(btn(own, "配置")).toBeDisabled();
   await expect(control).toHaveAttribute("aria-checked", "false");
   await shot(p, "switch-unknown-1440-dark");
+  await p.setViewportSize({ width: 390, height: 844 });
+  await shot(p, "switch-unknown-390-dark");
+  const narrowFeedback = await p.evaluate(() => ({
+    inner: innerWidth,
+    root: document.documentElement.scrollWidth,
+    main: document.querySelector(".settings-main")?.scrollWidth,
+    mainClient: document.querySelector(".settings-main")?.clientWidth,
+  }));
+  await p.setViewportSize({ width: 1440, height: 1000 });
   await btn(own, "查询原操作").click();
   await expect(
     own.getByText("已找到历史回执；确认原请求后才能完成本次操作。", {
@@ -551,8 +568,7 @@ async function status({ p, s }) {
   assert.equal(put.length, 4);
   assert.equal(put[2].key, put[3].key);
   assert.deepEqual(put[2].body, put[3].body);
-  if (!(await control.evaluate((e) => e === document.activeElement)))
-    focusIssues.push("unknown-confirmed");
+  await checkFocus("unknown-confirmed");
   stage = "switch-confirmed-read-failure";
   s.failAfterReceipt = true;
   await control.click();
@@ -564,14 +580,19 @@ async function status({ p, s }) {
   await expect(control).toHaveAttribute("aria-checked", "false");
   await expect(control).toBeEnabled();
   assert.equal(writes(s, providerPath(1)).length, before);
-  if (!(await control.evaluate((e) => e === document.activeElement)))
-    focusIssues.push("confirmed-get-retry");
+  await checkFocus("confirmed-get-retry");
   assert.deepEqual(focusIssues, [], "switch focus handoffs");
+  assert(
+    narrowFeedback.root <= narrowFeedback.inner &&
+      narrowFeedback.main <= narrowFeedback.mainClient,
+    "narrow feedback overflow: " + JSON.stringify(narrowFeedback),
+  );
   return {
     normalAndRejected: true,
     unknownSameKeyBody: true,
     confirmedFailureOnlyGET: true,
     focusRestored: true,
+    narrowFeedback,
     ...(await overflow(p)),
   };
 }
@@ -645,7 +666,7 @@ async function narrow({ p, s }) {
   await expect(btn(panel, "保存")).toBeInViewport();
   await expect(btn(panel, "取消")).toBeInViewport();
   stage = "legacy-provider-read-only";
-  await p.getByRole("link", { name: "模型接入", exact: true }).click();
+  await p.getByRole("link", { name: "← 模型接入", exact: true }).click();
   await expect(switchFor(p, "本地推理服务")).toBeDisabled();
   await btn(row(p, "本地推理服务"), "配置").click();
   await expect(field(configPanel(p), "API 端点")).toBeDisabled();
@@ -659,10 +680,35 @@ async function narrow({ p, s }) {
     ...(await overflow(p)),
   };
 }
+async function feedback({ p, s }) {
+  stage = "switch-unknown-narrow-feedback";
+  const own = row(p, "OpenAI");
+  s.nextProvider = "unknown";
+  await switchFor(p, "OpenAI").click();
+  await expect(btn(own, "查询原操作")).toBeVisible();
+  await p.setViewportSize({ width: 390, height: 844 });
+  await shot(p, "switch-unknown-390-dark");
+  const geometry = await p.evaluate(() => ({
+    inner: innerWidth,
+    root: document.documentElement.scrollWidth,
+    main: document.querySelector(".settings-main")?.scrollWidth,
+    mainClient: document.querySelector(".settings-main")?.clientWidth,
+  }));
+  assert(
+    geometry.root <= geometry.inner && geometry.main <= geometry.mainClient,
+    "narrow feedback overflow: " + JSON.stringify(geometry),
+  );
+  await expect(btn(own, "查询原操作")).toBeInViewport();
+  await expect(btn(own, "确认原请求")).toBeInViewport();
+  return { unknownFeedback: true, ...geometry };
+}
 async function main() {
   await fs.mkdir(out, { recursive: true });
   const only = arg("--only");
-  assert(!only || ["layout", "status", "config", "narrow"].includes(only));
+  assert(
+    !only ||
+      ["layout", "status", "config", "narrow", "feedback"].includes(only),
+  );
   const browser = await chromium.launch({
     executablePath: "/usr/bin/chromium",
     args: ["--no-sandbox"],
@@ -672,6 +718,7 @@ async function main() {
       ["layout", {}, layout],
       ["status", {}, status],
       ["config", {}, config],
+      ["feedback", {}, feedback],
       [
         "narrow",
         { width: 390, theme: "light", long: true, legacy: true },
@@ -710,6 +757,7 @@ async function main() {
             .slice(0, 2),
           api: s?.api,
           unexpected: s?.unexpected,
+          focusIssues: s?.focusIssues,
           focus:
             p && !p.isClosed()
               ? await p.evaluate(() => ({

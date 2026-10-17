@@ -12,3 +12,5 @@ export type { TabItem } from "./UiTabs.vue";
 
 export { default as UiSearchSelect } from "./UiSearchSelect.vue";
 export type { SearchSelectOption } from "./UiSearchSelect.vue";
+
+export { default as UiSwitch } from "./UiSwitch.vue";

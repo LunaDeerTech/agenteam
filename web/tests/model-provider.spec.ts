@@ -116,7 +116,7 @@ it("does not create a confirmed credential again when provider association confl
       .setValue(value);
   }
   await fill("供应商名称", "Owned");
-  await fill("服务地址", "https://example.invalid");
+  await fill("API 端点", "https://example.invalid");
   await fill("API 凭据（可选）", "synthetic-not-a-real-secret");
   await wrapper.get("form").trigger("submit");
   await flushPromises();

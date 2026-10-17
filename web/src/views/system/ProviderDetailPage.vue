@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { UiButton, UiMenu } from "../../components/ui";
+import { UiButton, UiMenu, UiTabs } from "../../components/ui";
 import SystemList from "../../components/system/SystemList.vue";
-import ProviderEditorDialog from "../../components/system/ProviderEditorDialog.vue";
+import ProviderEditor from "../../components/system/ProviderEditor.vue";
 import ModelEditorDialog from "../../components/system/ModelEditorDialog.vue";
 import ModelDiscoveryDialog from "../../components/system/ModelDiscoveryDialog.vue";
 import ModelTestDialog from "../../components/system/ModelTestDialog.vue";
@@ -34,7 +34,20 @@ const id = String(route.params.providerId);
 const provider = shallowRef<Provider>();
 const reading = ref(false);
 const error = shallowRef<unknown>();
-const editing = ref(false);
+const tab = ref(route.query.tab === "config" ? "config" : "models");
+const configLocked = ref(false);
+const tabs = computed(() => [
+  {
+    value: "models",
+    label: "模型",
+    disabled: configLocked.value && tab.value !== "models",
+  },
+  {
+    value: "config",
+    label: "配置",
+    disabled: configLocked.value && tab.value !== "config",
+  },
+]);
 const modelEditing = ref(false);
 const selectedModel = shallowRef<CatalogModel>();
 const discovering = ref(false);
@@ -55,7 +68,7 @@ const capability = computed(() =>
   ),
 );
 const headerActions = computed(() => [
-  { id: "refresh", label: "刷新" },
+  { id: "refresh", label: "刷新", disabled: configLocked.value },
   {
     id: "discovery",
     label: "发现模型",
@@ -176,8 +189,8 @@ watch(
   () => {
     sequence++;
     provider.value = undefined;
-    editing.value =
-      modelEditing.value =
+    configLocked.value = false;
+    modelEditing.value =
       discovering.value =
       testing.value =
       deleting.value =
@@ -206,21 +219,19 @@ onBeforeUnmount(() => {
   <div>
     <SettingsPageActions>
       <UiButton
+        v-if="tab === 'models'"
         variant="primary"
-        :disabled="!editable"
+        :disabled="!editable || configLocked"
         @click="
           selectedModel = undefined;
           modelEditing = true;
         "
         >添加模型</UiButton
       >
-      <UiButton :disabled="!editable || reading" @click="editing = true"
-        >编辑配置</UiButton
-      >
       <UiMenu
         label="更多"
         :items="headerActions"
-        :disabled="!provider || reading"
+        :disabled="!provider || reading || configLocked"
         @select="headerAction"
       />
     </SettingsPageActions>
@@ -237,60 +248,72 @@ onBeforeUnmount(() => {
     </div>
     <template v-if="provider">
       <p v-if="!editable" class="form-feedback">此供应商协议当前只支持查看。</p>
-      <div v-if="capabilityError" class="form-feedback" role="alert">
-        <p>模型发现与测试能力尚未读到。</p>
-        <UiButton @click="loadCapabilities">重新读取能力</UiButton>
-      </div>
-      <SystemList
-        :list="list"
-        :row-key="(item) => item.id"
-        label="模型接入"
-        empty-text="此供应商尚未添加模型。"
-        :disabled="!access.allowed.value"
-      >
-        <template #table="{ items }"
-          ><div class="model-table-scroll">
-            <table class="model-table" aria-label="供应商模型">
-              <thead>
-                <tr>
-                  <th>模型</th>
-                  <th>名称</th>
-                  <th>类型</th>
-                  <th>状态</th>
-                  <th><span class="sr-only">操作</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="model in items" :key="model.id">
-                  <td>
-                    {{
-                      modelDisplayName(
-                        provider.input.name,
-                        model.input.provider_model_id,
-                      )
-                    }}
-                  </td>
-                  <td>{{ model.input.name }}</td>
-                  <td>
-                    {{
-                      modelTypeChoices.find(
-                        (type) => type.value === model.input.type,
-                      )?.label
-                    }}
-                  </td>
-                  <td>{{ model.input.enabled ? "已启用" : "已停用" }}</td>
-                  <td>
-                    <UiMenu
-                      :label="`${modelDisplayName(provider.input.name, model.input.provider_model_id)}操作`"
-                      :items="rowActions(model)"
-                      @select="modelAction(model, $event)"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table></div
-        ></template>
-      </SystemList>
+      <UiTabs v-model="tab" label="供应商设置" :items="tabs" v-slot="{ value }">
+        <div v-show="value === 'models'">
+          <div v-if="capabilityError" class="form-feedback" role="alert">
+            <p>模型发现与测试能力尚未读到。</p>
+            <UiButton @click="loadCapabilities">重新读取能力</UiButton>
+          </div>
+          <SystemList
+            :list="list"
+            :row-key="(item) => item.id"
+            label="模型接入"
+            empty-text="此供应商尚未添加模型。"
+            :disabled="!access.allowed.value"
+          >
+            <template #table="{ items }"
+              ><div class="model-table-scroll">
+                <table class="model-table" aria-label="供应商模型">
+                  <thead>
+                    <tr>
+                      <th>模型</th>
+                      <th>名称</th>
+                      <th>类型</th>
+                      <th>状态</th>
+                      <th><span class="sr-only">操作</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="model in items" :key="model.id">
+                      <td>
+                        {{
+                          modelDisplayName(
+                            provider.input.name,
+                            model.input.provider_model_id,
+                          )
+                        }}
+                      </td>
+                      <td>{{ model.input.name }}</td>
+                      <td>
+                        {{
+                          modelTypeChoices.find(
+                            (type) => type.value === model.input.type,
+                          )?.label
+                        }}
+                      </td>
+                      <td>{{ model.input.enabled ? "已启用" : "已停用" }}</td>
+                      <td>
+                        <UiMenu
+                          :label="`${modelDisplayName(provider.input.name, model.input.provider_model_id)}操作`"
+                          :items="rowActions(model)"
+                          @select="modelAction(model, $event)"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table></div
+            ></template>
+          </SystemList>
+        </div>
+        <ProviderEditor
+          v-show="value === 'config'"
+          :open="true"
+          inline
+          :provider="provider"
+          @saved="providerSaved"
+          @locked-change="configLocked = $event"
+        />
+      </UiTabs>
     </template>
     <template v-if="provider">
       <ModelEditorDialog
@@ -318,11 +341,6 @@ onBeforeUnmount(() => {
         @deleted="deleted"
       />
     </template>
-    <ProviderEditorDialog
-      v-model:open="editing"
-      :provider="provider"
-      @saved="providerSaved"
-    />
   </div>
 </template>
 <style scoped>

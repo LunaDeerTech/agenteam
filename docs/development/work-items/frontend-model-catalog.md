@@ -1,6 +1,6 @@
 # 新 Vue 模型接入与平台模型用途
 
-状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型与ModelPicker已完成下述适用验证，当前从`90a1229b`调整供应商列表与详情配置。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型、ModelPicker及从`90a1229b`开始的供应商列表/详情配置增量已完成各自适用验证。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -80,7 +80,14 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-供应商列表/详情增量当前为WIP：起点`90a1229b`，Vue唯一实现树`/workspace/agenteam-provider-settings-vue`；account_backend已只读确认现API足够、无需后端改动，outbound_visual独审。模型/配置Tab及入口结构已确定，工程/浏览器结果尚待，不以既有源码/测试存在或此前模型页面结果代替本轮执行；暂不更新公网。
+供应商列表/详情增量起点`90a1229b`，Vue唯一实现树`/workspace/agenteam-provider-settings-vue`；account_backend只读确认现API足够、后端无改动。基础`4eafeeee`、修复`268d27eb`及最后窄屏CSS组合的适用验证与运行清退已收口：
+
+- 作者1440深色/390浅色正常链通过开关、配置入口、跨Tab草稿及空凭据仅保存Provider；8项受影响组件用例分轮通过，旧provider4项通过。最终逻辑type、最后两CSS后的build及限定格式/CJS语法通过。
+- 常驻inline在open不变时的props同步问题经修复静审关闭；成功后相同baseline回传清提示的问题加最小guard，回归覆盖真实父级shallowRef反馈及后续version续存。编辑放弃后、开关保存/恢复后的焦点落BODY已定向修复，独审两原case通过；自有焦点交接不抢已外移焦点。
+- 独审另两Secret Unknown/390只读场景已通过；最后390 Unknown反馈区溢出仅以局部wrap与max-width/box-sizing修正，同停点复验root390、main scroll/client均378，已实看。所有独审浏览器已关闭；未以旧正常布局或旧原型代替新增失败态验证。
+- 首轮组件测试的JSDOM缺dialog.close、错误期待Unknown409自动解锁以及raw/reactiveproxy宿主偏差均保留，限定修正后分轮通过。API未改，本轮没有运行真实App/PG；旧后端证据沿原输入复用，catalog-ui的语法/格式/--list结果不称新的E2E通过。
+
+最终两张1440×1000深色合成示例已实看、上传并匿名下载200且字节一致，密码字段为空：[供应商列表](https://img.lunadeer.cn/i/2026/10/17/6ad308b112151.png)、[配置详情](https://img.lunadeer.cn/i/2026/10/17/6ad308b192f95.png)。此前截图保持其旧版本归属。作者自有Vite5281按PID/start_ticks/cwd/参数核对后TERM，原launcher实际退出143，进程消失、无监听且停止前无child；仅unlink自有node_modules链接，保留共享目标。全部作者/独审浏览器已关闭，公开5245未操作；本轮不部署公网。
 
 ### 已完成的ModelPicker验证
 
