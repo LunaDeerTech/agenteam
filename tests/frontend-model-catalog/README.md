@@ -35,7 +35,8 @@ test --config tests/frontend-model-catalog/playwright.config.cjs --list
 - `api-smoke.spec.cjs`：在浏览器的同源文档中调用真实 API，核 CRUD、凭据安全投影、原 key 回执、版本冲突、分页、单一 summary 用途的版本与回执重放、旧 memory 字段/独立 meeting-summary 接口拒绝及删除替换影响，以及普通身份403/缺CSRF403。它证明正式 API 接线，不代替页面控件旅程。
 - `management.spec.cjs`：须包含模型管理接线及迁移147的组合；发现和试调用到真实受控 TLS 目标，验证终态重放不重复请求、上游拒绝，以及受理完成后响应丢失再用原 key/body 恢复。响应丢失由浏览器只丢弃已经完整取得的正式响应，不替换 API 结果。
 - `catalog-ui.spec.cjs`：新 family 组合的页面旅程；同一供应商与凭据，手工模型编辑、发现后逐模型选择 chat/embedding 并导入、第一项真实提交后停止后续导入再继续、以“供应商/模型 ID”定位两个真实 adapter 测试、上游失败和 UI 显式恢复原测试请求。旧双协议组合不能执行或记作本场景通过。
-- `selection-ui.spec.cjs`：正式 API 只创建独立模型前置，用户界面完成供应商→模型选择、禁用缺少 json_schema 的总结模型，在 embedding/summary/reranker/image 四项表单中点击唯一“保存”。断言只产生一个用途 PUT、单一资源版本加一，当前值和候选显示“供应商/模型 ID”，刷新保留；删除总结模型时先取消并验证零变化，再选兼容替代模型，核唯一总结引用替换持久化。全程不需要模型出网。
+- `picker-api.spec.cjs`：跨两个供应商的真实列表分页与规范化 q 查询，核安全 provider 五字段投影、凭据不泄漏、改变 q/provider/list-kind 的游标拒绝、匿名401和普通用户403；无模型出网。
+- `selection-ui.spec.cjs`：正式 API 创建两个供应商、13个独立模型，超过真实 picker 的10项页长。用户界面通过锚定浮层的服务端搜索及下一页找到首页之外的总结模型，跨供应商选择只改草稿，再选择向量模型并点击唯一“保存”；断言一个用途 PUT、版本加一和刷新保留。缺少 json_schema 的总结候选禁用；删除已引用总结模型时先取消，再用同一全局 picker 选择另一供应商的替代模型，核引用替换持久化。全程不需要模型出网。
 - 统一用途须包含迁移149和对应前后端组合：GET/PUT `/system/model-selection` 使用一个 id/version/receipt，Memory 与 Meeting 共用 `summary`；不再请求独立 meeting-summary 资源。真实 PG 的迁移重置、两消费者共用解析、Commit Unknown 与引用一致性由对应后端 selector 验证，浏览器场景不冒充这些内部门。原两资源界面的通过证据不算新合同已验；`--list` 只确认可选择场景，实际结果须在新组合运行后记录。
 - 真实页面旅程在新 Vue 对应控件就绪后增量加入。发现和试调用必须经过真实受控模型 HTTP 服务；不能用浏览器全 API mock 声称实际出网成功。
 - `GET /__fixture__/provider` 要求 `X-Fixture-Nonce` 为本轮 nonce，只返回请求/认证命中/发现/聊天/向量计数，不返回认证头、正文或 Secret。CRUD 和用途选择应为零新增模型请求。断言副作用计数的测试共享一个目标，按独占写窗口运行，避免把另一场景的请求计入本场景。
@@ -63,6 +64,24 @@ SUMMARY_SECURITY_RUN=1 node tests/frontend-model-catalog/summary-security.cjs
 该检查验证同版本并发只有一个提交、原 key 异 body 拒绝与注销后重放拒绝。收尾使用合法的新版本恢复原配置内容，删除自己的模型副本并退出两个 Session；不把配置内容恢复称为版本回滚。实际执行证据由独立 owner 记录，不与页面测试混称。
 
 2026-10-17 的实际组合为 App/fixture `5edd81b1` 与 Vue `0852da63`：三条原 CLI 分别 exit0，1 case 通过，耗时 36.2s、11.4s、20.3s。每条都经过严格 CA/leaf/nonce、真实登录及退出204→401、浏览器关闭。这里是新库 schema149 的 API/UI 证据；旧配置重置、Memory/Meeting 两消费者、持久 Commit Unknown 与独立并发门由对应 PG/App/安全检查分别报告，不由这三条替代。未部署公网，未使用用户数据或真实外部模型服务。
+
+## 全局模型 picker 的限定运行
+
+本轮仅运行新增列表差量和受影响用途旅程，不重跑既有目录发现、Commit Unknown、Memory/Meeting 或 ColdRecovery 矩阵。先以同一已就绪 owned 实例和上文私有环境变量运行：
+
+```sh
+node /workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-model-catalog/playwright.config.cjs picker-api.spec.cjs
+node /workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-model-catalog/playwright.config.cjs selection-ui.spec.cjs
+```
+
+后端真实 PG 查询测试位于独立 `tests/model` Go 包，不能把 App 测试二进制当作该包的执行产物。独立视觉检查由 `picker-visual.cjs` owner 使用受控 UI 数据完成，与上述真实 API 证据分开，浏览器窗口串行。
+
+2026-10-17 实际 App 输入为 `d1c45c42`（后端 `d95dffb2`），最终 Vue 为 `1b8bd205`。API 原 CLI exit0，1 case 11.396s；最终用途 UI 原 CLI exit0，1 case 23.854s，完成13模型跨供应商服务端搜索/分页、只改草稿、唯一 PUT/version+1、刷新与引用替换；模型目标请求增量为0。两条均经严格 TLS/leaf/nonce、真实登录及退出204→401、浏览器关闭。作者真实 PG 查询和独立视觉检查按各自实际结果单独记录，不重复旧目录/Unknown/Cold 矩阵。
+
+UI 的前三次运行分别在 CDP 响应体读取或 Playwright `finished()` 观测处失败，均未保存配置；一次只读诊断实际看到 UI 已解析正确结果、页面内原生查询完整返回，而工具 body/finished 状态失配。独立源码审查确认 Playwright 1.56.1 的失败事件与客户端 finished promise 存在完成语义差异；没有证明具体网络失败原因或 CDP detach 为根因。最终场景用精确 GET/q/cursor/状态、真实候选与分页状态、相同 cursor 的同源只读 GET 和后端持久事实验收，不伪造响应、不补发写命令；随后发现并纠正了一处旧“图像模型”定位器，现与产品“图像生成模型”一致。全部原失败保留，不能称首次全绿。
+
+本轮 fixture 原 launcher 实际 exit0，test 与正式 chain 的原 wait 均为0；4个专属容器、4个网络和4个目录全部不存在，5282/5283无监听，测试二进制在原 SHA 与零消费者核对后删除。Vue5281由前端 owner 另行精确退出。保留必要私有记录，未操作公网或用户数据。
+
 
 ## 收尾
 

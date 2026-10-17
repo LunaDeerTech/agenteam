@@ -121,6 +121,12 @@ function onKeydown(event: KeyboardEvent) {
       close();
   }
 }
+function retry() {
+  if (!open.value || props.loading) return;
+  if (panel.value?.contains(document.activeElement))
+    searchInput.value?.focus({ preventScroll: true });
+  emit("retry");
+}
 function navigate(direction: "previous" | "next") {
   if (props.loading) return;
   if (direction === "next") emit("next");
@@ -194,7 +200,7 @@ watch(
           </p>
           <div v-else-if="error" class="ui-search-select-error" role="alert">
             <p>{{ error }}</p>
-            <UiButton @click="emit('retry')">重新读取</UiButton>
+            <UiButton @click="retry">重新读取</UiButton>
           </div>
           <ul
             :id="`${id}-results`"

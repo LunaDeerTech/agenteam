@@ -1,6 +1,6 @@
 # 新 Vue 模型接入与平台模型用途
 
-状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型已完成下述适用验证，当前从`857d94a3`实施可复用锚定ModelPicker与真实跨供应商搜索。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型及从`857d94a3`开始的可复用锚定ModelPicker、真实跨供应商搜索已完成各自适用验证。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -78,12 +78,17 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-ModelPicker增量已集成主树`82ff92d6`（backend生产`d95`、Vue生产`2516`），产品冻结；后续受影响测试输入`626c8f50`。独立工作树为`/workspace/agenteam-model-picker-backend`、`/workspace/agenteam-model-picker-vue`、`/workspace/agenteam-model-picker-tests`；组件规范由Vue owner同步，当前仍待最终动态接受：
+ModelPicker后端生产`d95dffb2`稳定；Vue最终`1b8bd205`包含分页重试回焦修复`575db175`，前一主树产品集成`82ff92d6`。独立工作树为`/workspace/agenteam-model-picker-backend`、`/workspace/agenteam-model-picker-vue`、`/workspace/agenteam-model-picker-tests`；组件规范由Vue owner同步。适用验证及隔离资源清退已完成：
 
 - 后端定向unit、HTTP/OpenAPI route通过；唯一真实PG搜索检查通过跨供应商三字段、字面%/_、游标过滤/水位、安全provider五字段、System权限及Project隔离，实际Wait/helper退出0并完成专属清理。两轮位置struct字面量编译失配及首helper缺AGENTEAM_GO、尚未RUN的失败保留，具名字段和环境限定修正后通过。
-- Vue新共享7项、页面13项、独立搜索1项及原共享/q14项分轮通过，最终type/build通过。搜索case曾多次超时；实际阶段材料显示页面动态加载4415ms、5秒预算内尚未进入fakeTimers。后将fixture准备移入限定beforeEach hook，业务预算仍5秒，断言保持；不称原整体计时边界未变，也不把原失败归为已证fakeTimer死锁。
-- 作者两尺寸受控浏览器通过搜索、选中、Escape、不可选原因和单PUT，四图已实看；首次带可选副标的heading定位失败仅修harness。独立审查已检查嵌套删除选择器与原生200%/reduced-motion，查询命中数及滚动方向的初始测试假设修正正在定向复验，最终截图尚待。
-- runtime真实App编译通过，隔离启动在途；只读API权限/分页与真实UI跨供应商选择草稿、单PUT、替换复用两case尚待。测试服务仍供消费，不能预写退出或清理。以上不代表整包接受，不复用旧居中选择器截图证明新浮层完成。
+- Vue新共享7项、页面13项、独立搜索1项及原共享/q14项分轮通过，基础实现type/build通过；575焦点增量后最终type通过、未重复build，具体复验见下一项。搜索case曾多次超时；实际阶段材料显示页面动态加载4415ms、5秒预算内尚未进入fakeTimers。后将fixture准备移入限定beforeEach hook，业务预算仍5秒，断言保持；不称原整体计时边界未变，也不把原失败归为已证fakeTimer死锁。
+- 作者两尺寸受控浏览器通过搜索、选中、Escape、不可选原因和单PUT，四图已实看；首次带可选副标的heading定位失败仅修harness。独立视觉已通过桌面深色/390浅色、触控长名、浮层翻转及内部滚动、删除嵌套复用、Tab/ShiftTab/Escape回焦与原生200%/reduced-motion。查询命中数和滚动方向的初始测试假设已纠正。实发现的分页500重试后按钮移除、焦点落BODY已修：重试前仅在焦点仍属panel时同步移到搜索，不新增异步抢焦；定向2项通过、6项未选及原视觉case复验通过，最后type通过，未重复全量build。几何未变部分复用原冻结输入截图。
+- 真实App只读API case actual0，覆盖跨供应商分页、规范q、安全投影、游标绑定及匿名/普通权限。真实UI同样actual0，两个供应商共13模型超过10项页长，真实q/cursor搜索与翻页、选择只改草稿零PUT、唯一保存版本加一、刷新保持及替换持久化通过；两case均严格TLS/nonce、finally logout204→401及浏览器关闭，零模型外呼。
+- 真实UI前四轮失败保留：两次`response.json`出现CDP No data，第三次裸`response.finished`等待挂起，第四次搜索/分页/草稿已过后被旧“图像模型”标签断言阻断。Playwright1.56的requestfailed不结束finished已确认，但具体请求/CDP detach根因未证；后续改用状态、准确q/cursor、UI、原生GET及单PUT持久状态核验并同步“图像生成模型”标签，未改产品/TLS或放宽预算。最终通过不倒推前三次原因，也不写首次整轮全绿。
+
+三张合成数据图已实看、上传并匿名下载校验一致：[完整用途页](https://img.lunadeer.cn/i/2026/10/17/6ad2f91336676.png)、[桌面展开浮层](https://img.lunadeer.cn/i/2026/10/17/6ad2f91320396.png)、[窄屏选择](https://img.lunadeer.cn/i/2026/10/17/6ad2f9136cb12.png)。截图属于受控视觉，不替代真实API/UI结果，不代表公网部署。
+
+运行owner已精确清退App、外链和原launcher，实际退出均0；4容器/4网络/4目录均不存在，5282/5283无监听，App二进制经SHA与零消费者核对后删除。Vue5281按精确身份TERM，原链退出143、进程及监听归零，只unlink自有依赖链接，共享主树依赖保留。私有安全结果/原失败材料保留不入Git，用户公开5245及既有数据未动；以上不扩称全仓全量检查通过。
 
 ### 已完成的统一总结模型验证
 

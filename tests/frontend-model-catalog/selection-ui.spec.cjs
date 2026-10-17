@@ -33,141 +33,210 @@ function modelInput(name, type, structured = true, providerModelID) {
   };
 }
 
-async function seedModel(page, provider, name, type) {
+async function seedModel(
+  page,
+  provider,
+  providerName,
+  type,
+  remoteID,
+  structured = true,
+) {
+  const modelName = `Custom ${remoteID}`;
   const model = await api(page, "/system/models", "POST", {
     provider_id: provider,
-    input: modelInput(`${name} ${type}`, type),
+    input: modelInput(modelName, type, structured, remoteID),
   });
   expect(model.status).toBe(200);
   return {
-    name,
     provider,
     model: model.value.resource_id,
-    modelName: `${name} ${type}`,
-    display: `${name}/${type === "chat" ? "owned-chat" : "owned-embedding"}`,
+    modelName,
+    remoteID,
+    display: `${providerName}/${remoteID}`,
   };
 }
 
-async function pick(page, label, item) {
-  const trigger = page.getByRole("button", {
-    name: `选择${label}`,
-    exact: true,
+function option(page, panel, display) {
+  return panel.getByRole("option").filter({
+    has: page.getByText(display, { exact: true }),
   });
-  await trigger.click();
-  const dialog = page.getByRole("dialog", {
-    name: `选择${label}`,
-    exact: true,
-  });
-  await dialog
-    .getByRole("listitem")
-    .filter({ hasText: item.name })
-    .getByRole("button", { name: "选择供应商", exact: true })
-    .click();
-  await dialog
-    .getByRole("listitem")
-    .filter({ has: page.getByText(item.display, { exact: true }) })
-    .getByRole("button", { name: "使用此模型", exact: true })
-    .click();
-  await expect(dialog).toHaveCount(0);
-  await expect(trigger).toBeFocused();
 }
 
-test("one summary resource saves once, displays provider model IDs and replaces its required reference", async ({
+function modelResponse(page, query, paged = false) {
+  return page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      response.request().method() === "GET" &&
+      url.pathname === "/api/v1/system/models" &&
+      url.searchParams.get("q") === query &&
+      !url.searchParams.has("provider_id") &&
+      url.searchParams.has("cursor") === paged
+    );
+  });
+}
+
+async function search(page, panel, query) {
+  const pending = modelResponse(page, query);
+  await panel
+    .getByRole("combobox", { name: "搜索供应商或模型", exact: true })
+    .fill(query);
+  const response = await pending;
+  expect(response.status()).toBe(200);
+}
+
+async function openPicker(page, label) {
+  const trigger = page.getByRole("button", {
+    name: new RegExp(`^${label}(?:，当前 .*)?$`),
+  });
+  await trigger.click();
+  const panel = page.getByRole("dialog", { name: label, exact: true });
+  await expect(panel).toBeVisible();
+  return { trigger, panel };
+}
+
+test("anchored global picker searches across pages and suppliers, drafts once and replaces a summary reference", async ({
   page,
   owned,
 }) => {
   test.setTimeout(90000);
   expect(await loginHTTP(page, owned.credentials)).toBe(200);
   const before = await providerStats(page, owned);
-  const suffix = randomUUID().slice(0, 8);
-  // Only setup uses the production API. Selection and saving below use real UI.
-  const name = `UI family ${suffix}`;
-  const provider = await api(page, "/system/model-providers", "POST", {
-    input: {
-      name,
-      protocol: "openai-compatible",
-      base_url: owned.provider_base_url,
-      enabled: true,
-      credential_ref: null,
-      options: {},
-    },
-  });
-  expect(provider.status).toBe(200);
-  const chat = await seedModel(page, provider.value.resource_id, name, "chat");
+  const marker = `ui-picker-${randomUUID().slice(0, 8)}`;
+  const providers = [];
+  for (const suffix of ["a", "b"]) {
+    const name = `${marker}-${suffix}`;
+    const created = await api(page, "/system/model-providers", "POST", {
+      input: {
+        name,
+        protocol: "openai-compatible",
+        base_url: owned.provider_base_url,
+        enabled: true,
+        credential_ref: null,
+        options: {},
+      },
+    });
+    expect(created.status).toBe(200);
+    providers.push({ id: created.value.resource_id, name });
+  }
+  const [a, b] = providers;
+  // Thirteen models exceed the real UI's limit 10. The target is deliberately
+  // oldest, so neither first-page client filtering nor a provider-only list can pass.
+  const chat = await seedModel(page, b.id, b.name, "chat", `target-${marker}`);
+  const replacement = await seedModel(
+    page,
+    a.id,
+    a.name,
+    "chat",
+    `replacement-${marker}`,
+  );
   const embedding = await seedModel(
     page,
-    provider.value.resource_id,
-    name,
+    a.id,
+    a.name,
     "embedding",
+    `embedding-${marker}`,
   );
-  const incompatible = await api(page, "/system/models", "POST", {
-    provider_id: chat.provider,
-    input: modelInput(`No schema ${suffix}`, "chat", false, "no-schema"),
-  });
-  expect(incompatible.status).toBe(200);
+  const incompatible = await seedModel(
+    page,
+    a.id,
+    a.name,
+    "chat",
+    `no-schema-${marker}`,
+    false,
+  );
+  for (let index = 0; index < 9; index += 1)
+    await seedModel(page, a.id, a.name, "chat", `filler-${index}-${marker}`);
+  const initialSelection = await api(page, "/system/model-selection");
+  expect(initialSelection.status).toBe(200);
+  const writes = [];
+  const recordWrite = (request) => {
+    const path = new URL(request.url()).pathname;
+    if (
+      request.method() === "PUT" &&
+      path.startsWith("/api/v1/system/model-selection")
+    )
+      writes.push(path);
+  };
+  page.on("request", recordWrite);
   await page.goto(`${owned.origin}/system/model-selection`, {
     waitUntil: "domcontentloaded",
   });
   await expect(
     page.getByRole("heading", { name: "平台模型用途", exact: true }).first(),
   ).toBeVisible();
-  await page.getByRole("button", { name: "选择总结模型", exact: true }).click();
-  const dialog = page.getByRole("dialog", {
-    name: "选择总结模型",
-    exact: true,
-  });
-  await dialog
-    .getByRole("listitem")
-    .filter({ hasText: chat.name })
-    .getByRole("button", { name: "选择供应商", exact: true })
-    .click();
+  const { trigger, panel } = await openPicker(page, "选择总结模型");
+  await expect(panel).not.toHaveAttribute("aria-modal", "true");
+  await expect(panel.getByRole("option")).toHaveCount(10);
+  await expect(option(page, panel, chat.display)).toHaveCount(0);
+  await expect(option(page, panel, incompatible.display)).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
+  const triggerBox = await trigger.boundingBox();
+  const panelBox = await panel.boundingBox();
+  expect(triggerBox !== null && panelBox !== null).toBe(true);
+  expect(panelBox.y >= triggerBox.y + triggerBox.height - 1).toBe(true);
+  await search(page, panel, chat.remoteID);
+  await expect(panel.getByRole("option")).toHaveCount(1);
+  await expect(option(page, panel, chat.display)).toBeVisible();
+  await search(page, panel, marker);
+  await expect(panel.getByRole("option")).toHaveCount(10);
+  await expect(option(page, panel, chat.display)).toHaveCount(0);
   await expect(
-    dialog
-      .getByRole("listitem")
-      .filter({ has: page.getByText(`${name}/no-schema`, { exact: true }) })
-      .getByRole("button", { name: "使用此模型", exact: true }),
+    panel.getByRole("button", { name: "下一页", exact: true }),
+  ).toBeEnabled();
+  const nextResponse = modelResponse(page, marker, true);
+  await panel.getByRole("button", { name: "下一页", exact: true }).click();
+  const response = await nextResponse;
+  expect(response.status()).toBe(200);
+  // The UI's parsed result and exact-cursor read below establish application
+  // completion. Playwright's body/finished bookkeeping is not a business gate.
+  const nextURL = new URL(response.url());
+  expect(!!nextURL.searchParams.get("cursor")).toBe(true);
+  // Re-read exactly the cursor used by the UI through the page's normal fetch,
+  // not CDP's response-body cache. This is read-only and does not invoke a model.
+  const second = await api(
+    page,
+    `${nextURL.pathname.replace(/^\/api\/v1/, "")}${nextURL.search}`,
+  );
+  expect(second.status).toBe(200);
+  expect(second.value.items.length).toBe(3);
+  expect(second.value.items.some((item) => item.id === chat.model)).toBe(true);
+  expect(second.value.next_cursor).toBeNull();
+  await expect(panel.getByRole("option")).toHaveCount(3);
+  await expect(option(page, panel, chat.display)).toBeVisible();
+  await expect(
+    panel.getByRole("button", { name: "下一页", exact: true }),
   ).toBeDisabled();
-  await dialog
-    .getByRole("listitem")
-    .filter({ has: page.getByText(chat.display, { exact: true }) })
-    .getByRole("button", { name: "使用此模型", exact: true })
-    .click();
-  await expect(dialog).toHaveCount(0);
-  await pick(page, "向量模型", embedding);
-  for (const label of ["向量模型", "总结模型", "重排模型", "图像模型"]) {
+  await expect(
+    panel.getByRole("button", { name: "上一页", exact: true }),
+  ).toBeEnabled();
+  await option(page, panel, chat.display).click();
+  await expect(panel).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  expect(writes).toEqual([]);
+  expect((await api(page, "/system/model-selection")).value).toEqual(
+    initialSelection.value,
+  );
+  const vector = await openPicker(page, "选择向量模型");
+  await search(page, vector.panel, embedding.remoteID);
+  await expect(vector.panel.getByRole("option")).toHaveCount(1);
+  await option(page, vector.panel, embedding.display).click();
+  await expect(vector.panel).toHaveCount(0);
+  for (const label of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
     await expect(
-      page.getByRole("button", { name: `选择${label}`, exact: true }),
+      page.getByRole("button", {
+        name: new RegExp(`^选择${label}(?:，当前 .*)?$`),
+      }),
     ).toHaveCount(1);
-  }
-  await expect(
-    page.getByRole("button", { name: "选择记忆模型", exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    page.getByRole("button", { name: "选择会议摘要模型", exact: true }),
-  ).toHaveCount(0);
-  const initialSelection = await api(page, "/system/model-selection");
-  expect(initialSelection.status).toBe(200);
+  expect(writes).toEqual([]);
   const save = page.getByRole("button", { name: "保存", exact: true });
   await expect(save).toHaveCount(1);
-  const writes = [];
-  const recordWrite = (request) => {
-    const path = new URL(request.url()).pathname;
-    if (
-      request.method() === "PUT" &&
-      (path === "/api/v1/system/model-selection" ||
-        path === "/api/v1/system/model-selection/meeting-summary")
-    )
-      writes.push(path);
-  };
-  page.on("request", recordWrite);
-  try {
-    await save.click();
-    await expect(page.getByText("已保存。", { exact: true })).toBeVisible();
-    expect(writes).toEqual(["/api/v1/system/model-selection"]);
-    await expect(save).toBeDisabled();
-  } finally {
-    page.off("request", recordWrite);
-  }
+  await save.click();
+  await expect(page.getByText("已保存。", { exact: true })).toBeVisible();
+  expect(writes).toEqual(["/api/v1/system/model-selection"]);
+  await expect(save).toBeDisabled();
+  page.off("request", recordWrite);
   const platform = await api(page, "/system/model-selection");
   expect(platform.status).toBe(200);
   expect(platform.value).toEqual({
@@ -187,21 +256,15 @@ test("one summary resource saves once, displays provider model IDs and replaces 
   ).toBeVisible();
   await expect(page.getByText(chat.modelName, { exact: true })).toHaveCount(0);
 
-  const replacementName = `Replacement ${suffix}`;
-  const replacement = await api(page, "/system/models", "POST", {
-    provider_id: chat.provider,
-    input: modelInput(replacementName, "chat", true, "replacement-chat"),
-  });
-  expect(replacement.status).toBe(200);
   await page.goto(`${owned.origin}/system/models/${chat.provider}`, {
     waitUntil: "domcontentloaded",
   });
-  const trigger = page.getByRole("button", {
+  const menu = page.getByRole("button", {
     name: `${chat.display}操作`,
     exact: true,
   });
   const openDelete = async () => {
-    await trigger.click();
+    await menu.click();
     await page.getByRole("menuitem", { name: "删除", exact: true }).click();
   };
   await openDelete();
@@ -214,30 +277,16 @@ test("one summary resource saves once, displays provider model IDs and replaces 
   ).toBeDisabled();
   await deletion.getByRole("button", { name: "取消", exact: true }).click();
   await expect(deletion).toHaveCount(0);
-  await expect(trigger).toBeFocused();
+  await expect(menu).toBeFocused();
   expect((await api(page, `/system/models/${chat.model}`)).status).toBe(200);
   await openDelete();
   deletion = page.getByRole("dialog", { name: "删除模型", exact: true });
-  await deletion
-    .getByRole("button", { name: "选择替代模型", exact: true })
-    .click();
-  const replacing = page.getByRole("dialog", {
-    name: "选择替代模型",
-    exact: true,
-  });
-  await replacing
-    .getByRole("listitem")
-    .filter({ hasText: name })
-    .getByRole("button", { name: "查看模型", exact: true })
-    .click();
-  await replacing
-    .getByRole("listitem")
-    .filter({
-      has: page.getByText(`${name}/replacement-chat`, { exact: true }),
-    })
-    .getByRole("button", { name: "选择", exact: true })
-    .click();
-  deletion = page.getByRole("dialog", { name: "删除模型", exact: true });
+  const replacing = await openPicker(page, "选择替代模型");
+  await search(page, replacing.panel, replacement.remoteID);
+  await expect(replacing.panel.getByRole("option")).toHaveCount(1);
+  await option(page, replacing.panel, replacement.display).click();
+  await expect(replacing.panel).toHaveCount(0);
+  expect((await api(page, `/system/models/${chat.model}`)).status).toBe(200);
   await deletion.getByRole("button", { name: "确认删除", exact: true }).click();
   await expect(
     deletion.getByText("删除已完成。", { exact: true }),
@@ -246,9 +295,7 @@ test("one summary resource saves once, displays provider model IDs and replaces 
   expect((await api(page, `/system/models/${chat.model}`)).status).toBe(404);
   const finalPlatform = await api(page, "/system/model-selection");
   expect(finalPlatform.status).toBe(200);
-  expect(
-    finalPlatform.value.configured.summary === replacement.value.resource_id &&
-      finalPlatform.value.configured.embedding === embedding.model,
-  ).toBe(true);
+  expect(finalPlatform.value.configured.summary).toBe(replacement.model);
+  expect(finalPlatform.value.configured.embedding).toBe(embedding.model);
   expect((await providerStats(page, owned)).requests).toBe(before.requests);
 });

@@ -126,6 +126,63 @@ describe("searchable model selection control", () => {
     expect(document.querySelector('[role="alert"]')).toBeNull();
   });
 
+  it("keeps retry focus in search when results arrive and respects a later move outside", async () => {
+    const view = render({
+      options: [],
+      error: "读取失败，请稍后重试",
+      modelValue: "saved-model",
+      selectedLabel: "Saved Provider/saved-model",
+    });
+    const search = await open();
+    const retry = action("重新读取");
+    (retry.element as HTMLButtonElement).focus();
+    expect(document.activeElement).toBe(retry.element);
+    await retry.trigger("click");
+    expect(view.emitted("retry")).toEqual([[]]);
+    expect(document.activeElement).toBe(search.element);
+    await view.setProps({ loading: true, error: undefined });
+    expect(body('[role="status"]').text()).toBe("正在读取模型…");
+    expect(document.activeElement).toBe(search.element);
+    await view.setProps({
+      loading: false,
+      options: [options[2]!],
+      pageIndex: 1,
+      hasPrevious: true,
+    });
+    await flushPromises();
+    expect(body('[role="dialog"]').text()).toContain("第 2 页");
+    expect(body('[role="option"]').text()).toContain("Charlie/model-c");
+    expect(document.activeElement).toBe(search.element);
+    expect(view.emitted("update:modelValue")).toBeUndefined();
+
+    await view.setProps({ options: [], error: "读取失败，请稍后重试" });
+    const nextRetry = action("重新读取");
+    (nextRetry.element as HTMLButtonElement).focus();
+    await nextRetry.trigger("click");
+    expect(view.emitted("retry")).toEqual([[], []]);
+    await view.setProps({ loading: true, error: undefined });
+    const outside = document.createElement("button");
+    outside.textContent = "其他操作";
+    document.body.append(outside);
+    outside.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    outside.focus();
+    await flushPromises();
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    await view.setProps({
+      loading: false,
+      options: [options[0]!],
+      pageIndex: 2,
+    });
+    await flushPromises();
+    expect(document.activeElement).toBe(outside);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    expect(
+      view.get('button[aria-haspopup="dialog"]').attributes("aria-expanded"),
+    ).toBe("false");
+    expect(view.emitted("open-change")).toEqual([[true], [false]]);
+    expect(view.emitted("update:modelValue")).toBeUndefined();
+  });
+
   it("emits page navigation without replacing the current selection and disables unavailable pages", async () => {
     const view = render({ hasNext: true });
     const search = await open();

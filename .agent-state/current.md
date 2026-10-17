@@ -1,12 +1,14 @@
-# 当前状态：ModelPicker锚定浮层与全局搜索实施中
+# 当前状态：ModelPicker锚定浮层与全局搜索已完成适用验证
 
 2026-10-17，起点`857d94a3`。用户已确认ModelPicker改为触发选框下方的可复用锚定浮层，一层跨供应商模型列表与搜索、当前勾选和不可选原因；空选框“点击选择模型”，已选“供应商名称/模型ID”始终可见，hover只改样式。四用途各有短描述，image显示“图像生成模型”，重排/图像生成明确尚未绑定。后台提供真实全局查询，禁止前端拼供应商各页；单summary保存、草稿与Unknown不改。
 
-account_backend在`/workspace/agenteam-model-picker-backend`（`ai/model-picker-backend-20261017`），proxy_copy在`/workspace/agenteam-model-picker-vue`（`ai/model-picker-vue-20261017`），runtime在`/workspace/agenteam-model-picker-tests`（`ai/model-picker-tests-20261017`）；root负责集成/Git，组件规范由Vue owner维护。主树`82ff92d6`已集成backend生产`d95`与Vue生产`2516`，后续测试输入`626c8f50`，产品冻结。GET/HEAD `/system/models`的全局查询与安全provider投影已落地；合同沿[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。本轮仍只交图床匿名校验后的截图，不部署公网、不动现用户数据或外部SMTP。
+account_backend在`/workspace/agenteam-model-picker-backend`（`ai/model-picker-backend-20261017`），proxy_copy在`/workspace/agenteam-model-picker-vue`（`ai/model-picker-vue-20261017`），runtime在`/workspace/agenteam-model-picker-tests`（`ai/model-picker-tests-20261017`）；root负责集成/Git，组件规范由Vue owner维护。后端生产`d95dffb2`稳定，Vue最终`1b8bd205`含分页重试回焦修复`575db175`；前一主树产品集成`82ff92d6`。GET/HEAD `/system/models`的全局查询与安全provider投影已落地；合同沿[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。本轮仍只交图床匿名校验后的截图，不部署公网、不动现用户数据或外部SMTP。
 
-已过范围：后端定向unit、OpenAPI route与真实PG跨供应商搜索，含字面%/_、游标绑定/水位、安全投影、System权限和Project隔离；原compile适配失败及首次helper漏Go环境未RUN保留，后续通过且专属资源清理。Vue共享控件、页面、搜索及原共享/q回归分轮通过，最终type/build通过；搜索测试准备移入限定beforeEach，业务仍5秒，但不称原总计时边界未变或已证fakeTimer死锁。作者两尺寸受控浏览器通过搜索/选中/Escape/disabled/单PUT，初次带副标heading定位失败仅修harness。
+已过范围：后端定向unit、OpenAPI route与真实PG跨供应商搜索，含字面%/_、游标绑定/水位、安全投影、System权限和Project隔离；原compile适配失败及首次helper漏Go环境未RUN保留，后续通过且专属资源清理。Vue共享控件、页面、搜索及原共享/q回归分轮通过，基础实现type/build通过，575焦点增量后最终type通过、未重复build；搜索测试准备移入限定beforeEach，业务仍5秒，但不称原总计时边界未变或已证fakeTimer死锁。作者两尺寸受控浏览器通过搜索/选中/Escape/disabled/单PUT，初次带副标heading定位失败仅修harness。
 
-尚待独立视觉最终复验与截图、owned真实API权限分页及UI跨供应商选择/保存/替换复用。runtime App编译已通过，隔离启动与消费在途；当前测试服务保留供owner使用，未收到退出/清理前不称清退。旧总结模型结果仅保留原输入边界。
+独立视觉已接受桌面/390触控、长名、浮层翻转与内部滚动、嵌套删除复用、键盘回焦及原生200%/reduced；分页500重试后焦点落BODY的P2已修，同输入复验及定向焦点测试通过，三张合成示例图已上传匿名校验。真实API与UI均actual0：跨供应商搜索/超过首页分页、草稿零PUT、唯一保存与版本加一、刷新和替换持久化通过，严格TLS/nonce及logout204→401、浏览器关闭，零模型外呼。此前两次response.json观察失败、一次response.finished等待挂起及随后旧图像字段标签失配保留；前三轮底层CDP/请求原因未证，最后一项仅harness标签修正，不写首次全绿或全仓全量通过。
+
+隔离运行已精确清退：App、外链与原launcher实际退出0，4容器/4网络/4目录均不存在，5282/5283无监听；App二进制核SHA及零消费者后删除。Vue5281按PID/start_ticks/cwd/参数归属TERM，原链退出143，进程/监听/活动子进程归零，仅unlink自有依赖链接；主树依赖及公开5245未动。私有安全结果和原失败材料保留不入Git，旧总结模型证据仍保持原输入边界。
 
 ## 前轮统一总结模型结果
 
@@ -174,7 +176,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-下一步收齐独立视觉、owned真实API/UI及资源清退终态，再由root保存最终记录和截图。当前编译、作者单测/PG及受控页面结果不替代尚待门。旧总结模型fixture已退出，不能复用其端口或runtime。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
+本轮真实API/UI、独立视觉与精确资源清退已完成，由root统一保存最终harness、记录与截图。以后隔离复验须由owner提供新的环境，不能复用已退出的端口或runtime。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 
