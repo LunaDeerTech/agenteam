@@ -3,11 +3,14 @@ package managementwire
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"math"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 )
 
 func modelID(id string) bool {
@@ -24,7 +27,7 @@ func modelID(id string) bool {
 
 func parse(ctx context.Context, input Request, body []byte) Result {
 	invalid := Result{Reason: "invalid_response"}
-	if !strictJSON(ctx, body) {
+	if !supported(input) || input.Action != "discovery" && input.Action != "test" || !strictJSON(ctx, body) {
 		return invalid
 	}
 	if input.Action == "discovery" {
@@ -49,7 +52,8 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 		}
 		return Result{Items: items}
 	}
-	if input.Protocol == chatProtocol {
+	switch input.Protocol {
+	case chatProtocol:
 		var response struct {
 			Choices []struct {
 				Index        *int                           `json:"index"`
@@ -65,27 +69,77 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 			return invalid
 		}
 		return Result{}
-	}
-	var response struct {
-		Data []struct {
-			Index     *int              `json:"index"`
-			Embedding []json.RawMessage `json:"embedding"`
-		} `json:"data"`
-	}
-	if json.Unmarshal(body, &response) != nil || len(response.Data) != 1 {
-		return invalid
-	}
-	item := response.Data[0]
-	if item.Index == nil || *item.Index != 0 || len(item.Embedding) == 0 || len(item.Embedding) > 4096 {
-		return invalid
-	}
-	for _, raw := range item.Embedding {
-		var value float64
-		if bytes.Equal(raw, []byte("null")) || json.Unmarshal(raw, &value) != nil || math.IsInf(value, 0) || math.IsNaN(value) {
+	case embedProtocol:
+		var response struct {
+			Data []struct {
+				Index     *int              `json:"index"`
+				Embedding []json.RawMessage `json:"embedding"`
+			} `json:"data"`
+		}
+		if json.Unmarshal(body, &response) != nil || len(response.Data) != 1 {
 			return invalid
 		}
+		item := response.Data[0]
+		if item.Index == nil || *item.Index != 0 || len(item.Embedding) == 0 || len(item.Embedding) > 4096 {
+			return invalid
+		}
+		for _, raw := range item.Embedding {
+			var value float64
+			if bytes.Equal(raw, []byte("null")) || json.Unmarshal(raw, &value) != nil || math.IsInf(value, 0) || math.IsNaN(value) {
+				return invalid
+			}
+		}
+		return Result{}
+	case rerankProtocol:
+		var response struct {
+			Results []struct {
+				Index          *int     `json:"index"`
+				RelevanceScore *float64 `json:"relevance_score"`
+			} `json:"results"`
+		}
+		// The fixed probe supplies two candidates and requests exactly one result.
+		// Its single original index is therefore unique by construction.
+		if json.Unmarshal(body, &response) != nil || len(response.Results) != 1 {
+			return invalid
+		}
+		item := response.Results[0]
+		if item.Index == nil || *item.Index < 0 || *item.Index >= 2 || item.RelevanceScore == nil || math.IsNaN(*item.RelevanceScore) || math.IsInf(*item.RelevanceScore, 0) {
+			return invalid
+		}
+		return Result{}
+	case imageProtocol:
+		var response struct {
+			Data []struct {
+				Base64 string `json:"b64_json"`
+				URL    string `json:"url"`
+			} `json:"data"`
+		}
+		if json.Unmarshal(body, &response) != nil || len(response.Data) != 1 {
+			return invalid
+		}
+		item := response.Data[0]
+		if item.Base64 == "" && item.URL == "" {
+			return invalid
+		}
+		if item.Base64 != "" {
+			decoded, err := base64.StdEncoding.Strict().DecodeString(item.Base64)
+			valid := err == nil && len(decoded) > 0
+			clear(decoded)
+			if !valid {
+				return invalid
+			}
+		}
+		if item.URL != "" {
+			// Validate the shape only. Never fetch or retain a vendor image URL.
+			target, err := outbound.ParseTarget(item.URL)
+			if err != nil || target.Origin().Scheme() != "https" {
+				return invalid
+			}
+		}
+		return Result{}
+	default:
+		return invalid
 	}
-	return Result{}
 }
 
 // Unknown vendor fields are ignored, while duplicate fields and excessive

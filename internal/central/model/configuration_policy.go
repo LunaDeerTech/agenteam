@@ -64,6 +64,14 @@ func modelPolicy(v mc.ModelInput, protocol mc.Protocol) error {
 		if !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"vector"}) || c.MaxOutput != nil {
 			return fault(f.CapabilityUnsupported)
 		}
+	case mc.RerankerModel:
+		if !slices.Equal(c.InputModalities, []string{"text"}) || len(c.OutputModalities) != 0 || c.ContextLength != nil || c.MaxOutput != nil {
+			return fault(f.CapabilityUnsupported)
+		}
+	case mc.ImageModel:
+		if !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"image"}) || c.ContextLength != nil || c.MaxOutput != nil {
+			return fault(f.CapabilityUnsupported)
+		}
 	}
 	if v.Type != mc.ChatModel && (c.ToolCalls || c.ParallelToolCalls || c.Streaming || c.Reasoning || len(c.StructuredOutputModes) > 0) {
 		return fault(f.CapabilityUnsupported)
