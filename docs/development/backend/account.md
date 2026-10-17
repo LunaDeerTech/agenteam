@@ -23,7 +23,7 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 ## Passkey 与邮箱验证部署边界
 
-本轮新增能力已实现并完成适用的本地验证，具体范围见[Passkey 与邮箱变更工作项](../work-items/account-passkeys-email-change.md)；当前公开预览仍保留旧稳定组合，新功能未部署到该实例。系统设置不新增 Passkey 配置；RP ID 与允许 Origin 只从固定 `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 派生，使用规范 DNS hostname 与准确端口。IP Origin 明确不可用，原密码登录继续工作；不从请求或转发头生成 RP/Origin，不降低 TLS 验证。域名改变会影响原 RP 下凭据的可用性，须按正式部署域名配置并由用户在独立服务器验证物理认证器、云同步及外部邮件。
+本轮新增能力已实现并完成适用的本地验证，具体范围见[Passkey 与邮箱变更工作项](../work-items/account-passkeys-email-change.md)；2026-10-17已按用户授权将329591cc后端、schema146及同版Vue更新到既有预览，保留原账号与配置数据。公网身份未通过本次严格验证，具体运行事实见当前状态。系统设置不新增 Passkey 配置；RP ID 与允许 Origin 只从固定 `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 派生，使用规范 DNS hostname 与准确端口。IP Origin 明确不可用，原密码登录继续工作；不从请求或转发头生成 RP/Origin，不降低 TLS 验证。域名改变会影响原 RP 下凭据的可用性，须按正式部署域名配置并由用户在独立服务器验证物理认证器、云同步及外部邮件。
 
 首次管理员的默认邮箱不是已验证邮箱。本人Passkey投影显式返回 `email_initialization_required`：仅未验证且有真实bootstrap记录时为true，不能按管理员角色或邮箱字符串猜测；普通未验证注册用户可用当前密码及原邮箱真实SMTP码完成首登记验证。
 
@@ -96,7 +96,7 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 真实 SMTP 使用生产 `cmd/agenteam`。当前已确认的[独立直连契约](../work-items/system-outbound-policy-proxy.md)将 SMTP 作为基础设施，直接连接管理员保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，也不新增 SMTP 专属代理开关；严格证书验证、Secret、当前配置/凭据、账户 SendPermit、权限审计、重试与 Unknown 保持。SMTP 继续复用现有静态系统/部署 CA，既有配置键名与五用途 keyring 不变。
 
-SMTP 独立直连已完成关键 owned 隔离验证，并保数据切换至 `e2039777`；实际活动 binary、manifest、验证范围及恢复入口见[当前状态](../../../.agent-state/current.md)。本轮保留现有账号、Session、SMTP、代理与规则配置、凭据和密钥，无迁移、清库或配置重建。真实SMTP实发继续暂停，本次未验证公网或真实外部SMTP；配置保存、升级或本机可用不等于邮件发送成功。
+SMTP 独立直连已完成关键 owned 隔离验证，并保数据切换至 `e2039777`；实际活动 binary、manifest、验证范围及恢复入口见[当前状态](../../../.agent-state/current.md)。SMTP拆分当时保留现有账号、Session、SMTP、代理与规则配置、凭据和密钥，无迁移、清库或配置重建；后续Passkey升级只应用其正式迁移，准确活动版本见当前状态。真实SMTP实发继续暂停，本次未验证公网或真实外部SMTP；配置保存、升级或本机可用不等于邮件发送成功。
 
 旧预览测试 binary 的固定 sink resolver 仅供隔离测试，不能承担真实 SMTP 部署；其外部 hostname 拒绝是当时 fixture 的限制，不应通过修改业务规则或 SMTP 密码绕过。以下首次准备说明只用于新实例；既有持久实例按后续 stage 流程升级，不能重新生成其配置或密钥。
 
@@ -124,7 +124,7 @@ SMTP 独立直连已完成关键 owned 隔离验证，并保数据切换至 `e20
 
 ### 既有持久实例的stage与恢复
 
-SMTP 拆分升级不新增数据库迁移；保留现有数据库、对象数据、账号/Session、用户已保存SMTP、代理与规则配置、五用途keyring、TLS材料、spool与恢复日志。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
+既有实例升级保留原数据库、对象数据、账号/Session、用户已保存SMTP、代理与规则配置、五用途keyring、TLS材料、spool与恢复日志。SMTP拆分当时未新增迁移；此次Passkey升级应用00146，不能继续按schema145恢复旧二进制。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
 
 管理器新增 `stage`：
 
@@ -139,22 +139,22 @@ python3 scripts/manage-persistent-central.py stage \
 
 切换顺序由运行owner执行：先核真实PID/start_ticks/executable及精确容器/nonce归属、无未终结或未join邮件任务；用当前manifest执行 `stop`并确认实际退出和端口释放。保留数据库/对象/TLS代理/frp，停止应用写入后对原数据库做私有custom-format备份并验证归档可读，记录原配置/密钥和数据身份摘要；备份、stderr及归档清单只存0700目录/0600文件，不打印凭据。随后只用stage返回的manifest执行 `start`，再核实际进程/exe SHA、迁移记录、同端口服务、原账号/SMTP安全投影与数据/密钥保持。
 
-`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。本轮SMTP拆分切换保持既有schema145，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧144及更早二进制不能在当前schema145数据库上回退启动；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
+`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。当前Passkey预览已应用schema146，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧e203/schema145及更早二进制不能在当前schema146数据库上回退启动；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
 
 保留原immutable nginx配置、TLS与nonce，`/__instance__/identity.source_revision`继续表示基础设施首次准备版本；它不证明新候选代码版本。新Central用活动manifest、实际PID/start_ticks/executable SHA证明，前端用实际构建/源组合单独核验。旧 `runtime-recovery-probe.cjs` 和 `diagnose-persistent-smtp.py`的identity.source等于runtime.source假设不适用于staged manifest，本轮升级用独立组合核验，不修改nginx来伪造候选身份。严格本机验证、公开入口响应归属和真实邮件结果分别记录；SMTP实测暂停，升级操作不触发测试发送。
 
-### 保留旧后端时固定前端快照
+### 固定已核验的前端快照
 
-Passkey源码已集成主树，但现有用户预览仍保留e203 Central、schema145及原账号/Session、SMTP、keys和数据，不运行主树新后端或升级该数据库。为避免新页面连接旧API，5245使用仓库外快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7/`；其92份源码与c09d逐项一致，node_modules与Vite缓存独立。不要再以主树的npm/dev命令启动此保留入口。
+2026-10-17既有预览已保数据升级至329591cc Central/schema146，同步使用仓库外快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc/`，101份源码与该候选逐项一致。node_modules符号链接复用旧 `frontend-stable-c09d69b7/node_modules`，package-lock逐字一致，新快照.vite缓存独立；恢复须保留旧快照的该依赖目录，旧源码不再提供页面。前端快照与当前后端共同核验；不要以主树任意版本的npm/dev命令启动此入口，也不要用旧c09d快照恢复新组合。
 
 快照内 `preview-record.json` 保存绝对node命令、工作目录及required_environment/recovery_environment中的 `VITE_ACCOUNT_ENABLED=true`，私有run-state的frontend_preview登记实际进程；恢复前须核PID/start_ticks和端口归属。此环境变量是必需项，遗漏会将账号入口禁用。恢复命令在该快照目录运行：
 
 ```sh
-cd /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7
-VITE_ACCOUNT_ENABLED=true /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7/node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5245 --strictPort
+cd /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc
+VITE_ACCOUNT_ENABLED=true /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc/node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5245 --strictPort
 ```
 
-恢复按现有运行owner流程脱离临时工具进程组并写私有日志，记录新实际进程身份后再核严格本机TLS/nonce、快照源码与实际accountEnabled。此次首次迁移遗漏flag已修正；最终匿名浏览器确认账号输入/按钮可用、禁用提示消失、session401/bootstrap200，浏览器与relay退出，无凭据读取、登录或邮件。本机检查不代表公网身份验证。当前准确PID与后端manifest见[当前状态](../../../.agent-state/current.md)；Passkey真实链使用独立owned环境，不复用此用户实例。
+恢复按现有运行owner流程脱离临时工具进程组并写私有日志，记录新实际进程身份后再核严格本机TLS/nonce、快照源码与实际accountEnabled。此前c09d快照曾遗漏flag并已修正，不能把源码hash或HTTP200代替账号能力验证；当前329591cc环境与变换模块均已确认true。当前准确PID、后端manifest及最终只读浏览器结果见[当前状态](../../../.agent-state/current.md)。IP Origin明确禁用Passkey而保持密码路径；本机检查不代表公网身份验证，本次未注册Passkey或发送外部邮件。
 
 ## 新 Vue 账号联调
 

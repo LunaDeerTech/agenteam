@@ -87,4 +87,4 @@ accountmail完整非integration单测通过；account完整执行仅旧HEAD/sche
 
 r1迁移Down误项、r2异步旧邮件观测错误已修并精确清理，首r3编译错误亦保留；作者browser run01导航Timeout、独审run02准备Error的原因未定，原失败保留，后续通过不改写原因。独审run01过严测试前置未进入业务。任务Vite5274已退出且无监听；owned r3的App及runner均实际退出0，4容器/4网络逐exact ID清零，5270无监听且可绑定，runtime/sidecar/临时文件已撤。CLI未再次登出的测试Session随owned数据库清退终结。
 
-验证限制：CLI真实链覆盖initialize_email与同次提交续查；recover_account的旧key/reset分支未独立穷举真实实测，不宣称全部恢复组合均覆盖。现有公开预览继续旧稳定前后端，不部署本轮00146或新页面，不发外部邮件；真实域名、物理认证器、云同步和外部收件由用户在独立服务器后验。复现与运行边界见[账号运行说明](../backend/account.md#passkey-与邮箱验证部署边界)。
+验证限制：CLI真实链覆盖initialize_email与同次提交续查；recover_account的旧key/reset分支未独立穷举真实实测，不宣称全部恢复组合均覆盖。2026-10-17用户授权将最新代码更新到既有18443：329591cc后端/schema146与同版私有Vue快照已保数据部署，真实1440/390只读页面核验已通过，密码登录与IP能力限制、初始化入口及系统项不变均已核；前两次浏览器定位命中隐藏modal属harness错误，限定定位后通过，未改产品。公网两次IP TLS拒绝、域名SNI对照HTTP503上游证书拒绝均未取nonce，不称公网身份验证通过。IP下Passkey不可用，原密码登录保留，本次未注册真实Passkey或发外部邮件；真实域名、物理认证器、云同步和外部收件由用户在独立服务器后验。复现与运行边界见[账号运行说明](../backend/account.md#passkey-与邮箱验证部署边界)。
