@@ -45,16 +45,16 @@ func (d httpProviderInput) input() (mc.ProviderInput, error) {
 }
 
 type httpCapabilities struct {
-	ToolCalls             *bool           `json:"tool_calls"`
-	ParallelToolCalls     *bool           `json:"parallel_tool_calls"`
-	Streaming             *bool           `json:"streaming"`
-	Reasoning             *bool           `json:"reasoning"`
-	InputModalities       []string        `json:"input_modalities"`
-	OutputModalities      []string        `json:"output_modalities"`
-	ReasoningEfforts      []string        `json:"reasoning_efforts"`
-	StructuredOutputModes []string        `json:"structured_output_modes"`
-	ContextLength         json.RawMessage `json:"context_length"`
-	MaxOutput             json.RawMessage `json:"max_output"`
+	ToolCalls             *bool                `json:"tool_calls"`
+	ParallelToolCalls     *bool                `json:"parallel_tool_calls"`
+	Streaming             *bool                `json:"streaming"`
+	Reasoning             *bool                `json:"reasoning"`
+	InputModalities       []string             `json:"input_modalities"`
+	OutputModalities      []string             `json:"output_modalities"`
+	ReasoningEfforts      []mc.ReasoningEffort `json:"reasoning_efforts"`
+	StructuredOutputModes []string             `json:"structured_output_modes"`
+	ContextLength         json.RawMessage      `json:"context_length"`
+	MaxOutput             json.RawMessage      `json:"max_output"`
 }
 
 func (d httpCapabilities) input() (mc.Capabilities, error) {
@@ -162,7 +162,7 @@ type httpModelView struct {
 
 func httpModelDTO(v mc.ModelView) httpModelView {
 	p, c := v.Input, v.Input.Capabilities
-	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]string{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput)}
+	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]mc.ReasoningEffort{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput)}
 	headers := p.HeaderOverwrite
 	if headers == nil {
 		headers = map[string]string{}

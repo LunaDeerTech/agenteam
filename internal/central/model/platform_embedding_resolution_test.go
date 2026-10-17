@@ -105,7 +105,7 @@ func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
 		"reasoning": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.Reasoning = true },
 		"efforts": func(_ *providerRecord, m *modelRecord) {
 			m.Input.Capabilities.Reasoning = true
-			m.Input.Capabilities.ReasoningEfforts = []string{"high"}
+			m.Input.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "high", Value: "high"}}
 		},
 		"structured-text": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.StructuredOutputModes = []string{"text"} },
 		"structured-json": func(_ *providerRecord, m *modelRecord) {

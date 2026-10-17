@@ -523,7 +523,7 @@ func knowledgeM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentSou
 
 func knowledgeM3ModelInput(t *testing.T, profile, upstream string) mc.ModelInput {
 	t.Helper()
-	input := mc.ModelInput{Name: "Knowledge M3 " + profile, ProviderModelID: upstream, Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), HeaderOverwrite: map[string]string{}, Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, ReasoningEfforts: []string{}, StructuredOutputModes: []string{}}}
+	input := mc.ModelInput{Name: "Knowledge M3 " + profile, ProviderModelID: upstream, Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), HeaderOverwrite: map[string]string{}, Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, ReasoningEfforts: []mc.ReasoningEffort{}, StructuredOutputModes: []string{}}}
 	switch profile {
 	case "embedding":
 		input.Type = mc.EmbeddingModel

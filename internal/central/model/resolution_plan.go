@@ -63,7 +63,7 @@ func resolutionUnitIdentity(consumer mc.Consumer, purpose mc.Purpose, o sc.Owner
 // Validate durable scalar identity without reconstructing an Actor or minting a
 // ServiceRegistration. Current authority always comes from the original caller.
 func (d resolutionRequestDTO) validate() error {
-	if d.Format != 1 || d.Consumer.Validate() != nil || d.Purpose != d.Consumer.Purpose || d.ReasoningEffort != "" {
+	if d.Format != 1 || d.Consumer.Validate() != nil || d.Purpose != d.Consumer.Purpose || d.ReasoningEffort != "" && (!mc.ValidReasoningEffortValue(d.ReasoningEffort) || d.Purpose.ModelType() != mc.ChatModel) {
 		return unavailable(nil)
 	}
 	switch d.Source {
@@ -72,7 +72,7 @@ func (d resolutionRequestDTO) validate() error {
 			return unavailable(nil)
 		}
 	case mc.ServingSnapshotSource:
-		if d.ServingSnapshotID == nil || d.ServingSnapshotID.Validate() != nil || d.ModelRef != nil || d.Selection != nil || !mc.ServingSnapshotPurpose(d.Purpose) || d.Owner.Kind != sc.ModelCallOwner {
+		if d.ReasoningEffort != "" || d.ServingSnapshotID == nil || d.ServingSnapshotID.Validate() != nil || d.ModelRef != nil || d.Selection != nil || !mc.ServingSnapshotPurpose(d.Purpose) || d.Owner.Kind != sc.ModelCallOwner {
 			return unavailable(nil)
 		}
 		if _, err := f.ParseID[struct{}](d.ServingGenerationID); err != nil {
@@ -120,12 +120,13 @@ type resolutionSnapshotDTO struct {
 	Parameters, RequestOverwrite    json.RawMessage
 	HeaderOverwrite                 map[string]string
 	Capabilities                    mc.Capabilities
+	ReasoningEffort                 string `json:"reasoning_effort,omitempty"`
 	CredentialID, CredentialProject string
 	SelectionVersion                *f.Version
 }
 
 func (d resolutionSnapshotDTO) snapshot() (mc.ConfigSnapshot, error) {
-	s := mc.ConfigSnapshot{ID: d.ID, Identity: d.Identity, Endpoint: d.Endpoint, Parameters: bytes.Clone(d.Parameters), RequestOverwrite: bytes.Clone(d.RequestOverwrite), HeaderOverwrite: d.HeaderOverwrite, Capabilities: d.Capabilities.Clone(), SelectionVersion: d.SelectionVersion}
+	s := mc.ConfigSnapshot{ID: d.ID, Identity: d.Identity, Endpoint: d.Endpoint, Parameters: bytes.Clone(d.Parameters), RequestOverwrite: bytes.Clone(d.RequestOverwrite), HeaderOverwrite: d.HeaderOverwrite, Capabilities: d.Capabilities.Clone(), ReasoningEffort: d.ReasoningEffort, SelectionVersion: d.SelectionVersion}
 	if d.Format != 1 || d.ProjectID.Validate() != nil || d.CredentialID == "" && d.CredentialProject != "" {
 		return s, unavailable(nil)
 	}

@@ -74,9 +74,11 @@ func TestModelMeetingSummaryResolutionProfileMatrix(t *testing.T) {
 		"tools":     func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ToolCalls = true },
 		"parallel":  func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ParallelToolCalls = true },
 		"reasoning": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.Reasoning = true },
-		"efforts":   func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ReasoningEfforts = []string{"high"} },
-		"image":     func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.OutputModalities = []string{"image"} },
-		"protocol":  func(p *providerRecord, _ *modelRecord) { p.Input.Protocol = mc.AnthropicMessages },
+		"efforts": func(_ *providerRecord, m *modelRecord) {
+			m.Input.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "high", Value: "high"}}
+		},
+		"image":    func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.OutputModalities = []string{"image"} },
+		"protocol": func(p *providerRecord, _ *modelRecord) { p.Input.Protocol = mc.AnthropicMessages },
 	} {
 		t.Run(name, func(t *testing.T) {
 			cp, cm := p, m
