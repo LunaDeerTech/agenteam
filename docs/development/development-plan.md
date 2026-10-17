@@ -14,7 +14,7 @@ AT-0005 已确认的产品决定不重新列为待选，正式来源见[决定�
 
 ## 当前开发目标与里程碑
 
-当前目标是新 Vue 工程的共享 UI、AppShell、单一 SettingsShell 和全部已定路由骨架；系统设置先行，未讨论页面只有标题与空内容区域。该范围已产生部分源码，现按用户要求暂停保存 WIP；恢复后按页面讨论内容、接口、状态与权限，再实现和验证；本轮不迁入完整 Agent/项目列表正文，也不宣后端或认证授权完成。工程与页面计划见[前端重建设计入口](../frontend-design/redesign/README.md)和[执行计划](../frontend-design/redesign/implementation-plan.md)。Agent HTML 保留对照，不继续扩展功能。
+2026-10-17当前目标为新Vue[模型目录与平台模型用途](work-items/frontend-model-catalog.md)：系统只保留这两个入口，供应商列表进入以模型列表为主体的详情，供应商/凭据与模型使用弹窗；手工添加、支持协议的发现勾选导入、显式真实测试及独立用途保存形成完整流程。沿成熟Model/Secret领域规则核对并按新页面需要重做HTTP，配置命令/版本/部分成功和Unknown保持真实。开发继续在当前新Vue分支，不合并回旧web分支；未讨论的项目/Agent正文不纳本包。完整工程合同仅在工作项维护，页面结构见[蓝图](../frontend-design/redesign/page-blueprints.md)。
 
 M3 知识检索与引用、Memory、领域工具、MCP、Meeting 和相关 Runner 扩展的原接受范围仍按[M3 卡](work-items/m3-knowledge-memory-collaboration.md)保留；其历史通过不代证新前端。下方 M1—M3 和五个工作包记录原产品里程碑，不构成当前前端派工路线；旧前端业务实现只留归档，不因历史复用原则移入新工程。
 

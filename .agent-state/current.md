@@ -1,4 +1,8 @@
-# 当前状态：最新代码已更新到既有预览，本机只读验证完成
+# 当前状态：模型目录与平台模型用途实施中
+
+2026-10-17新授权：实现[模型目录与平台模型用途](../docs/development/work-items/frontend-model-catalog.md)，起点97ac04e3。系统模型三入口收为两入口（系统10项/正式39叶）；目录先供应商列表，详情主体模型列表，供应商/凭据/模型弹窗，支持手工和发现勾选导入、显式真实测试及独立用途页。新建只开放OpenAI chat/embedding两协议，既存其他协议只读；新增管理操作需真实System Secret owner与持久结果恢复。00147由account_backend唯一维护，proxy_copy负责新Vue，本卡/必要入口由account_contract维护，root负责全部Git；测试与独审独立分工。首断点为新管理调用与新Vue接线，尚无本包通过，不操作用户公网、凭据或外部供应商。
+
+## 既有预览与前轮交付
 
 2026-10-17。用户已授权将最新代码更新到既有18443入口。环境恢复后旧宿主进程已消失、三个原持久容器停止；运行owner核原容器/挂载/nonce后恢复PG、MinIO和nginx，再完成私有备份与保数据升级。当前候选为VCS clean的 `329591cc41d1a3c2bc2c38ac9d85ded997d717b1`，schema146已应用，26组原数据HMAC、18个immutable文件与4目录身份保持，未终结邮件/open attempt均0；未发外部邮件或注册真实Passkey。真实新组合1440/390只读浏览器已通过：单次密码登录200、IP能力提示与密码路径、初始化入口、资料modal及键盘回焦、原系统11项均符合当前状态；未写资料/设置或发邮件，logout204→401、浏览器退出0、relay关闭且socket0。前两run为harness全页同名label命中隐藏modal，限定密码section后通过，产品未改。公网三种有界输入均未取得nonce：专用CA+SPKI和系统CA的两次IP请求均CONNECT200、curl60、HTTP0，系统CA那次证书subject为openai.com、与目标IP不符；最后以同IP的域名SNI、原IP HTTP Host及系统CA对照，hostname校验与curl成功，但HTTP503明确为上游TLS CERTIFICATE_VERIFY_FAILED。该环境代理上游证书门阻断仍在，未取得新页面；全部网络探测已停止，不宣称公网响应归属通过。
 
@@ -142,7 +146,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-最新后端与前端已按用户授权更新到既有预览，本机只读浏览器与最终存活核验完成，服务保留，由root保存部署记录。源码与功能测试复用上一轮适用结果，不重复业务测试。IP Origin下Passkey能力不可用但密码登录保持；正式HTTPS域名、物理认证器、云同步及外部邮件由用户在独立服务器验证，本轮不注册真实Passkey或发送外部邮件。
+当前下一步按[模型目录工作项](../docs/development/work-items/frontend-model-catalog.md)完成供应商与凭据、模型、显式测试和用途的首链；新管理调用与页面尚在实施，不把合同冻结或旧模块结果写成本包通过。root先保存本批合同，后续只按作者、隔离联调及独审的实际输入补验收。既有预览保持上一轮部署组合；IP Origin下Passkey不可用但密码登录保持，正式域名、物理设备与外部邮件限制不变。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 

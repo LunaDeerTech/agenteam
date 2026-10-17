@@ -1,6 +1,6 @@
 # 前端开发基础
 
-当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；本轮新增[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
+当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)及[Passkey/邮箱变更](../work-items/account-passkeys-email-change.md)已有各自结果；当前实施[模型目录与平台模型用途](../work-items/frontend-model-catalog.md)。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
 
 设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为 `ai/frontend-f0-refinement-20261015@746ddcb3` 的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
 
@@ -44,13 +44,19 @@ npm run preview --prefix web
 
 ## 骨架与新页面
 
-当前保留 40 个正式叶子定义：系统设置 11、个人设置 3、项目设置 11，其余 15 个覆盖首页、项目集合/概览、四个账号入口、任务三个入口、知识库、产物、会议、待办及 MCP OAuth 回调。动态详情仍属于各自叶子；三个目录重定向和 404 不计入 40 叶。URL 形状沿[页面蓝图](../../frontend-design/redesign/page-blueprints.md)，新代码参数名为 `owner/project`、`taskId/sprintId/documentId/meetingId/skillId`。
+当前目标为39个正式叶子定义：系统设置10、个人设置3、项目设置11，其余 15 个覆盖首页、项目集合/概览、四个账号入口、任务三个入口、知识库、产物、会议、待办及 MCP OAuth 回调。动态详情仍属于各自叶子；三个目录重定向和404不计入39叶。URL 形状沿[页面蓝图](../../frontend-design/redesign/page-blueprints.md)，新代码参数名为 `owner/project`、`taskId/sprintId/documentId/meetingId/skillId`。
 
-路由与设置栏目集中在 `src/router/routes.ts`；骨架建立时全部叶子使用 `content: "unimplemented"`，本轮七页依合同接入实际内容，其余保持空正文。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
+路由与设置栏目集中在 `src/router/routes.ts`；骨架建立时全部叶子使用 `content: "unimplemented"`，已完成页面按各自工作项接入，其余保持空正文。当前模型导航由原三项收为两项，不能将旧40叶/系统11项检查当作此次39叶/系统10项通过。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
 
 AppShell组织系统导航、项目上下文和内容区；“个人设置”只保留在右上用户菜单内，菜单触发器显示当前身份已保存头像或默认占位。顶栏与资料页共享受控头像读取状态，页面候选预览独立，全部请求仍经过同一账号owner。AccountShell承载账号与OAuth回调。login与forgot-password复用同一居中轻边框面板模板，包含正式Logo/标题/当前表单并用克制阴影；个人设置继续开放表单。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
 
 骨架阶段的主题使用本地 `agenteam.vue.appearance.v1` 缓存。本轮账号主题改为服务端保存与临时预览分离；匿名/失效使用system，本地缓存不作为用户偏好事实，不得跨账号继承。实际迁移实现与检查以本轮工作项及当前状态为准。
+
+## 模型目录与平台模型用途（实施中）
+
+仅保留 `/system/models` 模型目录和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。后台配置、凭据与两个用途资源各自有版本与回执；不得把合并页面误作一次事务。
+
+发现、逐项导入和真实测试仅按[本包合同](../work-items/frontend-model-catalog.md)的协议能力开放；配置保存不自动调用供应商。未知结果保原请求并按相应命令恢复，不能只凭历史lookup认定本次材料已提交。先在owned App与模拟供应商联调，不使用当前公网实例或用户凭据。原页面与旧D09通过只证明其原输入，新组合结果以当前状态为准。
 
 ## 出站规则与代理（新Vue）
 
