@@ -47,7 +47,7 @@ func TestOpenAIEmbeddingsResponseHeaderBudget(t *testing.T) {
 		t.Fatal(err)
 	}
 	o.Limits.ResponseHeaders = 61 * time.Second
-	if p, err := prepareEmbeddings(context.Background(), r, o); err == nil || p != nil {
+	if p, err := prepareEmbeddings(context.Background(), r, o); err == nil || p.request != nil {
 		t.Fatal("Image header extension escaped into Embedding")
 	}
 }
