@@ -114,6 +114,7 @@ func TestModelPickerReasoningIndependentReview(t *testing.T) {
 	thinkingCaps["reasoning"], thinkingCaps["reasoning_toggle_mode"] = true, "thinking_type"
 	thinking := review.model(t, summaryProvider, thinkingInput)
 	review.configurationChecks(t, embedding, toggle, effort, thinking, toggleInput, longNotes)
+	t.Log("MODEL_PICKER_REVIEW stage=configuration_confirmed")
 
 	// Memory resolves the platform choice itself. Its original request contains
 	// neither a caller-supplied effort nor a fabricated reasoning flag.
@@ -147,6 +148,7 @@ func TestModelPickerReasoningIndependentReview(t *testing.T) {
 	if len(memorySnapshots) != 2 {
 		t.Fatal("Memory did not capture both original summary calls", len(memorySnapshots))
 	}
+	t.Log("MODEL_PICKER_REVIEW stage=memory_canonical_and_snapshots_confirmed")
 
 	// One genuine Meeting generation fails parsing, then retries after the
 	// shared choice changes. The retry must retain its original value/snapshot.
@@ -183,6 +185,7 @@ func TestModelPickerReasoningIndependentReview(t *testing.T) {
 	if detail.Session.Title == nil || *detail.Session.Title != title || detail.Session.Summary == nil || detail.Session.Summary.Decisions != "Use the captured value" {
 		t.Fatal("real Meeting retry did not publish its summary")
 	}
+	t.Log("MODEL_PICKER_REVIEW stage=meeting_retry_snapshot_confirmed")
 	review.mutationChecks(t, embedding, thinking, toggle, effort, thinkingInput)
 	review.permissionChecks(t, embedding, toggle)
 
@@ -240,7 +243,7 @@ func (r *pickerReasoningReview) call(t *testing.T, method, path, key string, inp
 			Code f.Code `json:"code"`
 		}
 		_ = json.Unmarshal(response.body, &problem)
-		t.Fatalf("picker route=%s status=%d want=%d code=%s", path, response.status, want, problem.Code.Safe())
+		t.Fatalf("picker method=%s route=%s status=%d want=%d code=%s", method, path, response.status, want, problem.Code.Safe())
 	}
 	return response.body
 }
