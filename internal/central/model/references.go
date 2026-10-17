@@ -221,16 +221,12 @@ func (r referenceRecord) choice() mc.ReasoningChoice {
 }
 
 // Disabling a referenced model remains legal. Removing the exact selected
-// capability or remapping an explicit toggle requires changing the selection.
+// capability requires changing the selection first.
 func compatibleReferencedReasoning(r referenceRecord, before, after mc.ModelInput) error {
 	choice := r.choice()
 	if choice.ValidateFor(after) != nil {
 		return fault(f.CapabilityUnsupported)
 	}
-	if choice.Mode == "on" || choice.Mode == "off" {
-		if before.Capabilities.ReasoningToggleMode == nil || after.Capabilities.ReasoningToggleMode == nil || *before.Capabilities.ReasoningToggleMode != *after.Capabilities.ReasoningToggleMode {
-			return fault(f.CapabilityUnsupported)
-		}
-	}
+
 	return nil
 }

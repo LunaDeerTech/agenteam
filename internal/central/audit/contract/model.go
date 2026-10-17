@@ -58,7 +58,7 @@ func ModelMetadata(action Action, value ModelMetadataFields) (Metadata, error) {
 			return Metadata{}, invalid("changed_fields")
 		}
 		switch field {
-		case "created", "deleted", "name", "enabled", "base_url", "credential_ref", "provider_options", "model_id", "parameters", "request_overwrite", "header_overwrite", "capabilities", "replacement", "selection":
+		case "created", "deleted", "name", "notes", "enabled", "base_url", "credential_ref", "provider_options", "model_id", "parameters", "request_overwrite", "header_overwrite", "capabilities", "replacement", "selection":
 		default:
 			return Metadata{}, invalid("changed_fields")
 		}

@@ -109,7 +109,7 @@ func TestModelProjectCRUDScopeAndCanonicalReceipts(t *testing.T) {
 	_, err = v.service.CreateModel(ctx, mc.CreateModelRequest{CommandMeta: v.projectMeta(t, "not-chat"), ProviderID: p.ID, Input: wrongType})
 	requireCode(t, err, f.InvalidArgument)
 	changedModel := m.Input.Clone()
-	changedModel.Name = "Changed Project model"
+	changedModel.Notes = "Changed Project model"
 	mr, err := v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: v.projectMeta(t, "model-update"), ID: m.ID, ExpectedVersion: 1, Input: changedModel})
 	if err != nil || mr.Version != 2 {
 		t.Fatal(err)
@@ -599,7 +599,7 @@ func TestModelProjectPreparationFailureRechecksReadReceipt(t *testing.T) {
 					return s.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: meta, ID: m.ID, ExpectedVersion: 1})
 				}
 				input := m.Input.Clone()
-				input.Name = "concurrent updated"
+				input.Notes = "concurrent updated"
 				return s.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: meta, ID: m.ID, ExpectedVersion: 1, Input: input})
 			}
 			type response struct {

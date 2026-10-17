@@ -290,7 +290,7 @@ func (v *fixture) provider(t *testing.T, protocol mc.Protocol, ref *sc.Credentia
 }
 func (v *fixture) model(t *testing.T, provider mc.ProviderView, kind mc.ModelType) mc.ModelView {
 	t.Helper()
-	input := mc.ModelInput{Name: "Model metadata", ProviderModelID: "explicit-model", Type: kind, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`)}
+	input := mc.ModelInput{Notes: "Model metadata", ProviderModelID: "explicit-model", Type: kind, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`)}
 	if kind == mc.ChatModel {
 		input.Capabilities.StructuredOutputModes = []string{"json_schema"}
 	}
@@ -389,7 +389,7 @@ func TestModelB01CRUDCurrentAuthorityAndCanonicalReplay(t *testing.T) {
 	_, e = v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: v.meta(t, "immutable-type"), ID: modelView.ID, ExpectedVersion: 1, Input: badModel})
 	requireCode(t, e, f.InvalidArgument)
 	modelChange := modelView.Input.Clone()
-	modelChange.Name = "Updated model metadata"
+	modelChange.Notes = "Updated model metadata"
 	modelUpdated, e := v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: v.meta(t, "update-model"), ID: modelView.ID, ExpectedVersion: 1, Input: modelChange})
 	if e != nil || modelUpdated.Version != 2 {
 		t.Fatal("update model", e)
@@ -433,7 +433,8 @@ func TestModelB01PlatformSelectionAndAtomicReplacement(t *testing.T) {
 	embed := v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel)
 	memory := v.model(t, v.provider(t, mc.OpenAIChat, nil), mc.ChatModel)
 	rerank := v.model(t, v.provider(t, mc.JinaRerank, nil), mc.RerankerModel)
-	selection := mc.PlatformSelection{ID: empty.ID, Version: 1, Embedding: embed.ID, Summary: memory.ID, Reranker: &rerank.ID}
+	rerankerChoice := mc.DefaultModelChoice(rerank.ID)
+	selection := mc.PlatformSelection{ID: empty.ID, Version: 1, Embedding: mc.DefaultModelChoice(embed.ID), Summary: mc.DefaultModelChoice(memory.ID), Reranker: &rerankerChoice}
 	receipt, e := v.service.UpdatePlatformSelection(ctx, mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "select"), ExpectedVersion: 1, Selection: selection})
 	if e != nil || receipt.Version != 2 {
 		t.Fatal(e)
@@ -446,7 +447,7 @@ func TestModelB01PlatformSelectionAndAtomicReplacement(t *testing.T) {
 		t.Fatal("atomic replacement", e)
 	}
 	got, e := v.service.GetPlatformSelection(ctx, v.admin)
-	if e != nil || got.Configured == nil || got.Configured.Embedding != replacement.ID || got.Version != 3 {
+	if e != nil || got.Configured == nil || got.Configured.Embedding.ModelID != replacement.ID || got.Version != 3 {
 		t.Fatal("canonical selector not replaced", e)
 	}
 	_, e = v.service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: v.meta(t, "clear-optional"), ID: rerank.ID, ExpectedVersion: 1})
@@ -1020,7 +1021,7 @@ func TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt(t *testi
 					return service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: meta, ID: original.ID, ExpectedVersion: 1})
 				}
 				input := original.Input.Clone()
-				input.Name = "new model name"
+				input.Notes = "new model name"
 				return service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: meta, ID: original.ID, ExpectedVersion: 1, Input: input})
 			}
 			type response struct {
@@ -1101,14 +1102,14 @@ func TestModelB01PreparedReferencesAndCurrentAdminAreRechecked(t *testing.T) {
 				request := mc.DeleteModelRequest{CommandMeta: v.meta(t, "delete-racing-selector"), ID: old.ID, ExpectedVersion: 1, Replacement: &next.ID}
 				run = func(s *model.Service) error { _, e := s.DeleteModel(ctx, request); return e }
 				intervene = func() {
-					_, e := v.service.UpdatePlatformSelection(ctx, mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "new-selector"), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: old.ID, Summary: memory.ID}})
+					_, e := v.service.UpdatePlatformSelection(ctx, mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "new-selector"), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: mc.DefaultModelChoice(old.ID), Summary: mc.DefaultModelChoice(memory.ID)}})
 					if e != nil {
 						t.Fatal(e)
 					}
 				}
 				inspect = func() {
 					current, e := v.service.GetPlatformSelection(ctx, v.admin)
-					if e != nil || current.Configured == nil || current.Configured.Embedding != old.ID {
+					if e != nil || current.Configured == nil || current.Configured.Embedding.ModelID != old.ID {
 						t.Fatal("new reference lost", e)
 					}
 					if _, e = v.service.GetModel(ctx, v.admin, old.ID); e != nil {
@@ -1119,7 +1120,7 @@ func TestModelB01PreparedReferencesAndCurrentAdminAreRechecked(t *testing.T) {
 						t.Fatal("same-key fresh plan failed", e)
 					}
 					current, e = v.service.GetPlatformSelection(ctx, v.admin)
-					if e != nil || current.Configured.Embedding != next.ID {
+					if e != nil || current.Configured.Embedding.ModelID != next.ID {
 						t.Fatal("replanned replacement lost selector", e)
 					}
 				}
@@ -1362,7 +1363,7 @@ func TestModelB01SchemaRejectsNullAndInvalidCompositeFacts(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	_, e = conn.Exec(ctx, `INSERT INTO agenteam_model.models(id,provider_id,type,name,provider_model_id,parameters,request_overwrite,header_overwrite,capabilities,enabled,version,created_at,updated_at) VALUES($1,$2,'chat','future','explicit','{}','{}','{}','{}',true,1,clock_timestamp(),clock_timestamp())`, foreignModel.String(), foreign.String())
+	_, e = conn.Exec(ctx, `INSERT INTO agenteam_model.models(id,provider_id,type,notes,provider_model_id,parameters,request_overwrite,header_overwrite,capabilities,enabled,version,created_at,updated_at) VALUES($1,$2,'chat','future','explicit','{}','{}','{}','{}',true,1,clock_timestamp(),clock_timestamp())`, foreignModel.String(), foreign.String())
 	if e != nil {
 		t.Fatal(e)
 	}

@@ -43,7 +43,7 @@ func TestNonchatModelPolicyAndPlatformSelection(t *testing.T) {
 			if typ == mc.ImageModel {
 				caps.OutputModalities, role = []string{"image"}, "image"
 			}
-			input := mc.ModelInput{Name: "owned", ProviderModelID: "owned/model", Type: typ, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: caps}
+			input := mc.ModelInput{Notes: "owned", ProviderModelID: "owned/model", Type: typ, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: caps}
 			if err := modelPolicy(input, mc.OpenAICompatible); err != nil {
 				t.Fatal(err)
 			}

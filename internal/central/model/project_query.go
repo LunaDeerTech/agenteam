@@ -20,13 +20,14 @@ type ProjectQuery struct {
 // AvailableChatModel is a selection projection, not a Provider configuration
 // or a claim that its endpoint/model has been exercised.
 type AvailableChatModel struct {
-	ID           mc.ModelID      `json:"id"`
-	ProviderID   mc.ProviderID   `json:"provider_id"`
-	Scope        id.Scope        `json:"scope"`
-	Name         string          `json:"name"`
-	ProviderName string          `json:"provider_name"`
-	Version      f.Version       `json:"version"`
-	Capabilities mc.Capabilities `json:"capabilities"`
+	ID              mc.ModelID      `json:"id"`
+	ProviderID      mc.ProviderID   `json:"provider_id"`
+	Scope           id.Scope        `json:"scope"`
+	Notes           string          `json:"notes"`
+	ProviderModelID string          `json:"provider_model_id"`
+	ProviderName    string          `json:"provider_name"`
+	Version         f.Version       `json:"version"`
+	Capabilities    mc.Capabilities `json:"capabilities"`
 }
 type AvailableChatModelPage struct {
 	Items      []AvailableChatModel `json:"items"`
@@ -227,7 +228,7 @@ func (s *Service) ListAvailableChatModels(ctx context.Context, actor id.Actor, p
 		}
 		// One statement snapshot observes both enabled flags and the safe projection.
 		// The global SH barrier alone does not freeze concurrent configuration edits.
-		query := `SELECT m.id::text,m.provider_id::text,p.scope,p.project_id::text,m.name,p.name,m.version,m.capabilities,m.created_at FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.type='chat' AND m.enabled AND p.enabled AND (p.scope='system' OR (p.scope='project' AND p.project_id=$1))`
+		query := `SELECT m.id::text,m.provider_id::text,p.scope,p.project_id::text,m.notes,m.provider_model_id,p.name,m.version,m.capabilities,m.created_at FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.type='chat' AND m.enabled AND p.enabled AND (p.scope='system' OR (p.scope='project' AND p.project_id=$1))`
 		args := []any{project.String(), q.Limit + 1}
 		if position.Present {
 			query += ` AND (m.created_at,m.id)<=($3,$4::uuid) AND (m.created_at,m.id)<($5,$6::uuid)`
@@ -246,7 +247,7 @@ func (s *Service) ListAvailableChatModels(ctx context.Context, actor id.Actor, p
 			var owner *string
 			var caps []byte
 			var at time.Time
-			if err = rows.Scan(&model, &provider, &kind, &owner, &v.Name, &v.ProviderName, &v.Version, &caps, &at); err != nil {
+			if err = rows.Scan(&model, &provider, &kind, &owner, &v.Notes, &v.ProviderModelID, &v.ProviderName, &v.Version, &caps, &at); err != nil {
 				return unavailable(err)
 			}
 			v.ID, err = f.ParseID[mc.Model](model)

@@ -111,7 +111,7 @@ func TestModelMeetingSummaryConfigurationEvents(t *testing.T) {
 			plan.Resource = mustID[mc.Model](t).String()
 			plan.Receipt = mc.CommandReceipt{Kind: "model.delete", ResourceID: plan.Resource, Version: 2}
 			plan.Changed = []string{"deleted", "replacement"}
-			before := &selectionRecord{ID: mustID[struct{}](t).String(), Version: 2, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: plan.Resource}
+			before := &selectionRecord{SummaryReasoning: mc.ReasoningChoice{Mode: "default"}, ID: mustID[struct{}](t).String(), Version: 2, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: plan.Resource}
 			after := *before
 			after.Version++
 			after.Summary = plan.AfterSelection.Summary

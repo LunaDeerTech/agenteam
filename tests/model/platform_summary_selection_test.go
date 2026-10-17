@@ -59,7 +59,7 @@ func TestModelPlatformSummarySchema(t *testing.T) {
 	summary := v.chat(t, true)
 	selected := v.selectModel(t, summary)
 	state := v.summary(t)
-	if state.ID != selected.ResourceID || state.Configured == nil || state.Configured.Summary != summary {
+	if state.ID != selected.ResourceID || state.Configured == nil || state.Configured.Summary.ModelID != summary {
 		t.Fatal("shared Summary canonical is missing")
 	}
 	conn := v.db.Connect(t)

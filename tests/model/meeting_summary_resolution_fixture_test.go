@@ -331,12 +331,12 @@ func (v *meetingResolutionFixture) summary(t *testing.T) model.PlatformSelection
 func (v *meetingResolutionFixture) choose(t *testing.T, m mc.ModelID) mc.CommandReceipt {
 	t.Helper()
 	s := v.summary(t)
-	selection := mc.PlatformSelection{ID: s.ID, Version: s.Version, Summary: m}
+	selection := mc.PlatformSelection{ID: s.ID, Version: s.Version, Summary: mc.DefaultModelChoice(m)}
 	if s.Configured != nil {
 		selection = s.Configured.Clone()
-		selection.Summary = m
+		selection.Summary = mc.DefaultModelChoice(m)
 	} else {
-		selection.Embedding = v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel).ID
+		selection.Embedding = mc.DefaultModelChoice(v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel).ID)
 	}
 	out, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: s.Version, Selection: selection})
 	if e != nil {

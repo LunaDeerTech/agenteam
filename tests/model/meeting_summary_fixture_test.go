@@ -29,17 +29,17 @@ func (v *meetingSummaryFixture) summary(t *testing.T) model.PlatformSelectionSta
 func (v *meetingSummaryFixture) choice(t *testing.T, m mc.ModelID) mc.UpdatePlatformSelectionRequest {
 	t.Helper()
 	s := v.summary(t)
-	selection := mc.PlatformSelection{ID: s.ID, Version: s.Version, Summary: m}
+	selection := mc.PlatformSelection{ID: s.ID, Version: s.Version, Summary: mc.DefaultModelChoice(m)}
 	if s.Configured != nil {
 		selection = s.Configured.Clone()
-		selection.Summary = m
+		selection.Summary = mc.DefaultModelChoice(m)
 	} else {
 		embed := v.model(t, v.provider(t, mc.OpenAIEmbeddings), mc.EmbeddingModel)
-		var e error
-		selection.Embedding, e = f.ParseID[mc.Model](embed)
+		embedding, e := f.ParseID[mc.Model](embed)
 		if e != nil {
 			t.Fatal(e)
 		}
+		selection.Embedding = mc.DefaultModelChoice(embedding)
 	}
 	return mc.UpdatePlatformSelectionRequest{CommandMeta: mc.CommandMeta{Actor: v.admin, Scope: id.SystemScope(), Key: f.IdempotencyKey(newID[struct{}](t).String())}, Selection: selection, ExpectedVersion: s.Version}
 }

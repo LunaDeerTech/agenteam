@@ -272,7 +272,7 @@ func (v *platformEmbeddingResolutionFixture) embeddingConfig(t *testing.T, crede
 		ref = &metadata.CredentialRef
 	}
 	p := v.provider(t, mc.OpenAIEmbeddings, ref)
-	input := mc.ModelInput{Name: "embedding current target", ProviderModelID: "explicit-embedding", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}
+	input := mc.ModelInput{Notes: "embedding current target", ProviderModelID: "explicit-embedding", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}
 	receipt, e := v.service.CreateModel(testContext(t), mc.CreateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ProviderID: p.ID, Input: input})
 	if e != nil {
 		t.Fatal(e)
@@ -294,12 +294,12 @@ func (v *platformEmbeddingResolutionFixture) choose(t *testing.T, mid mc.ModelID
 	if e != nil {
 		t.Fatal(e)
 	}
-	selection := mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: mid}
+	selection := mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: mc.DefaultModelChoice(mid)}
 	if state.Configured == nil {
-		selection.Summary = v.resolutionModel(t, v.provider(t, mc.OpenAIChat, nil), false).ID
+		selection.Summary = mc.DefaultModelChoice(v.resolutionModel(t, v.provider(t, mc.OpenAIChat, nil), false).ID)
 	} else {
 		selection = state.Configured.Clone()
-		selection.Embedding = mid
+		selection.Embedding = mc.DefaultModelChoice(mid)
 	}
 	receipt, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: selection})
 	if e != nil {

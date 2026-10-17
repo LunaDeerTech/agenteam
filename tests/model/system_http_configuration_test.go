@@ -43,7 +43,7 @@ func TestModelSystemHTTPConfigurationCRUD(t *testing.T) {
 			model := v.model(t, provider, tc.kind)
 			v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/model-providers/"+provider, newID[struct{}](t).String(), map[string]any{"expected_version": "2"}).problem(t, 409, f.InvalidState)
 			updated := httpModelBody(provider, tc.kind)
-			updated["input"].(map[string]any)["name"] = "updated"
+			updated["input"].(map[string]any)["notes"] = "updated"
 			v.request(t, v.adminBrowser, "PUT", "/api/v1/system/models/"+model, newID[struct{}](t).String(), map[string]any{"expected_version": "1", "input": updated["input"]}).want(t, 200)
 			get := v.request(t, v.adminBrowser, "GET", "/api/v1/system/models/"+model, "", nil).want(t, 200).object(t)
 			if get["version"] != "2" || get["scope"] != nil {
@@ -73,7 +73,7 @@ func TestModelSystemHTTPSelectionAndReferenceDeletion(t *testing.T) {
 	memory := v.request(t, v.adminBrowser, "POST", "/api/v1/system/models", newID[struct{}](t).String(), chatBody).want(t, 200).object(t)["resource_id"].(string)
 	rerank := v.model(t, v.provider(t, mc.JinaRerank), mc.RerankerModel)
 	image := v.model(t, v.provider(t, mc.OpenAIImages), mc.ImageModel)
-	change := map[string]any{"id": selection["id"], "expected_version": "1", "embedding": embed, "summary": memory, "reranker": rerank, "image": image}
+	change := map[string]any{"id": selection["id"], "expected_version": "1", "embedding": httpModelChoice(embed), "summary": httpModelChoice(memory), "reranker": httpModelChoice(rerank), "image": httpModelChoice(image)}
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).want(t, 200)
 	before := v.facts(t)
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).problem(t, 409, f.VersionConflict)
@@ -82,7 +82,7 @@ func TestModelSystemHTTPSelectionAndReferenceDeletion(t *testing.T) {
 	change["embedding"] = nil
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).problem(t, 400, f.InvalidArgument)
 	httpSameFacts(t, before, v.facts(t))
-	change["embedding"] = embed
+	change["embedding"] = httpModelChoice(embed)
 	change["reranker"], change["image"] = nil, nil
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).want(t, 200)
 	newEmbedding := v.model(t, v.provider(t, mc.OpenAIEmbeddings), mc.EmbeddingModel)
@@ -92,7 +92,7 @@ func TestModelSystemHTTPSelectionAndReferenceDeletion(t *testing.T) {
 		t.Fatal("missing replacement receipt")
 	}
 	view := v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", "", nil).want(t, 200).object(t)
-	if view["configured"].(map[string]any)["embedding"] != newEmbedding {
+	if view["configured"].(map[string]any)["embedding"].(map[string]any)["model_id"] != newEmbedding {
 		t.Fatal("selector replacement not atomic")
 	}
 	owner := newID[struct{}](t)

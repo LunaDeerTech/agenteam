@@ -177,7 +177,7 @@ func TestModelProjectConfigurationHTTPBoundedRepresentation(t *testing.T) {
 	}
 	v.sql(t, `UPDATE agenteam_model.models SET parameters=$2::jsonb WHERE id=$1`, m.ID.String(), []byte(input.Parameters))
 	for n := 1; n < 25; n++ {
-		v.sql(t, `INSERT INTO agenteam_model.models(id,provider_id,type,name,provider_model_id,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at) SELECT $2,provider_id,type,$3,$3,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at FROM agenteam_model.models WHERE id=$1`, m.ID.String(), newID[mc.Model](t).String(), fmt.Sprintf("bounded-page-%d", n))
+		v.sql(t, `INSERT INTO agenteam_model.models(id,provider_id,type,notes,provider_model_id,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at) SELECT $2,provider_id,type,$3,$3,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at FROM agenteam_model.models WHERE id=$1`, m.ID.String(), newID[mc.Model](t).String(), fmt.Sprintf("bounded-page-%d", n))
 	}
 	// A single row and the safe catalog fit; only the full Model page is large.
 	for _, target := range []string{projectConfigurationHTTPPath(v.project.ID, "models/"+m.ID.String()), projectConfigurationHTTPPath(v.project.ID, "available-chat-models?limit=100")} {

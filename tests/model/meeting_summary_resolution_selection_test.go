@@ -154,7 +154,7 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		_, projectModel, _ := v.config(t, true, false)
 		state := v.summary(t)
 		selection := state.Configured.Clone()
-		selection.Summary = projectModel.ID
+		selection.Summary = mc.DefaultModelChoice(projectModel.ID)
 		_, e = v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "project-not-system"), ExpectedVersion: state.Version, Selection: selection})
 		if e == nil {
 			t.Fatal("Project model selected as system")
@@ -163,8 +163,8 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		v.sql(t, `UPDATE agenteam_model.platform_selection SET summary_id=$1`, projectModel.ID.String())
 		v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2 AND role='summary'`, projectModel.ID.String(), state.ID)
 		defer func() {
-			v.sql(t, `UPDATE agenteam_model.platform_selection SET summary_id=$1`, state.Configured.Summary.String())
-			v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2 AND role='summary'`, state.Configured.Summary.String(), state.ID)
+			v.sql(t, `UPDATE agenteam_model.platform_selection SET summary_id=$1`, state.Configured.Summary.ModelID.String())
+			v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2 AND role='summary'`, state.Configured.Summary.ModelID.String(), state.ID)
 		}()
 		p, e = v.resolving.DiscoverResolve(testContext(t), v.request(t, mc.MeetingSummaryInitial))
 		resolutionZeroPlan(t, p, e)

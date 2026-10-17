@@ -397,11 +397,11 @@ func memoryM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentScenar
 		meetingM3SystemCall(t, v, "POST", "model-providers", map[string]any{"input": map[string]any{"name": fmt.Sprintf("Memory fixture provider %d", n), "protocol": protocol, "base_url": "https://fixture.test:8443/case/" + scenario, "enabled": true, "credential_ref": credential.Metadata.CredentialRef.Details().ID, "options": map[string]any{}}}, &receipt)
 		provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 		workAppCheck(t, "memory-provider-id", err)
-		capabilities := map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": n != 2, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{output}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
+		capabilities := map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": n != 2, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{output}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
 		if n == 1 {
 			capabilities["structured_output_modes"] = []string{"text", "json_schema"}
 		}
-		meetingM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": map[string]any{"name": fmt.Sprintf("Memory fixture model %d", n), "provider_model_id": "memory-fixture", "type": kind, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": capabilities}}, &receipt)
+		meetingM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": map[string]any{"notes": fmt.Sprintf("Memory fixture model %d", n), "provider_model_id": "memory-fixture", "type": kind, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": capabilities}}, &receipt)
 		models[n], err = f.ParseID[mc.Model](receipt.ResourceID)
 		workAppCheck(t, "memory-model-id", err)
 	}
@@ -411,7 +411,7 @@ func memoryM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentScenar
 	}
 	meetingM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	var receipt mc.CommandReceipt
-	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": models[2], "summary": models[1], "reranker": nil, "image": nil}, &receipt)
+	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": mc.DefaultModelChoice(models[2]), "summary": mc.DefaultModelChoice(models[1]), "reranker": nil, "image": nil}, &receipt)
 	return models[0]
 }
 func memoryM3CreateSprint(t *testing.T, v *executionSchedulerApp) wc.Sprint {
@@ -510,24 +510,24 @@ func memoryM3ReplaceEmbedding(t *testing.T, v *executionSchedulerApp, scenario s
 	meetingM3SystemCall(t, v, "POST", "model-providers", map[string]any{"input": map[string]any{"name": "Memory replacement provider", "protocol": mc.OpenAIEmbeddings, "base_url": "https://fixture.test:8443/case/" + scenario, "enabled": true, "credential_ref": credential.Metadata.CredentialRef.Details().ID, "options": map[string]any{}}}, &receipt)
 	provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 	workAppCheck(t, "memory-replacement-provider", err)
-	capabilities := map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
-	meetingM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": map[string]any{"name": "Memory replacement model", "provider_model_id": "memory-replacement", "type": mc.EmbeddingModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": capabilities}}, &receipt)
+	capabilities := map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
+	meetingM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": map[string]any{"notes": "Memory replacement model", "provider_model_id": "memory-replacement", "type": mc.EmbeddingModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": capabilities}}, &receipt)
 	model, err := f.ParseID[mc.Model](receipt.ResourceID)
 	workAppCheck(t, "memory-replacement-model", err)
 	var selection struct {
 		ID         string    `json:"id"`
 		Version    f.Version `json:"version"`
 		Configured *struct {
-			Summary  mc.ModelID  `json:"summary"`
-			Reranker *mc.ModelID `json:"reranker"`
-			Image    *mc.ModelID `json:"image"`
+			Summary  mc.ModelChoice  `json:"summary"`
+			Reranker *mc.ModelChoice `json:"reranker"`
+			Image    *mc.ModelChoice `json:"image"`
 		} `json:"configured"`
 	}
 	meetingM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	if selection.Configured == nil {
 		t.Fatal("first generation lost configured selectors")
 	}
-	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": model, "summary": selection.Configured.Summary, "reranker": selection.Configured.Reranker, "image": selection.Configured.Image}, &receipt)
+	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": mc.DefaultModelChoice(model), "summary": selection.Configured.Summary, "reranker": selection.Configured.Reranker, "image": selection.Configured.Image}, &receipt)
 	return model
 }
 

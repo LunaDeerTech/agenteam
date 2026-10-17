@@ -817,7 +817,7 @@ func mcpM3AgentIntent(agent id.AgentID, model mc.ModelID, tools []id.ToolID) (ac
 }
 
 func mcpM3ModelInput() map[string]any {
-	return map[string]any{"name": "MCP Agent Model", "provider_model_id": "mcp-agent", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}
+	return map[string]any{"notes": "MCP Agent Model", "provider_model_id": "mcp-agent", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}
 }
 
 func mcpM3TaskRequest(task wc.TaskID, sprint pc.SprintID) wc.TaskCreate {
