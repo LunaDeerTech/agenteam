@@ -96,6 +96,7 @@ func TestModelPickerReasoningIndependentReview(t *testing.T) {
 	embeddingProvider := review.provider(t, embeddingScenario, credential.ID)
 	agentInput := pickerReasoningInput("chat", "picker-agent", "")
 	agentInput["capabilities"].(map[string]any)["tool_calls"] = true
+	agentInput["capabilities"].(map[string]any)["structured_output_modes"] = []string{"text"}
 	agent := review.model(t, agentProvider, agentInput)
 	embedding := review.model(t, embeddingProvider, pickerReasoningInput("embedding", "picker-embedding", ""))
 	longNotes := strings.Repeat("🧪", 2000) // Exactly 2,000 scalars / 8,000 UTF-8 bytes.
