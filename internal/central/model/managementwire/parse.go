@@ -13,6 +13,8 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 )
 
+const imageDecodedLimit = 6 << 20
+
 func modelID(id string) bool {
 	if len(id) == 0 || len(id) > 256 {
 		return false
@@ -122,10 +124,7 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 			return invalid
 		}
 		if item.Base64 != "" {
-			decoded, err := base64.StdEncoding.Strict().DecodeString(item.Base64)
-			valid := err == nil && len(decoded) > 0
-			clear(decoded)
-			if !valid {
+			if !validImageBase64(item.Base64) {
 				return invalid
 			}
 		}
@@ -140,6 +139,17 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 	default:
 		return invalid
 	}
+}
+
+func validImageBase64(encoded string) bool {
+	if len(encoded) == 0 || len(encoded) > base64.StdEncoding.EncodedLen(imageDecodedLimit) {
+		return false
+	}
+	// Check every byte without allocating a second image-sized buffer. The extra
+	// byte distinguishes a full allowed payload from a truncated over-limit one.
+	decoded := base64.NewDecoder(base64.StdEncoding.Strict(), strings.NewReader(encoded))
+	n, err := io.Copy(io.Discard, io.LimitReader(decoded, imageDecodedLimit+1))
+	return err == nil && n > 0 && n <= imageDecodedLimit
 }
 
 // Unknown vendor fields are ignored, while duplicate fields and excessive

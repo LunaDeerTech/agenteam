@@ -163,6 +163,11 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	if o.Limits.Overall <= 0 || o.Limits.Overall > 120*time.Second {
 		return fail(invalid())
 	}
+	// Image management may use the shared transport's longer header wait;
+	// Embedding keeps the original caller limit.
+	if o.Limits.ResponseHeaders > 60*time.Second {
+		return fail(invalid())
+	}
 	idle := min(60*time.Second, o.Limits.Overall)
 	if o.Limits.ReadIdle == 0 {
 		o.Limits.ReadIdle = idle

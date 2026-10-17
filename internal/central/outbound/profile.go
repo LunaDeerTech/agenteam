@@ -78,7 +78,7 @@ type Limits struct {
 
 const (
 	defaultResponseHeadersTimeout = 15 * time.Second
-	modelResponseHeadersTimeout   = 60 * time.Second
+	modelResponseHeadersTimeout   = 120 * time.Second
 )
 
 func normalizeLimits(l Limits, stream bool) (Limits, error) {
@@ -233,7 +233,7 @@ func NewProfile(options ProfileOptions) (Profile, error) {
 	if options.Consumer == ac.Model && !options.Streaming && options.Limits.ResponseHeaders > defaultResponseHeadersTimeout {
 		// Non-streaming Model generation can precede its first response byte.
 		// Only an explicit adapter budget can extend that wait: never beyond
-		// the original attempt or sixty seconds, and never by changing defaults.
+		// the original attempt or two minutes, and never by changing defaults.
 		if options.Limits.Overall <= 0 || options.Limits.ResponseHeaders > options.Limits.Overall || options.Limits.ResponseHeaders > modelResponseHeadersTimeout {
 			return Profile{}, invalid()
 		}

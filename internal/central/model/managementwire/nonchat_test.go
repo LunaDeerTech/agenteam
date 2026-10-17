@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"io"
@@ -146,12 +147,14 @@ func TestNonchatRunOwnedTLSFixedRequestsAndNoImageFetch(t *testing.T) {
 	transport, call, endpoint := wireFixture(t, server, true)
 	transport.Trust = trust
 	urlBody, _ := json.Marshal(map[string]any{"data": []any{map[string]string{"url": imageTarget.URL + "/" + nonce + "?signature=" + secret}}})
+	largeImage, _ := json.Marshal(map[string]any{"data": []any{map[string]string{"b64_json": base64.StdEncoding.EncodeToString([]byte(strings.Repeat("a", 1<<20+1)))}}})
 	for _, tc := range []struct {
 		name, protocol, body, reason string
 	}{
 		{"rerank", rerankProtocol, validRerank, ""},
 		{"rerank-invalid", rerankProtocol, `{"results":[{"index":-1,"relevance_score":0.5}]}`, "invalid_response"},
 		{"image-base64", imageProtocol, validImage, ""},
+		{"image-over-one-mib", imageProtocol, string(largeImage), ""},
 		{"image-url", imageProtocol, string(urlBody), ""},
 		{"image-invalid", imageProtocol, `{"data":[{"b64_json":"!"}]}`, "invalid_response"},
 		{"image-limit", imageProtocol, strings.Repeat(" ", imageTestLimit+1), "response_limit"},
@@ -185,5 +188,52 @@ func TestNonchatRunOwnedTLSFixedRequestsAndNoImageFetch(t *testing.T) {
 		if err != nil || result.Reason != "unsupported_protocol" || requests.Load() != before {
 			t.Fatal("unsupported protocol operation performed network I/O")
 		}
+	}
+}
+
+func TestImageDecodedLimitAndBudget(t *testing.T) {
+	encodedLimit := strings.Repeat("A", base64.StdEncoding.EncodedLen(imageDecodedLimit))
+	if !validImageBase64(encodedLimit) || validImageBase64(encodedLimit+"AAAA") || validImageBase64(encodedLimit[:len(encodedLimit)-1]+"!") {
+		t.Fatal("decoded image limit or whole-input base64 validation changed")
+	}
+	for _, protocol := range []string{chatProtocol, embedProtocol, rerankProtocol, imageProtocol} {
+		input := Request{Action: "test", Protocol: protocol}
+		wantOverall, wantHeaders, wantIdle := 20*time.Second, 15*time.Second, 5*time.Second
+		limit := testLimit
+		if protocol == imageProtocol {
+			wantOverall, wantHeaders, wantIdle = 120*time.Second, 120*time.Second, 30*time.Second
+			limit = imageTestLimit
+		}
+		actual := probeLimits(input, limit)
+		if Timeout(input) != wantOverall || actual.Overall != wantOverall || actual.ResponseHeaders != wantHeaders || actual.ReadIdle != wantIdle || actual.ResponseBodyBytes != int64(limit) {
+			t.Fatal("per-protocol operation or wire budget changed")
+		}
+	}
+	if Timeout(Request{Action: "discovery", Protocol: imageProtocol}) != 20*time.Second {
+		t.Fatal("unsupported image discovery acquired a generation budget")
+	}
+}
+
+func TestImageRunHonorsEarlierCallerDeadline(t *testing.T) {
+	entered := make(chan struct{})
+	server, trust := ownedManagementTLS(t, rand.Text(), http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		_ = r.Body.Close()
+		close(entered)
+		<-r.Context().Done()
+	}))
+	transport, call, endpoint := wireFixture(t, server, true)
+	transport.Trust = trust
+	ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
+	defer cancel()
+	started := time.Now()
+	result, err := transport.Run(ctx, Request{Action: "test", Protocol: imageProtocol, Endpoint: endpoint, Model: "custom-model"}, nil, call)
+	if err != nil || result.Reason != "timeout" || time.Since(started) > 2*time.Second {
+		t.Fatal("image budget extended the caller deadline", result.Reason, err)
+	}
+	select {
+	case <-entered:
+	default:
+		t.Fatal("deadline test did not reach the owned TLS handler")
 	}
 }

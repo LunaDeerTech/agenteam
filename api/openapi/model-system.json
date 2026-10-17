@@ -3947,7 +3947,7 @@
           "duration_ms": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 20000
+            "maximum": 120000
           },
           "created_at": {
             "$ref": "./common.json#/components/schemas/Instant"
@@ -3958,7 +3958,8 @@
           "model_version": {
             "$ref": "./common.json#/components/schemas/Version"
           }
-        }
+        },
+        "description": "A bounded protocol-response check, not an Image artifact or URL-download result. Image generation: overall and response-header deadline 120 seconds, read-idle 30 seconds, raw response at most 8 MiB and decoded base64 at most 6 MiB; duration_ms may reach 120000. Other model tests remain 20 seconds (duration_ms at most 20000) and 1 MiB. Caller cancellation and earlier deadlines apply; terminal receipt/lease cleanup retains its independent 5-second budget and only follows actual I/O join."
       },
       "ModelProviderSummary": {
         "type": "object",
