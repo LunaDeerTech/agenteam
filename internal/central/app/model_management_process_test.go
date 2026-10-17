@@ -213,7 +213,15 @@ func TestModelManagementProxyReplayAndCredentialDeletion(t *testing.T) {
 				t.Fatalf("family database mutation did not fail with SQLSTATE %s constraint %s", code, constraint)
 			}
 		}
-		expectConstraint("23514", "models_provider_type_check", `UPDATE agenteam_model.models SET type='reranker' WHERE id=$1`, modelID)
+		// All four types are valid for the gateway family. Preserve the original
+		// cross-table invariant with a valid embedding and a Chat-only provider.
+		nativeProviderID := key()
+		_, err := a.store.Exec(ctx, `INSERT INTO agenteam_model.providers(id,scope,project_id,name,protocol,base_url,enabled,credential_id,provider_options,version,created_at,updated_at)
+ SELECT $2,scope,project_id,'Native constraint fixture','openai-chat-completions',base_url,enabled,NULL,provider_options,1,created_at,updated_at FROM agenteam_model.providers WHERE id=$1`, providerID, nativeProviderID)
+		previewCheck(t, "create native protocol constraint fixture", err)
+		expectConstraint("23514", "models_provider_type_check", `UPDATE agenteam_model.models SET provider_id=$2 WHERE id=$1`, embeddingID, nativeProviderID)
+		_, err = a.store.Exec(ctx, `DELETE FROM agenteam_model.providers WHERE id=$1`, nativeProviderID)
+		previewCheck(t, "remove native protocol constraint fixture", err)
 		expectConstraint("23514", "providers_protocol_immutable", `UPDATE agenteam_model.providers SET protocol='openai-chat-completions' WHERE id=$1`, providerID)
 		expectConstraint("23503", "models_provider_id_fkey", `UPDATE agenteam_model.models SET provider_id=$2 WHERE id=$1`, embeddingID, key())
 		var protocol, storedCredential string

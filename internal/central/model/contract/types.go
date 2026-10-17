@@ -43,7 +43,8 @@ const (
 type Protocol string
 
 const (
-	// OpenAICompatible is a provider family, never a wire adapter profile.
+	// OpenAICompatible is a gateway family, never a wire adapter profile. Chat,
+	// embeddings and images use OpenAI formats; reranking uses Jina's format.
 	OpenAICompatible  Protocol = "openai-compatible"
 	OpenAIChat        Protocol = "openai-chat-completions"
 	AnthropicMessages Protocol = "anthropic-messages"
@@ -84,7 +85,7 @@ func (p Protocol) Valid() bool { return p == OpenAICompatible || p.Profile() != 
 func (p Protocol) Supports(t ModelType) bool {
 	switch p {
 	case OpenAICompatible:
-		return t == ChatModel || t == EmbeddingModel
+		return t == ChatModel || t == EmbeddingModel || t == RerankerModel || t == ImageModel
 	case OpenAIChat, AnthropicMessages:
 		return t == ChatModel
 	case OpenAIEmbeddings:
@@ -104,10 +105,16 @@ func (p Protocol) EffectiveProtocol(t ModelType) Protocol {
 		return ""
 	}
 	if p == OpenAICompatible {
-		if t == ChatModel {
+		switch t {
+		case ChatModel:
 			return OpenAIChat
+		case EmbeddingModel:
+			return OpenAIEmbeddings
+		case RerankerModel:
+			return JinaRerank
+		case ImageModel:
+			return OpenAIImages
 		}
-		return OpenAIEmbeddings
 	}
 	return p
 }

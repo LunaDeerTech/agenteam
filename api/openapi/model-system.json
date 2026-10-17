@@ -2669,7 +2669,7 @@
               "jina-rerank",
               "openai-images-generations"
             ],
-            "description": "New catalog providers use openai-compatible: one endpoint and credential shared by chat and embedding models. Existing endpoint-specific enum records remain readable; this does not add a third wire adapter."
+            "description": "The compatible gateway family shares one endpoint and credential across chat, embedding, reranker and image_generation. Chat, embedding and image generation use OpenAI formats; reranker uses the Jina-compatible /rerank format, not an OpenAI-defined rerank protocol. Concrete legacy enum records remain readable."
           },
           "base_url": {
             "type": "string",
@@ -2956,9 +2956,109 @@
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "reranker"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "capabilities": {
+                  "properties": {
+                    "input_modalities": {
+                      "const": [
+                        "text"
+                      ]
+                    },
+                    "tool_calls": {
+                      "const": false
+                    },
+                    "parallel_tool_calls": {
+                      "const": false
+                    },
+                    "streaming": {
+                      "const": false
+                    },
+                    "reasoning": {
+                      "const": false
+                    },
+                    "reasoning_efforts": {
+                      "maxItems": 0
+                    },
+                    "structured_output_modes": {
+                      "maxItems": 0
+                    },
+                    "context_length": {
+                      "type": "null"
+                    },
+                    "max_output": {
+                      "type": "null"
+                    },
+                    "output_modalities": {
+                      "const": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "image_generation"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "capabilities": {
+                  "properties": {
+                    "input_modalities": {
+                      "const": [
+                        "text"
+                      ]
+                    },
+                    "tool_calls": {
+                      "const": false
+                    },
+                    "parallel_tool_calls": {
+                      "const": false
+                    },
+                    "streaming": {
+                      "const": false
+                    },
+                    "reasoning": {
+                      "const": false
+                    },
+                    "reasoning_efforts": {
+                      "maxItems": 0
+                    },
+                    "structured_output_modes": {
+                      "maxItems": 0
+                    },
+                    "context_length": {
+                      "type": "null"
+                    },
+                    "max_output": {
+                      "type": "null"
+                    },
+                    "output_modalities": {
+                      "const": [
+                        "image"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           }
         ],
-        "description": "Chat requires text input and text output; optional image/file declarations do not enable media requests. Embedding is fixed text input and vector output with no chat-only capabilities or max_output. Reasoning values are protocol values; no selected value leaves the provider default unchanged."
+        "description": "Chat requires text input and text output; optional image/file declarations do not enable media requests. Embedding is fixed text input and vector output with no chat-only capabilities or max_output. Reasoning values are protocol values; no selected value leaves the provider default unchanged. Reranker is text input with ranked index/score results (no output modality); image_generation is text input and image output. Both reject chat-only features and capacity fields. Management tests validate bounded protocol responses without downloading image URLs or creating Objects."
       },
       "Provider": {
         "type": "object",
@@ -3675,10 +3775,16 @@
                     },
                     {
                       "const": "embedding"
+                    },
+                    {
+                      "const": "reranker"
+                    },
+                    {
+                      "const": "image_generation"
                     }
                   ],
-                  "minItems": 2,
-                  "maxItems": 2
+                  "minItems": 4,
+                  "maxItems": 4
                 },
                 "discovery": {
                   "type": "boolean"
