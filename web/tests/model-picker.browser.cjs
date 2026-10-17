@@ -199,7 +199,12 @@ async function run(browser, width, theme) {
     });
     await expect(panel).toBeVisible();
     await expect(
-      panel.getByRole("option", { name: /sample-embedding/ }),
+      panel
+        .getByRole("row")
+        .filter({ hasText: "sample-embedding" })
+        .getByRole("gridcell")
+        .first()
+        .getByRole("button"),
     ).toHaveAttribute("aria-disabled", "true");
     const geometry = await panel.boundingBox();
     assert(geometry.x >= 7 && geometry.x + geometry.width <= width - 7);
@@ -212,8 +217,14 @@ async function run(browser, width, theme) {
     await panel
       .getByRole("combobox", { name: "搜索供应商或模型" })
       .fill("backup");
-    await expect(panel.getByRole("option")).toHaveCount(1);
-    await panel.getByRole("option", { name: /backup-summary/ }).click();
+    await expect(panel.getByRole("row")).toHaveCount(1);
+    await panel
+      .getByRole("row")
+      .filter({ hasText: "backup-summary" })
+      .getByRole("gridcell")
+      .first()
+      .getByRole("button")
+      .click();
     await expect(trigger).toContainText("备用模型服务/backup-summary");
     await expect(trigger).toBeFocused();
     assert.equal(writes.length, 0);

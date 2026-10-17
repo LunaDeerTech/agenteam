@@ -1,5 +1,10 @@
 import { Blob as NodeBlob } from "node:buffer";
-import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import {
+  flushPromises,
+  mount,
+  type DOMWrapper,
+  type VueWrapper,
+} from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CatalogModel, Provider } from "../src/system/model-catalog";
 const id = (n: number) =>
@@ -234,16 +239,44 @@ async function pick(purpose: string, embedding = false) {
   const label = embedding
     ? "Vector Provider/upstream-12"
     : "Chat Provider/upstream-13";
-  const option = wrapper!
-    .get('[role="listbox"]')
-    .findAll('[role="option"]')
-    .find((item) => item.text().includes(label));
-  expect(option).toBeTruthy();
-  expect(option!.attributes("aria-disabled")).toBeUndefined();
-  await option!.trigger("click");
+  const option = modelButton(label);
+  expect(option.attributes("aria-disabled")).toBeUndefined();
+  await option.trigger("click");
   await flushPromises();
   expect(wrapper!.find('[role="dialog"]').exists()).toBe(false);
   expect(wrapper!.get(`[aria-label^="选择${purpose}"]`).text()).toBe(label);
+}
+function modelButton(label: string) {
+  const rows = wrapper!
+    .get('[role="grid"]')
+    .findAll('[role="row"]')
+    .filter((item) => item.text().includes(label));
+  expect(rows, `Exactly one model row ${label}`).toHaveLength(1);
+  return rows[0]!.get('[role="gridcell"] button');
+}
+async function detailsFor(label: string) {
+  const trigger = wrapper!.get('[aria-label^="选择总结模型"]');
+  if (trigger.attributes("aria-expanded") !== "true") {
+    await trigger.trigger("click");
+    await flushPromises();
+  }
+  await wrapper!.get(`button[aria-label="${label}，更多"]`).trigger("click");
+  await flushPromises();
+  const panel = wrapper!.get(`[role="dialog"][aria-label="${label}，更多"]`);
+  expect(panel.get("legend").text()).toBe("思考策略");
+  return panel;
+}
+function reasoningRadio(panel: DOMWrapper<Element>, text: string) {
+  const labels = panel.findAll("label").filter((item) => item.text() === text);
+  expect(labels, `Exactly one reasoning option ${text}`).toHaveLength(1);
+  return labels[0]!.get('input[type="radio"]');
+}
+async function closePicker() {
+  const trigger = wrapper!.get('[aria-label^="选择总结模型"]');
+  if (trigger.attributes("aria-expanded") === "true")
+    await trigger.trigger("click");
+  await flushPromises();
+  expect(wrapper!.find('[role="dialog"]').exists()).toBe(false);
 }
 function selectionReads() {
   return fetcher.mock.calls.filter(
@@ -281,13 +314,13 @@ describe("platform model selections", () => {
     expect(candidateReads()).toHaveLength(0);
     await view.get('[aria-label^="选择嵌入模型"]').trigger("click");
     await flushPromises();
-    const choices = view.findAll('[role="option"]');
+    const choices = view.get('[role="grid"]').findAll('[role="row"]');
     expect(choices).toHaveLength(2);
     expect(choices[0]!.text()).toContain("Vector Provider/upstream-12");
     expect(choices[1]!.text()).toContain("Chat Provider/upstream-13");
-    expect(choices[1]!.attributes("aria-disabled")).toBe("true");
+    expect(choices[1]!.get("button").attributes("aria-disabled")).toBe("true");
     expect(choices[1]!.text()).toContain("模型类型不适用于此用途");
-    await choices[1]!.trigger("click");
+    await choices[1]!.get("button").trigger("click");
     expect(view.get('[aria-label^="选择嵌入模型"]').text()).toBe(
       "Vector Provider/upstream-10",
     );
@@ -302,7 +335,7 @@ describe("platform model selections", () => {
           "/api/v1/system/model-providers",
       ),
     ).toBe(false);
-    await choices[0]!.trigger("click");
+    await choices[0]!.get("button").trigger("click");
     await flushPromises();
     expect(view.find('[role="dialog"]').exists()).toBe(false);
     expect(view.get('[aria-label^="选择嵌入模型"]').text()).toBe(
@@ -342,7 +375,7 @@ describe("platform model selections", () => {
       expect(candidateReads()[1]!.searchParams.get("cursor")).toBe(
         "model-next",
       );
-      expect(view.get('[role="option"]').text()).toContain(
+      expect(view.get('[role="grid"] [role="row"]').text()).toContain(
         "Chat Provider/upstream-15",
       );
       expect(view.get('[role="dialog"]').text()).toContain("第 2 页");
@@ -363,7 +396,7 @@ describe("platform model selections", () => {
       expect(request.searchParams.has("cursor")).toBe(false);
       expect(request.searchParams.has("provider_id")).toBe(false);
       expect(view.get('[role="dialog"]').text()).toContain("第 1 页");
-      expect(view.get('[role="option"]').text()).toContain(
+      expect(view.get('[role="grid"] [role="row"]').text()).toContain(
         "Chat Provider/upstream-16",
       );
       expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
@@ -506,9 +539,30 @@ describe("platform model selections", () => {
     },
   );
   it("keeps an unknown request frozen after lookup and accepts only its original body and key", async () => {
+    const effortModel = modelOption(13);
+    effortModel.input.capabilities.reasoning = true;
+    effortModel.input.capabilities.reasoning_efforts = [
+      { name: "快速", value: "budget.low" },
+      { name: "深入", value: "vendor.high:2" },
+    ];
+    gets = (path) =>
+      path === "/system/models"
+        ? json({
+            items: [modelOption(12, true), effortModel],
+            next_cursor: null,
+          })
+        : undefined;
     await page();
     await pick("嵌入模型", true);
-    await pick("总结模型");
+    const details = await detailsFor("Chat Provider/upstream-13");
+    expect(details.findAll("label").map((item) => item.text())).toEqual([
+      "供应商默认",
+      "快速",
+      "深入",
+    ]);
+    await reasoningRadio(details, "深入").setValue(true);
+    expect(writes).toHaveLength(0);
+    await closePicker();
     puts = () => {
       throw new TypeError("Synthetic interrupted response");
     };
@@ -517,6 +571,10 @@ describe("platform model selections", () => {
     const original = writes[0]!;
     expect(original.path).toBe(selectionPath);
     expect(original.key).toBeTruthy();
+    expect(JSON.parse(original.body).summary).toEqual({
+      model_id: id(13),
+      reasoning: { mode: "effort", value: "vendor.high:2" },
+    });
     expect(wrapper!.text()).toContain("原操作结果尚未确认");
     expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
     for (const purpose of ["嵌入模型", "总结模型", "重排模型", "图像生成模型"])
@@ -547,6 +605,98 @@ describe("platform model selections", () => {
     expect(wrapper!.text()).toContain("已保存。");
     expect(button("保存").attributes("disabled")).toBeDefined();
     expect(selectionReads()).toHaveLength(1);
+  });
+  describe("reasoning choices", () => {
+    beforeEach(async () => {
+      const toggle = modelOption(11);
+      toggle.input.capabilities.reasoning = true;
+      toggle.input.capabilities.reasoning_toggle_mode = "enable_thinking";
+      const unmapped = modelOption(14);
+      unmapped.input.notes = "供应商未声明可用的开关格式。";
+      unmapped.input.capabilities.reasoning = true;
+      gets = (path) => {
+        if (path === "/system/models")
+          return json({ items: [toggle, unmapped], next_cursor: null });
+        if (path === `/system/models/${id(11)}`)
+          return json({ ...model(11), input: toggle.input });
+        return undefined;
+      };
+      await page();
+    });
+
+    it("saves a changed reasoning policy on the same model and resets it only when selecting another model", async () => {
+      expect(button("保存").attributes("disabled")).toBeDefined();
+      const details = await detailsFor("Chat Provider/upstream-11");
+      expect(details.findAll("label").map((item) => item.text())).toEqual([
+        "供应商默认",
+        "开启思考",
+        "关闭思考",
+      ]);
+      expect(
+        (reasoningRadio(details, "供应商默认").element as HTMLInputElement)
+          .checked,
+      ).toBe(true);
+      await reasoningRadio(details, "关闭思考").setValue(true);
+      expect(writes).toHaveLength(0);
+      expect(button("保存").attributes("disabled")).toBeUndefined();
+      await details.trigger("keydown", { key: "Escape" });
+      await flushPromises();
+      await modelButton("Chat Provider/upstream-11").trigger("click");
+      await flushPromises();
+      const reopened = await detailsFor("Chat Provider/upstream-11");
+      expect(
+        (reasoningRadio(reopened, "关闭思考").element as HTMLInputElement)
+          .checked,
+      ).toBe(true);
+      await closePicker();
+      await click("保存");
+      expect(writes).toHaveLength(1);
+      expect(JSON.parse(writes[0]!.body)).toEqual({
+        ...selectionInput(),
+        embedding: choice(10),
+        summary: { model_id: id(11), reasoning: { mode: "off" } },
+      });
+      expect(button("保存").attributes("disabled")).toBeDefined();
+
+      await wrapper!.get('[aria-label^="选择总结模型"]').trigger("click");
+      await flushPromises();
+      await modelButton("Chat Provider/upstream-14").trigger("click");
+      await flushPromises();
+      const changed = await detailsFor("Chat Provider/upstream-14");
+      expect(
+        (reasoningRadio(changed, "供应商默认").element as HTMLInputElement)
+          .checked,
+      ).toBe(true);
+      expect(writes).toHaveLength(1);
+      await closePicker();
+      puts = () => json(receipt(id(1), "6"));
+      await click("保存");
+      expect(writes).toHaveLength(2);
+      expect(JSON.parse(writes[1]!.body)).toEqual({
+        ...selectionInput("5"),
+        embedding: choice(10),
+        summary: choice(14),
+      });
+    });
+
+    it("offers only provider default without a declared toggle mapping and saves that exact choice", async () => {
+      const details = await detailsFor("Chat Provider/upstream-14");
+      expect(details.text()).toContain("供应商未声明可用的开关格式。");
+      expect(details.text()).toContain("此模型尚未配置思考开关格式");
+      expect(details.findAll("label").map((item) => item.text())).toEqual([
+        "供应商默认",
+      ]);
+      expect(details.find('[role="switch"]').exists()).toBe(false);
+      await details.trigger("keydown", { key: "Escape" });
+      await flushPromises();
+      await modelButton("Chat Provider/upstream-14").trigger("click");
+      await flushPromises();
+      expect(writes).toHaveLength(0);
+      await closePicker();
+      await click("保存");
+      expect(writes).toHaveLength(1);
+      expect(JSON.parse(writes[0]!.body).summary).toEqual(choice(14));
+    });
   });
   it("shows missing references and clears drafts on permission loss without logging out", async () => {
     gets = (path) =>
