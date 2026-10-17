@@ -569,18 +569,16 @@ func pickerReasoningWire(t *testing.T, request netfixture.Request, credential, m
 	} else if hasEffort || hasToggle || hasThinking {
 		t.Fatal("supplier default acquired an explicit reasoning field")
 	}
-	if choice != "" {
+	if structured {
 		var format struct {
 			Type string `json:"type"`
 		}
 		workAppCheck(t, "picker-response-format", json.Unmarshal(body["response_format"], &format))
-		want := "text"
-		if structured {
-			want = "json_schema"
-		}
-		if format.Type != want {
+		if format.Type != "json_schema" {
 			t.Fatal("reasoning changed the consumer response format")
 		}
+	} else if _, present := body["response_format"]; present {
+		t.Fatal("text consumer acquired an explicit response format")
 	}
 	for _, forbidden := range []string{notes, "Displayed depth", "Remark is not the model identity", `"notes"`, `"reasoning_toggle_mode"`, `"reasoning_enabled"`, `"reasoning_efforts"`} {
 		if strings.Contains(request.Body, forbidden) {
