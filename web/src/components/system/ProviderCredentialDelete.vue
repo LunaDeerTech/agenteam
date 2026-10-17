@@ -134,7 +134,7 @@ async function begin() {
   if (!pending.value) await load();
 }
 function close() {
-  if (locked.value) return;
+  if (locked.value || (deleted.value && error.value)) return;
   const completed = deleted.value;
   open.value = false;
   abandon.value = false;
@@ -220,8 +220,8 @@ onBeforeUnmount(() => {
     <UiDialog
       :open="open"
       title="删除凭据"
-      :close-on-escape="!locked"
-      :close-on-outside="!locked"
+      :close-on-escape="!locked && !(deleted && error)"
+      :close-on-outside="!locked && !(deleted && error)"
       @update:open="close"
     >
       <div class="account-form">
@@ -246,7 +246,11 @@ onBeforeUnmount(() => {
         </template>
         <template v-else>
           <p v-if="unlinked" role="status">
-            当前供应商已不使用此凭据，凭据尚未删除。
+            {{
+              deleteWrite.uncertain.value
+                ? "关联已解除，凭据删除结果尚未确认。"
+                : "当前供应商已不使用此凭据，凭据尚未删除。"
+            }}
           </p>
           <p v-else>
             解除当前供应商的关联并删除此凭据？其他配置仍在使用时，凭据不会删除。
