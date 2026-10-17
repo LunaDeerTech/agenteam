@@ -1,8 +1,8 @@
 # 前端开发基础
 
-当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)及[Passkey/邮箱变更](../work-items/account-passkeys-email-change.md)已有各自结果；当前实施[模型接入与平台模型用途](../work-items/frontend-model-catalog.md)。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
+当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)及[Passkey/邮箱变更](../work-items/account-passkeys-email-change.md)已有各自结果；[模型接入与平台模型用途](../work-items/frontend-model-catalog.md)及其维度、多模态与强制类型过滤增量已有各自限定实现和验证；实际通过、失败与未验范围见该工作项和[当前状态](../../../.agent-state/current.md)。当前重建成果按用户要求交付 `main`，后续默认直接在主线继续，需要隔离时使用短期分支/worktree。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
 
-设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为 `ai/frontend-f0-refinement-20261015@746ddcb3` 的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
+设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为主线历史中 `746ddcb3` 版本的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
 
 ## 启动与检查
 

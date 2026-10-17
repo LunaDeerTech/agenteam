@@ -68,7 +68,7 @@ Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized e
 
 ## 功能优先的模块开发
 
-开发方式以[团队流程](docs/development/agent-team/README.md)为正式来源，[开发计划](docs/development/development-plan.md)保存模块业务依赖与完成标准。先明确模块关系、数据和接口定义、调用方式、依赖与集成责任；默认由主线程为可独立推进的模块创建不同 worktree 和 `ai/` 功能分支并行开发。只读、小改动或紧耦合任务可按实际收益共用工作树，不以习惯性共享工作树形成全局串行。
+开发方式以[团队流程](docs/development/agent-team/README.md)为正式来源，[开发计划](docs/development/development-plan.md)保存模块业务依赖与完成标准。先明确模块关系、数据和接口定义、调用方式、依赖与集成责任。按用户当前偏好，后续默认直接在 `main` 继续开发，不保留长期前端重建分支，也不要求每次先创建功能分支；实际需要并行隔离、保护其他会话或保存未验组合时，由主线程创建短期 worktree 与 `ai/` 分支，交付后及时清理。同树并行仍按文件明确唯一写者，不以分支选择限制可安全并行的工作。
 
 小模块先完成可用功能和必要的正常、失败基础测试，尽早进入隔离环境中的真实调用小范围联调。可联调不等于正式完成；权限、数据完整性、迁移和 Secret 等关键门禁须在暴露相应真实风险前通过，业务契约、已知失败及正式完成门槛继续有效。测试明确问题、范围和停止条件，相同输入的通过证据复用，不用无依据的边界扩展推迟联调。旧卡片中的串行、全量测试后才联调等通用流程要求按现行团队流程解释，既有 STOP 不自动恢复。
 
@@ -84,7 +84,7 @@ Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized e
 
 用户已持续授权主线程主动保存和推送开发检查点，无需逐次提醒或批准；WIP 不等于验收通过。由执行者维护必要源码、harness、复现材料及简短状态，报告可恢复范围并停写；主线程负责各工作树的创建、更新、提交、推送和集成。各级子 agent 不执行 Git 写操作，不创建或切换分支、worktree；内容冲突由指定执行者解决，主线程执行后续 Git 操作。
 
-保存触发点、命令、多 worktree 记录和跨设备接续以[状态与恢复说明](.agent-state/README.md)为准，[当前检查点](.agent-state/current.md)只保存当前任务分支的恢复信息。恢复先核对本地改动、远端活动分支和唯一写会话；另一会话仍在运行时不得抢占其分支或覆盖 `current.md`。push 未成功须明确尚未远端保存。常规 commit/push 授权不包含部署、强推、丢弃改动或覆盖其他会话工作。
+保存触发点、命令、多 worktree 记录和跨设备接续以[状态与恢复说明](.agent-state/README.md)为准，[当前检查点](.agent-state/current.md)保存当前 `main` 工作及仍需保留的任务恢复信息；短期功能分支在各自状态文件记录。恢复先核对本地改动、远端活动分支和唯一写会话；另一会话仍在运行时不得抢占其分支或覆盖 `current.md`。push 未成功须明确尚未远端保存。常规 commit/push 授权不包含部署、强推、丢弃改动或覆盖其他会话工作。
 
 新 worktree 由 Git 负责人使用 [ai-worktree.py](scripts/ai-worktree.py) 先设置 sparse 再首次 checkout，默认不物化旧 `verification-evidence*/objects` 大副本；源码、规则与合同照常保留。工具、锁定依赖和镜像在 worktree 外复用，数据库、临时目录与输出每轮独立；具体边界见[资源复用规则](docs/development/agent-team/README.md#worktree-与测试资源复用)。工作分支可推远端备份，正式 main 交付后须连同本地分支、远端分支及该任务的精确 fetchspec/跟踪引用一起收尾，不把备份分支永久积存。
 
