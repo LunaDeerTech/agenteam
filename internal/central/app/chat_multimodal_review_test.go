@@ -8,10 +8,12 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/png"
+	"net"
 	"net/http"
 	"net/netip"
 	"strconv"
@@ -264,7 +266,9 @@ func TestChatMultimodalInlineIndependentReview(t *testing.T) {
 
 // One Task supplies both lifecycle boundaries: editing its current attachment
 // list cannot rewrite an existing successor, and cancellation after the next
-// original read has closed must prevent that successor's application write.
+// original source lease is released must prevent the successor's application
+// write. EOF may release the lease before Read/Close returns; final join is
+// asserted separately after the held callback is released.
 func TestChatMultimodalLifecycleIndependentReview(t *testing.T) {
 	gate := &chatMultimodalReadGate{seen: make(map[string]bool), hits: make(chan chatMultimodalReadHit, 2), errors: make(chan error, 1), stop: make(chan struct{})}
 	defer close(gate.stop)
@@ -324,9 +328,39 @@ func TestChatMultimodalLifecycleIndependentReview(t *testing.T) {
 	}
 	t.Log("CHAT_MULTIMODAL_LIFECYCLE_REVIEW stage=cross_project_refused")
 	var created wc.TaskMutation
-	v.httpSeed(t, "/tasks", map[string]any{"request": map[string]any{
+	createBody := workAppJSON(t, map[string]any{"request": map[string]any{
 		"task_id": taskID, "sprint_id": sprint.ID, "title": "Frozen original image", "type": "task", "priority": "medium", "plan": "Read the original image.", "attachments": []string{picture.ref.ArtifactID.String()},
-	}}, &created)
+	}})
+	createStarted := time.Now()
+	createResponse, createErr := v.request(v.ctx, http.MethodPost, base+"/tasks", createBody, guardID[struct{}](t).String())
+	clear(createBody)
+	if createErr != nil {
+		createElapsed := time.Since(createStarted)
+		// Keep the original HTTP/App budgets and avoid logging URL, headers or
+		// payloads. The shared seed helper otherwise hides every local error.
+		kind := "unclassified"
+		switch createErr.Error() {
+		case "original HTTP body did not return":
+			kind = "response_body"
+		case "HTTP request identity missing":
+			kind = "response_identity"
+		}
+		var networkError net.Error
+		timedOut := errors.As(createErr, &networkError) && networkError.Timeout()
+		diagnosticCtx, diagnosticCancel := context.WithTimeout(context.Background(), 2*time.Second)
+		var persisted int
+		diagnosticErr := v.store.QueryRow(diagnosticCtx, `SELECT count(*) FROM agenteam_work.tasks WHERE id=$1`, taskID.String()).Scan(&persisted)
+		diagnosticCancel()
+		t.Fatalf("multimodal Task create local failure type=%T kind=%s elapsed_ms=%d timeout=%t deadline=%t cancelled=%t app_context_done=%t task_count=%d task_count_known=%t", createErr, kind, createElapsed.Milliseconds(), timedOut, errors.Is(createErr, context.DeadlineExceeded), errors.Is(createErr, context.Canceled), v.ctx.Err() != nil, persisted, diagnosticErr == nil)
+	}
+	if createResponse.status != http.StatusOK {
+		var problem struct {
+			Code f.Code `json:"code"`
+		}
+		_ = json.Unmarshal(createResponse.body, &problem)
+		t.Fatalf("multimodal Task create status=%d code=%s", createResponse.status, problem.Code.Safe())
+	}
+	workAppCheck(t, "multimodal-lifecycle-create-receipt", json.Unmarshal(createResponse.body, &created))
 	_, err = v.planning.transitions.TransferTask(v.ctx, v.actor, executionSchedulerAppMeta(t, &created.Task.Version), v.a, taskID, wc.TaskTransfer{TargetState: wc.TaskStateTodo, AssigneeAgentID: &agents[0], AddBlockers: []wc.TaskBlockerCreate{}, ResolveBlockerIDs: []wc.TaskBlockerID{}})
 	workAppCheck(t, "multimodal-lifecycle-assign", err)
 	var objectID string
@@ -459,8 +493,8 @@ func (g *chatMultimodalReadGate) observe(cause f.TransactionCause, result f.Comm
 		case <-v.ctx.Done():
 			return
 		}
-		// This observer runs after the real Store transaction has returned.
-		// It owns no Work/Execution/Object lock and never opens a media reader.
+		// The real Store transaction has returned, but the surrounding reader
+		// may still be handling EOF. This observer never opens a media reader.
 		select {
 		case <-hit.resume:
 		case <-g.stop:
@@ -632,8 +666,28 @@ func (r *chatMultimodalReview) call(t *testing.T, method, path, key string, inpu
 		body = workAppJSON(t, input)
 	}
 	defer clear(body)
+	started := time.Now()
 	response, err := r.app.request(r.app.ctx, method, path, body, key)
-	workAppCheck(t, "multimodal-original-http", err)
+	if err != nil {
+		elapsed := time.Since(started)
+		kind := "unclassified"
+		switch err.Error() {
+		case "original HTTP body did not return":
+			kind = "response_body"
+		case "HTTP request identity missing":
+			kind = "response_identity"
+		}
+		var networkError net.Error
+		timedOut := errors.As(err, &networkError) && networkError.Timeout()
+		diagnosticCtx, diagnosticCancel := context.WithTimeout(context.Background(), 2*time.Second)
+		var waiting, blocked int
+		diagnosticErr := r.app.store.QueryRow(diagnosticCtx, `SELECT
+ count(*) FILTER (WHERE wait_event_type='Lock'),
+ count(*) FILTER (WHERE cardinality(pg_blocking_pids(pid))>0)
+ FROM pg_stat_activity WHERE datname=current_database()`).Scan(&waiting, &blocked)
+		diagnosticCancel()
+		t.Fatalf("multimodal HTTP local failure method=%s type=%T kind=%s elapsed_ms=%d timeout=%t deadline=%t cancelled=%t app_context_done=%t db_lock_waiters=%d db_blocked=%d db_observation_known=%t", method, err, kind, elapsed.Milliseconds(), timedOut, errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled), r.app.ctx.Err() != nil, waiting, blocked, diagnosticErr == nil)
+	}
 	independentProxyNoSecret(t, response.body, r.secret)
 	if response.status != want {
 		var problem struct {

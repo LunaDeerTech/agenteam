@@ -6,9 +6,11 @@
 
 独立受控真实App已分轮通过Task/Meeting/Summary（43.13s）、inline管理API（43.75s）及MCP unsupported（54.17s）。inline覆盖媒体wire、UTF-8回答边界、同key仅一次出站、严格DTO/超限/能力拒绝和撤销admin后receipt重放403。先前上传MIME、Task必需工具回复不匹配为测试fixture失败，修后通过，不追认首次全绿。
 
-最后验证尚未收齐：Lifecycle原case发现产品将json_schema支持能力误当实际工具schema请求，三层校验已窄修、作者5项顶层检查和独立静审通过，原能力声明下的动态复验待结果；MCP supported的nullable DTO遗漏已修fixture待复验。之后才执行一次真实App环境模型PNG+DOCX混合输入。此前三次直接外部协议探针仅PNG成功，原生PDF两次400原因未知；不把这些探针或受控App结果写成外部供应商全格式支持。
+Lifecycle原case现已PASS 42.20s、App原Wait实际0，覆盖active Task附件省略保持/[]清空、冻结后继source、取消后无后续HTTP及最终reader/Model/Secret/App join。json_schema支持能力被误当实际schema请求、active Task合法更新被HTTP投影误拒的两处产品问题均已修复并验证；此前一次Task创建本地HTTP错误未复现且根因未明，保留原失败。
 
-已完成App批次均按owner清退；PG清理曾超过15秒失败，实际补清owned空网络后资源归零，原失败保留。Vue全部浏览器已关闭，自有5281核验后TERM，原launcher实际143、无进程/子进程/监听；仅删除无消费者的独占 `/tmp` 生产产物，私人浏览器profile无残留。共享依赖、正式harness、截图和失败证据保留，最后在途App仍由独立owner管理。公开服务保持b9d冻结版本与原用户数据；18443目标尚未取得公网nonce。
+最后验证仍未收齐：MCP supported已通过put/discover/acquire/consume与首model/tool，successor已授权但无provider第二次命中，权限/lease边界仍在诊断，原Wait/资源清理尚待。nullable DTO遗漏的先前fixture失败保留。真实App环境模型PNG+DOCX测试未启动。此前三次直接外部协议探针仅PNG成功，原生PDF两次400原因未知；不把这些探针或受控App结果写成外部供应商全格式支持。
+
+已完成App批次均按owner清退；PG清理曾超过15秒失败，实际补清owned空网络后资源归零，原失败保留。Vue全部浏览器已关闭，自有5281核验后TERM，原launcher实际143、无进程/子进程/监听；仅删除无消费者的独占 `/tmp` 生产产物，私人浏览器profile无残留。共享依赖、正式harness、截图和失败证据保留；MCP在途App仍由独立owner管理，未宣称其已清退。12:51:57 UTC只读终核的严格本机TLS/release/livez200、nonce与hash通过，公开服务仍为b9d且原用户数据保持；单次18443公网请求curl60/HTTP000、未取得nonce，多模态未部署。
 
 [桌面回答](https://img.lunadeer.cn/i/2026/10/17/6ad361ade9674.png)、[窄屏附件](https://img.lunadeer.cn/i/2026/10/17/6ad361ce9fdec.png)、[未知结果恢复](https://img.lunadeer.cn/i/2026/10/17/6ad361cdaa16d.png)均为合成数据，作者和独审已实看，图床匿名下载 HTTP 200 且字节一致。
 

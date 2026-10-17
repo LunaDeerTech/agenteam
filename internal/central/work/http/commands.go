@@ -6,6 +6,7 @@ import (
 	"errors"
 	"math"
 	"net/http"
+	"slices"
 	"strings"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -302,6 +303,7 @@ func (h *handler) taskCommand(r *http.Request, a id.Actor, p c.ProjectID, in int
 	var err error
 	var call func() (c.TaskMutation, error)
 	var match func(c.Task) bool
+	var allowActiveUpdate bool
 	switch name {
 	case c.TaskCommandCreate:
 		q, e := decodeRequest[c.TaskCreate](in.request)
@@ -311,7 +313,7 @@ func (h *handler) taskCommand(r *http.Request, a id.Actor, p c.ProjectID, in int
 		digest, err = c.TaskCreateDigest(a, in.meta, p, q)
 		call = func() (c.TaskMutation, error) { return h.tasks.CreateTask(ctx, a, in.meta, p, q) }
 		match = func(v c.Task) bool {
-			return v.ID == q.TaskID && v.SprintID == q.SprintID && v.Title == q.Title && v.Description == q.Description && v.Plan == q.Plan && v.Type == q.Type && v.Priority == q.Priority && v.State == q.EffectiveState() && sameAgent(v.AssigneeAgentID, q.AssigneeAgentID)
+			return v.ID == q.TaskID && v.SprintID == q.SprintID && v.Title == q.Title && v.Description == q.Description && v.Plan == q.Plan && v.Type == q.Type && v.Priority == q.Priority && v.State == q.EffectiveState() && sameAgent(v.AssigneeAgentID, q.AssigneeAgentID) && slices.Equal(v.Attachments, q.Attachments)
 		}
 	case c.TaskCommandUpdate:
 		target, e := f.ParseID[c.Task](in.target)
@@ -324,8 +326,9 @@ func (h *handler) taskCommand(r *http.Request, a id.Actor, p c.ProjectID, in int
 		}
 		digest, err = c.TaskUpdateDigest(a, in.meta, p, target, q)
 		call = func() (c.TaskMutation, error) { return h.tasks.UpdateTask(ctx, a, in.meta, p, target, q) }
+		allowActiveUpdate = (q.Title != nil || q.Attachments != nil) && q.Description == nil && q.Plan == nil && q.Type == nil && q.Priority == nil
 		match = func(v c.Task) bool {
-			return v.ID == target && (q.Title == nil || v.Title == *q.Title) && (q.Description == nil || v.Description == *q.Description) && (q.Plan == nil || v.Plan == *q.Plan) && (q.Type == nil || v.Type == *q.Type) && (q.Priority == nil || v.Priority == *q.Priority)
+			return v.ID == target && (q.Title == nil || v.Title == *q.Title) && (q.Description == nil || v.Description == *q.Description) && (q.Plan == nil || v.Plan == *q.Plan) && (q.Type == nil || v.Type == *q.Type) && (q.Priority == nil || v.Priority == *q.Priority) && (q.Attachments == nil || slices.Equal(v.Attachments, *q.Attachments))
 		}
 	case c.TaskCommandReorder:
 		target, e := f.ParseID[c.Task](in.target)
@@ -346,7 +349,9 @@ func (h *handler) taskCommand(r *http.Request, a id.Actor, p c.ProjectID, in int
 		return nil, err
 	}
 	valid := func(v c.TaskMutation) bool {
-		return v.Validate() == nil && v.Task.ProjectID == p && v.Task.State == c.TaskStateBacklog && v.Task.AssigneeAgentID == nil && match(v.Task) && validVersion(v.Task.Version, in.meta.ExpectedVersion, v.Changed)
+		planningState := v.Task.State == c.TaskStateBacklog && v.Task.AssigneeAgentID == nil ||
+			allowActiveUpdate && v.Task.State == c.TaskStateInProgress && v.Task.AssigneeAgentID != nil
+		return v.Validate() == nil && v.Task.ProjectID == p && planningState && match(v.Task) && validVersion(v.Task.Version, in.meta.ExpectedVersion, v.Changed)
 	}
 	if in.lookup {
 		v, e := h.tasks.LookupTaskCommand(ctx, a, c.TaskCommandLookupRequest{ProjectID: p, Command: name, IdempotencyKey: in.meta.IdempotencyKey, SemanticDigest: digest})

@@ -9,9 +9,11 @@ import (
 	"math"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
@@ -337,6 +339,155 @@ func TestWorkHTTPBadCommittedProjectionAbortsAndLookupRejects(t *testing.T) {
 		})
 	}
 }
+
+func TestWorkHTTPActiveTaskUpdateProjectionAndLookup(t *testing.T) {
+	attachments := []ac.ArtifactID{testID[ac.ArtifactEntity](30), testID[ac.ArtifactEntity](31)}
+	title := "updated active task"
+	for _, tc := range []struct {
+		name        string
+		request     c.TaskFieldsUpdate
+		attachments []ac.ArtifactID
+		changed     bool
+	}{
+		{"title_preserves_omitted_attachments", c.TaskFieldsUpdate{Title: &title}, attachments, true},
+		{"clear_attachments", c.TaskFieldsUpdate{Attachments: ptr([]ac.ArtifactID{})}, []ac.ArtifactID{}, true},
+		{"replace_attachments", c.TaskFieldsUpdate{Attachments: &attachments}, attachments, true},
+		{"title_and_attachments", c.TaskFieldsUpdate{Title: &title, Attachments: &attachments}, attachments, true},
+		{"unchanged_attachments", c.TaskFieldsUpdate{Attachments: &attachments}, attachments, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := commandSamples()[7]
+			s.request = tc.request
+			var mutationBody []byte
+			var mutationMeta f.CommandMeta
+			for _, lookup := range []bool{false, true} {
+				h, p := commandFixture()
+				s.prepare(p)
+				p.taskResult.Task.State = c.TaskStateInProgress
+				p.taskResult.Task.AssigneeAgentID = ptr(testID[id.Agent](32))
+				p.taskResult.Task.Attachments = slices.Clone(tc.attachments)
+				if tc.request.Title != nil {
+					p.taskResult.Task.Title = *tc.request.Title
+				}
+				if !tc.changed {
+					p.taskResult.Task.Version = *s.expected
+					p.taskResult.Changed = false
+					p.taskResult.TaskEventID = nil
+					p.taskResult.EventIDs = []event.EventID{}
+				}
+				method, path := s.method, s.path
+				if lookup {
+					method, path = "POST", s.lookupPath
+				}
+				w := newTestWriter()
+				if serveTest(h, commandRequest(method, path, sampleBody(t, s, lookup)), w) || w.Code != 200 || p.calls != 1 {
+					t.Fatalf("active update projection failed: lookup=%t status=%d", lookup, w.Code)
+				}
+				var result c.TaskMutation
+				if lookup {
+					var replay c.TaskCommandLookup
+					if err := json.Unmarshal(w.Body.Bytes(), &replay); err != nil || replay.Status != c.LookupCommitted || replay.Receipt == nil {
+						t.Fatal("invalid committed lookup", err)
+					}
+					result = *replay.Receipt
+					raw, err := json.Marshal(result)
+					if err != nil || !bytes.Equal(raw, mutationBody) {
+						t.Fatal("lookup changed the committed receipt", err)
+					}
+					want, err := c.TaskUpdateDigest(testActor(), mutationMeta, testTask().ProjectID, testTask().ID, tc.request)
+					if err != nil || p.digest != want {
+						t.Fatal("lookup changed attachment intent", err)
+					}
+				} else {
+					if err := json.Unmarshal(w.Body.Bytes(), &result); err != nil {
+						t.Fatal(err)
+					}
+					mutationBody = bytes.Clone(w.Body.Bytes())
+					mutationMeta = p.meta
+					got := p.request.(c.TaskFieldsUpdate)
+					if (got.Attachments == nil) != (tc.request.Attachments == nil) || got.Attachments != nil && !slices.Equal(*got.Attachments, *tc.request.Attachments) {
+						t.Fatal("omitted/explicit attachment intent changed")
+					}
+				}
+				if result.Task.State != c.TaskStateInProgress || result.Task.AssigneeAgentID == nil || result.Changed != tc.changed || !slices.Equal(result.Task.Attachments, tc.attachments) {
+					t.Fatal("active task receipt changed")
+				}
+			}
+		})
+	}
+}
+
+func TestWorkHTTPTaskProjectionRejectsUnsupportedStateAndAttachmentMismatch(t *testing.T) {
+	base := commandSamples()
+	title, description, plan := testTask().Title, testTask().Description, testTask().Plan
+	attachments := []ac.ArtifactID{testID[ac.ArtifactEntity](30), testID[ac.ArtifactEntity](31)}
+	agent := testID[id.Agent](32)
+	for _, tc := range []struct {
+		name    string
+		index   int
+		request any
+		edit    func(*c.TaskMutation)
+	}{
+		{"assigned_backlog", 7, c.TaskFieldsUpdate{Title: &title}, func(v *c.TaskMutation) { v.Task.State = c.TaskStateBacklog }},
+		{"todo", 7, c.TaskFieldsUpdate{Title: &title}, func(v *c.TaskMutation) { v.Task.State = c.TaskStateTodo }},
+		{"in_review", 7, c.TaskFieldsUpdate{Title: &title}, func(v *c.TaskMutation) { v.Task.State = c.TaskStateInReview }},
+		{"blocked", 7, c.TaskFieldsUpdate{Title: &title}, func(v *c.TaskMutation) { v.Task.State = c.TaskStateBlocked }},
+		{"done", 7, c.TaskFieldsUpdate{Title: &title}, func(v *c.TaskMutation) { v.Task.State = c.TaskStateDone }},
+		{"cancelled", 7, c.TaskFieldsUpdate{Title: &title}, func(v *c.TaskMutation) { v.Task.State = c.TaskStateCancelled }},
+		{"description", 7, c.TaskFieldsUpdate{Title: &title, Description: &description}, nil},
+		{"plan", 7, c.TaskFieldsUpdate{Title: &title, Plan: &plan}, nil},
+		{"type", 7, c.TaskFieldsUpdate{Title: &title, Type: ptr(c.TaskTypeTask)}, nil},
+		{"priority", 7, c.TaskFieldsUpdate{Title: &title, Priority: ptr(c.TaskPriorityMedium)}, nil},
+		{"reorder", 8, base[8].request, nil},
+		{"create_active", 6, func() c.TaskCreate {
+			q := base[6].request.(c.TaskCreate)
+			q.InitialState, q.AssigneeAgentID = c.TaskStateInProgress, &agent
+			return q
+		}(), nil},
+		{"missing_attachment", 7, c.TaskFieldsUpdate{Attachments: &attachments}, nil},
+		{"attachment_order", 7, c.TaskFieldsUpdate{Attachments: &attachments}, func(v *c.TaskMutation) { v.Task.Attachments = []ac.ArtifactID{attachments[1], attachments[0]} }},
+		{"clear_retained_attachment", 7, c.TaskFieldsUpdate{Attachments: ptr([]ac.ArtifactID{})}, func(v *c.TaskMutation) { v.Task.Attachments = attachments }},
+		{"create_attachment_mismatch", 6, func() c.TaskCreate {
+			q := base[6].request.(c.TaskCreate)
+			q.Attachments = attachments
+			return q
+		}(), func(v *c.TaskMutation) { v.Task.State, v.Task.AssigneeAgentID = c.TaskStateBacklog, nil }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := base[tc.index]
+			s.request = tc.request
+			for _, lookup := range []bool{false, true} {
+				h, p := commandFixture()
+				s.prepare(p)
+				p.taskResult.Task.State = c.TaskStateInProgress
+				p.taskResult.Task.AssigneeAgentID = &agent
+				if tc.edit != nil {
+					tc.edit(&p.taskResult)
+				}
+				if err := p.taskResult.Validate(); err != nil {
+					t.Fatal("fixture must be a valid receipt with invalid command projection", err)
+				}
+				method, path := s.method, s.path
+				if lookup {
+					method, path = "POST", s.lookupPath
+				}
+				w := newTestWriter()
+				aborted := serveTest(h, commandRequest(method, path, sampleBody(t, s, lookup)), w)
+				if p.calls != 1 {
+					t.Fatal("projection check did not reach service")
+				}
+				if lookup {
+					if aborted || w.Code != 503 {
+						t.Fatal("unsupported lookup receipt published")
+					}
+				} else if !aborted || w.Body.Len() != 0 {
+					t.Fatal("unsupported committed receipt published")
+				}
+			}
+		})
+	}
+}
+
 func TestWorkHTTPMaximumVersionNoopAndUnknown(t *testing.T) {
 	s := commandSamples()[7]
 	s.expected = ptr(f.Version(math.MaxInt64))
