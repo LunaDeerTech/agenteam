@@ -146,7 +146,7 @@ function remember(id: string) {
   font-weight: 550;
 }
 :deep(.system-list-actions) {
-  align-items: flex-start;
+  align-items: center;
 }
 @media (max-width: 480px) {
   :deep(.system-list-row) {
@@ -154,9 +154,7 @@ function remember(id: string) {
   }
   :deep(.system-list-actions) {
     max-width: 100%;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 5px;
+    flex-wrap: wrap;
   }
 }
 </style>

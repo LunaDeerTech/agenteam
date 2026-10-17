@@ -1,5 +1,7 @@
 # 当前状态：供应商列表与详情配置已完成适用验证
 
+2026-10-17 小修：供应商列表开关与“配置”按钮改为垂直居中、窄屏横向可换行；仅页面CSS。格式与作者/独立浏览器检查通过，1440×1000深色和390浅色三行中心差均0，390长名与Unknown反馈无横溢、恢复按钮可达；[新列表图](https://img.lunadeer.cn/i/2026/10/17/6ad30d2b8db8e.png)为合成数据，已实看及上传匿名字节校验。浏览器均关闭，自有5281经身份核验TERM、原launcher实际143、进程/监听/子进程清零，公开5245未动；未重跑业务/type/build/App/PG。
+
 2026-10-17，起点`90a1229b`。模型接入列表已增加“供应商列表”小标题，启用状态改为可操作开关，右侧凭据状态改为“配置”按钮。名称链接进入供应商详情默认“模型”Tab；“配置”进入`/system/models/:providerId?tab=config`，同页“配置”Tab直接编辑API端点、凭据与供应商属性，创建仍用共享modal。Provider命令版本/key/Unknown、凭据独立命令与部分成功恢复合同保持，后端API未改。
 
 proxy_copy唯一实现树为`/workspace/agenteam-provider-settings-vue`，account_backend只读核既有API边界，outbound_visual独立审查，root负责Git。Vue基础`4eafeeee`、修复`268d27eb`及后续窄屏CSS组合已通过作者两尺寸正常链；受影响8组件用例分轮与旧provider4项通过。最终逻辑type、CSS后build及限定格式/CJS语法通过。独审焦点原两case、Secret Unknown/窄屏只读及390 Unknown反馈溢出定向复验均通过；常驻配置props同步与成功提示保留亦已核。
