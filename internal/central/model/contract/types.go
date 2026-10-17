@@ -347,6 +347,20 @@ func validReasoningEfforts(values []ReasoningEffort) bool {
 	return true
 }
 
+// SupportsTextInput admits a pure-text request independently of additional
+// declared modalities. Actual message parts are still checked by the runtime.
+func (c Capabilities) SupportsTextInput() bool {
+	if !unique(c.InputModalities, "text", "image", "file") {
+		return false
+	}
+	for _, modality := range c.InputModalities {
+		if modality == "text" {
+			return true
+		}
+	}
+	return false
+}
+
 // SupportsReasoningEffort checks an explicit choice. An absent choice is not an
 // effort: callers omit the wire field and leave the provider default unchanged.
 func (c Capabilities) SupportsReasoningEffort(value string) bool {

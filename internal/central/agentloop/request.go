@@ -128,7 +128,7 @@ func directTextProfile(v ec.PreparationInputFields) bool {
 		v.Mounts.Validate() == nil && len(v.Request.Launch.Policy.AllowedResourceConstraints) == 0 &&
 		s.Identity.Profile == mc.OpenAIChatV1 && s.Identity.Protocol == mc.OpenAIChat && s.Identity.ModelType == mc.ChatModel && s.Identity.AdapterRevision == adapter.OpenAIChatTextRevision &&
 		emptyObject(s.Parameters) && emptyObject(s.RequestOverwrite) && len(s.HeaderOverwrite) == 0 &&
-		!c.ToolCalls && !c.ParallelToolCalls && onlyText(c.InputModalities) && onlyText(c.OutputModalities) &&
+		!c.ToolCalls && !c.ParallelToolCalls && c.SupportsTextInput() && onlyText(c.OutputModalities) &&
 		(len(c.StructuredOutputModes) == 0 || onlyText(c.StructuredOutputModes)) &&
 		s.CredentialRef != nil && v.Model.CredentialLease != nil && v.Model.LeaseOwner.Details().Kind == sc.ExecutionOwner
 }

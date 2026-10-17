@@ -2869,7 +2869,96 @@
           "capabilities": {
             "$ref": "#/components/schemas/Capabilities"
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "chat"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "capabilities": {
+                  "properties": {
+                    "input_modalities": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 3,
+                      "uniqueItems": true,
+                      "items": {
+                        "enum": [
+                          "text",
+                          "image",
+                          "file"
+                        ]
+                      },
+                      "contains": {
+                        "const": "text"
+                      }
+                    },
+                    "output_modalities": {
+                      "const": [
+                        "text"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "embedding"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "capabilities": {
+                  "properties": {
+                    "input_modalities": {
+                      "const": [
+                        "text"
+                      ]
+                    },
+                    "output_modalities": {
+                      "const": [
+                        "vector"
+                      ]
+                    },
+                    "tool_calls": {
+                      "const": false
+                    },
+                    "parallel_tool_calls": {
+                      "const": false
+                    },
+                    "streaming": {
+                      "const": false
+                    },
+                    "reasoning": {
+                      "const": false
+                    },
+                    "reasoning_efforts": {
+                      "maxItems": 0
+                    },
+                    "structured_output_modes": {
+                      "maxItems": 0
+                    },
+                    "max_output": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "description": "Chat requires text input and text output; optional image/file declarations do not enable media requests. Embedding is fixed text input and vector output with no chat-only capabilities or max_output. Reasoning values are protocol values; no selected value leaves the provider default unchanged."
       },
       "Provider": {
         "type": "object",

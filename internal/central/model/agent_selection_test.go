@@ -244,8 +244,6 @@ func TestAgentConfigurationSelectionRoleAndEffort(t *testing.T) {
 			switch name {
 			case "primary-choice":
 				x.request.ReasoningEffort = &choice
-			case "primary-missing":
-				want = f.CapabilityUnsupported
 			case "primary-unsupported":
 				choice = "high"
 				x.request.ReasoningEffort, want = &choice, f.CapabilityUnsupported

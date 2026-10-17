@@ -14,6 +14,7 @@ import (
 	"time"
 
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 )
 
 func requireProjectModelNative(t *testing.T) {
