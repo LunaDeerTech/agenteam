@@ -53,11 +53,7 @@ const selectedModel = shallowRef<CatalogModel>();
 const discovering = ref(false);
 const testing = ref(false);
 const deleting = ref(false);
-const deletingCredential = ref<string>();
-const detachedCredential = ref<string>();
 function providerSaved(value: Provider) {
-  if (provider.value?.input.credential_ref && !value.input.credential_ref)
-    detachedCredential.value = provider.value.input.credential_ref;
   provider.value = value;
 }
 const capabilities = shallowRef<ProtocolCapability[]>();
@@ -78,13 +74,6 @@ const headerActions = computed(() => [
       !provider.value?.input.enabled,
   },
   { id: "delete", label: "删除供应商", disabled: !editable.value },
-  {
-    id: "credential",
-    label: "删除独立凭据",
-    disabled:
-      !editable.value ||
-      !(detachedCredential.value || provider.value?.input.credential_ref),
-  },
 ]);
 function headerAction(action: string) {
   if (action === "refresh") {
@@ -94,12 +83,6 @@ function headerAction(action: string) {
     discovering.value = true;
   } else {
     selectedModel.value = undefined;
-    deletingCredential.value =
-      action === "credential"
-        ? (detachedCredential.value ??
-          provider.value?.input.credential_ref ??
-          undefined)
-        : undefined;
     deleting.value = true;
   }
 }
@@ -108,7 +91,6 @@ function modelAction(model: CatalogModel, action: string) {
   if (action === "edit") modelEditing.value = true;
   if (action === "test") testing.value = true;
   if (action === "delete") {
-    deletingCredential.value = undefined;
     deleting.value = true;
   }
 }
@@ -128,11 +110,7 @@ function rowActions(model: CatalogModel) {
   ];
 }
 function deleted() {
-  if (deletingCredential.value) {
-    deleting.value = false;
-    detachedCredential.value = undefined;
-    void load();
-  } else if (selectedModel.value) {
+  if (selectedModel.value) {
     void list.refresh();
   } else void router.push("/system/models");
 }
@@ -196,7 +174,6 @@ watch(
       deleting.value =
         false;
     selectedModel.value = undefined;
-    detachedCredential.value = undefined;
     capabilities.value = undefined;
     capabilityError.value = undefined;
     error.value = undefined;
@@ -337,7 +314,6 @@ onBeforeUnmount(() => {
         v-model:open="deleting"
         :provider="provider"
         :model="selectedModel"
-        :credential="deletingCredential"
         @deleted="deleted"
       />
     </template>

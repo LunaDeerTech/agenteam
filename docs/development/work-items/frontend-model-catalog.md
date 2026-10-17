@@ -40,7 +40,9 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 全局查询`q`可省略，trim后lowercase规范化；原始与规范化值各最多128个UTF-8字节，拒绝控制字符。它按字面子串匹配供应商名称、模型名称或provider_model_id，`%`与`_`不作为通配符。返回`{items,next_cursor}`，每个列表项新增必填`provider:{id,name,protocol,enabled,version}`安全投影，不含凭据；next_cursor为string或null。游标绑定当前用户、provider过滤及规范q，沿既有created_at/id水位排序，不承诺跨页MVCC快照；查询变化清旧cursor并退休旧读取。未新增purpose/type参数，停用或不符合当前用途的模型仍返回，由UI按既有能力规则显示不可选原因，保存时仍由后端重验。Project列表与模型详情DTO不变；本次不改迁移、鉴权或selector写入。
 
-凭据弹窗空输入表示不发替换请求，非空才创建/替换；删除为显式动作。凭据写入和Provider关联是两个独立命令：已确认的凭据不能因关联失败再创建，显示实际部分完成并只恢复未完成步骤。取消不回滚已确认写入；解除关联和删除Secret不是同一事实，不能误删被其他配置引用的凭据。Provider删除不自动级联模型或独立Secret。
+配置Tab的凭据输入留空表示不发替换请求，非空才创建/替换；输入框旁提供独立“删除凭据”按钮，移除解除关联checkbox和详情重复菜单入口。无已保存凭据、旧协议只读或有未保存/未决编辑时不可发起删除。凭据写入和Provider关联是两个独立命令：已确认的凭据不能因关联失败再创建，显示实际部分完成并只恢复未完成步骤。取消不回滚已确认写入；解除关联和删除Secret不是同一事实，不能误删被其他配置引用的凭据。Provider删除不自动级联模型或独立Secret。
+
+删除使用一次明确确认、两个独立命令：固定原credential ID，先以已保存Provider完整input和版本仅将credential_ref置null，收到匹配回执后才执行该Secret的版本化DELETE。解绑Unknown不能推进删除；删除被其他引用或lease阻挡时显示“当前供应商已不使用此凭据，凭据尚未删除”，普通关闭保留目标与继续入口，不重复已确认PUT。用户可明确结束未完成删除或确认离开；这不回绑供应商、不声称Secret已删除。Unknown保原key/body恢复，完整删除后读取失败仅GET。409显式重读，若原绑定目标改变则取消后重新发起，不能改删另一个凭据。
 
 ## 3. 用途、删除影响与恢复
 
@@ -54,7 +56,7 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 00149仅重置System用途配置及其平台引用、移除旧独立配置表，再初始化version1的未配置单例；不自动选择任一旧模型、不保留旧接口兼容。账号、SMTP、供应商/模型/凭据及业务Purpose不因此重置。本轮仅在新建隔离库验证，现有公开实例保持。
 
-模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。总结模型仅有共享平台引用，替代仍须为启用的System chat且支持`json_schema`，同事务替换该引用并推进整组版本；新调用使用新选择，已接受调用保持原snapshot。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除引用。
+模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。总结模型仅有共享平台引用，替代仍须为启用的System chat且支持`json_schema`，同事务替换该引用并推进整组版本；新调用使用新选择，已接受调用保持原snapshot。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除其他配置引用。
 
 既有配置/Secret的lookup只观察历史身份，`found/observed=true`不能证明本次body匹配，false也不证明未提交或可换key。Unknown冻结原method/path/key/body/version；用户显式恢复时必须由原Execute严格核对原材料并返回匹配receipt后才终结，不仅凭lookup显示成功。lookup可以辅助核对，不能代原Execute。Secret原材料仅留该命令owner内存，确认、放弃或身份失效后清理；不写本地存储、日志或URL。已确认receipt后的GET失败仅重读，不再次执行成功写入。409保留非秘密草稿并显式采用新版本；Secret已知未提交（not_started或not_committed）的409须清秘密输入，显式读取新凭据版本后重新填写，不能沿用Unknown的原材料恢复；权限失效清本包数据，不伪造Session注销。
 

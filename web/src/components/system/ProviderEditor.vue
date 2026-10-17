@@ -9,6 +9,7 @@ import {
 } from "vue";
 import { UiButton, UiDialog, UiInput, UiSelect } from "../ui";
 import CatalogCommandFeedback from "./CatalogCommandFeedback.vue";
+import ProviderCredentialDelete from "./ProviderCredentialDelete.vue";
 import { AccountError } from "../../account/transport";
 import { useLeaveProtection } from "../../account/leave";
 import { useSystemAccess } from "../../system/requests";
@@ -67,7 +68,7 @@ const enabled = ref(true);
 const options = ref("{}");
 const credential = ref("");
 const credentialNeedsReentry = ref(false);
-const detachCredential = ref(false);
+const deletionActive = ref(false);
 const credentialSaved = shallowRef<CredentialReceipt>();
 const credentialMetadata = shallowRef<CredentialMetadata>();
 const receipt = shallowRef<CatalogReceipt>();
@@ -89,7 +90,6 @@ const snapshot = () =>
     baseUrl.value,
     enabled.value,
     options.value,
-    detachCredential.value,
   ]);
 const dirty = computed(
   () =>
@@ -154,7 +154,6 @@ function clear() {
   saved.value = false;
   credential.value = "";
   credentialNeedsReentry.value = false;
-  detachCredential.value = false;
   credentialSaved.value = undefined;
   credentialMetadata.value = undefined;
   receipt.value = undefined;
@@ -179,7 +178,7 @@ function initialize(value = props.provider) {
   initial.value = snapshot();
 }
 async function close(force = false) {
-  if (locked.value) return;
+  if (locked.value || deletionActive.value) return;
   const ownedFocus = !!content.value?.contains(document.activeElement);
   if (!force && dirty.value) {
     discarding.value = true;
@@ -281,11 +280,10 @@ function input(): ProviderInput | undefined {
     base_url: baseUrl.value.trim(),
     enabled: enabled.value,
     options: extra as Record<string, unknown>,
-    credential_ref: detachCredential.value
-      ? null
-      : (credentialSaved.value?.credential_id ??
-        baseline.value?.input.credential_ref ??
-        null),
+    credential_ref:
+      credentialSaved.value?.credential_id ??
+      baseline.value?.input.credential_ref ??
+      null,
   };
 }
 async function writeProvider(draft: ProviderInput) {
@@ -305,6 +303,7 @@ async function writeProvider(draft: ProviderInput) {
 async function save() {
   if (
     locked.value ||
+    deletionActive.value ||
     receipt.value ||
     conflict.value ||
     secretConflict.value ||
@@ -315,7 +314,7 @@ async function save() {
   const draft = input();
   if (!draft) return;
   error.value = undefined;
-  if (detachCredential.value || !credential.value || credentialSaved.value) {
+  if (!credential.value || credentialSaved.value) {
     await writeProvider(draft);
     return;
   }
@@ -346,6 +345,17 @@ async function save() {
       credential.value = "";
     },
   );
+}
+function credentialDeleted(value: Provider) {
+  initialize(value);
+  emit("saved", value);
+}
+async function deletionClosed(deleted: boolean) {
+  if (!deleted && baseline.value?.input.credential_ref) return;
+  await nextTick();
+  content.value
+    ?.querySelector<HTMLInputElement>('input[type="password"]')
+    ?.focus({ preventScroll: true });
 }
 watch(
   () => props.open,
@@ -379,7 +389,11 @@ watch(
   },
   { flush: "sync" },
 );
-watch(locked, (value) => emit("locked-change", value), { immediate: true });
+watch(
+  [locked, deletionActive],
+  ([locked, deleting]) => emit("locked-change", locked || deleting),
+  { immediate: true },
+);
 useLeaveProtection(() => props.open && (dirty.value || locked.value));
 onBeforeUnmount(() => {
   alive = false;
@@ -439,51 +453,72 @@ onBeforeUnmount(() => {
       >
         <p v-if="saved" role="status">供应商已保存。</p>
         <fieldset :disabled="locked || readOnly">
-          <UiInput v-model="name" label="供应商名称" maxlength="128" required />
+          <UiInput
+            v-model="name"
+            label="供应商名称"
+            maxlength="128"
+            :disabled="deletionActive"
+            required
+          />
           <UiSelect
             v-model="protocol"
             label="服务类型"
             :options="protocolChoices"
-            :disabled="!!provider"
+            :disabled="!!provider || deletionActive"
           />
           <UiInput
             v-model="baseUrl"
             label="API 端点"
             placeholder="https://api.example.com/v1"
+            :disabled="deletionActive"
             required
           />
-          <UiInput
-            v-model="credential"
-            label="API 凭据（可选）"
-            type="password"
-            autocomplete="new-password"
-            :disabled="!!credentialSaved || detachCredential || secretConflict"
-            :hint="
-              secretConflict
-                ? '凭据未更新。读取最新版本后，请重新填写。'
-                : credentialNeedsReentry
-                  ? '请重新填写要替换的凭据；留空保留已保存凭据。'
-                  : baseline?.input.credential_ref
-                    ? '留空保留已保存凭据。'
-                    : '凭据仅写入，不回显。'
-            "
-          />
-          <label
-            v-if="baseline?.input.credential_ref && !credentialSaved"
-            class="catalog-check"
-            ><input
-              v-model="detachCredential"
-              type="checkbox"
-            />解除凭据关联（保留凭据）</label
-          >
+          <div class="credential-row">
+            <UiInput
+              v-model="credential"
+              label="API 凭据（可选）"
+              type="password"
+              autocomplete="new-password"
+              :disabled="!!credentialSaved || secretConflict || deletionActive"
+              :hint="
+                secretConflict
+                  ? '凭据未更新。读取最新版本后，请重新填写。'
+                  : credentialNeedsReentry
+                    ? '请重新填写要替换的凭据；留空保留已保存凭据。'
+                    : baseline?.input.credential_ref
+                      ? '留空保留已保存凭据。'
+                      : '凭据仅写入，不回显。'
+              "
+            />
+            <ProviderCredentialDelete
+              v-if="inline && baseline"
+              :provider="baseline"
+              :disabled="
+                readOnly ||
+                locked ||
+                dirty ||
+                !!receipt ||
+                !!secretWrite.error.value ||
+                !!providerWrite.error.value
+              "
+              @active="deletionActive = $event"
+              @updated="credentialDeleted"
+              @closed="deletionClosed"
+            />
+          </div>
           <label class="catalog-check"
-            ><input v-model="enabled" type="checkbox" />启用供应商</label
+            ><input
+              v-model="enabled"
+              type="checkbox"
+              :disabled="deletionActive"
+            />启用供应商</label
           >
           <details class="catalog-advanced">
             <summary>高级选项</summary>
             <label
               >供应商选项（JSON）<textarea
                 v-model="options"
+                :disabled="deletionActive"
                 spellcheck="false"
                 rows="4"
               />
@@ -535,15 +570,38 @@ onBeforeUnmount(() => {
             variant="primary"
             type="submit"
             :loading="secretWrite.busy.value || providerWrite.busy.value"
-            :disabled="locked || readOnly || conflict || secretConflict"
+            :disabled="
+              locked || deletionActive || readOnly || conflict || secretConflict
+            "
             >保存</UiButton
-          ><UiButton :disabled="locked" @click="close()">取消</UiButton>
+          ><UiButton :disabled="locked || deletionActive" @click="close()"
+            >取消</UiButton
+          >
         </div>
       </form>
     </div>
   </component>
 </template>
 <style scoped>
+.credential-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+}
+.credential-row > .credential-delete {
+  padding-top: 24px;
+}
+@media (max-width: 480px) {
+  .credential-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .credential-row > .credential-delete {
+    padding-top: 0;
+    justify-self: start;
+  }
+}
+
 .catalog-check {
   display: flex;
   align-items: center;

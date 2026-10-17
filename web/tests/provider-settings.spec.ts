@@ -387,7 +387,7 @@ describe("inline provider settings", () => {
   });
 
   describe("saved provider feedback", () => {
-    let feedbackEditor: VueWrapper;
+    let feedbackEditor: Pick<VueWrapper, "emitted">;
     beforeEach(async () => {
       wrapper!.unmount();
       wrapper = mount(
