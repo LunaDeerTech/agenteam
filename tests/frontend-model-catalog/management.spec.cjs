@@ -35,15 +35,16 @@ test("owned management discovery and test reach real TLS provider once per comma
   page,
   owned,
 }) => {
+  expect(process.env.NODE_EXTRA_CA_CERTS === owned.certificate_ca_file).toBe(
+    true,
+  );
   expect(await loginHTTP(page, owned.credentials)).toBe(200);
   const capabilities = await api(page, "/system/model-capabilities");
   expect(capabilities.status).toBe(200);
   expect(
     capabilities.value.protocols.some(
       (item) =>
-        item.protocol === "openai-compatible" &&
-        item.discovery &&
-        item.test,
+        item.protocol === "openai-compatible" && item.discovery && item.test,
     ),
   ).toBe(true);
   const credential = await api(page, "/system/model-credentials", "POST", {

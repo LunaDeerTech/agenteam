@@ -19,6 +19,7 @@ sh tests/frontend-model-catalog/run-owned.sh
 
 ```sh
 NODE_PATH=/workspace/agenteam/tests/account-captcha-web/node_modules \
+NODE_EXTRA_CA_CERTS=/absolute/private/certificate-ca.pem \
 MODEL_CATALOG_RUNTIME=/absolute/private/runtime.json \
 MODEL_CATALOG_OUTPUT=/absolute/private/browser-output \
 node /workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js \
@@ -27,12 +28,14 @@ test --config tests/frontend-model-catalog/playwright.config.cjs --list
 
 确认实际 selector 后去掉 `--list` 执行。复用已锁定 Playwright 1.56.1 与系统 Chromium，worker1、retries0，无 trace、截图、视频或默认失败 DOM。Node 先用专用 CA 和 hostname 严格验证实时 leaf/nonce；Chromium 的专属 SPKI 与实时 CDP 证书必须匹配相同 owned leaf 后才使用合成凭据。
 
+`NODE_EXTRA_CA_CERTS` 必须在启动 Node 前指向该 runtime 的 CA 文件，供 `route.fetch` 的真实响应转发使用；Chromium 的 SPKI 验证不为 Node 请求增加信任。管理与完整目录场景会校验此输入，禁止全局忽略 TLS 验证或用伪造响应绕过转发。
+
 ## 分阶段范围
 
 - `api-smoke.spec.cjs`：在浏览器的同源文档中调用真实 API，核 CRUD、凭据安全投影、原 key 回执、版本冲突、分页、用途选择和删除替换影响，以及普通身份403/缺CSRF403。它证明正式 API 接线，不代替页面控件旅程。
 - `management.spec.cjs`：须包含模型管理接线及迁移147的组合；发现和试调用到真实受控 TLS 目标，验证终态重放不重复请求、上游拒绝，以及受理完成后响应丢失再用原 key/body 恢复。响应丢失由浏览器只丢弃已经完整取得的正式响应，不替换 API 结果。
-- `catalog-ui.spec.cjs`：新 family 组合的页面旅程；同一供应商与凭据，手工模型编辑、发现后逐模型选择 chat/embedding 并导入、两个真实 adapter 测试、上游失败和 UI 显式恢复原测试请求。旧双协议组合不能执行或记作本场景通过。
-- `selection-ui.spec.cjs`：正式 API 只创建独立模型前置，用户界面完成供应商→模型选择、禁用不兼容模型、平台及会议摘要用途保存、刷新保留与焦点返回；全程不需要模型出网。
+- `catalog-ui.spec.cjs`：新 family 组合的页面旅程；同一供应商与凭据，手工模型编辑、发现后逐模型选择 chat/embedding 并导入、第一项真实提交后停止后续导入再继续、两个真实 adapter 测试、上游失败和 UI 显式恢复原测试请求。旧双协议组合不能执行或记作本场景通过。
+- `selection-ui.spec.cjs`：正式 API 只创建独立模型前置，用户界面完成供应商→模型选择、禁用不兼容模型、平台及会议摘要用途保存、刷新保留与焦点返回；删除具有两项引用的模型时先取消并验证零变化，再选择兼容替代模型，核删除与两项用途替换持久化。全程不需要模型出网。
 - 真实页面旅程在新 Vue 对应控件就绪后增量加入。发现和试调用必须经过真实受控模型 HTTP 服务；不能用浏览器全 API mock 声称实际出网成功。
 - `GET /__fixture__/provider` 要求 `X-Fixture-Nonce` 为本轮 nonce，只返回请求/认证命中/发现/聊天/向量计数，不返回认证头、正文或 Secret。CRUD 和用途选择应为零新增模型请求。断言副作用计数的测试共享一个目标，按独占写窗口运行，避免把另一场景的请求计入本场景。
 

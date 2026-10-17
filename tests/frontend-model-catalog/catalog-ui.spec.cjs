@@ -28,7 +28,10 @@ async function testModel(page, name, message) {
   const dialog = page.getByRole("dialog", { name: "测试模型", exact: true });
   await dialog.getByRole("button", { name: "开始测试", exact: true }).click();
   await expect(dialog.getByText(message, { exact: true })).toBeVisible();
-  await dialog.getByRole("button", { name: "关闭", exact: true }).click();
+  await dialog
+    .getByRole("button", { name: "关闭", exact: true })
+    .filter({ hasText: /^关闭$/ })
+    .click();
   await expect(dialog).toHaveCount(0);
 }
 
@@ -37,6 +40,9 @@ test("one real supplier configures credentials and mixed models, discovers, impo
   owned,
 }) => {
   test.setTimeout(120000);
+  expect(process.env.NODE_EXTRA_CA_CERTS === owned.certificate_ca_file).toBe(
+    true,
+  );
   expect(await loginHTTP(page, owned.credentials)).toBe(200);
   const before = await providerStats(page, owned);
   const name = `UI supplier ${randomUUID().slice(0, 8)}`;
@@ -109,16 +115,80 @@ test("one real supplier configures credentials and mixed models, discovers, impo
       .locator("details")
       .filter({ has: page.locator("summary", { hasText: id }) });
     if (!(await item.evaluate((element) => element.open)))
-      await item.locator("summary").click();
+      await item.locator(":scope > summary").click();
     await item.getByRole("combobox", { name: "模型类型", exact: true }).click();
     await page.getByRole("option", { name: label, exact: true }).click();
     await setCapabilities(item, type);
   }
-  await dialog
-    .getByRole("button", { name: "导入所选模型", exact: true })
-    .click();
+  // Hold delivery of the first *real committed* import response. Stopping the
+  // batch must preserve that item and prevent dispatch of the second item.
+  const createPath = `${owned.origin}/api/v1/system/models`;
+  let releaseImport;
+  const importGate = new Promise((resolve) => {
+    releaseImport = resolve;
+  });
+  let firstImported = false;
+  let importCalls = 0;
+  await page.route(createPath, async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    importCalls++;
+    try {
+      const response = await route.fetch();
+      await response.body();
+      if (importCalls === 1) {
+        firstImported = response.status() === 200;
+        await importGate;
+      }
+      await route.fulfill({ response });
+    } catch {
+      await route.abort("failed").catch(() => {});
+      throw new Error("OWNED_IMPORT_BOUNDARY_FORWARDING_FAILED");
+    }
+  });
+  try {
+    await dialog
+      .getByRole("button", { name: "导入所选模型", exact: true })
+      .click();
+    await expect.poll(() => firstImported).toBe(true);
+    await dialog
+      .getByRole("button", { name: "停止后续导入", exact: true })
+      .click();
+    releaseImport();
+    await expect(
+      dialog.getByText("已导入 1 / 2", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByRole("button", { name: "继续未完成项", exact: true }),
+    ).toBeVisible();
+    expect(importCalls).toBe(1);
+    const partial = await api(
+      page,
+      `/system/models?provider_id=${providerID}&limit=10`,
+    );
+    expect(partial.status).toBe(200);
+    expect(
+      partial.value.items.filter((item) =>
+        ["owned-chat", "owned-embedding"].includes(
+          item.input.provider_model_id,
+        ),
+      ).length,
+    ).toBe(1);
+    await dialog
+      .getByRole("button", { name: "继续未完成项", exact: true })
+      .click();
+    await expect(
+      dialog.getByText("已导入 2 / 2", { exact: true }),
+    ).toBeVisible();
+    expect(importCalls).toBe(2);
+  } finally {
+    releaseImport();
+    await page.unroute(createPath);
+  }
   await expect(dialog.getByText("已导入 2 / 2", { exact: true })).toBeVisible();
-  await dialog.getByRole("button", { name: "关闭", exact: true }).click();
+  await dialog
+    .getByRole("button", { name: "关闭", exact: true })
+    .filter({ hasText: /^关闭$/ })
+    .click();
   const models = await api(
     page,
     `/system/models?provider_id=${providerID}&limit=10`,
@@ -175,5 +245,8 @@ test("one real supplier configures credentials and mixed models, discovers, impo
     dialog.getByText("本次测试成功。", { exact: true }),
   ).toBeVisible();
   expect((await providerStats(page, owned)).chat).toBe(observed.chat);
-  await dialog.getByRole("button", { name: "关闭", exact: true }).click();
+  await dialog
+    .getByRole("button", { name: "关闭", exact: true })
+    .filter({ hasText: /^关闭$/ })
+    .click();
 });
