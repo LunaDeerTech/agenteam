@@ -1,4 +1,4 @@
-# 当前状态：多模态 6d8ad217 已保数据部署
+# 当前状态：6d8ad217 已部署，Embedding 维度与选择器标签开发中
 
 ## 当前部署与恢复入口
 
@@ -12,16 +12,34 @@
 
 原目标入口仍为 `https://154.12.86.233:18443`，服务保留。本轮公网 identity 与 release 各一次匿名请求均 curl60/HTTP000（证书主机名不匹配），没有取得公网 nonce/version；未放宽 TLS 或重试排障。本机 TLS/UI 通过不代公网成功，FRP 存活也不代公网归属证明。`identity.source_revision` 的 62ad 仍是历史基础设施标识，应用版本以当前 release 和实际产物为准。
 
-## 当前多模态工作索引（受控验证完成，外部混合输入未成功）
+## 当前任务：Embedding 维度与模型选择器标签
 
-以下四树从已部署的b9d开始；实现已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，源码检查点 `beb1f562` 已推送；后端候选为 `9eaf1f04`（SourceReads产品修复 `73bf1c7a`）。受控真实链和前端适用验证已完成，真实外部混合输入本轮未成功，不能写成外部模型支持已验证。root负责Git；公开服务现已按新授权切至顶部6d8冻结快照，不随主树后续开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
+本轮从 `cce339c3b94f1e2cceb21804a8189e275a73e262` 开发，只修改代码；公开预览继续使用顶部 6d8 冻结版本，不随本轮更新。root 负责协调与全部 Git；三个既有工作树已原路径切到新分支，避免重新复制，旧分支检查点仍在远端保存。
 
-| 工作树 / 分支                                                                             | Owner / 恢复输入                                                                |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`；HEAD `b7c95324`；受验输入 `9eaf1f04`                                        |
-| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers`；`db036954` 已纳入core与tests         |
-| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`；HEAD `d2ce97f9`，产品 `8e6f2bef`                            |
-| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`；HEAD `7b76a334`；受验输入 `624c2462`；编译actual0，最终序列64333已退出 |
+| 工作树                                        | 当前分支                               | Owner                                               |
+| --------------------------------------------- | -------------------------------------- | --------------------------------------------------- |
+| `/workspace/agenteam-chat-multimodal-backend` | `ai/model-dimensions-backend-20261017` | `/root/account_backend`，含同树 consumer 的唯一写域 |
+| `/workspace/agenteam-chat-multimodal-vue`     | `ai/model-dimensions-vue-20261017`     | `/root/proxy_copy`，含 picker_units                 |
+| `/workspace/agenteam-chat-multimodal-tests`   | `ai/model-dimensions-tests-20261017`   | `/root/reasoning_validation`，独立验证              |
+
+已定合同：`capabilities.embedding` 是必传键。Embedding 类型填写闭集对象 `{dimensions:"1536", dimensions_mode:"fixed"|"request"}`；维度为 1..4096 的正十进制字符串，不能省略、为 null、使用数字类型或前导零；其他三类模型该键必须为 null。`fixed` 不向上游发送 dimensions，`request` 发送同一维度的整数；两者都精确核验响应向量长度，管理测试与正式 runtime 一致。
+
+模型 profile/snapshot 是维度唯一权威，移除 `RETRIEVAL_RUNTIME.dimensions`，只保留 backend 选择。Knowledge/Memory 新空间跟随新 profile；旧空间查询使用原 snapshot/维度，并重新检查当前授权，不混入新向量。Chat 原有能力保持。选择器标签按类型→已配置容量→图像/文件能力排序；Embedding 显示类型、N维与已配 input tokens，Reranker 仅类型，Image 显示类型与“文生图”；未配置容量不编造零或无限，不猜测 batch/维度默认值。
+
+当前处于实现阶段：后端及 consumer 接线同一合同，Vue 完成维度表单与标签，reviewer 随稳定输入做定向单元及最小 current-only PG/MinIO/TLS 联调，再更新实际结果。资源预检已完成，旧 Vue `output/` 证据与 `web/node_modules` 共享链接原位保留；489 项昨日冷 Go 缓存已精确裁剪，今日热缓存、工具链、公开产物与备份保持。编译、浏览器和 fixture 临时数据使用 owner 独占 `/tmp`，复用现有工具与依赖，重 Go 编译由 root 协调；资源就绪不代表本轮产品验证通过。
+
+## 前轮多模态结果（受控验证完成，外部混合输入未成功）
+
+前轮四树从已部署的b9d开始；实现已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，源码检查点 `beb1f562` 已推送；后端候选为 `9eaf1f04`（SourceReads产品修复 `73bf1c7a`）。受控真实链和前端适用验证已完成，真实外部混合输入本轮未成功，不能写成外部模型支持已验证。root负责Git；公开服务现已按新授权切至顶部6d8冻结快照，不随主树后续开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
+
+下表仅记录前轮历史分支和已保存输入；backend、Vue、tests 三个路径现已复用为上方新分支，表内旧提交不代表当前 HEAD，consumer 树不在本轮三树之列。
+
+| 历史工作树路径 / 已保存旧分支                                                             | 历史 Owner / 已保存输入                                                                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`；已保存 `b7c95324`；受验输入 `9eaf1f04`                                        |
+| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers`；`db036954` 已纳入core与tests                                |
+| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`；已保存 `d2ce97f9`，产品 `8e6f2bef`                                                 |
+| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`；已保存 `7b76a334`；受验输入 `624c2462`；编译actual0，最终序列64333已退出 |
 
 作者定向单元与App生产构建已通过。Vue新增18项定向用例、最终类型/格式/生产打包通过；作者两尺寸及独立合成浏览器已覆盖文本/附件、格式和能力拒绝、Unknown原key/body、纯文本回答、键盘移除回焦及原生200%/reduced-motion。最后附件移除焦点问题已修复并原场景通过；首大请求单例超时、准备/回执fixture失配及ENOSPC打包失败保留原边界。截图与UI详细验证见[模型工作项](../docs/development/work-items/frontend-model-catalog.md)；浏览器使用受控API，不代表真实浏览器后端E2E。
 
