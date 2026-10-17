@@ -219,16 +219,20 @@ func prepareToolsBody(ctx context.Context, r Request) ([]byte, error) {
 		v := int64(*c.MaxOutput)
 		maxOutput = &v
 	}
+	reasoning, err := reasoningFields(r.Snapshot)
+	if err != nil {
+		return nil, err
+	}
 	body := struct {
-		Model           string             `json:"model"`
-		Messages        []toolsMessageWire `json:"messages"`
-		Stream          bool               `json:"stream"`
-		Tools           []toolWire         `json:"tools,omitempty"`
-		Choice          any                `json:"tool_choice,omitempty"`
-		Parallel        *bool              `json:"parallel_tool_calls,omitempty"`
-		MaxOutput       *int64             `json:"max_completion_tokens,omitempty"`
-		ReasoningEffort string             `json:"reasoning_effort,omitempty"`
-	}{s.ProviderModelID, messages, false, tools, choice, parallel, maxOutput, r.Snapshot.ReasoningEffort}
+		reasoningWireFields
+		Model     string             `json:"model"`
+		Messages  []toolsMessageWire `json:"messages"`
+		Stream    bool               `json:"stream"`
+		Tools     []toolWire         `json:"tools,omitempty"`
+		Choice    any                `json:"tool_choice,omitempty"`
+		Parallel  *bool              `json:"parallel_tool_calls,omitempty"`
+		MaxOutput *int64             `json:"max_completion_tokens,omitempty"`
+	}{reasoningWireFields: reasoning, Model: s.ProviderModelID, Messages: messages, Stream: false, Tools: tools, Choice: choice, Parallel: parallel, MaxOutput: maxOutput}
 	raw, err := json.Marshal(body)
 	if err != nil || len(raw) > maxTextBytes {
 		return nil, limitFailure()
