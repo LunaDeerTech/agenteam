@@ -499,12 +499,16 @@ func (v *systemHTTPFixture) rawRequest(ctx context.Context, b systemHTTPBrowser,
 func httpProviderBody(protocol mc.Protocol) map[string]any {
 	return map[string]any{"input": map[string]any{"name": "HTTP provider", "protocol": protocol, "base_url": "https://never-contacted.example/v1", "enabled": true, "credential_ref": nil, "options": map[string]any{}}}
 }
+func httpModelChoice(model string) map[string]any {
+	return map[string]any{"model_id": model, "reasoning": map[string]any{"mode": "default"}}
+}
+
 func httpModelBody(provider string, kind mc.ModelType) map[string]any {
 	outputs := []string{}
 	if kind != mc.RerankerModel {
 		outputs = append(outputs, map[mc.ModelType]string{mc.ChatModel: "text", mc.EmbeddingModel: "vector", mc.ImageModel: "image"}[kind])
 	}
-	return map[string]any{"provider_id": provider, "input": map[string]any{"name": "HTTP model", "provider_model_id": "fixture-model", "type": kind, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": kind == mc.ChatModel, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": outputs, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}
+	return map[string]any{"provider_id": provider, "input": map[string]any{"notes": "HTTP model", "provider_model_id": "fixture-model", "type": kind, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": kind == mc.ChatModel, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": outputs, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}
 }
 func (v *systemHTTPFixture) provider(t *testing.T, protocol mc.Protocol) string {
 	t.Helper()

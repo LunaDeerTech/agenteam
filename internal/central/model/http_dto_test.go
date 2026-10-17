@@ -19,7 +19,7 @@ import (
 )
 
 const httpValidProvider = `{"name":"test","protocol":"openai-chat-completions","base_url":"https://provider.example/v1","enabled":false,"credential_ref":null,"options":{}}`
-const httpValidModel = `{"name":"test","provider_model_id":"model","type":"chat","enabled":false,"parameters":{},"request_overwrite":{},"header_overwrite":{},"capabilities":{"tool_calls":false,"parallel_tool_calls":false,"streaming":true,"reasoning":false,"input_modalities":["text"],"output_modalities":["text"],"reasoning_efforts":[],"structured_output_modes":[],"context_length":"9007199254740993","max_output":null}}`
+const httpValidModel = `{"notes":"test","provider_model_id":"model","type":"chat","enabled":false,"parameters":{},"request_overwrite":{},"header_overwrite":{},"capabilities":{"tool_calls":false,"parallel_tool_calls":false,"streaming":true,"reasoning":false,"reasoning_toggle_mode":null,"input_modalities":["text"],"output_modalities":["text"],"reasoning_efforts":[],"structured_output_modes":[],"context_length":"9007199254740993","max_output":null}}`
 
 func decodeHTTP(t *testing.T, raw string, dst any) error {
 	t.Helper()

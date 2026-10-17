@@ -8,7 +8,7 @@ import (
 )
 
 func TestModelReplacementPreservesRequiredTypeAndSummaryCapability(t *testing.T) {
-	chat := mc.ModelInput{Name: "chat", ProviderModelID: "chat", Type: mc.ChatModel, Enabled: true}
+	chat := mc.ModelInput{Notes: "chat", ProviderModelID: "chat", Type: mc.ChatModel, Enabled: true}
 	requireCode(t, selectionCompatible("summary", chat, ""), f.CapabilityUnsupported)
 	chat.Capabilities.StructuredOutputModes = []string{"json_schema"}
 	if e := selectionCompatible("summary", chat, ""); e != nil {
@@ -18,7 +18,7 @@ func TestModelReplacementPreservesRequiredTypeAndSummaryCapability(t *testing.T)
 	requireCode(t, selectionCompatible("summary", chat, "high"), f.CapabilityUnsupported)
 	chat.Enabled = false
 	requireCode(t, selectionCompatible("summary", chat, ""), f.InvalidArgument)
-	selection := &selectionRecord{ID: mustID[struct{}](t).String(), Version: 4, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: mustID[mc.Model](t).String()}
+	selection := &selectionRecord{SummaryReasoning: mc.ReasoningChoice{Mode: "default"}, ID: mustID[struct{}](t).String(), Version: 4, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: mustID[mc.Model](t).String()}
 	refs := selectionReferences(selection)
 	if len(refs) != 2 || refs[0].Role != "embedding" || refs[1].Role != "summary" || refs[0].Version != 4 || refs[1].Owner != selection.ID {
 		t.Fatal("canonical reference shape changed")

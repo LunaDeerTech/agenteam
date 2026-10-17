@@ -97,7 +97,7 @@ func TestModelPlatformEmbeddingResolutionAtomicity(t *testing.T) {
 					t.Fatal(e)
 				}
 				choice := state.Configured.Clone()
-				choice.Embedding = withoutRef.ID
+				choice.Embedding = mc.DefaultModelChoice(withoutRef.ID)
 				request := mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: choice}
 				key, e := f.SystemConfigLock("model-platform-selection")
 				if e != nil {

@@ -294,7 +294,7 @@ func (v *agentCreateFixture) createModel(t *testing.T, process fixtureProcess) m
 	if err != nil {
 		t.Fatal(err)
 	}
-	result, err := models.CreateModel(ctxFor(t), mc.CreateModelRequest{CommandMeta: command(), ProviderID: pid, Input: mc.ModelInput{Name: "agent-create-chat", ProviderModelID: "agent-create-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}})
+	result, err := models.CreateModel(ctxFor(t), mc.CreateModelRequest{CommandMeta: command(), ProviderID: pid, Input: mc.ModelInput{Notes: "agent-create-chat", ProviderModelID: "agent-create-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}})
 	if err != nil {
 		t.Fatal("formal Model create", err)
 	}

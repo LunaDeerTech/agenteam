@@ -30,7 +30,7 @@ func TestSystemModelSearchAcrossProviders(t *testing.T) {
 	}
 	createModel := func(provider mc.ProviderView, name, remote string) mc.ModelID {
 		t.Helper()
-		r, err := v.service.CreateModel(testContext(t), mc.CreateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ProviderID: provider.ID, Input: mc.ModelInput{Name: name, ProviderModelID: remote, Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`)}})
+		r, err := v.service.CreateModel(testContext(t), mc.CreateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ProviderID: provider.ID, Input: mc.ModelInput{Notes: name, ProviderModelID: remote, Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`)}})
 		if err != nil {
 			t.Fatal("model setup", err)
 		}
@@ -107,7 +107,7 @@ func TestSystemModelSearchAcrossProviders(t *testing.T) {
 	if err != nil {
 		t.Fatal("foreign provider fixture", err)
 	}
-	_, err = v.raw.Exec(testContext(t), `INSERT INTO agenteam_model.models(id,provider_id,type,name,provider_model_id,parameters,request_overwrite,header_overwrite,capabilities,enabled,version,created_at,updated_at) VALUES($1,$2,'chat','Foreign Needle','foreign','{}','{}','{}','{}',true,1,clock_timestamp(),clock_timestamp())`, foreignModel.String(), foreign.String())
+	_, err = v.raw.Exec(testContext(t), `INSERT INTO agenteam_model.models(id,provider_id,type,notes,provider_model_id,parameters,request_overwrite,header_overwrite,capabilities,enabled,version,created_at,updated_at) VALUES($1,$2,'chat','Foreign Needle','foreign','{}','{}','{}','{}',true,1,clock_timestamp(),clock_timestamp())`, foreignModel.String(), foreign.String())
 	if err != nil {
 		t.Fatal("foreign model fixture", err)
 	}

@@ -17,7 +17,7 @@ func TestModelPolicyDoesNotClaimUnverifiedNativeSchemas(t *testing.T) {
 		p.Options = json.RawMessage(`{"unverified_native":true}`)
 		requireCode(t, providerPolicy(p), f.CapabilityUnsupported)
 	}
-	m := mc.ModelInput{Name: "metadata", ProviderModelID: "provider-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"json_schema"}}}
+	m := mc.ModelInput{Notes: "metadata", ProviderModelID: "provider-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"json_schema"}}}
 	if e := modelPolicy(m, mc.OpenAIChat); e != nil {
 		t.Fatal(e)
 	}

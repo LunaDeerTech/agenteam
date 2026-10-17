@@ -92,7 +92,7 @@ func meetingSummarySettingsRequest(t *testing.T, v *systemHTTPFixture, b systemH
 	return r
 }
 func meetingSummarySettingsBody(r mc.UpdatePlatformSelectionRequest) map[string]any {
-	return map[string]any{"id": r.Selection.ID, "expected_version": r.ExpectedVersion.String(), "embedding": r.Selection.Embedding.String(), "summary": r.Selection.Summary.String(), "reranker": r.Selection.Reranker, "image": r.Selection.Image}
+	return map[string]any{"id": r.Selection.ID, "expected_version": r.ExpectedVersion.String(), "embedding": r.Selection.Embedding, "summary": r.Selection.Summary, "reranker": r.Selection.Reranker, "image": r.Selection.Image}
 }
 func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemHTTPResponse, captured ...mc.UpdatePlatformSelectionRequest) {
 	t.Helper()

@@ -76,17 +76,17 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 			want := f.NotFound
 			switch mode {
 			case "missing":
-				request.Selection.Summary = newID[mc.Model](t)
+				request.Selection.Summary.ModelID = newID[mc.Model](t)
 			case "nonchat":
 				raw := v.model(t, v.provider(t, mc.OpenAIEmbeddings), mc.EmbeddingModel)
-				request.Selection.Summary, _ = f.ParseID[mc.Model](raw)
+				request.Selection.Summary.ModelID, _ = f.ParseID[mc.Model](raw)
 				want = f.InvalidArgument
 			case "plain-text-only":
-				request.Selection.Summary = v.chat(t, false)
+				request.Selection.Summary.ModelID = v.chat(t, false)
 				want = f.CapabilityUnsupported
 			case "disabled-model":
-				request.Selection.Summary = v.chat(t, true)
-				view, e := v.service.GetModel(testContext(t), v.admin, request.Selection.Summary)
+				request.Selection.Summary.ModelID = v.chat(t, true)
+				view, e := v.service.GetModel(testContext(t), v.admin, request.Selection.Summary.ModelID)
 				if e != nil {
 					t.Fatal(e)
 				}
@@ -97,8 +97,8 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 				}
 				want = f.InvalidArgument
 			case "disabled-provider":
-				request.Selection.Summary = v.chat(t, true)
-				view, e := v.service.GetModel(testContext(t), v.admin, request.Selection.Summary)
+				request.Selection.Summary.ModelID = v.chat(t, true)
+				view, e := v.service.GetModel(testContext(t), v.admin, request.Selection.Summary.ModelID)
 				if e != nil {
 					t.Fatal(e)
 				}

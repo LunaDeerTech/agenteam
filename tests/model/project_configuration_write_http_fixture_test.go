@@ -77,7 +77,7 @@ func configurationProviderBody(ref any) map[string]any {
 	return map[string]any{"name": "HTTP Project provider", "protocol": "openai-chat-completions", "base_url": "https://configuration.example/v1", "enabled": true, "credential_ref": ref, "options": map[string]any{}}
 }
 func configurationModelBody() map[string]any {
-	return map[string]any{"name": "HTTP Project chat", "provider_model_id": "configuration-chat", "type": "chat", "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]any{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}
+	return map[string]any{"notes": "HTTP Project chat", "provider_model_id": "configuration-chat", "type": "chat", "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]any{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}
 }
 func configurationWriteReceipt(t *testing.T, r systemHTTPResponse, kind string) mc.CommandReceipt {
 	t.Helper()

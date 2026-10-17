@@ -43,7 +43,7 @@ func TestModelCapabilityReasoningReviewSnapshotWire(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			input := mc.ModelInput{Name: "Reasoning review model", ProviderModelID: "reasoning-review-chat", Type: mc.ChatModel,
+			input := mc.ModelInput{Notes: "Reasoning review model", ProviderModelID: "reasoning-review-chat", Type: mc.ChatModel,
 				Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`),
 				Capabilities: mc.Capabilities{Reasoning: true, InputModalities: []string{"text", "image", "file"}, OutputModalities: []string{"text"}},
 			}

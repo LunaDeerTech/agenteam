@@ -83,6 +83,7 @@ func newEmbeddingProfileFixture(t *testing.T) *embeddingProfileFixture {
 				*out[0].(*string), *out[1].(*f.Version), *out[2].(*bool) = x.selection, 1, true
 				selected := x.model.String()
 				*out[3].(**string) = &selected
+				*out[7].(*[]byte) = []byte(`{"mode":"default"}`)
 				for n := 4; n < 7; n++ {
 					*out[n].(**string) = nil
 				}

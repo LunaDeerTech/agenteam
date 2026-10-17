@@ -133,6 +133,11 @@ func (s *managementStore) QueryRow(_ context.Context, q string, args ...any) pos
 					*dst[i+3].(**string) = &v
 				}
 			}
+			reasoning, err := json.Marshal(r.SummaryReasoning)
+			if err != nil {
+				return err
+			}
+			*dst[7].(*[]byte) = reasoning
 		case strings.Contains(q, "LIMIT 5"):
 			if strings.Contains(q, "owner_id=$") || len(args) != 0 {
 				s.t.Fatal("platform query failed to cover extra owners")
@@ -160,7 +165,7 @@ func managementFixture(t *testing.T) (*Service, *managementStore, id.Actor, mc.M
 	t.Helper()
 	actor := testActor(t)
 	key := mustID[mc.Model](t)
-	store := &managementStore{t: t, actor: actor, model: key, version: 9007199254740993, selection: selectionRecord{ID: mustID[struct{}](t).String(), Version: 1}, platform: []referenceRecord{}}
+	store := &managementStore{t: t, actor: actor, model: key, version: 9007199254740993, selection: selectionRecord{SummaryReasoning: mc.ReasoningChoice{Mode: "default"}, ID: mustID[struct{}](t).String(), Version: 1}, platform: []referenceRecord{}}
 	a, err := NewAuthority(store, Authorizations{Sessions: sessionFunc(func(_ context.Context, tx f.Tx, a id.Actor) error {
 		store.sessions++
 		if tx != store.tx || !a.Equal(actor) || store.held < 1 {
@@ -362,10 +367,10 @@ func TestModelManagementAuthorityAndResults(t *testing.T) {
 func TestModelManagementSingleOwnerFourEdgesAndSentinel(t *testing.T) {
 	for _, extra := range []bool{false, true} {
 		s, store, actor, key := managementFixture(t)
-		store.selection = selectionRecord{ID: mustID[struct{}](t).String(), Version: 3, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: key.String(), Image: mustID[mc.Model](t).String(), Reranker: mustID[mc.Model](t).String()}
+		store.selection = selectionRecord{SummaryReasoning: mc.ReasoningChoice{Mode: "default"}, ID: mustID[struct{}](t).String(), Version: 3, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: key.String(), Image: mustID[mc.Model](t).String(), Reranker: mustID[mc.Model](t).String()}
 		store.platform = selectionReferences(&store.selection)
 		if extra {
-			store.platform = append(store.platform, referenceRecord{Kind: "platform_selector", Owner: mustID[struct{}](t).String(), Role: "summary", Model: key.String(), Version: 1})
+			store.platform = append(store.platform, referenceRecord{ReasoningMode: "default", Kind: "platform_selector", Owner: mustID[struct{}](t).String(), Role: "summary", Model: key.String(), Version: 1})
 		}
 		sort.Slice(store.platform, func(i, j int) bool {
 			if store.platform[i].Owner != store.platform[j].Owner {

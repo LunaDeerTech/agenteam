@@ -51,7 +51,7 @@ func TestModelProjectAvailableDTOContainsOnlySelectionFields(t *testing.T) {
 	scope, _ := id.InProject(mustID[id.Project](t))
 	count := mc.TokenCount(123)
 	caps := mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text"}, Reasoning: true, ReasoningEfforts: []mc.ReasoningEffort{{Name: "medium", Value: "medium"}}, ContextLength: &count, MaxOutput: &count}
-	v := AvailableChatModel{ID: mustID[mc.Model](t), ProviderID: mustID[mc.Provider](t), Scope: scope, Name: "public model", ProviderName: "public provider", Version: 1, Capabilities: caps.Clone()}
+	v := AvailableChatModel{ID: mustID[mc.Model](t), ProviderID: mustID[mc.Provider](t), Scope: scope, Notes: "public model", ProviderModelID: "public-model", ProviderName: "public provider", Version: 1, Capabilities: caps.Clone()}
 	caps.InputModalities[0] = "image"
 	caps.OutputModalities[0] = "image"
 	caps.StructuredOutputModes[0] = "json_schema"
@@ -68,7 +68,7 @@ func TestModelProjectAvailableDTOContainsOnlySelectionFields(t *testing.T) {
 	if err = json.Unmarshal(raw, &fields); err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"id", "provider_id", "scope", "name", "provider_name", "version", "capabilities"}
+	want := []string{"id", "provider_id", "scope", "notes", "provider_model_id", "provider_name", "version", "capabilities"}
 	if len(fields) != len(want) || reflect.TypeOf(v).NumField() != len(want) {
 		t.Fatal("configuration fields escaped safe DTO")
 	}

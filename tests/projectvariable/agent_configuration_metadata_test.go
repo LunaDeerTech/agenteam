@@ -118,7 +118,7 @@ func (v *agentMetadataFixture) createModel(t *testing.T, system bool) mc.ModelVi
 	if err != nil {
 		t.Fatal(err)
 	}
-	created, err := v.models.CreateModel(ctxFor(t), mc.CreateModelRequest{CommandMeta: meta(), ProviderID: pid, Input: mc.ModelInput{Name: "metadata-chat", ProviderModelID: "metadata-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}})
+	created, err := v.models.CreateModel(ctxFor(t), mc.CreateModelRequest{CommandMeta: meta(), ProviderID: pid, Input: mc.ModelInput{Notes: "metadata-chat", ProviderModelID: "metadata-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}})
 	if err != nil {
 		t.Fatal("formal Model create", err)
 	}

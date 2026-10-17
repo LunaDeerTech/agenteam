@@ -55,7 +55,7 @@ func managementSelection(t *testing.T, v *systemHTTPFixture) map[string]any {
 	body := httpModelBody(v.provider(t, mc.OpenAIChat), mc.ChatModel)
 	body["input"].(map[string]any)["capabilities"].(map[string]any)["structured_output_modes"] = []string{"text", "json_schema"}
 	memory := v.request(t, v.adminBrowser, "POST", "/api/v1/system/models", newID[struct{}](t).String(), body).want(t, 200).object(t)["resource_id"].(string)
-	change := map[string]any{"id": selection["id"], "expected_version": selection["version"], "embedding": embed, "summary": memory, "reranker": v.model(t, v.provider(t, mc.JinaRerank), mc.RerankerModel), "image": v.model(t, v.provider(t, mc.OpenAIImages), mc.ImageModel)}
+	change := map[string]any{"id": selection["id"], "expected_version": selection["version"], "embedding": httpModelChoice(embed), "summary": httpModelChoice(memory), "reranker": httpModelChoice(v.model(t, v.provider(t, mc.JinaRerank), mc.RerankerModel)), "image": httpModelChoice(v.model(t, v.provider(t, mc.OpenAIImages), mc.ImageModel))}
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).want(t, 200)
 	change["expected_version"] = "2"
 	return change
@@ -78,7 +78,7 @@ func TestSystemModelManagementDeletionImpact(t *testing.T) {
 	t.Run("required-optional-and-seven-groups", func(t *testing.T) {
 		seen := map[string]bool{}
 		for _, role := range []string{"embedding", "summary", "reranker", "image"} {
-			out := managementImpact(t, v, selection[role].(string))
+			out := managementImpact(t, v, selection[role].(map[string]any)["model_id"].(string))
 			requirement := model.ModelReplacementRequirement("optional")
 			if role == "embedding" || role == "summary" {
 				requirement = "required"
@@ -89,7 +89,7 @@ func TestSystemModelManagementDeletionImpact(t *testing.T) {
 			seen[out.ReferenceGroups[0].OwnerKind+"/"+role] = true
 		}
 		owner, project := newID[struct{}](t).String(), newID[id.Project](t).String()
-		memory := selection["summary"].(string)
+		memory := selection["summary"].(map[string]any)["model_id"].(string)
 		// Only the Model-owned index is a fixture; no foreign adapter is bound.
 		managementSQL(t, v, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version) VALUES('agent',$1,'agent_model',$2,$3,1),('agent',$1,'approval_model',$2,$3,1),('project_summary',$2,'meeting_summary',$2,$3,1)`, owner, project, memory)
 		out := managementImpact(t, v, memory)
@@ -116,7 +116,7 @@ func TestSystemModelManagementDeletionImpact(t *testing.T) {
 			t.Run(kind, func(t *testing.T) {
 				owner := selection["id"].(string)
 				other := newID[struct{}](t).String()
-				embed := selection["embedding"].(string)
+				embed := selection["embedding"].(map[string]any)["model_id"].(string)
 				switch kind {
 				case "missing-index":
 					managementSQL(t, v, `DELETE FROM agenteam_model.references WHERE owner_kind='platform_selector' AND role='embedding'`)
@@ -132,7 +132,7 @@ func TestSystemModelManagementDeletionImpact(t *testing.T) {
 					defer managementSQL(t, v, `DELETE FROM agenteam_model.references WHERE owner_kind='platform_selector' AND owner_id=$1`, other)
 				case "missing-singleton":
 					managementSQL(t, v, `DELETE FROM agenteam_model.platform_selection`)
-					defer managementSQL(t, v, `INSERT INTO agenteam_model.platform_selection(id,singleton,version,configured,embedding_id,summary_id,reranker_id,image_id,updated_at) VALUES($1,true,2,true,$2,$3,$4,$5,clock_timestamp())`, owner, embed, selection["summary"], selection["reranker"], selection["image"])
+					defer managementSQL(t, v, `INSERT INTO agenteam_model.platform_selection(id,singleton,version,configured,embedding_id,summary_id,reranker_id,image_id,updated_at) VALUES($1,true,2,true,$2,$3,$4,$5,clock_timestamp())`, owner, embed, selection["summary"].(map[string]any)["model_id"], selection["reranker"].(map[string]any)["model_id"], selection["image"].(map[string]any)["model_id"])
 				}
 				v.request(t, v.adminBrowser, "GET", "/api/v1/system/models/"+unused+"/deletion-impact", "", nil).problem(t, 503, f.DependencyUnavailable)
 			})

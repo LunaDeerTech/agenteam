@@ -72,7 +72,7 @@ func TestModelMeetingSummaryExistingHTTP(t *testing.T) {
 		t.Fatal("cross-admin receipt leak")
 	}
 	current := meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "GET", meetingSummarySettingsPath, "", nil).want(t, 200).object(t)
-	if len(current) != 3 || current["id"] != request.Selection.ID || current["configured"].(map[string]any)["summary"] != old.String() {
+	if len(current) != 3 || current["id"] != request.Selection.ID || current["configured"].(map[string]any)["summary"].(map[string]any)["model_id"] != old.String() {
 		t.Fatal("shared Summary projection")
 	}
 	for _, method := range []string{"GET", "PUT"} {
@@ -88,7 +88,7 @@ func TestModelMeetingSummaryExistingHTTP(t *testing.T) {
 		t.Fatal("HTTP delete omitted Summary reference")
 	}
 	s := v.summary(t)
-	if s.Configured == nil || s.Configured.Summary != next {
+	if s.Configured == nil || s.Configured.Summary.ModelID != next {
 		t.Fatal("old HTTP did not replace Summary canonical")
 	}
 }
