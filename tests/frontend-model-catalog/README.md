@@ -42,6 +42,28 @@ test --config tests/frontend-model-catalog/playwright.config.cjs --list
 
 模型目标解析只允许 `models.fixture.test` 和本轮 SMTP sink；正式出站规则只授权模型 loopback 的单个随机端口，产品鉴权和策略判断仍执行。fixture 不是公网服务，也不提供通用代理。
 
+## 统一总结模型的限定运行
+
+先按上文导出 `NODE_PATH`、`NODE_EXTRA_CA_CERTS`、`MODEL_CATALOG_RUNTIME` 和本轮私有 `MODEL_CATALOG_OUTPUT`，在已就绪的新组合中依次执行：
+
+```sh
+node /workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-model-catalog/playwright.config.cjs api-smoke.spec.cjs --grep 'owned production catalog'
+node /workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-model-catalog/playwright.config.cjs selection-ui.spec.cjs
+node /workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-model-catalog/playwright.config.cjs catalog-ui.spec.cjs
+```
+
+API/UI 全部结束后，[独立并发检查](summary-security.cjs) 使用已经有效配置的同一 owned 实例，独占 API 写入窗口：
+
+```sh
+NODE_PATH=/workspace/agenteam/tests/account-captcha-web/node_modules \
+MODEL_CATALOG_RUNTIME=/absolute/private/runtime.json \
+SUMMARY_SECURITY_RUN=1 node tests/frontend-model-catalog/summary-security.cjs
+```
+
+该检查验证同版本并发只有一个提交、原 key 异 body 拒绝与注销后重放拒绝。收尾使用合法的新版本恢复原配置内容，删除自己的模型副本并退出两个 Session；不把配置内容恢复称为版本回滚。实际执行证据由独立 owner 记录，不与页面测试混称。
+
+2026-10-17 的实际组合为 App/fixture `5edd81b1` 与 Vue `0852da63`：三条原 CLI 分别 exit0，1 case 通过，耗时 36.2s、11.4s、20.3s。每条都经过严格 CA/leaf/nonce、真实登录及退出204→401、浏览器关闭。这里是新库 schema149 的 API/UI 证据；旧配置重置、Memory/Meeting 两消费者、持久 Commit Unknown 与独立并发门由对应 PG/App/安全检查分别报告，不由这三条替代。未部署公网，未使用用户数据或真实外部模型服务。
+
 ## 收尾
 
 创建本轮私有目录中的 `stop`，或只向实际登记的 launcher 发 SIGTERM。launcher 等原测试链实际退出；fixture 先 join App/TLS/provider，再由正式 helper 回收精确 nonce 容器、网络与目录。记录原 wait/exit 和实际资源退出，不能以终止信号替代完成。

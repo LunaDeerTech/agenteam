@@ -131,12 +131,20 @@ func testKeys(t *testing.T) (account.Keyring, cursor.Keyring, secret.Keyring) {
 func newDatabase(t *testing.T) *pgfixture.Database {
 	t.Helper()
 	db := pgfixture.NewDatabase(t)
-	m, e := postgres.NewMigrator(db.Config(t, nil))
+	cfg := db.Config(t, nil)
+	m, e := postgres.NewMigrator(cfg)
 	if e != nil {
 		t.Fatal(e)
 	}
-	if r := m.Migrate(testContext(t)); !r.Migrated {
-		t.Fatal("continuous approved migration required", r.Fault)
+	// Full schema startup owns the configured startup budget. Individual Model
+	// operations retain the separate, shorter testContext deadline.
+	migrationCtx, cancel := context.WithTimeout(context.Background(), cfg.StartupTimeout())
+	started := time.Now()
+	result := m.Migrate(migrationCtx)
+	contextErr := migrationCtx.Err()
+	cancel()
+	if !result.Migrated {
+		t.Fatalf("continuous approved migration required code=%s sql_state=%s elapsed=%s context=%v", result.Fault.Code(), result.Fault.SQLState(), time.Since(started), contextErr)
 	}
 	conn := db.Connect(t)
 	var installed bool

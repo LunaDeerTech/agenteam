@@ -1,6 +1,6 @@
 # 新 Vue 模型接入与平台模型用途
 
-状态：2026-10-17 原包起点 `97ac04e3`；当前从 `0c182e08` 实施统一总结模型。记忆与会议共用真实单配置，四用途整组保存；此前五用途、两资源的页面调整及验证保留为历史，不替代本次验证。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 原包起点 `97ac04e3`；从 `0c182e08` 开始的统一总结模型已实现并完成本轮适用验证。记忆与会议共用真实单配置，四用途整组保存；此前五用途、两资源的页面调整及验证保留为历史，不替代本次验证。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -70,11 +70,18 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-统一总结模型当前集成`846fe701`（backend `b87ed09b`、Vue `0852da63`、harness `5edd81b1`），仍待动态接受：
+统一总结模型产品集成`846fe701`（backend `b87ed09b`、Vue `0852da63`、harness `5edd81b1`），后续产品输入未变，适用验证已收口：
 
 - 作者contract、Model分轮及Memory/Meeting单测通过，tests/model integration编译通过；源码静审缺口与00149 summary CHECK独立复核已关闭。原route测试、schema环境与既有media fixture失配保留，修后仅按受影响结果记录，不称首次全绿。
 - Vue受影响18项单测分轮通过、type/build通过；导入结果裸模型ID的P2已改用共享斜杠名称，局部type及原受控case复验通过。有限独审覆盖四用途单GET/PUT、Unknown、390长ID及焦点；这些使用受控输入，不代真实API或数据库验证。
-- 真实API/UI、作者PG与Memory→Meeting实际共用选择、独立CAS探针尚待；runtime唯一App编译/运行与后端自有测试fixture分别推进，资源未报告清退前不写已完成。
+- 真实API与两条Vue链通过单summary的id/version/receipt、同key重放不递增、旧memory字段400、旧meeting-summary GET/PUT 404及唯一共享引用替换。用途页四项单PUT/版本加1、刷新后斜杠名称、无`json_schema`候选不可选及取消/替代删除通过；目录受影响的引用、发现导入、两adapter测试、失败与原key恢复通过。浏览器均finally logout204→401并关闭。
+- 独立两Session并发保存只有一成功、另一RESOURCE_BUSY，版本只加1；不同body复用key409、撤销Session401及用合法新版本恢复原配置通过。此为本轮独立并发/权限门，不扩大为所有模型消费者全矩阵。
+- 作者真实PG验证五个业务Purpose共用模型/版本、单引用替换及Audit/Event回滚、CAS/Origin/CSRF/同事务Session、schema与旧接口拒绝；MemoryOrigin初次迁移准备超时，test-only启动预算从20秒对齐正式30秒后精确重验通过，不倒推原失败原因。Unknown committed/rollback通过，正则额外选中的different-after-rollback也通过，单列为额外执行范围。
+- App MemoryTools真实retain/recall/reflect→Meeting摘要共11次调用，均退役并释放租约。Cold首次停于DATABASE_HEALTH_FAILED、未进入业务且原因未明；同binary/输入/预算在其它隔离运行清退后唯一复验通过。实际kill/Wait后保留summary current_source/binding及未发布版本，不重新Resolve/dispatch或伪造输出，owner取消并完成join；不称自动恢复生成成功。
+
+上述为分轮、限定范围的实际结果，不称首次全绿或全仓全量通过；只验新建owned数据库，不承诺含旧绑定数据的原样升级。既有Project未绑定端口、旧协议STOP和外部服务范围不变。
+
+本轮runtime原链exit0，App退出并join；4容器、4网络、4专属目录均确认不存在，5282/5283无监听。作者PG/Cold专属资源亦精确清净；Vue5281 TERM后原链exit143且端口释放，仅unlink自有依赖链接。最后App测试二进制经SHA和无消费者核对后删除，必要私有材料留存，不入Git。用户公开服务、数据及外部SMTP均未操作。
 
 两张当前示例图已实看、上传200并匿名下载核对字节：[四用途页面](https://img.lunadeer.cn/i/2026/10/17/6ad2ed1e4c216.png)、[模型选择器](https://img.lunadeer.cn/i/2026/10/17/6ad2ed1e40ef9.png)。仅用于页面交付，不代表公网部署；用户公开实例保持。
 

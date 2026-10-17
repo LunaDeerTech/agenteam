@@ -1,12 +1,12 @@
-# 当前状态：统一总结模型实施中
+# 当前状态：统一总结模型已完成适用验证
 
 2026-10-17，起点`0c182e08`。用户已确认Memory与Meeting共用一个“总结模型”，平台用途改为向量/总结/重排/图像四项；唯一`/system/model-selection`资源按一id/version/回执原子保存，summary须为启用的System chat且支持`json_schema`。两业务消费者统一`SummarySelector='summary'`，业务Purpose保持；删除旧memory字段与System独立meeting-summary配置/API，00149仅重建用途配置，不迁旧值。Project未绑定预留契约不扩展。模型显示改为“供应商名称/模型ID”，保留页头“重新获取”和单保存。
 
-主树`846fe701`已集成backend `b87ed09b`、Vue `0852da63`和harness `5edd81b1`；共同合同先存于`0537`。接续工作树分别为`/workspace/agenteam-summary-backend`（account_backend）、`/workspace/agenteam-summary-vue`（proxy_copy）和`/workspace/agenteam-summary-tests`（runtime）；security与visual独立审查。当前任务见[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。用户仍只要新增截图、不部署公网；现有公开版本、账号/SMTP/密钥与数据保持，外部邮件暂停。
+主树`846fe701`已集成backend `b87ed09b`、Vue `0852da63`和harness `5edd81b1`，产品输入随后未变。对应工作树为`/workspace/agenteam-summary-backend`（account_backend）、`/workspace/agenteam-summary-vue`（proxy_copy）和`/workspace/agenteam-summary-tests`（runtime）；security与visual独立审查。完整结果见[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。用户仍只要新增截图、不部署公网；现有公开版本、账号/SMTP/密钥与数据保持，外部邮件暂停。
 
-已核本轮限定结果：作者contract、Model分轮及Memory/Meeting单测通过，tests/model integration编译通过；源码静审未结缺口已关闭，00149 summary CHECK已独立复核。Vue受影响18项单测分轮通过，type/build通过；发现导入结果漏用斜杠名称的P2已局部修复，补type与原受控case复验通过。有限视觉已覆盖单GET/PUT、Unknown、390长ID与回焦，两张示例图已实看、上传及匿名核对。原route测试、schema环境及既有media fixture失配保留修前事实，不称首次全绿；受控UI和静审不代真实后端接受。
+本轮适用门已收齐：真实API与用途/目录UI通过单summary保存、同key恢复、旧接口拒绝、共享引用替换、四用途单PUT及斜杠名称；独立并发两Session仅一成功、另一RESOURCE_BUSY，版本只加1，异body复用key409及撤销Session401通过。作者PG、Unknown提交/回滚、真实Memory→Meeting共用模型及Cold定向复验通过。Cold只证明既定中断状态、无重复解析/dispatch和取消收尾，不代表自动恢复生成。Vue18项受影响单测分轮、type/build、有限视觉与名称漏项修复复验通过；两张1440深色示例图已上传并匿名核对。
 
-尚待真实API/UI、作者PG与真实Memory→Meeting消费、独立CAS探针及owned资源清退。runtime负责唯一App编译/运行，后端测试子包使用自有fixture，未取得动态终态前不标整包完成；精确结果和截图见工作项。下方旧检查均保留原输入，不作为本轮通过事实。
+首次route/schema环境/media fixture失配、MemoryOrigin迁移准备超时及Cold启动健康失败均保留；后两项定向通过不倒推初次原因，不称全仓或首次整轮全绿。所有本轮隔离运行已清退：runtime原链exit0，专属容器/网络/目录清零，5282/5283无监听；Vue5281原链TERM退出143，仅解除自有依赖链接；测试二进制按SHA与消费者核对后删除，私有安全材料保留。最后测试/独审说明由root集成，不再启动旧fixture；下方历史检查仍保持其原输入。
 
 ## 前轮模型页面结果
 
@@ -164,7 +164,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-下一步由各owner完成隔离新库的真实API/UI、Memory→Meeting共用选择及引用替换、独立CAS门，再精确清理owned资源；root收齐动态终态后保存最终记录并交截图。当前编译、单测与受控页面结果不替代这些待验项。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
+统一总结模型的实现、适用验证、截图与隔离资源清退已齐，由root集成最后测试/独审说明及本批文档后交付。后续若需继续隔离验证，应由owner重建专属环境，不能复用已退出的端口或runtime。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 
