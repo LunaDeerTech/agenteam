@@ -105,7 +105,7 @@ func ModelMetadata(action Action, value ModelMetadataFields) (Metadata, error) {
 				return Metadata{}, invalid("changed_fields")
 			}
 			provider := field == "name" || field == "enabled" || field == "base_url" || field == "credential_ref" || field == "provider_options"
-			model := field == "name" || field == "enabled" || field == "model_id" || field == "parameters" || field == "request_overwrite" || field == "header_overwrite" || field == "capabilities"
+			model := field == "notes" || field == "enabled" || field == "model_id" || field == "parameters" || field == "request_overwrite" || field == "header_overwrite" || field == "capabilities"
 			if action == ProviderUpdate && !provider || action == ModelUpdate && !model {
 				return Metadata{}, invalid("changed_fields")
 			}

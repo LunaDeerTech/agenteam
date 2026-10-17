@@ -48,7 +48,7 @@ func loadResolutionPreparation(ctx context.Context, x postgres.SQLExecutor, iden
 	_, idErr := f.ParseID[struct{}](r.ID)
 	raw, _ := encoded(r.Request)
 	unit, unitErr := resolutionUnitIdentity(r.Request.Consumer, r.Request.Purpose, r.Request.Owner)
-	if idErr != nil || unitErr != nil || unit.Canonical() != r.Identity || r.Request.validate() != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || r.Request.Source == mc.CurrentSelectionSource && r.Request.ReasoningEffort != r.Draft.Snapshot.ReasoningEffort || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
+	if idErr != nil || unitErr != nil || unit.Canonical() != r.Identity || r.Request.validate() != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || !resolutionReasoningMatches(r.Request, r.Draft.Snapshot) || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
 		return nil, unavailable(nil)
 	}
 	owner, e := sc.NewCredentialLeaseOwner(r.Request.Owner.Kind, r.Request.Owner.ID)
@@ -57,6 +57,29 @@ func loadResolutionPreparation(ctx context.Context, x postgres.SQLExecutor, iden
 	}
 	return r, nil
 }
+
+// Platform Summary reasoning belongs to the captured selection, while direct
+// Agent reasoning belongs to the request. Serving snapshots retain the original
+// captured choice even after the platform selection changes.
+func resolutionReasoningMatches(request resolutionRequestDTO, snapshot resolutionSnapshotDTO) bool {
+	if request.Source == mc.ServingSnapshotSource {
+		return true
+	}
+	if request.Selection == nil {
+		return false
+	}
+	if request.Selection.Kind == "direct" {
+		return request.ReasoningEffort == snapshot.ReasoningEffort && snapshot.ReasoningEnabled == nil
+	}
+	if request.Selection.Kind != "platform" || request.ReasoningEffort != "" {
+		return false
+	}
+	if request.Selection.Selector == mc.SummarySelector {
+		return true
+	}
+	return request.Selection.Selector == mc.EmbeddingSelector && snapshot.ReasoningEffort == "" && snapshot.ReasoningEnabled == nil
+}
+
 func canonicalResolutionLease(ctx context.Context, x postgres.SQLExecutor, r mc.ResolveRequest, d resolutionDraft) (string, error) {
 	if d.Snapshot.CredentialID == "" {
 		return "", nil
