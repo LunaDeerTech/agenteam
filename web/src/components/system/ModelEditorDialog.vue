@@ -273,7 +273,11 @@ useLeaveProtection(
     </div>
     <form v-else ref="editorForm" class="account-form" @submit.prevent="save">
       <fieldset :disabled="locked || readOnly" class="model-editor-fields">
-        <ModelFormFields :draft="draft" :protocol="provider.input.protocol" />
+        <ModelFormFields
+          :draft="draft"
+          :protocol="provider.input.protocol"
+          :type-locked="!!model"
+        />
       </fieldset>
       <p v-if="issue" role="alert" class="form-feedback">{{ issue }}</p>
       <p v-if="error" role="alert" class="form-feedback">

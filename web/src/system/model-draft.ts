@@ -1,8 +1,10 @@
-import { isRecord, isVersion } from "../account/types";
+import { isVersion } from "../account/types";
 import {
+  isReasoningEfforts,
   type ModelInput,
   type ModelType,
   type Protocol,
+  type ReasoningEffort,
 } from "./model-catalog";
 export interface ModelDraft {
   name: string;
@@ -14,14 +16,10 @@ export interface ModelDraft {
   streaming: boolean;
   reasoning: boolean;
   inputModalities: string;
-  outputModalities: string;
-  reasoningEfforts: string;
-  structuredOutputModes: string;
+  reasoningEfforts: ReasoningEffort[];
+  structuredOutput: boolean;
   contextLength: string;
   maxOutput: string;
-  parameters: string;
-  requestOverwrite: string;
-  headerOverwrite: string;
 }
 export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
   const c = input?.capabilities;
@@ -34,15 +32,13 @@ export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
     parallelToolCalls: c?.parallel_tool_calls ?? false,
     streaming: c?.streaming ?? false,
     reasoning: c?.reasoning ?? false,
-    inputModalities: c?.input_modalities.join(", ") ?? "",
-    outputModalities: c?.output_modalities.join(", ") ?? "",
-    reasoningEfforts: c?.reasoning_efforts.join(", ") ?? "",
-    structuredOutputModes: c?.structured_output_modes.join(", ") ?? "",
+    inputModalities: c?.input_modalities.join(", ") ?? "text",
+    reasoningEfforts:
+      c?.reasoning_efforts.map((effort) => ({ ...effort })) ?? [],
+    structuredOutput:
+      c?.structured_output_modes.includes("json_schema") ?? false,
     contextLength: c?.context_length ?? "",
     maxOutput: c?.max_output ?? "",
-    parameters: JSON.stringify(input?.parameters ?? {}, null, 2),
-    requestOverwrite: JSON.stringify(input?.request_overwrite ?? {}, null, 2),
-    headerOverwrite: JSON.stringify(input?.header_overwrite ?? {}, null, 2),
   };
 }
 const split = (value: string) =>
@@ -74,64 +70,61 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
       throw new Error("能力列表须用英文逗号分隔，且不可重复或包含未知值。");
     return values;
   }
-  const input = values(d.inputModalities, ["text", "image", "file", "vector"]);
-  const output = values(d.outputModalities, [
-    "text",
-    "image",
-    "file",
-    "vector",
-  ]);
-  if (!input.length || !output.length)
-    throw new Error("请选择模型的输入和输出模态。");
-  if (d.parallelToolCalls && !d.toolCalls)
+  const chat = d.type === "chat";
+  const declaredInput = chat
+    ? values(d.inputModalities, ["text", "image", "file"])
+    : [];
+  const input = ["text", ...declaredInput.filter((value) => value !== "text")];
+  const output = [chat ? "text" : "vector"];
+  if (chat && d.parallelToolCalls && !d.toolCalls)
     throw new Error("并行工具调用需要同时启用工具调用。");
-  const efforts = values(d.reasoningEfforts);
-  if (!d.reasoning && efforts.length)
-    throw new Error("推理档位需要同时启用推理能力。");
-  for (const value of [d.contextLength, d.maxOutput])
+  const efforts =
+    chat && d.reasoning
+      ? d.reasoningEfforts.map((effort) => ({
+          name: effort.name.replace(
+            /^\p{White_Space}+|\p{White_Space}+$/gu,
+            "",
+          ),
+          value: effort.value,
+        }))
+      : [];
+  if (!isReasoningEfforts(efforts))
+    throw new Error(
+      "思考等级最多32项，名称须为1–64个字符，值须为1–32位字母、数字或 - _ . :；名称和值均不可重复。",
+    );
+  for (const value of [d.contextLength, chat ? d.maxOutput : ""])
     if (value && !isVersion(value))
       throw new Error("容量须为正整数，未知时留空。");
   if (
+    chat &&
     d.contextLength &&
     d.maxOutput &&
     BigInt(d.maxOutput) > BigInt(d.contextLength)
   )
     throw new Error("最大输出不能超过上下文长度。");
-  function object(value: string, label: string) {
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(value);
-    } catch {
-      throw new Error(`${label}须为 JSON 对象。`);
-    }
-    if (!isRecord(parsed)) throw new Error(`${label}须为 JSON 对象。`);
-    return parsed;
-  }
-  const header = object(d.headerOverwrite, "请求头覆盖");
-  if (Object.values(header).some((v) => typeof v !== "string"))
-    throw new Error("请求头覆盖的值须为字符串。");
   return {
     name: d.name.trim(),
     provider_model_id: d.providerModelId.trim(),
     type: d.type,
     enabled: d.enabled,
-    parameters: object(d.parameters, "参数"),
-    request_overwrite: object(d.requestOverwrite, "请求体覆盖"),
-    header_overwrite: header as Record<string, string>,
+    parameters: {},
+    request_overwrite: {},
+    header_overwrite: {},
     capabilities: {
-      tool_calls: d.toolCalls,
-      parallel_tool_calls: d.parallelToolCalls,
-      streaming: d.streaming,
-      reasoning: d.reasoning,
+      tool_calls: chat && d.toolCalls,
+      parallel_tool_calls: chat && d.parallelToolCalls,
+      streaming: chat && d.streaming,
+      reasoning: chat && d.reasoning,
       input_modalities: input,
       output_modalities: output,
       reasoning_efforts: efforts,
-      structured_output_modes: values(d.structuredOutputModes, [
-        "text",
-        "json_schema",
-      ]),
+      structured_output_modes: !chat
+        ? []
+        : d.structuredOutput
+          ? ["text", "json_schema"]
+          : ["text"],
       context_length: d.contextLength || null,
-      max_output: d.maxOutput || null,
+      max_output: chat ? d.maxOutput || null : null,
     },
   };
 }

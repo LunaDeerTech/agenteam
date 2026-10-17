@@ -1,8 +1,6 @@
-# 当前状态：模态图标已完成，新增类型感知方案仅分析
+# 当前状态：类型感知模型能力与思考等级实现中
 
-2026-10-17 已授权的模态文字旁装饰图标（08b75698）已通过限定格式、type、生产构建及桌面/390独立视觉检查，文字和值不变；窄屏probe将数组顺序变化产生的确认分支误判为关闭，经按实际确认流程复验通过，无产品返修。浏览器已关闭，自有临时Vite原launcher实际143、进程及监听清零，公开服务和共享依赖未动。
-
-用户要求新增“按类型配置、JSON Schema开关、推理配置”先分析、暂不实施；刚落的3个未提交产品文件增量已精确撤回至08b75698，未新增相关测试或构建，不把建议写成已批准合同。
+2026-10-17 用户重新授权实施，独立Vue树以376a4c29为基础。首表单已接typed reasoning_efforts对象数组、JSON Schema开关、Chat文本固定及media声明、Embedding text→vector与有效容量字段；已有类型锁定，未实现的高级JSON输入已移除。首type检查实际通过；定向单元、完整状态独立浏览器、后端联调与最终生产构建仍待完成，不把旧图标轮证据当作新功能通过。公网与真实用户数据未操作。
 
 ## 前轮模态多选
 
@@ -90,7 +88,6 @@ accountmail完整非integration单测通过；account完整执行唯一失败为
 
 既有预览已使用329591cc Central/schema146和私有快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc/`。新快照101份源码与候选逐项一致，node_modules以符号链接复用旧c09d快照的同lock依赖目录，新.vite缓存独立；恢复须保留该旧依赖目录。Vite PID15906/start_ticks142188；实际环境和变换模块均确认 `VITE_ACCOUNT_ENABLED=true`，严格本机TLS下login200。原c09d快照与旧PID仅属上一轮记录，不能据此恢复当前组合；其首次遗漏flag的失败仍保留。当前快照preview-record.json保存绝对恢复命令、cwd、必需环境及源hash；按[快照恢复说明](../docs/development/backend/account.md#固定已核验的前端快照)启动，不能从主树任意版本启动5245。备份位于 `/workspace/scratch/agenteam-outbound-runtime-review/passkey-cutover-backup-20261017-r1/database.dump`，0600、PG17.8 custom格式1556890字节，归档list退出0，仅验证可读，未做实际还原。最终Central/Vue/FRP四进程均S且start_ticks匹配，5245/5256/5257监听，原PG/MinIO/web三容器nonce一致且Running；服务保留，验证浏览器与relay已退出。
 
-
 ## 此前 SMTP 独立直连交付
 
 2026-10-16。用户已确认 SMTP 与数据库、对象存储同属独立基础设施：直接连接保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，不新增 SMTP 专属代理开关。保留严格 TLS/STARTTLS、超时取消/join、Secret、SMTP 版本和当前凭据、账户 SendPermit 的 AUTH/MAIL 真实首写、权限审计、队列重投重试与 Unknown。现有账号/Session、SMTP、proxy、规则与 keys 全部保留，无迁移或清库；真实 SMTP 实发暂停，本轮仅 owned 隔离验证。正式合同见[工作项](../docs/development/work-items/system-outbound-policy-proxy.md)。
@@ -105,11 +102,11 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 已部署候选来源 `e203977766438a9045b2ac4ef54161e5e5c943f5`，生产输入沿 b5 未改；Go1.27.1普通构建 VCS clean、1854项生产输入一致、check-config退出0，binary SHA256为 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`。首次3df构建虽退出0但VCS modified=true，不作为部署候选；配置检查与实际运行验证分别记录。精确验证材料、原失败及最终资源清理由实现分支 current 维护。
 
-| 此前SMTP轮 Owner / 工作树 | 当时职责与收尾 |
-| --- | --- |
-| `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；e2039777实现已冻结并集成，关键代表与资源清理已收尾，维护该分支原失败及验证边界。 |
-| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 10份规范已归位；本次仅更新主树 current 与账号文档的活动版本定位，记录验证及实际切换结果后冻结，不写产品或实现树。 |
-| root / 指定独审与 runtime owner | 关键验证、资源清理、保数据切换及最后只读存活收尾均已完成；root 保存测试预算差量及最终 current，保持外部实发暂停。 |
+| 此前SMTP轮 Owner / 工作树                                         | 当时职责与收尾                                                                                                                              |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/root/account_backend` / `/workspace/agenteam-smtp-direct`       | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；e2039777实现已冻结并集成，关键代表与资源清理已收尾，维护该分支原失败及验证边界。 |
+| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 10份规范已归位；本次仅更新主树 current 与账号文档的活动版本定位，记录验证及实际切换结果后冻结，不写产品或实现树。                           |
+| root / 指定独审与 runtime owner                                   | 关键验证、资源清理、保数据切换及最后只读存活收尾均已完成；root 保存测试预算差量及最终 current，保持外部实发暂停。                           |
 
 ## 此前规则、代理与 SMTP 诊断（历史）
 
@@ -136,16 +133,16 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 - 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留。此前七页为login/invite/forgot/reset与profile/appearance/password，并已接系统账号四页；本轮只新增出站规则/代理，不增加开放注册、MFA、设备管理、邮箱修改、用户角色切换/禁用/删除，其他未讨论业务正文仍为骨架。
 - 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；设置用宽页头、左对齐开放表单和唯一SettingsShell，整框居中及中性炭灰已获用户接受。[此前找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传并校验。顶栏“个人设置”只在右上菜单内，触发器显示当前身份已保存头像或默认占位；本轮沿此基准接入四页内容。
 
-| Owner | 唯一职责 |
-| --- | --- |
-| `/root/account_contract` | 本状态、出站架构与system-outbound-policy-proxy工程契约；本批冻结后由root保存。 |
-| `/root/proxy_copy` | 本轮规则模式/目标/紧凑表格及新严格DTO，写独立Vue树；主树用户5245保持。 |
-| `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。 |
-| `/root/account_backend` | 新规则模型、精确规则重置/API/安全匹配及受影响消费者；隔离验证，不动现production或真实SMTP。 |
-| `/root/vue_tests` | 本轮出站UI/API正式harness与必要回归；旧TLS/恢复/邮件结果保留原输入，不代本轮通过。 |
-| `/root/outbound_visual` | 本轮独立受控视觉/交互审查，两项P2已关闭；不代真实后端或公网。 |
-| `/root/outbound_security` | 独立transport与真实PG权限/Unknown/lease恢复门已关闭，保留各自输入与覆盖边界。 |
-| `/root/outbound_runtime` | 保数据stage、备份和实际切换已完成；保留服务，只读页面检查与最后存活核对通过，公网身份未新验。 |
+| Owner                     | 唯一职责                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| `/root/account_contract`  | 本状态、出站架构与system-outbound-policy-proxy工程契约；本批冻结后由root保存。                |
+| `/root/proxy_copy`        | 本轮规则模式/目标/紧凑表格及新严格DTO，写独立Vue树；主树用户5245保持。                        |
+| `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。                                 |
+| `/root/account_backend`   | 新规则模型、精确规则重置/API/安全匹配及受影响消费者；隔离验证，不动现production或真实SMTP。   |
+| `/root/vue_tests`         | 本轮出站UI/API正式harness与必要回归；旧TLS/恢复/邮件结果保留原输入，不代本轮通过。            |
+| `/root/outbound_visual`   | 本轮独立受控视觉/交互审查，两项P2已关闭；不代真实后端或公网。                                 |
+| `/root/outbound_security` | 独立transport与真实PG权限/Unknown/lease恢复门已关闭，保留各自输入与覆盖边界。                 |
+| `/root/outbound_runtime`  | 保数据stage、备份和实际切换已完成；保留服务，只读页面检查与最后存活核对通过，公网身份未新验。 |
 
 ## 已打通的流程与检查边界
 
@@ -194,13 +191,13 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 以下是切换前记录，不代表当前实例或存活清单；旧r2现已退出清理，当前恢复入口与公网限制以上方当前记录为准。
 
-| 资源 | 当前事实与恢复位置 |
-| --- | --- |
-| public r2 | 目标体验URL `https://154.12.86.233:18443`，当前仍为旧后端 `9dd3044c`、本地TLS5254及原账号/Session。新production就绪前保留，届时同18443顺序切换；尚未切换或完成公网身份/登录验真。 |
-| 旧r2有效期限 | started `2026-10-16 04:24:20 UTC`；实际expires **`2026-10-17 04:23:20 UTC`**，约24小时。页面、PG、MinIO、outbound、SMTP的10张实际CA/leaf期限均已核覆盖；进程或环境退出仍可能提前结束，不是永久部署，也不代表新实例期限。 |
-| 运行与停止 | 私有目录 `/workspace/scratch/account-preview-public-r2/`；`runtime.json`为0600原子manifest，`run-state.json`记录运行/停止，`credentials.txt`为0600最小凭据文件。密码、Cookie、CSRF和一次性链接不写入文档或普通输出。 |
+| 资源         | 当前事实与恢复位置                                                                                                                                                                                                                             |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| public r2    | 目标体验URL `https://154.12.86.233:18443`，当前仍为旧后端 `9dd3044c`、本地TLS5254及原账号/Session。新production就绪前保留，届时同18443顺序切换；尚未切换或完成公网身份/登录验真。                                                              |
+| 旧r2有效期限 | started `2026-10-16 04:24:20 UTC`；实际expires **`2026-10-17 04:23:20 UTC`**，约24小时。页面、PG、MinIO、outbound、SMTP的10张实际CA/leaf期限均已核覆盖；进程或环境退出仍可能提前结束，不是永久部署，也不代表新实例期限。                       |
+| 运行与停止   | 私有目录 `/workspace/scratch/account-preview-public-r2/`；`runtime.json`为0600原子manifest，`run-state.json`记录运行/停止，`credentials.txt`为0600最小凭据文件。密码、Cookie、CSRF和一次性链接不写入文档或普通输出。                           |
 | 本地作者组合 | 独立5250已于 `2026-10-16 08:00 UTC` 优雅清理，无监听，runtime与scope sidecar已撤。验证输入是后端 `7aa9b503` 的长驻Go测试进程内真实App及专属PG/MinIO/SMTP等依赖，非独立cmd/Central二进制部署；后续验证需重新启动owned实例，不能复用旧manifest。 |
-| 静态预览 | 5244/HTTP18081保持 `VITE_ACCOUNT_ENABLED=false`；公开 `/login` 的禁用输入、官方Logo和预览提示已浏览器核实，账号API请求为0。原型5241、业务dev5245及既有frp18081按授权保留。 |
+| 静态预览     | 5244/HTTP18081保持 `VITE_ACCOUNT_ENABLED=false`；公开 `/login` 的禁用输入、官方Logo和预览提示已浏览器核实，账号API请求为0。原型5241、业务dev5245及既有frp18081按授权保留。                                                                     |
 
 公开实例不要求frps配置HTTPS/证书，也不依赖用户Nginx；现有443应用保持。临时专用CA和IP SAN会产生普通浏览器的不信任提示，用户已知；保持 `DevMode=false`、Secure Cookie和Host/Origin/CSRF校验，不修改系统信任。严格测试只信本轮专用CA/SPKI。准确启动与停止命令见[后端预览说明](../docs/development/backend/account.md)，不把历史manifest视为服务仍在。
 

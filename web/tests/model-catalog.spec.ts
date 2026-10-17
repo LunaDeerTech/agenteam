@@ -263,18 +263,18 @@ it("aborts only the bounded model operation and replays its original identity wi
   ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
   expect(requests).toHaveLength(2);
 });
-it("rejects guessed or internally inconsistent capabilities and preserves explicit unknown capacities", async () => {
+it("adds only mandatory chat text capabilities and rejects inconsistent explicit capabilities", async () => {
   const { modelDraft, modelDraftInput } =
     await import("../src/system/model-draft");
   const draft = modelDraft("openai-compatible");
   draft.type = "chat";
   draft.name = "Explicit";
   draft.providerModelId = "model-that-looks-capable";
-  expect(() => modelDraftInput(draft, "openai-compatible")).toThrow(
-    "输入和输出",
-  );
-  draft.inputModalities = draft.outputModalities = "text";
   const input = modelDraftInput(draft, "openai-compatible");
+  expect(input.capabilities.input_modalities).toEqual(["text"]);
+  expect(input.capabilities.output_modalities).toEqual(["text"]);
+  expect(input.capabilities.structured_output_modes).toEqual(["text"]);
+  expect(input.capabilities.reasoning_efforts).toEqual([]);
   expect(input.capabilities.tool_calls).toBe(false);
   expect(input.capabilities.context_length).toBe(null);
   draft.parallelToolCalls = true;
@@ -285,6 +285,71 @@ it("rejects guessed or internally inconsistent capabilities and preserves explic
   expect(() => modelDraftInput(draft, "openai-compatible")).toThrow(
     "上下文长度",
   );
+});
+
+it("round-trips explicit reasoning names and wire values and rejects ambiguous or unsafe levels", async () => {
+  const { modelDraft, modelDraftInput } =
+    await import("../src/system/model-draft");
+  const { isReasoningEfforts } = await import("../src/system/model-catalog");
+  const draft = modelDraft("openai-compatible");
+  Object.assign(draft, {
+    type: "chat",
+    name: "Reasoning Fixture",
+    providerModelId: "reasoning-fixture",
+    inputModalities: "text",
+    reasoning: true,
+  });
+  const levels = [
+    { name: "Deep", value: "HIGH" },
+    { name: "deep", value: "high" },
+    { name: "🧠".repeat(64), value: "vendor_fast.v2:budget-2" },
+  ];
+  draft.reasoningEfforts = levels;
+  const input = modelDraftInput(draft, "openai-compatible");
+  expect(input.capabilities.reasoning_efforts).toEqual(levels);
+  expect(modelDraft("openai-compatible", input).reasoningEfforts).toEqual(
+    levels,
+  );
+
+  const invalid = [
+    [
+      { name: "Quick", value: "low" },
+      { name: "Quick", value: "high" },
+    ],
+    [
+      { name: "Quick", value: "low" },
+      { name: "Thorough", value: "low" },
+    ],
+    [{ name: "\u00a0Quick", value: "low" }],
+    [{ name: "Quick\u009f", value: "low" }],
+    [{ name: "🧠".repeat(65), value: "low" }],
+    [{ name: "Quick", value: "extra effort" }],
+    [{ name: "Quick", value: "x".repeat(33) }],
+  ];
+  for (const value of invalid) {
+    expect(isReasoningEfforts(value)).toBe(false);
+  }
+  draft.reasoningEfforts = invalid[0]!;
+  expect(() => modelDraftInput(draft, "openai-compatible")).toThrow();
+  draft.reasoningEfforts = Array.from({ length: 32 }, (_, index) => ({
+    name: `Level ${index}`,
+    value: `level-${index}`,
+  }));
+  expect(
+    modelDraftInput(draft, "openai-compatible").capabilities.reasoning_efforts,
+  ).toHaveLength(32);
+  draft.reasoningEfforts.push({ name: "Extra", value: "extra" });
+  expect(() => modelDraftInput(draft, "openai-compatible")).toThrow();
+
+  draft.reasoningEfforts = [];
+  expect(
+    modelDraftInput(draft, "openai-compatible").capabilities,
+  ).toMatchObject({ reasoning: true, reasoning_efforts: [] });
+  draft.reasoningEfforts = levels;
+  draft.reasoning = false;
+  expect(
+    modelDraftInput(draft, "openai-compatible").capabilities,
+  ).toMatchObject({ reasoning: false, reasoning_efforts: [] });
 });
 
 it("accepts the unified platform summary reference while rejecting removed platform roles", async () => {
@@ -315,7 +380,6 @@ it("accepts the unified platform summary reference while rejecting removed platf
     name: "Summary",
     providerModelId: "summary-model",
     inputModalities: "text",
-    outputModalities: "text",
   });
   const model = {
     id,
