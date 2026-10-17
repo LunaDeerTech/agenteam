@@ -1,12 +1,16 @@
-# 当前状态：ModelSelect 强制类型过滤开发与部署预检查，公网仍为 6d8ad217
+# 当前状态：ModelSelect 强制类型过滤验证完成，待冻结候选部署；公网仍为 6d8ad217
 
 ## 当前任务：ModelSelect 强制类型过滤并更新原预览
 
 2026-10-17，从 `a686540e374bc7b4f6ab89632a6c0780292c1e60` 接续。用户已授权完成强制类型过滤后更新原公网服务；最终候选与适用验证门未冻结前不替换服务、不执行迁移。组件调用必须明确类型，列表在分页前按类型筛选并绑定游标；最终契约与实现由各 owner 维护。当前源码已含前轮 Embedding 维度迁移 153，公开数据库仍为 152，部署前须只读检查旧 model/snapshot 与 Knowledge/Memory profile 是否满足新约束，不猜维度、不清数据。
 
-当前作者输入：后端 `a704357d` 与 Vue `1b2e1755959d4f8966c5e470770d04af0468db2c` 已冻结并由 root 保存。System 列表新增可选 `type`，严格拒绝空/重复/非法值；SQL 在分页前过滤且 cursor 绑定类型，管理列表仍可查看全部。ModelSelect 必传 `requiredKind: ModelType`，四用途和删除替换均显式接入，客户端必传过滤；错类型不展示，同类型原资格限制保留，换类型退休旧请求并清空游标/列表/展开层。后端三项定向 unit actual0；Vue七项定向unit、全源类型、build与14文件格式检查actual0。独立真实HTTP+PG及两视口浏览器仍在执行，结果待 owner 收尾后补写，不提前声称通过。
+当前作者输入：后端 `a704357d` 与 Vue `1b2e1755959d4f8966c5e470770d04af0468db2c` 已冻结并由 root 保存。System 列表新增可选 `type`，严格拒绝空/重复/非法值；SQL 在分页前过滤且 cursor 绑定类型，管理列表仍可查看全部。ModelSelect 必传 `requiredKind: ModelType`，四用途和删除替换均显式接入，客户端必传过滤；错类型不展示，同类型原资格限制保留，换类型退休旧请求并清空游标/列表/展开层。后端三项定向 unit actual0；Vue七项定向unit、全源类型、build与14文件格式检查actual0。独立真实HTTP+PG和桌面/390窄屏浏览器限定门均已通过，最终测试与本页待 root 集成保存为部署候选。
 
-原Vue作者build未显式设置或记录编译期 `VITE_ACCOUNT_ENABLED`，亦无构建期输入manifest，不能证明产物启用真实账号API。部署仅补一次明确 `VITE_ACCOUNT_ENABLED=true` 的生产Vite构建及冻结源清单，复用已通过类型/unit；Go生产候选待最终集成源码冻结及独审资源释放后构建。最终部署使用既有管理器与前轮保数据流程，停写前重查schema/mail/153适用性、备份后升级153、复核配置/数据投影与原端口实际产物，并以有限真实登录及已打通的只读公网归属通道检查。
+独立API/PG第二轮输入 `abe1d6c2`，实际 PostgreSQL17.8/vector0.8.1，`TestSystemModelTypeFilterHTTPIndependentReview` PASS25.09s，schema准备18.2868s；chat/embedding/reranker/image_generation、组合查询、cursor类型绑定及缺省全部类型均通过，原runner actual0、test子进程Wait0，1个PG容器/1个网络按精确身份清退。首轮在原fixture的30s schema准备deadline失败，未到seed或业务断言；仅新用例采用可注入prepared DB和120s准备预算，默认helper与业务20s保持，第二轮通过不倒推首次环境原因。两binary编译/list实际0，测试原始日志保留 `/tmp/agenteam-type-filter-pg.81s4xwqn/`，所有重Go/fixture窗口已释放。
+
+独立浏览器在冻结Vue上完成desktop四用途、类型请求/过滤、搜索分页、备注及思考控件焦点、四类型删除替代，再完成390窄屏相同限定旅程，Node actual0；截图已实看无越界/横溢。首轮Vite导航准备5s timeout与第二轮旧fixture文本定位“向量模型/Rerank”失败保留；只修准备/定位后续验，不追认旧轮成功。受控API由浏览器route提供，该结果不代真实供应商外呼；真实SQL/HTTP结果由上一段独立PG提供。两视口profile/浏览器已关闭清理，运行owner随后精确停止5281。
+
+原Vue作者build未显式设置或记录编译期 `VITE_ACCOUNT_ENABLED`，亦无构建期输入manifest，不能证明产物启用真实账号API。部署仅补一次明确 `VITE_ACCOUNT_ENABLED=true` 的生产Vite构建及冻结源清单，复用已通过类型/unit；独审资源已释放；Go生产候选待 root 最终集成源码冻结后构建。最终部署使用既有管理器与前轮保数据流程，停写前重查schema/mail/153适用性、备份后升级153、复核配置/数据投影与原端口实际产物，并以有限真实登录及已打通的只读公网归属通道检查。
 
 运行与空间 owner 为 `/root/filter_preview_platform`，独占本页及必要部署 harness；root 负责全部 Git 和最终集成。2026-10-17 15:12 UTC 实核原 Central PID587898/start_ticks4887180 存活且活动 manifest 仍指向 6d8，Vue PID588615 与 FRP helper16216/frpc16223 均存活。workspace 约剩 1.7 GiB，独立 `/tmp` 约剩 8.5 GiB；重型 Go 构建唯一窗口，所有本轮可写临时、binary 与 fixture 产物使用 owned `/tmp`，保留至少 512 MiB。原 SMTP/账号/Session/密钥/代理配置与业务数据保留；当前只做运行、容量、迁移适用性及严格公网 TLS 路径预检查。以下既有部署事实仍是恢复依据，历史公网 TLS 失败不追认成功。
 
@@ -17,7 +21,7 @@
 
 最小公网归属验证现已打通：新增 [check-persistent-model-public.py](../scripts/check-persistent-model-public.py) 仅临时转发身份/版本JSON，上游保持原CA、IP与leaf等值校验。2026-10-17基线复验经独立FRP公网18444的HTTP请求取得identity/release各200，nonce、6d8版本、实际后端SHA与前端index SHA均和严格本机结果相等；公网HTTP层不等于原18443的端到端TLS通过。当前最终部署仍未进行，候选切换后复用同一入口验证新版本。第二轮CLI实际0，FRP helper653323/frpc653340已精确消失，helper真实wait241（SIGTERM子退出），relay已join、端口已释放；结果在 `/tmp/agenteam-model-filter-deploy-20261017/public-baseline-r2/result.json`。首轮在映射成功后因本内核无proc children文件退出1、未发公网GET；改为按proc stat的精确parent PID查child后窄复验通过，原失败保留，首轮配置已消失且精确配置路径无进程消费者。
 
-本轮独审私有Vite使用冻结Vue源码 `/workspace/agenteam-chat-multimodal-vue/web`，仅本机5281；PID653254/start_ticks5427001，缓存/日志/恢复脚本在 `/tmp/agenteam-type-filter-vite-k8aw_005/`，由运行owner统一清理，不影响公开5245。
+本轮独审私有Vite曾使用冻结Vue源码 `/workspace/agenteam-chat-multimodal-vue/web`，仅本机5281；PID653254/start_ticks5427001已核cmdline/cwd后SIGTERM，观察Z与实际exit143，5281可重新绑定。自有cache已精确清退，日志/恢复脚本与退出记录保留 `/tmp/agenteam-type-filter-vite-k8aw_005/`；公开5245未受影响。
 
 ## 当前部署与恢复入口
 

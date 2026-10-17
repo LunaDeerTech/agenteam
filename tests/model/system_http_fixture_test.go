@@ -39,6 +39,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 )
 
 const systemHTTPOrigin = "https://system-http.example.test"
@@ -235,9 +236,16 @@ type systemHTTPBrowser struct {
 	email        string
 }
 
-func newSystemHTTPFixture(t *testing.T) *systemHTTPFixture {
+func newSystemHTTPFixture(t *testing.T, prepared ...*pgfixture.Database) *systemHTTPFixture {
 	t.Helper()
-	db := newDatabase(t)
+	var db *pgfixture.Database
+	if len(prepared) == 0 {
+		db = newDatabase(t)
+	} else if len(prepared) == 1 && prepared[0] != nil {
+		db = prepared[0]
+	} else {
+		t.Fatal("expected at most one prepared owned database")
+	}
 	raw := openStore(t, db.Config(t, nil))
 	store := &systemHTTPStore{Store: raw, active: map[f.Tx]*systemHTTPTrace{}}
 	ak, ck, sk := testKeys(t)
