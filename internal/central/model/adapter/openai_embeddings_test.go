@@ -35,6 +35,23 @@ func embeddingUnitInput(t *testing.T) (EmbeddingRequest, CallOptions) {
 	return EmbeddingRequest{Snapshot: chat.Snapshot, Texts: []string{"  text & 世界\n"}, ExpectedDimensions: 2}, o
 }
 
+func TestOpenAIEmbeddingsResponseHeaderBudget(t *testing.T) {
+	r, o := embeddingUnitInput(t)
+	o.Limits.Overall = 120 * time.Second
+	o.Limits.ResponseHeaders = 60 * time.Second
+	p, err := prepareEmbeddings(context.Background(), r, o)
+	if err != nil {
+		t.Fatal("original explicit sixty-second header wait rejected", err)
+	}
+	if err = p.request.Body.Close(); err != nil {
+		t.Fatal(err)
+	}
+	o.Limits.ResponseHeaders = 61 * time.Second
+	if p, err := prepareEmbeddings(context.Background(), r, o); err == nil || p != nil {
+		t.Fatal("Image header extension escaped into Embedding")
+	}
+}
+
 func TestOpenAIEmbeddingsProfileAndSafeViews(t *testing.T) {
 	raw, err := os.ReadFile("testdata/openai-embeddings-float-v1.json")
 	if err != nil {
@@ -208,6 +225,10 @@ func TestOpenAIEmbeddingsInputLimits(t *testing.T) {
 		{"bad_surrogate", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Parameters = []byte(`{"x":"\ud800"}`) }, false},
 		{"overall_zero", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.Overall = 0 }, false},
 		{"overall_long", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.Overall = 121 * time.Second }, false},
+		{"headers_long", func(_ *EmbeddingRequest, o *CallOptions) {
+			o.Limits.Overall = 120 * time.Second
+			o.Limits.ResponseHeaders = 61 * time.Second
+		}, false},
 		{"idle_long", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.ReadIdle = 2 * time.Second }, false},
 		{"bad_request_limit", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.RequestBodyBytes = -1 }, false},
 		{"bad_response_limit", func(_ *EmbeddingRequest, o *CallOptions) { o.Limits.ResponseBodyBytes = embeddingResponseBytes + 1 }, false},

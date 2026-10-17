@@ -258,6 +258,11 @@ func prepareNativeRequest(r Request, o CallOptions, raw []byte, stream bool) (*h
 	if o.Limits.Overall <= 0 || o.Limits.Overall > 120*time.Second {
 		return fail(invalid())
 	}
+	// The shared Model transport also admits longer Image generation waits.
+	// Chat keeps its existing explicit response-header ceiling.
+	if o.Limits.ResponseHeaders > 60*time.Second {
+		return fail(invalid())
+	}
 	idle := min(60*time.Second, o.Limits.Overall)
 	if o.Limits.ReadIdle == 0 {
 		o.Limits.ReadIdle = idle

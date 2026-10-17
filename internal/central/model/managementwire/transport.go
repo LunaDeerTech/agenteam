@@ -45,13 +45,32 @@ type Result struct {
 	Reason string
 }
 
+// Timeout is the bounded operation budget for this fixed management request.
+// Callers use the effective protocol of their authorized, saved model.
+func Timeout(input Request) time.Duration {
+	if input.Action == "test" && input.Protocol == imageProtocol {
+		return 120 * time.Second
+	}
+	return 20 * time.Second
+}
+
+func probeLimits(input Request, responseLimit int) outbound.Limits {
+	headers, idle := 15*time.Second, 5*time.Second
+	if input.Action == "test" && input.Protocol == imageProtocol {
+		headers, idle = 120*time.Second, 30*time.Second
+	}
+	return outbound.Limits{Overall: Timeout(input), ResponseHeaders: headers, ReadIdle: idle,
+		RequestHeaderBytes: 16 << 10, ResponseHeaderBytes: 32 << 10,
+		RequestBodyBytes: 4096, ResponseBodyBytes: int64(responseLimit)}
+}
+
 // Run never takes ownership of credential. A nil pointer explicitly selects an
 // anonymous provider; unavailable non-nil material cannot downgrade to anonymous.
 func (t Transport) Run(ctx context.Context, input Request, credential *sc.SecretMaterial, call outbound.CallContext) (result Result, err error) {
 	if ctx == nil {
 		return Result{}, errConfiguration
 	}
-	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, Timeout(input))
 	defer cancel()
 	if ctx.Err() != nil {
 		return Result{Reason: failure(ctx, ctx.Err())}, nil
@@ -84,9 +103,7 @@ func (t Transport) Run(ctx context.Context, input Request, credential *sc.Secret
 	}
 	profile, err := outbound.NewProfile(outbound.ProfileOptions{
 		Consumer: ac.Model, Context: call, Credentials: binding, NoRedirects: true,
-		Limits: outbound.Limits{Overall: 20 * time.Second, ResponseHeaders: 15 * time.Second,
-			ReadIdle: 5 * time.Second, RequestHeaderBytes: 16 << 10, ResponseHeaderBytes: 32 << 10,
-			RequestBodyBytes: 4096, ResponseBodyBytes: int64(limit)},
+		Limits: probeLimits(input, limit),
 	})
 	if err != nil {
 		return Result{}, errConfiguration
