@@ -198,11 +198,18 @@ func TestProjectModelHTTPNativeWriteFlushCloseAndAbort(t *testing.T) {
 			if mode == "blocked_get_write" {
 				_, _, _, av := projectHTTPValues(t)
 				av.Capabilities.Reasoning = true
-				av.Capabilities.ReasoningEfforts = make([]mc.ReasoningEffort, 100000)
+				av.Capabilities.ReasoningEfforts = make([]mc.ReasoningEffort, 32)
 				for i := range av.Capabilities.ReasoningEfforts {
-					av.Capabilities.ReasoningEfforts[i] = mc.ReasoningEffort{Name: projectNativeToken(i), Value: projectNativeToken(i)}
+					av.Capabilities.ReasoningEfforts[i] = mc.ReasoningEffort{Name: strings.Repeat("<", 55) + projectNativeToken(i), Value: projectNativeToken(i)}
 				}
-				s.available = AvailableChatModelPage{Items: []AvailableChatModel{av}}
+				if av.Capabilities.Validate() != nil {
+					t.Fatal("invalid backpressure capabilities")
+				}
+				s.available = AvailableChatModelPage{Items: make([]AvailableChatModel, 100)}
+				for i := range s.available.Items {
+					s.available.Items[i] = av
+					s.available.Items[i].ID = mustID[mc.Model](t)
+				}
 			}
 			var eof, closes atomic.Int32
 			seen := make(chan *projectHTTPNativeObserved, 1)
@@ -235,7 +242,7 @@ func TestProjectModelHTTPNativeWriteFlushCloseAndAbort(t *testing.T) {
 				method = "HEAD"
 			}
 			if mode == "blocked_get_write" {
-				path = projectHTTPTestBase + "/available-chat-models"
+				path = projectHTTPTestBase + "/available-chat-models?limit=100"
 			}
 			_, e := io.WriteString(conn, method+" "+path+" HTTP/1.1\r\nHost: "+address+"\r\n\r\n")
 			if e != nil {
