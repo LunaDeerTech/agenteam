@@ -10,7 +10,7 @@
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/system/models`             | “模型接入”正文显示“供应商列表”小标题；页头右侧新建供应商。每行实际启用开关替代状态文案，名称链接进入默认模型Tab；右侧“配置”进入`/system/models/:providerId?tab=config`，不再仅展示已配置凭据状态。                                                                                            |
 | `/system/models/:providerId` | 页头下设“模型”/“配置”UiTabs；模型Tab仅显示本供应商的provider_model_id，配轻量类型标签、可保存启用开关及并列“编辑”/“测试”按钮，自定义名称保留在编辑弹窗。配置Tab直接编辑API端点、凭据及供应商属性/选项。创建供应商、模型添加/编辑、发现导入和测试结果使用对应弹窗。返回目录恢复列表位置/焦点。 |
-| `/system/model-selection`    | 独立的平台用途页；向量、总结、重排、图像生成模型四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；右侧选框常显“供应商名称/模型ID”，点击打开下方锚定ModelPicker。                                                                                        |
+| `/system/model-selection`    | 独立的平台用途页；嵌入、总结、重排、图像生成模型四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；右侧选框常显“供应商名称/模型ID”，点击打开下方锚定ModelPicker。                                                                                        |
 
 完整出口是供应商与凭据配置→模型手工添加或发现勾选导入→显式真实测试→合法用途可选。复用SettingsShell、SystemList、UiDialog和共享页头动作；目录使用宽正文，标题无需装饰描述。页级动作在标题右侧，表单保存/取消贴近字段。宽窄、空态、读取失败、权限失效、409、Unknown、取消及返回焦点在对应任务中闭环。
 
@@ -22,33 +22,32 @@
 
 思考等级采用紧凑名称/值/叉号行，窄屏不拆成上下两行；可见编号去掉，原编号label仅视觉隐藏，保留可访问名称、错误反馈与新增/删除焦点。下方“添加思考等级”不创建默认值，原name/value及空等级语义不变。新建、编辑和导入仍共用ModelFormFields，版本/Unknown/确认后只读恢复不改。
 
-四类型与紧凑行本轮已接线，适用工程/定向单元、独立浏览器及真实API验证仍在执行。下述两类型轮结果与旧截图保留原输入边界，不替代本轮四类型验收。
+四类型与紧凑行已通过7项受影响表单/用途资格用例、type及生产构建。独立合成浏览器4项通过四类型保存/切换、紧凑等级键盘与焦点；桌面和390窄屏的名称、值、删除按钮中心差均0，窄屏两输入各122px、删除目标44px，无横溢。首单元三项因测试从组件wrapper查找Teleport选项而失败，改为沿aria-controls定位实际listbox后通过，产品未因此变更。图像测试预算新增4项回归通过：130秒等待与原请求恢复、其余默认预算、20秒/120秒回执界限及预算适用路径；预算增量后的最终type、生产构建与限定格式通过；预算以受控计时及限定测试验证，未实际等待120秒。下述前轮结果保留原范围，不替代本轮验证。
+
+本轮独立真实App验证输入`aca5853f`：`TestModelFourTypeManagementIndependentReview`首轮PASS 23.66s，编译、原测试Wait及整session24307均实际退出0。真实管理HTTP覆盖四类API保存读回与各类能力拒例、迁移150的合法native协议与不相容类型约束（SQLSTATE 23514及约束名）、四用途持久化；5次固定TLS出站包含超过旧1MiB上限的合法base64，同key回放不二次出网、返回URL零下载、5个lease释放，撤权后的新请求与重放均403且零出站。静审和作者预算用例沿同输入复用，不将管理测试成功写成完整业务consumer、图片下载或Artifact已接通。3个精确容器、3个网络、helpers/App进程及唯一临时binary目录全部清退；外来持久服务和cache未操作，独立测试树已停止写入。
 
 前轮两类型模型定义已完成13项定向组件/DTO/恢复用例、最终type、生产构建及限定格式检查；发现导入的合法`__proto__`模型ID草稿经显式逐项代理与浅容器修复，真实键盘操作及部分导入恢复已通过。独审1440×1000深色、390×844浅色及reduced-motion已覆盖Chat普通/Schema/思考空等级和name-value等级、重复值零写、等待禁用、类型锁定、新建类型切换、Embedding保存、取消回焦及全部保留高级项。保留首setup超时、Discovery首次修复不足与两个Embedding首列表5秒等待失败记录；后两次等待原因未定，新增观察器后原输入/预算通过，不追认产品修复。
 
 独立Go验证已通过真实PG、持久snapshot及受控TLS调用：选中value传递、冻结快照重放、未选及空等级不发参数、多模态能力声明下纯文本可调用、实际媒体消息拒绝且无额外请求；不把此范围扩大为完整Agent装配。独立App API与Vue链亦已通过：真实创建保存trim后的name/value及JSON Schema、GET与刷新编辑读回保持，关闭思考后一次PUT推进版本并清空等级；全程无外部模型调用。首UI遗漏类型选择已作为测试夹具修正，不改产品。截图均为合成数据，未使用真实供应商凭据或调用外部模型，未部署公网；当前公网前端保持原私有冻结快照。全部测试会话/浏览器已退出，独立App/PG资源已清退；自有Vite核身份后TERM，原launcher实际143、进程与5281监听清零，仅删除本树自建依赖链接，保留共享目标。
 
-以下14张原图已由作者和独审逐张查看，图床匿名下载HTTP200且字节一致；长表单使用同一状态的重叠滚动分段，完整保留高级容量及底部操作。
+本轮全部合成浏览器已关闭，独立真实App链无需前端服务；自有Vite经PID/start_ticks/cwd/参数和监听核验后TERM，原launcher实际退出143，进程、子进程与5281监听清零。仅删除本树自建依赖链接，保留共享目标；未部署公网、使用用户数据或调用外部模型。
 
-| 类型与状态                                      | 完整截图或连续分段                                                                                                                                                                       |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编辑Chat：普通能力，Schema与思考关闭            | [完整](https://img.lunadeer.cn/i/2026/10/17/6ad3235896179.png)                                                                                                                           |
-| 编辑Chat：JSON Schema开启                       | [完整](https://img.lunadeer.cn/i/2026/10/17/6ad3235896b82.png)                                                                                                                           |
-| 编辑Chat：支持思考但无等级                      | [完整](https://img.lunadeer.cn/i/2026/10/17/6ad3235e9b66f.png)                                                                                                                           |
-| 编辑Chat：name/value等级与高级容量              | [上](https://img.lunadeer.cn/i/2026/10/17/6ad3235e35713.png)、[下](https://img.lunadeer.cn/i/2026/10/17/6ad32362c737b.png)                                                               |
-| 编辑Chat：重复等级值校验                        | [上](https://img.lunadeer.cn/i/2026/10/17/6ad3236486487.png)、[下](https://img.lunadeer.cn/i/2026/10/17/6ad32367e0d58.png)                                                               |
-| 编辑Embedding：固定文本→向量、上下文容量        | [完整](https://img.lunadeer.cn/i/2026/10/17/6ad32387c85cf.png)                                                                                                                           |
-| 新建Chat：类型可选、media声明、Schema及思考等级 | [上](https://img.lunadeer.cn/i/2026/10/17/6ad32369c910e.png)、[下](https://img.lunadeer.cn/i/2026/10/17/6ad3236d5aeac.png)                                                               |
-| 新建Embedding：固定模态与上下文容量             | [完整](https://img.lunadeer.cn/i/2026/10/17/6ad3236d89447.png)                                                                                                                           |
-| 390浅色Chat：图像/文件声明、等级与全部高级项    | [上](https://img.lunadeer.cn/i/2026/10/17/6ad32370654e4.png)、[中](https://img.lunadeer.cn/i/2026/10/17/6ad32372448ba.png)、[下](https://img.lunadeer.cn/i/2026/10/17/6ad32372ed147.png) |
+本轮7张选图均为合成数据，作者与独审已实际查看，图床匿名下载HTTP200且字节一致。桌面Chat一张包含全部保留高级项；390上下段共同覆盖同一表单。前轮普通/Schema/思考无等级等图保留其原版式归属，不能替代本轮紧凑等级或四类型证明。
 
-上列旧截图仅对应前轮Chat/Embedding；本轮四类型最终截图会在适用验证完成后替换该索引。
+| 类型与状态                             | 完整截图或连续分段                                                                                                         |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 对话：紧凑思考等级、媒体声明及高级容量 | [深色桌面](https://img.lunadeer.cn/i/2026/10/17/6ad3287b1ad40.png)                                                         |
+| 嵌入：固定文本→向量、上下文容量        | [浅色桌面](https://img.lunadeer.cn/i/2026/10/17/6ad3287b1f98e.png)                                                         |
+| 重排：查询与文档→排序结果              | [浅色桌面](https://img.lunadeer.cn/i/2026/10/17/6ad328823e9af.png)                                                         |
+| 图像生成：文本→图像                    | [浅色桌面](https://img.lunadeer.cn/i/2026/10/17/6ad328820e1e7.png)                                                         |
+| 新建图像生成：类型可选                 | [深色桌面](https://img.lunadeer.cn/i/2026/10/17/6ad3288ad15a9.png)                                                         |
+| 390浅色对话：等级同排与全部高级项      | [上](https://img.lunadeer.cn/i/2026/10/17/6ad3288790985.png)、[下](https://img.lunadeer.cn/i/2026/10/17/6ad328989e970.png) |
 
 ### 可复用模型选择浮层
 
 ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层跨供应商模型列表承载搜索、当前选中勾选及不可选原因，不再要求先进入某个供应商才能找模型。空选框显示“点击选择模型”，已选时“供应商名称/模型ID”始终可见，hover只改变样式、不替换内容。搜索、分页、空结果、失败重读及迟到结果由同一请求owner管理；关闭浮层不清页面草稿，Escape返回触发控件。窄屏与缩放需保持触发关联、搜索及结果可达，正式组件接口由[共享组件规范](../frontend/components.md)维护。
 
-四用途各保留一句功能描述：向量用于知识/记忆检索，总结用于记忆提取整理及会议摘要，重排用于检索结果排序，图像生成用于生成图片。重排与图像生成须明确当前运行能力尚未绑定，不能以配置入口或可保存状态暗示已可调用；不在本轮解除其STOP。选择只改本地草稿，单summary资源保存、409与Unknown合同不变。
+四用途各保留一句功能描述：嵌入用于知识/记忆检索，总结用于记忆提取整理及会议摘要，重排用于检索结果排序，图像生成用于生成图片。重排与图像生成可以配置、选择及显式管理测试，但对应检索或图像Artifact业务consumer尚未绑定，不能以管理测试成功暗示完整业务已接通。选择只改本地草稿，单summary资源保存、409与Unknown合同不变。
 
 ## 2. 既有接口与数据
 
@@ -78,7 +77,7 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 ## 3. 用途、删除影响与恢复
 
-唯一 `GET /system/model-selection`→`{id,version,configured:null|{embedding,summary,reranker,image}}`；PUT发送`{id,expected_version,embedding,summary,reranker,image}`。四字段均须显式提供：embedding与summary必填，reranker/image可null。embedding须为当前启用的System embedding模型；summary须为当前启用的System chat模型、供应商亦启用，并具备`json_schema`能力。候选按模型type、能力及当前启用状态判断，同一openai-compatible供应商可分别提供chat与embedding模型；未配置null不等于读取失败。
+唯一 `GET /system/model-selection`→`{id,version,configured:null|{embedding,summary,reranker,image}}`；PUT发送`{id,expected_version,embedding,summary,reranker,image}`。四字段均须显式提供：embedding与summary必填，reranker/image可null。embedding须为当前启用的System embedding模型；summary须为当前启用的System chat模型、供应商亦启用，并具备`json_schema`能力。候选按模型type、能力及当前启用状态判断，同一openai-compatible供应商可分别提供四类模型；未配置null不等于读取失败。
 
 “总结模型”同时供Memory提取、整理、reflect与Meeting摘要/首轮标题使用。两类消费者统一解析`SummarySelector='summary'`，平台引用role为`summary`，各自的业务Purpose、提示词、用量归属和生命周期保持。系统只存一个用途配置、一个id/version和`model.selection.update`回执；删除旧独立meeting-summary HTTP/command/store/owner/锁，旧路由返回404，旧memory字段严格拒绝。Project既有`project_summary`未绑定预留契约不属第二个System配置，本轮不删除或启用。
 
@@ -94,21 +93,21 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 ## 4. 新增发现与有界真实测试
 
-新增能力由后端真实System管理调用owner提供，不能借Project Invocation身份读取凭据。本包只开放`openai-compatible`供应商family，以Model.type派发既有OpenAI chat与embeddings两个运行adapter；family不是第三种运行协议，配置校验、snapshot/Profile与管理测试须一致解析。旧协议记录只读，不恢复Jina/Image等原STOP。保存配置、选择模型和打开页面均不自动出网。
+新增能力由后端真实System管理调用owner提供，不能借Project Invocation身份读取凭据。本包只开放`openai-compatible`供应商family，以Model.type派发Chat、Embeddings、Jina兼容Rerank或OpenAI Images协议；重排格式不称为OpenAI官方标准。四类共用已保存供应商端点与凭据，配置校验、snapshot/Profile与管理测试一致解析。旧协议记录只读；新增管理能力不等于完整检索或图像Artifact业务已接通。保存配置、选择模型和打开页面均不自动出网。
 
 | 接口                                          | 严格输入与输出                                                                                                                                                                                                                      |
 | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET `/system/model-capabilities`              | `{protocols:[{protocol:"openai-compatible",model_types:["chat","embedding"],discovery:true,test:true}]}`；新建入口只有这一个family，不显示两套供应商协议选择。                                                                      |
+| GET `/system/model-capabilities`              | `{protocols:[{protocol:"openai-compatible",model_types:["chat","embedding","reranker","image_generation"],discovery:true,test:true}]}`；新建入口只有这一个family。                                                                  |
 | POST `/system/model-providers/{id}/discovery` | `{expected_version}`→`{operation_id,provider_id,provider_version,outcome,reason,items:[{provider_model_id}],duration_ms,created_at}`；只从已保存供应商的固定`models`路径获取ID，不据ID猜能力。失败或未知时items为空。               |
 | POST `/system/models/{id}/test`               | `{expected_version,provider_version}`→`{operation_id,provider_id,model_id,model_version,provider_version,outcome,reason,duration_ms,created_at}`；使用已保存模型/凭据和固定最小协议payload，不接自由prompt、任意URL或客户端Secret。 |
 
-outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集为`unsupported_protocol,configuration_changed,credential_unavailable,policy_rejected,network_failed,tls_failed,timeout,cancelled,upstream_rejected,invalid_response,response_limit,interrupted`。duration_ms为0..20000的JSON整数，created_at沿正式UTC时间。返回不含供应商原文、认证头、响应内容或Secret；一次成功不标记供应商持续在线，不替用户保证后续调用可用。
+outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集为`unsupported_protocol,configuration_changed,credential_unavailable,policy_rejected,network_failed,tls_failed,timeout,cancelled,upstream_rejected,invalid_response,response_limit,interrupted`。duration_ms为JSON整数：Discovery与非图像Test为0..20000，Image Test为0..120000，通用Test读取器上限120000。created_at沿正式UTC时间。返回不含供应商原文、认证头、响应内容、生成图片/URL或Secret；图像管理测试成功仅证明响应结构有效，不证明图片下载或Artifact保存。一次成功不标记供应商持续在线，不替用户保证后续调用可用。
 
 两POST均要求System/CSRF/Idempotency-Key并持久绑定原身份、body和版本。原key/body完成重放返回同一结果，**不再次出网**；未决为`COMMIT_UNKNOWN/unknown`、`retry_hint=replay`，无额外lookup。有可靠原进程退出事实时可收敛`unknown/interrupted`，不猜上游未执行。重试一次外部调用必须是用户明确发起的新操作，不能因响应丢失自动换key。
 
-主操作20秒，真实I/O结束并join后有界5秒持久/lease收尾；全局最多4个、不排队，满额`RESOURCE_BUSY`。发现响应最多2MiB、1000个ID，超限明确失败而非假完整目录；测试响应最多1MiB。只允许已保存配置派生路径，拒绝redirect；复用统一出站DNS/当前规则/代理/TLS，不读取环境代理兜底。实际网络期间当前Session/admin与Provider/Model/Secret版本由共享锁保护；关闭/取消需实际停止并join，界面不把取消请求当上游未执行证明。
+Discovery和Chat/Embedding/Rerank主操作20秒，Image总预算120秒、响应头等待不超过总预算、读取空闲30秒；真实I/O结束并join后有界5秒持久/lease收尾。Image Test前端仅此操作使用130秒等待余量，其它模型操作仍30秒；停止等待和Unknown原请求恢复不变。全局最多4个、不排队，满额`RESOURCE_BUSY`。发现响应最多2MiB、1000个ID，超限明确失败而非假完整目录；普通测试响应最多1MiB，Image原始响应8MiB、解码结果6MiB，不回传图像。只允许已保存配置派生路径，拒绝redirect；复用统一出站DNS/当前规则/代理/TLS，不读取环境代理兜底。实际网络期间当前Session/admin与Provider/Model/Secret版本由共享锁保护；关闭/取消需实际停止并join，界面不把取消请求当上游未执行证明。
 
-同一供应商发现一次，勾选导入时逐模型明确chat或embedding类型及合法能力，再使用现有`model.create`逐项串行，单批最多100项；每项独立key/body/receipt并显示已成功、失败、未开始或Unknown。不重复成功项，不把部分完成写成整体回滚；取消仅停止未开始项。导入前明确合法类型和能力配置，不从发现结果制造上下文、工具或推理支持。
+同一供应商发现一次，勾选导入时逐模型明确四种合法类型之一及对应能力，再使用现有`model.create`逐项串行，单批最多100项；每项独立key/body/receipt并显示已成功、失败、未开始或Unknown。不重复成功项，不把部分完成写成整体回滚；取消仅停止未开始项。导入前明确合法类型和能力配置，不从发现结果制造上下文、工具或推理支持。
 
 ## 5. 实施与验收边界
 

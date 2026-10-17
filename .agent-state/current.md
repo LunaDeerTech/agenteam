@@ -1,8 +1,10 @@
-# 当前状态：四类型模型配置与紧凑思考等级实现中
+# 当前状态：四类型模型配置与紧凑思考等级已完成适用验证
 
-恢复入口为主活动分支`ai/frontend-vue-rebuild-20261016`，本包仍在独立Vue工作树`/workspace/agenteam-model-capabilities-vue`开发，root负责Git集成。新轮以788d4c36为基础：Embedding类型及用途名称改为“嵌入”，数学向量不改；思考等级每行仅名称/值/叉号，含窄屏，关联label保留供辅助技术，下面统一“添加思考等级”。
+恢复入口为主活动分支`ai/frontend-vue-rebuild-20261016`，本包独立Vue工作树为`/workspace/agenteam-model-capabilities-vue`，root负责Git集成。Embedding类型及用途名称改为“嵌入”，数学向量不改；同一兼容供应商支持四类配置。思考等级每行仅名称/值/叉号，390窄屏仍同排，保留可访问label、校验与焦点；下方统一“添加思考等级”。
 
-同一兼容供应商新增Rerank与Image Generation配置；表单及草稿已接四类型固定能力，新增两类不携Chat能力或容量，四用途选择资格同步。管理测试继续依实际能力接口与原命令执行，不能据配置入口声称业务consumer已接通。首产品已冻结，当前type与定向单元在途；新独立浏览器及真实后端验证尚未完成，不复用前轮两类型结果冒称四类型通过。公网及用户数据不动。
+11项前端定向用例（7项表单/用途资格、4项预算/恢复）、最终type/build与独立合成浏览器4项均通过。Image Test专用130秒客户端预算及20秒/120秒回执边界已验证，未实际等待120秒。保留首单元Teleport定位失败经测试修正后通过的事实。本轮7张截图已由作者和独审实看、上传并匿名下载核对一致，见[工作项截图索引](../docs/development/work-items/frontend-model-catalog.md#1-页面与完整流程)。
+
+独立真实App输入`aca5853f`，`TestModelFourTypeManagementIndependentReview`首轮PASS 23.66s；编译、原测试Wait及整session均实际退出0。覆盖四类API保存读回/能力拒例、迁移150约束、四用途持久化、5次固定TLS出站及大base64、同key不二发、URL零下载、lease释放与撤权拒绝；不声称完整业务consumer或图像Artifact已接通。3个精确容器、3个网络、helpers/App进程及唯一临时binary目录均已清退，外来持久服务与cache未动。全部浏览器已退出，自有Vite原launcher实际143、进程/子进程/5281监听清零，仅unlink本树自建依赖链接，共享目标保留。公网未更新，未操作真实用户数据。
 
 ## 前轮模态多选
 
