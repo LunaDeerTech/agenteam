@@ -134,7 +134,7 @@ func (s *IndexService) rebuild(ctx context.Context, b *indexBuild) (out RebuildR
 	if err != nil {
 		return out, err
 	}
-	profile := indexProfile{ID: b.id, Project: project, Dimension: s.deps.Settings.Dimension, Backend: s.deps.Settings.Backend}
+	profile := indexProfile{ID: b.id, Project: project, Dimension: b.profile.Dimensions, Backend: s.deps.Settings.Backend}
 	g, err := s.newRetention(actor, profile)
 	if err != nil {
 		return out, err

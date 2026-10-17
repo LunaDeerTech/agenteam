@@ -81,6 +81,10 @@ const model = (
       structured_output_modes: type === "chat" ? ["json_schema"] : [],
       context_length: null,
       max_output: null,
+      embedding:
+        type === "embedding"
+          ? { dimensions: "1536", dimensions_mode: "fixed" }
+          : null,
     },
   },
 });

@@ -66,13 +66,13 @@ Menu 与 Select 使用内部 `useAnchoredLayer`，依据触发位置和 viewport
 
 `UiSearchSelect` 是不访问业务 API 的共享控件，使用 `useAnchoredLayer` 锚定触发框，必要时翻到上方并限制在可视 viewport 内。支持浏览器原生 popover 时进入顶层以避免父容器裁切；模态内仍归属原 dialog，不创建第二个居中模态或全页焦点锁。
 
-- Props：必填 `label`、`options: SearchSelectOption[]`；可选 `modelValue`、`selectedLabel`、`query`、`loading`、`error`、`pageIndex`、`hasPrevious`、`hasNext`、`disabled`、`placeholder`、`searchPlaceholder`、`emptyText`、`rich`（默认false）。选项为 `{value,label,description?,disabledReason?,details?}`；当前文字由 `selectedLabel` 提供，不要求当前项在已加载页中。空态默认“点击选择模型”。
+- Props：必填 `label`、`options: SearchSelectOption[]`；可选 `modelValue`、`selectedLabel`、`query`、`loading`、`error`、`pageIndex`、`hasPrevious`、`hasNext`、`disabled`、`placeholder`、`searchPlaceholder`、`emptyText`、`rich`（默认false）。选项为 `{value,label,description?,tags?:{label,title?}[],disabledReason?,details?}`；当前文字由 `selectedLabel` 提供，不要求当前项在已加载页中。空态默认“点击选择模型”。
 - Emits：`update:modelValue(value)`、`update:query(value)`、`open-change(open)`、`previous`、`next`、`retry`。外层提供真实分页与搜索；控件不扫描当前页充当全局搜索，不自行保存业务配置。
 - Trigger 为具可访问名称的 button，公开 expanded/controls/dialog 关系。默认模式包含搜索combobox和listbox，方向键跳过禁用项、Enter选择，保留原简单选择语义。Escape关闭并回触发框；Tab可到分页/重试并离开浮层，外部点击关闭而不抢走目标焦点。选项常显禁用原因和当前选择标记；hover不替换已选文字。
 - `rich`显式启用带行操作的grid模式，主选择button与“更多”button为并列gridcell，不把交互控件嵌入option。`details`为true的项提供更多入口，hover/focus显示，触控/窄屏常显；方向键移动行，右键打开更多。`details({option,close})`插槽由业务层提供内容，控件不解释或保存业务状态。
 - 更多内容桌面锚定行右侧，空间不足左翻并限制viewport；其DOM仍归属父浮层，避免点击子层被当外点。≤640px在父层中展示第二视图并提供“返回模型列表”。Escape/左键先返回原行更多按钮，再次Escape返回选框；无全页焦点锁。内部`useAnchoredLayer`的`placement`和`container`仅由选择器显式启用，原Menu/Select默认定位不变。
 - 浮层宽度最多400px、最高420px并受viewport约束，结果区域独立滚动，搜索/分页保持可达；复用共享overlay动效与 reduced-motion规则。`useAnchoredLayer` 新增的width/maxHeight/topLayer仅为此控件选择启用，原Menu/Select默认合同不变。
 
-系统域 `components/system/ModelSelect.vue` 组合该控件与真实 `/system/models` 查询：无provider过滤的一层列表、250ms搜索、每页10条，读取使用系统权限/身份与游标owner。列表项的provider安全投影供“供应商/模型ID”及资格说明使用；`issue(model)`由调用方提供，最终保存/删除仍由服务端重验。用途页和删除替换入口共用该组件，备注仅在更多内容顶部以纯文本展示，普通行保留主标识、弱化类型及资格原因。可选`reasoning: ReasoningChoice`、`allowReasoning`由用途调用方提供；输出`select(model, reasoning?)`仅更新父草稿。主行选择同一模型保留原策略，换模型回到供应商默认；删除替换不启用策略编辑。
+系统域 `components/system/ModelSelect.vue` 组合该控件与真实 `/system/models` 查询：无provider过滤的一层列表、250ms搜索、每页10条，读取使用系统权限/身份与游标owner。列表项的provider安全投影供“供应商/模型ID”及资格说明使用；`issue(model)`由调用方提供，最终保存/删除仍由服务端重验。用途页和删除替换入口共用该组件，备注仅在更多内容顶部以纯文本展示，普通行保留主标识，第二行通过非交互 `tags` 展示类型及已知容量/输入能力；标签自然换行，完整容量保留于 title，禁用原因另行显示，不被标签隐藏。共享控件不解释标签含义；缺省不传 tags 的简单选择行为不变。可选`reasoning: ReasoningChoice`、`allowReasoning`由用途调用方提供；输出`select(model, reasoning?)`仅更新父草稿。主行选择同一模型保留原策略，换模型回到供应商默认；删除替换不启用策略编辑。
 
 思考策略使用同一组原生单选：有等级时显示`name`、输出`value`；无等级且有明确映射时显示“供应商默认/开启思考/关闭思考”；无映射只允许默认并说明需配置。默认不等于关闭，关闭浮层不撤销已经修改的页面草稿。完整`ModelChoice`及保存资格由系统域验证，基础UiSearchSelect不访问模型API、不内置该合同。

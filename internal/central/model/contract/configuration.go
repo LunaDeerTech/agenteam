@@ -70,6 +70,9 @@ type ModelInput struct {
 }
 
 func (m ModelInput) Validate() error {
+	if m.Capabilities.ValidateForModelType(m.Type) != nil {
+		return bad()
+	}
 	if !validNotes(m.Notes) || !text(m.ProviderModelID, 256) || !m.Type.Valid() || objectJSON(m.Parameters, 64<<10) != nil || overwrite(m.RequestOverwrite, m.HeaderOverwrite) != nil || m.Capabilities.Validate() != nil {
 		return bad()
 	}

@@ -44,6 +44,7 @@ type Transport struct {
 type Request struct {
 	Action, Protocol, Endpoint, Model string
 	Chat                              *ChatInput
+	Embedding                         *mc.EmbeddingCapabilities
 }
 
 type ChatInput struct {
@@ -239,12 +240,21 @@ func prepareContext(ctx context.Context, input Request) (*http.Request, int, err
 				Stream              bool             `json:"stream"`
 			}{input.Model, []map[string]any{{"role": "user", "content": content}}, maxTokens, false})
 		case embedProtocol:
+			if input.Embedding == nil || input.Embedding.Validate() != nil {
+				return nil, 0, errConfiguration
+			}
+			var dimensions *int64
+			if input.Embedding.DimensionsMode == mc.EmbeddingRequestDimensions {
+				value := int64(input.Embedding.Dimensions)
+				dimensions = &value
+			}
 			suffix = "/embeddings"
 			body, err = json.Marshal(struct {
 				Model          string `json:"model"`
 				Input          string `json:"input"`
 				EncodingFormat string `json:"encoding_format"`
-			}{Model: input.Model, Input: "Connection test.", EncodingFormat: "float"})
+				Dimensions     *int64 `json:"dimensions,omitempty"`
+			}{Model: input.Model, Input: "Connection test.", EncodingFormat: "float", Dimensions: dimensions})
 		case rerankProtocol:
 			suffix = "/rerank"
 			body, err = json.Marshal(struct {

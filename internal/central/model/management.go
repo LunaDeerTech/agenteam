@@ -361,6 +361,7 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 		wireInput := managementwire.Request{Action: o.Action, Protocol: string(protocol), Endpoint: provider.Input.BaseURL}
 		if model != nil {
 			wireInput.Model = model.Input.ProviderModelID
+			wireInput.Embedding = model.Input.Capabilities.Clone().Embedding
 			if input != nil {
 				wireInput.Chat = &managementwire.ChatInput{Text: input.Text, Attachments: prepared, Capabilities: model.Input.Capabilities}
 			}

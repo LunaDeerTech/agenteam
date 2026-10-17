@@ -28,6 +28,10 @@ function modelInput(name, type = "chat") {
       structured_output_modes: type === "chat" ? ["json_schema"] : [],
       context_length: null,
       max_output: null,
+      embedding:
+        type === "embedding"
+          ? { dimensions: "3", dimensions_mode: "fixed" }
+          : null,
     },
   };
 }

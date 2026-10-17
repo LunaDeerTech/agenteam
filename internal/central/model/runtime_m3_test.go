@@ -62,7 +62,7 @@ func TestRuntimeEmbeddingDigestAndPreparation(t *testing.T) {
 	m := chat.Model.Clone()
 	m.Consumer = c
 	m.Snapshot.Identity.Protocol, m.Snapshot.Identity.Profile, m.Snapshot.Identity.ModelType, m.Snapshot.Identity.AdapterRevision = mc.OpenAIEmbeddings, mc.OpenAIEmbeddingsV1, mc.EmbeddingModel, wire.OpenAIEmbeddingsFloatRevision
-	m.Snapshot.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}
+	m.Snapshot.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}, Embedding: &mc.EmbeddingCapabilities{Dimensions: 3, DimensionsMode: mc.EmbeddingFixedDimensions}}
 	r := mc.EmbeddingRequest{NonchatCall: mc.NonchatCall{Actor: chat.Actor, CallID: chat.CallID, Consumer: c, Model: m, Input: chat.Input}, Texts: []string{"first", "second"}, ExpectedDimensions: 3}
 	var err error
 	r.Input.Digest, err = EmbeddingInputDigest(r.Texts, r.ExpectedDimensions)

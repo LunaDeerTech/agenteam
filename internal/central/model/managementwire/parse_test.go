@@ -46,7 +46,7 @@ func TestParsersValidateOnlyTheirProtocol(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result := parse(context.Background(), Request{Action: test.action, Protocol: test.protocol}, []byte(test.body))
+			result := parse(context.Background(), Request{Action: test.action, Protocol: test.protocol, Embedding: fixedEmbedding(3)}, []byte(test.body))
 			if result.Reason != test.reason || !reflect.DeepEqual(result.Items, test.items) {
 				t.Fatalf("safe result mismatch: reason=%s count=%d", result.Reason, len(result.Items))
 			}
@@ -61,7 +61,7 @@ func TestParsersValidateOnlyTheirProtocol(t *testing.T) {
 		t.Fatal("oversized discovery list accepted")
 	}
 	vector := strings.Repeat("0,", 4096) + "0"
-	if parse(context.Background(), Request{Action: "test", Protocol: embedProtocol}, []byte(`{"data":[{"index":0,"embedding":[`+vector+`]}]}`)).Reason != "invalid_response" {
+	if parse(context.Background(), Request{Action: "test", Protocol: embedProtocol, Embedding: fixedEmbedding(4096)}, []byte(`{"data":[{"index":0,"embedding":[`+vector+`]}]}`)).Reason != "invalid_response" {
 		t.Fatal("oversized vector accepted")
 	}
 	if strictJSON(context.Background(), []byte(strings.Repeat("[", 34)+"0"+strings.Repeat("]", 34))) {
@@ -71,7 +71,7 @@ func TestParsersValidateOnlyTheirProtocol(t *testing.T) {
 
 func TestPreparePreservesEscapedPrefixAndFixedPayload(t *testing.T) {
 	for _, protocol := range []string{chatProtocol, embedProtocol} {
-		request, limit, err := prepare(Request{Action: "test", Protocol: protocol, Endpoint: "https://fixture.test/v1%2Ftenant///", Model: "vendor/model:1"})
+		request, limit, err := prepare(Request{Action: "test", Protocol: protocol, Embedding: fixedEmbedding(3), Endpoint: "https://fixture.test/v1%2Ftenant///", Model: "vendor/model:1"})
 		if err != nil {
 			t.Fatal(err)
 		}

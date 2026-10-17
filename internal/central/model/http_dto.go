@@ -56,6 +56,7 @@ type httpCapabilities struct {
 	StructuredOutputModes []string             `json:"structured_output_modes"`
 	ContextLength         json.RawMessage      `json:"context_length"`
 	MaxOutput             json.RawMessage      `json:"max_output"`
+	Embedding             json.RawMessage      `json:"embedding"`
 }
 
 func (d httpCapabilities) input() (mc.Capabilities, error) {
@@ -74,7 +75,26 @@ func (d httpCapabilities) input() (mc.Capabilities, error) {
 	if err != nil {
 		return mc.Capabilities{}, err
 	}
-	return mc.Capabilities{ToolCalls: *d.ToolCalls, ParallelToolCalls: *d.ParallelToolCalls, Streaming: *d.Streaming, Reasoning: *d.Reasoning, ReasoningToggleMode: toggle, InputModalities: d.InputModalities, OutputModalities: d.OutputModalities, ReasoningEfforts: d.ReasoningEfforts, StructuredOutputModes: d.StructuredOutputModes, ContextLength: contextLength, MaxOutput: maxOutput}, nil
+	embedding, err := httpEmbeddingCapabilities(d.Embedding)
+	if err != nil {
+		return mc.Capabilities{}, err
+	}
+	return mc.Capabilities{ToolCalls: *d.ToolCalls, ParallelToolCalls: *d.ParallelToolCalls, Streaming: *d.Streaming, Reasoning: *d.Reasoning, ReasoningToggleMode: toggle, InputModalities: d.InputModalities, OutputModalities: d.OutputModalities, ReasoningEfforts: d.ReasoningEfforts, StructuredOutputModes: d.StructuredOutputModes, ContextLength: contextLength, MaxOutput: maxOutput, Embedding: embedding}, nil
+}
+
+func httpEmbeddingCapabilities(raw json.RawMessage) (*mc.EmbeddingCapabilities, error) {
+	if bytes.Equal(bytes.TrimSpace(raw), []byte("null")) {
+		return nil, nil
+	}
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil || len(fields) != 2 || fields["dimensions"] == nil || fields["dimensions_mode"] == nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	var value mc.EmbeddingCapabilities
+	if json.Unmarshal(fields["dimensions"], &value.Dimensions) != nil || json.Unmarshal(fields["dimensions_mode"], &value.DimensionsMode) != nil || value.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	return &value, nil
 }
 
 type httpModelInput struct {
@@ -167,7 +187,7 @@ type httpModelView struct {
 
 func httpModelDTO(v mc.ModelView) httpModelView {
 	p, c := v.Input, v.Input.Capabilities
-	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, httpRawNullable(c.ReasoningToggleMode), append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]mc.ReasoningEffort{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput)}
+	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, httpRawNullable(c.ReasoningToggleMode), append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]mc.ReasoningEffort{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput), httpRawNullable(c.Embedding)}
 	headers := p.HeaderOverwrite
 	if headers == nil {
 		headers = map[string]string{}

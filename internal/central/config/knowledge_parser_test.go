@@ -9,7 +9,7 @@ import (
 
 func knowledgeParserValues() map[string]string {
 	values := runtimeConfigValues(strings.Replace(runtimeConfigJSON, "direct-text-v1", "tool-loop-v1", 1))
-	values[Prefix+retrievalRuntimeSetting] = `{"backend":"native_pg_fts","dimensions":4096}`
+	values[Prefix+retrievalRuntimeSetting] = `{"backend":"native_pg_fts"}`
 	values[Prefix+knowledgePDFToTextPath] = "/absent/pdftotext"
 	values[Prefix+knowledgePDFToTextSHA256] = strings.Repeat("a", 64)
 	values[Prefix+knowledgePrlimitPath] = "/absent/prlimit"

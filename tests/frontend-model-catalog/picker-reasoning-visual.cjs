@@ -146,6 +146,10 @@ function fixture() {
           structured_output_modes: chat ? ["text", "json_schema"] : [],
           context_length: chat || embedding ? "8192" : null,
           max_output: chat ? "1024" : null,
+          embedding:
+            type === "embedding"
+              ? { dimensions: "1536", dimensions_mode: "fixed" }
+              : null,
         },
       },
     };

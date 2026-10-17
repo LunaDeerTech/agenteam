@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -21,6 +22,10 @@ const OpenAIEmbeddingsFloatRevision = "openai-embeddings-float-v1"
 // V2 preserves the v1 wire profile and additionally accepts a provider-supplied
 // literal integer completion_tokens=0. V1 snapshots retain their strict parser.
 const OpenAIEmbeddingsFloatUsageRevision = "openai-embeddings-float-v2"
+
+// V3 freezes explicit vector dimensions. Fixed mode preserves the provider's
+// default wire; request mode adds the standard integer dimensions parameter.
+const OpenAIEmbeddingsDimensionsRevision = "openai-embeddings-dimensions-v3"
 
 const (
 	embeddingMaxItems       = 128
@@ -142,11 +147,18 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	}
 	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
 	if s.Protocol != mc.OpenAIEmbeddings || s.Profile != mc.OpenAIEmbeddingsV1 ||
-		s.ModelType != mc.EmbeddingModel || s.AdapterRevision != OpenAIEmbeddingsFloatRevision && s.AdapterRevision != OpenAIEmbeddingsFloatUsageRevision ||
+		s.ModelType != mc.EmbeddingModel || s.AdapterRevision != OpenAIEmbeddingsFloatRevision && s.AdapterRevision != OpenAIEmbeddingsFloatUsageRevision && s.AdapterRevision != OpenAIEmbeddingsDimensionsRevision ||
 		!onlyText(c.InputModalities) || len(c.OutputModalities) != 1 || c.OutputModalities[0] != "vector" ||
 		c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 ||
 		len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil ||
 		!emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 {
+		return fail(unsupported())
+	}
+	if c.Embedding == nil || c.Embedding.Validate() != nil || int(c.Embedding.Dimensions) != r.ExpectedDimensions {
+		return fail(invalid())
+	}
+	requestDimensions := c.Embedding.DimensionsMode == mc.EmbeddingRequestDimensions
+	if requestDimensions && s.AdapterRevision != OpenAIEmbeddingsDimensionsRevision {
 		return fail(unsupported())
 	}
 	total := 0
@@ -191,6 +203,9 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	// Count exactly the same JSON escapes used by the encoder, before either
 	// cloning the input or allocating the body. All counts are bounded above.
 	size := len("{\"model\":") + len(",\"input\":[") + len("],\"encoding_format\":\"float\"}")
+	if requestDimensions {
+		size += len(",\"dimensions\":") + len(strconv.Itoa(r.ExpectedDimensions))
+	}
 	n, err := embeddingQuotedSize(ctx, s.ProviderModelID)
 	if err != nil {
 		return fail(err)
@@ -232,7 +247,12 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 			return fail(err)
 		}
 	}
-	raw = append(raw, "],\"encoding_format\":\"float\"}"...)
+	raw = append(raw, "],\"encoding_format\":\"float\""...)
+	if requestDimensions {
+		raw = append(raw, ",\"dimensions\":"...)
+		raw = strconv.AppendInt(raw, int64(r.ExpectedDimensions), 10)
+	}
+	raw = append(raw, '}')
 	if len(raw) != size {
 		return fail(protocolFailure())
 	}
@@ -279,7 +299,7 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Close = true
-	return embeddingPrepared{req, profile, len(r.Texts), r.ExpectedDimensions, responseCap, s.AdapterRevision == OpenAIEmbeddingsFloatUsageRevision}, nil
+	return embeddingPrepared{req, profile, len(r.Texts), r.ExpectedDimensions, responseCap, s.AdapterRevision == OpenAIEmbeddingsFloatUsageRevision || s.AdapterRevision == OpenAIEmbeddingsDimensionsRevision}, nil
 }
 
 func embeddingQuotedSize(ctx context.Context, s string) (int, error) {

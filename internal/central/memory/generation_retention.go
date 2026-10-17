@@ -56,7 +56,7 @@ func (g *retainedGeneration) request(target generationTarget, action mc.ServingS
 func (g *retainedGeneration) context(ctx context.Context) context.Context {
 	return context.WithValue(context.WithValue(ctx, callKey{}, g.entry), generationKey{}, g)
 }
-func (m *Models) newGeneration(ctx context.Context, entry *call, source generationSource, dimension int, profile mc.EmbeddingProfile) (*retainedGeneration, error) {
+func (m *Models) newGeneration(ctx context.Context, entry *call, source generationSource, profile mc.EmbeddingProfile) (*retainedGeneration, error) {
 	if profile.Validate() != nil {
 		return nil, fault(f.InvalidArgument)
 	}
@@ -69,7 +69,7 @@ func (m *Models) newGeneration(ctx context.Context, entry *call, source generati
 	if err != nil {
 		return nil, err
 	}
-	g := &retainedGeneration{models: m, entry: entry, actor: actor, source: source, profile: profile, building: true, target: generationTarget{serving: rc.ServingIdentity{GenerationID: id.String(), Dimension: dimension}, process: m.authority.process}}
+	g := &retainedGeneration{models: m, entry: entry, actor: actor, source: source, profile: profile, building: true, target: generationTarget{serving: rc.ServingIdentity{GenerationID: id.String(), Dimension: profile.Dimensions}, process: m.authority.process}}
 	cause, err := readCause("generation-owner")
 	if err != nil {
 		return nil, err

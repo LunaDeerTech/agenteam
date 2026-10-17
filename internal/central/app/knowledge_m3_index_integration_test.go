@@ -163,7 +163,7 @@ func knowledgeM3RetentionConfiguration(t *testing.T, base []string, ca string, o
 	if len(origins) == 1 {
 		origin = origins[0]
 	}
-	env := append(slices.Clone(base), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1), `AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME={"backend":"native_pg_fts","dimensions":2}`, "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
+	env := append(slices.Clone(base), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1), `AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME={"backend":"native_pg_fts"}`, "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
 	if ca != "" {
 		env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+ca)
 	}
@@ -310,7 +310,7 @@ func knowledgeM3AppAuthorized(t *testing.T, agentSources bool) {
 	}
 	var actualCalls int
 	var runtimeJoined bool
-	err = v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(bool_and(c.phase='succeeded' AND c.retired AND l.released AND i.final_status='succeeded' AND i.dispatch='sent' AND i.consumer_kind='knowledge' AND i.purpose='knowledge_embedding' AND i.operation_id=m.id AND i.input_data#>>'{value,digest}'=m.input_digest AND i.identity_data#>>'{value,adapter_revision}'='openai-embeddings-float-v2' AND (SELECT count(*) FROM agenteam_model.runtime_attempts WHERE call_id=c.id)=1 AND NOT EXISTS(SELECT 1 FROM agenteam_model.usage_project_calls u WHERE u.call_id=c.id AND u.phase<>'business_closed')),false) FROM agenteam_knowledge.model_operations m JOIN agenteam_model.calls c ON c.id=m.call_id AND c.project_id=m.project_id JOIN agenteam_model.invocations i ON i.id=c.invocation_id JOIN agenteam_secret.secret_leases l ON l.id=c.lease_id WHERE m.project_id=$1 AND m.profile_id=$2 AND m.kind='index'`, v.a.String(), result.ProfileID).Scan(&actualCalls, &runtimeJoined)
+	err = v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(bool_and(c.phase='succeeded' AND c.retired AND l.released AND i.final_status='succeeded' AND i.dispatch='sent' AND i.consumer_kind='knowledge' AND i.purpose='knowledge_embedding' AND i.operation_id=m.id AND i.input_data#>>'{value,digest}'=m.input_digest AND i.identity_data#>>'{value,adapter_revision}'='openai-embeddings-dimensions-v3' AND (SELECT count(*) FROM agenteam_model.runtime_attempts WHERE call_id=c.id)=1 AND NOT EXISTS(SELECT 1 FROM agenteam_model.usage_project_calls u WHERE u.call_id=c.id AND u.phase<>'business_closed')),false) FROM agenteam_knowledge.model_operations m JOIN agenteam_model.calls c ON c.id=m.call_id AND c.project_id=m.project_id JOIN agenteam_model.invocations i ON i.id=c.invocation_id JOIN agenteam_secret.secret_leases l ON l.id=c.lease_id WHERE m.project_id=$1 AND m.profile_id=$2 AND m.kind='index'`, v.a.String(), result.ProfileID).Scan(&actualCalls, &runtimeJoined)
 	workAppCheck(t, "knowledge-original-model-secret-usage", err)
 	if actualCalls != 2 || !runtimeJoined {
 		t.Fatal("original v2 Model/Secret/Usage call facts did not close")
@@ -370,8 +370,8 @@ func TestKnowledgeM3AppConfiguration(t *testing.T) {
 		`AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
 		`AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING={"format":1,"current_kid":"knowledge","keys":[{"kid":"knowledge","key_b64":"gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp8="}]}`)
 	retained := knowledgeM3RetentionConfiguration(t, base, "")
-	if settings, ok := retained.RetrievalRuntime(); !ok || settings.Dimensions() != 2 {
-		t.Fatal("controlled retention configuration missing explicit dimensions")
+	if settings, ok := retained.RetrievalRuntime(); !ok || settings.Backend() != "native_pg_fts" {
+		t.Fatal("controlled retention configuration missing explicit backend")
 	}
 	pdf := knowledgeM3RetentionConfiguration(t, knowledgeM3PDFEnvironment(base), "")
 	if parser, enabled := pdf.KnowledgeParser(); !enabled || parser.Validate() != nil {
@@ -383,7 +383,7 @@ func TestKnowledgeM3AppConfiguration(t *testing.T) {
 	embedding := knowledgeM3ModelInput(t, "embedding", "fixture-embedding")
 	memory := knowledgeM3ModelInput(t, "summary", "fixture-chat")
 	agent := knowledgeM3ModelInput(t, "agent", "fixture-chat")
-	if embedding.Type != mc.EmbeddingModel || memory.Type != mc.ChatModel || memory.Capabilities.ToolCalls || !slices.Equal(memory.Capabilities.StructuredOutputModes, []string{"text", "json_schema"}) || !agent.Capabilities.ToolCalls || agent.Capabilities.ParallelToolCalls || agent.Capabilities.Reasoning || !slices.Equal(agent.Capabilities.StructuredOutputModes, []string{"text"}) || !slices.Equal(agent.Capabilities.InputModalities, []string{"text"}) || !slices.Equal(agent.Capabilities.OutputModalities, []string{"text"}) {
+	if embedding.Type != mc.EmbeddingModel || embedding.Capabilities.Embedding == nil || embedding.Capabilities.Embedding.Dimensions != 2 || embedding.Capabilities.Embedding.DimensionsMode != mc.EmbeddingFixedDimensions || memory.Type != mc.ChatModel || memory.Capabilities.ToolCalls || !slices.Equal(memory.Capabilities.StructuredOutputModes, []string{"text", "json_schema"}) || !agent.Capabilities.ToolCalls || agent.Capabilities.ParallelToolCalls || agent.Capabilities.Reasoning || !slices.Equal(agent.Capabilities.StructuredOutputModes, []string{"text"}) || !slices.Equal(agent.Capabilities.InputModalities, []string{"text"}) || !slices.Equal(agent.Capabilities.OutputModalities, []string{"text"}) {
 		t.Fatal("Knowledge platform structured and Agent ToolLoop profiles overlap")
 	}
 	for _, input := range []mc.ModelInput{embedding, memory, agent} {
@@ -405,7 +405,7 @@ func TestKnowledgeM3AppConfiguration(t *testing.T) {
 		runtime, enabled := cfg.ExecutionRuntime()
 		retrieval, indexed := cfg.RetrievalRuntime()
 		_, retry := cfg.SchedulerLaunchRetryPolicy()
-		if !enabled || !runtime.ToolLoop() || !indexed || retrieval.Dimensions() != 4096 || !retry {
+		if !enabled || !runtime.ToolLoop() || !indexed || retrieval.Backend() != "native_pg_fts" || !retry {
 			t.Fatal("complete Knowledge App configuration or origin deduplication differs")
 		}
 	}
@@ -430,7 +430,7 @@ func knowledgeM3Configuration(t *testing.T, base []string, endpoints []string, a
 		// during this source-result observation, as in the M1 workflow fixture.
 		runtimeConfig = strings.Replace(runtimeConfig, `"relaunch_skip_count":0`, `"relaunch_skip_count":240`, 1)
 	}
-	env := append(slices.Clone(base), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+runtimeConfig, `AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME={"backend":"native_pg_fts","dimensions":4096}`, "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
+	env := append(slices.Clone(base), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+runtimeConfig, `AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME={"backend":"native_pg_fts"}`, "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
 	if ca, present := os.LookupEnv("AGENTEAM_CENTRAL_OUTBOUND_CA_FILE"); present {
 		env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+ca)
 	}
@@ -488,6 +488,9 @@ func knowledgeM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentSou
 		provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 		workAppCheck(t, "knowledge-model-provider-id", err)
 		input := knowledgeM3ModelInput(t, profile, name)
+		if profile == "embedding" {
+			input.Capabilities.Embedding.Dimensions = 4096
+		}
 		knowledgeM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": knowledgeM3ModelWire(input)}, &receipt)
 		model, err := f.ParseID[mc.Model](receipt.ResourceID)
 		workAppCheck(t, "knowledge-model-id", err)
@@ -528,6 +531,7 @@ func knowledgeM3ModelInput(t *testing.T, profile, upstream string) mc.ModelInput
 	case "embedding":
 		input.Type = mc.EmbeddingModel
 		input.Capabilities.OutputModalities = []string{"vector"}
+		input.Capabilities.Embedding = &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}
 	case "summary":
 		limit := mc.TokenCount(128)
 		input.Capabilities.Streaming = true

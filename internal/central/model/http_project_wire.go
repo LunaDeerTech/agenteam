@@ -80,17 +80,18 @@ type projectHTTPScope struct {
 	ProjectID string `json:"project_id,omitempty"`
 }
 type projectHTTPCapabilities struct {
-	ToolCalls             bool                 `json:"tool_calls"`
-	ParallelToolCalls     bool                 `json:"parallel_tool_calls"`
-	Streaming             bool                 `json:"streaming"`
-	Reasoning             bool                 `json:"reasoning"`
-	ReasoningToggleMode   *string              `json:"reasoning_toggle_mode"`
-	InputModalities       []string             `json:"input_modalities"`
-	OutputModalities      []string             `json:"output_modalities"`
-	ReasoningEfforts      []mc.ReasoningEffort `json:"reasoning_efforts"`
-	StructuredOutputModes []string             `json:"structured_output_modes"`
-	ContextLength         *mc.TokenCount       `json:"context_length"`
-	MaxOutput             *mc.TokenCount       `json:"max_output"`
+	ToolCalls             bool                      `json:"tool_calls"`
+	ParallelToolCalls     bool                      `json:"parallel_tool_calls"`
+	Streaming             bool                      `json:"streaming"`
+	Reasoning             bool                      `json:"reasoning"`
+	ReasoningToggleMode   *string                   `json:"reasoning_toggle_mode"`
+	InputModalities       []string                  `json:"input_modalities"`
+	OutputModalities      []string                  `json:"output_modalities"`
+	ReasoningEfforts      []mc.ReasoningEffort      `json:"reasoning_efforts"`
+	StructuredOutputModes []string                  `json:"structured_output_modes"`
+	ContextLength         *mc.TokenCount            `json:"context_length"`
+	MaxOutput             *mc.TokenCount            `json:"max_output"`
+	Embedding             *mc.EmbeddingCapabilities `json:"embedding"`
 }
 type projectHTTPProviderInput struct {
 	Name          string           `json:"name"`
@@ -284,9 +285,9 @@ func (b *projectHTTPBound) reasoningEfforts(values []mc.ReasoningEffort) bool {
 	return true
 }
 func (b *projectHTTPBound) capabilities(c mc.Capabilities) bool {
-	// All ten field names, punctuation, four booleans, and two nullable quoted
-	// int64s fit below 384 bytes. Array elements are counted separately.
-	return (c.ReasoningToggleMode == nil || b.text(*c.ReasoningToggleMode, 32)) && b.add(416) && b.strings(c.InputModalities, 6) && b.strings(c.OutputModalities, 6) &&
+	// Fixed keys, nullable counts, toggle and the bounded embedding object fit
+	// below 544 bytes. Array elements are counted separately.
+	return (c.ReasoningToggleMode == nil || b.text(*c.ReasoningToggleMode, 32)) && b.add(544) && b.strings(c.InputModalities, 6) && b.strings(c.OutputModalities, 6) &&
 		b.strings(c.StructuredOutputModes, 11) && b.reasoningEfforts(c.ReasoningEfforts)
 }
 func (b *projectHTTPBound) provider(v mc.ProviderView) bool {
@@ -356,7 +357,7 @@ func projectHTTPCaps(c mc.Capabilities) projectHTTPCapabilities {
 		copy.StructuredOutputModes = []string{}
 	}
 	return projectHTTPCapabilities{copy.ToolCalls, copy.ParallelToolCalls, copy.Streaming, copy.Reasoning, copy.ReasoningToggleMode,
-		copy.InputModalities, copy.OutputModalities, copy.ReasoningEfforts, copy.StructuredOutputModes, copy.ContextLength, copy.MaxOutput}
+		copy.InputModalities, copy.OutputModalities, copy.ReasoningEfforts, copy.StructuredOutputModes, copy.ContextLength, copy.MaxOutput, copy.Embedding}
 }
 func projectHTTPProviderValue(v mc.ProviderView, project id.ProjectID) (projectHTTPProviderDTO, error) {
 	scope, ok := projectHTTPReadScope(v.Scope, project, false)

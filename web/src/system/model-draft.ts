@@ -1,6 +1,7 @@
 import { isVersion } from "../account/types";
 import {
   isReasoningEfforts,
+  isEmbeddingCapabilities,
   modelTypes,
   type ModelInput,
   type ModelType,
@@ -23,6 +24,8 @@ export interface ModelDraft {
   structuredOutput: boolean;
   contextLength: string;
   maxOutput: string;
+  embeddingDimensions: string;
+  embeddingDimensionsMode: "fixed" | "request";
 }
 export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
   const c = input?.capabilities;
@@ -43,6 +46,8 @@ export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
       c?.structured_output_modes.includes("json_schema") ?? false,
     contextLength: c?.context_length ?? "",
     maxOutput: c?.max_output ?? "",
+    embeddingDimensions: c?.embedding?.dimensions ?? "",
+    embeddingDimensionsMode: c?.embedding?.dimensions_mode ?? "fixed",
   };
 }
 const split = (value: string) =>
@@ -80,6 +85,14 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
   const chat = d.type === "chat";
   const embedding = d.type === "embedding";
   const capacity = chat || embedding;
+  const embeddingConfiguration = embedding
+    ? {
+        dimensions: d.embeddingDimensions,
+        dimensions_mode: d.embeddingDimensionsMode,
+      }
+    : null;
+  if (embedding && !isEmbeddingCapabilities(embeddingConfiguration))
+    throw new Error("向量维度须为 1–4096 的整数，并选择有效的维度模式。");
   const declaredInput = chat
     ? values(d.inputModalities, ["text", "image", "file"])
     : [];
@@ -147,6 +160,7 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
           : ["text"],
       context_length: capacity ? d.contextLength || null : null,
       max_output: chat ? d.maxOutput || null : null,
+      embedding: embeddingConfiguration,
     },
   };
 }

@@ -82,6 +82,9 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 		}
 		return Result{Answer: answer, Truncated: truncated, fullAnswer: choice.Message.Content}
 	case embedProtocol:
+		if input.Embedding == nil || input.Embedding.Validate() != nil {
+			return invalid
+		}
 		var response struct {
 			Data []struct {
 				Index     *int              `json:"index"`
@@ -92,7 +95,7 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 			return invalid
 		}
 		item := response.Data[0]
-		if item.Index == nil || *item.Index != 0 || len(item.Embedding) == 0 || len(item.Embedding) > 4096 {
+		if item.Index == nil || *item.Index != 0 || len(item.Embedding) != int(input.Embedding.Dimensions) {
 			return invalid
 		}
 		for _, raw := range item.Embedding {

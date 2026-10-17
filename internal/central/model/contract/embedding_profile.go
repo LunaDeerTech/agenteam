@@ -53,8 +53,8 @@ func EmbeddingProfileBinding(r EmbeddingProfileRequest) (f.Digest, error) {
 	}{1, r.Actor.Details(), r.Consumer})
 }
 
-// Stable configuration revisions identify the desired embedding space. The
-// domain owns its explicit dimensions. Credentials and endpoints stay in Model.
+// Stable configuration revisions and the Model-owned dimensions identify the
+// desired embedding space. Credentials and endpoints stay in Model.
 type EmbeddingProfile struct {
 	SelectionVersion f.Version  `json:"selection_version"`
 	ModelID          ModelID    `json:"model_id"`
@@ -62,9 +62,14 @@ type EmbeddingProfile struct {
 	ProviderID       ProviderID `json:"provider_id"`
 	ProviderVersion  f.Version  `json:"provider_version"`
 	AdapterRevision  string     `json:"adapter_revision"`
+	Dimensions       int        `json:"dimensions"`
+	DimensionsMode   string     `json:"dimensions_mode"`
 }
 
 func (p EmbeddingProfile) Validate() error {
+	if (EmbeddingCapabilities{Dimensions: EmbeddingDimensions(p.Dimensions), DimensionsMode: p.DimensionsMode}).Validate() != nil {
+		return bad()
+	}
 	if p.SelectionVersion.Validate() != nil || p.ModelID.Validate() != nil || p.ModelVersion.Validate() != nil || p.ProviderID.Validate() != nil || p.ProviderVersion.Validate() != nil || !safeToken(p.AdapterRevision, 128) {
 		return bad()
 	}

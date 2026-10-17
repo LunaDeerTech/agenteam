@@ -8,6 +8,7 @@ export interface SearchSelectOption {
   value: string;
   label: string;
   description?: string;
+  tags?: { label: string; title?: string }[];
   disabledReason?: string;
   details?: boolean;
 }
@@ -361,7 +362,22 @@ watch(
                         option.label
                       }}</span>
                       <span
-                        v-if="option.disabledReason || option.description"
+                        v-if="option.tags?.length"
+                        class="ui-search-select-tags"
+                      >
+                        <span
+                          v-for="tag in option.tags"
+                          :key="tag.label"
+                          class="ui-search-select-tag"
+                          :title="tag.title"
+                          >{{ tag.label }}</span
+                        >
+                      </span>
+                      <span
+                        v-if="
+                          option.disabledReason ||
+                          (!option.tags?.length && option.description)
+                        "
                         :id="`${id}-reason-${index}`"
                         class="ui-search-select-detail"
                         >{{ option.disabledReason || option.description }}</span
@@ -399,8 +415,20 @@ watch(
               </template>
               <span v-else class="ui-popup-item-label"
                 ><span class="ui-search-select-name">{{ option.label }}</span>
+                <span v-if="option.tags?.length" class="ui-search-select-tags">
+                  <span
+                    v-for="tag in option.tags"
+                    :key="tag.label"
+                    class="ui-search-select-tag"
+                    :title="tag.title"
+                    >{{ tag.label }}</span
+                  >
+                </span>
                 <span
-                  v-if="option.disabledReason || option.description"
+                  v-if="
+                    option.disabledReason ||
+                    (!option.tags?.length && option.description)
+                  "
                   :id="`${id}-reason-${index}`"
                   class="ui-search-select-detail"
                   >{{ option.disabledReason || option.description }}</span
@@ -597,6 +625,22 @@ watch(
 .ui-search-select-name,
 .ui-search-select-detail {
   display: block;
+}
+.ui-search-select-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.ui-search-select-tag {
+  max-width: 100%;
+  padding: 1px 5px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 .ui-search-select-detail {
   margin-top: 4px;

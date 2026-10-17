@@ -18,10 +18,7 @@ import (
 )
 
 type RuntimeConfig struct {
-	// Dimensions is the explicit configured embedding profile dimension. It
-	// is persisted on each generation and never inferred from a model name.
-	Dimensions int
-	Limits     rc.Limits
+	Limits rc.Limits
 }
 type Runtime struct {
 	domain *Service
@@ -34,7 +31,7 @@ func NewRuntime(domain *Service, models *Models, search rc.Searcher, config Runt
 	if domain == nil || models == nil || models.domain != domain || nilPort(search) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	if config.Dimensions < 1 || config.Dimensions > 4096 || config.Limits.Validate() != nil || config.Limits.ResultK > c.MaxRecall {
+	if config.Limits.Validate() != nil || config.Limits.ResultK > c.MaxRecall {
 		return nil, fault(f.InvalidArgument)
 	}
 	return &Runtime{domain, models, search, config}, nil
@@ -384,7 +381,7 @@ func (r *Runtime) ensureIndex(ctx context.Context, entry *call) error {
 		return err
 	}
 	if exists {
-		matched, err := r.domain.servingProfileMatches(ctx, entry, serving, profile, r.config.Dimensions)
+		matched, err := r.domain.servingProfileMatches(ctx, entry, serving, profile)
 		if err != nil {
 			return err
 		}
@@ -396,7 +393,7 @@ func (r *Runtime) ensureIndex(ctx context.Context, entry *call) error {
 	if err != nil {
 		return err
 	}
-	batchLimit := 262144 / r.config.Dimensions
+	batchLimit := 262144 / profile.Dimensions
 	if batchLimit > 128 {
 		batchLimit = 128
 	}
@@ -407,13 +404,13 @@ func (r *Runtime) ensureIndex(ctx context.Context, entry *call) error {
 	for n, record := range source.Records {
 		texts[n] = record.Current.Text
 	}
-	g, err := r.models.newGeneration(ctx, entry, source, r.config.Dimensions, profile)
+	g, err := r.models.newGeneration(ctx, entry, source, profile)
 	if err != nil {
 		return err
 	}
 	// Failed/cancelled cleanup remains registered for original Tool Join/Drain.
 	defer func() { _ = g.finish(ctx) }()
-	response, _, err := r.models.embedWithGeneration(ctx, entry, texts, r.config.Dimensions, nil, g)
+	response, _, err := r.models.embedWithGeneration(ctx, entry, texts, profile.Dimensions, nil, g)
 	if err != nil {
 		return err
 	}

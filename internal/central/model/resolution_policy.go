@@ -34,14 +34,14 @@ func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selection
 		return "", fault(f.InvalidState)
 	}
 	c := m.Input.Capabilities
-	if c.Validate() != nil {
+	if c.ValidateForModelType(m.Input.Type) != nil {
 		return "", fault(f.CapabilityUnsupported)
 	}
 	if selection.Kind == "platform" && selection.Selector == mc.EmbeddingSelector {
 		if p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIEmbeddings || m.Input.Type != mc.EmbeddingModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"vector"}) {
 			return "", fault(f.CapabilityUnsupported)
 		}
-		return adapter.OpenAIEmbeddingsFloatUsageRevision, nil
+		return adapter.OpenAIEmbeddingsDimensionsRevision, nil
 	}
 	if p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !slices.Equal(c.OutputModalities, []string{"text"}) {
 		return "", fault(f.CapabilityUnsupported)

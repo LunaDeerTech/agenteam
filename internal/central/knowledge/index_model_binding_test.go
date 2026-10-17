@@ -52,7 +52,7 @@ func modelBindingFixture(t *testing.T) (*indexOperation, mc.ConsumerRequest) {
 			ID:       newID[mc.Snapshot](t),
 			Identity: mc.ModelIdentity{ProviderID: newID[mc.Provider](t), ModelID: newID[mc.Model](t), ProviderName: "provider", ModelName: "embedding", ProviderModelID: "upstream-model", Protocol: mc.OpenAIEmbeddings, Profile: mc.OpenAIEmbeddingsV1, ModelType: mc.EmbeddingModel, AdapterRevision: "openai-embeddings-float-v2"},
 			Endpoint: "https://provider.example/v1", Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`),
-			Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}, CredentialRef: &ref,
+			Capabilities: mc.Capabilities{Embedding: &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}, InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}, CredentialRef: &ref,
 		},
 		Consumer: consumer, LeaseOwner: owner, CredentialLease: &sc.CredentialLease{LeaseID: lease, CredentialRef: ref},
 	}

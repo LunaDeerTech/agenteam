@@ -23,6 +23,7 @@ const model = (modalities = ["text", "image", "file"]): CatalogModel => ({
     request_overwrite: {},
     header_overwrite: {},
     capabilities: {
+      embedding: null,
       input_modalities: modalities,
       output_modalities: ["text"],
       tool_calls: false,

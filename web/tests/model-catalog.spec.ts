@@ -295,6 +295,7 @@ describe("model operation budgets", () => {
       request_overwrite: {},
       header_overwrite: {},
       capabilities: {
+        embedding: null,
         input_modalities: ["text"],
         output_modalities: [type === "chat" ? "text" : "image"],
         tool_calls: false,
@@ -549,6 +550,91 @@ it("adds only mandatory chat text capabilities and rejects inconsistent explicit
   expect(() => modelDraftInput(draft, "openai-compatible")).toThrow(
     "上下文长度",
   );
+});
+
+it("requires explicit bounded embedding dimensions and rejects missing or cross-type metadata", async () => {
+  const { modelDraft, modelDraftInput } =
+    await import("../src/system/model-draft");
+  const { isModelInput } = await import("../src/system/model-catalog");
+  const draft = modelDraft("openai-compatible");
+  draft.type = "embedding";
+  draft.providerModelId = "explicit-dimensions";
+  expect(draft.embeddingDimensions).toBe("");
+  expect(draft.embeddingDimensionsMode).toBe("fixed");
+  expect(() => modelDraftInput(draft, "openai-compatible")).toThrow("维度");
+  for (const [dimensions, dimensions_mode] of [
+    ["1", "fixed"],
+    ["4096", "request"],
+  ] as const) {
+    draft.embeddingDimensions = dimensions;
+    draft.embeddingDimensionsMode = dimensions_mode;
+    const input = modelDraftInput(draft, "openai-compatible");
+    expect(input.capabilities.embedding).toEqual({
+      dimensions,
+      dimensions_mode,
+    });
+    expect(isModelInput(input)).toBe(true);
+    const restored = modelDraft("openai-compatible", input);
+    expect(restored.embeddingDimensions).toBe(dimensions);
+    expect(restored.embeddingDimensionsMode).toBe(dimensions_mode);
+  }
+  const input = modelDraftInput(draft, "openai-compatible");
+  for (const dimensions of [
+    "",
+    "0",
+    "4097",
+    "01536",
+    "1.5",
+    " 1536",
+    "1536 ",
+  ]) {
+    draft.embeddingDimensions = dimensions;
+    expect(
+      () => modelDraftInput(draft, "openai-compatible"),
+      dimensions,
+    ).toThrow("维度");
+    expect(
+      isModelInput({
+        ...input,
+        capabilities: {
+          ...input.capabilities,
+          embedding: { dimensions, dimensions_mode: "fixed" },
+        },
+      }),
+      dimensions,
+    ).toBe(false);
+  }
+  for (const embedding of [
+    null,
+    { dimensions: 1536, dimensions_mode: "fixed" },
+    { dimensions: "1536" },
+    { dimensions: "1536", dimensions_mode: "auto" },
+  ])
+    expect(
+      isModelInput({
+        ...input,
+        capabilities: { ...input.capabilities, embedding },
+      }),
+    ).toBe(false);
+  const { embedding: _embedding, ...missing } = input.capabilities;
+  expect(isModelInput({ ...input, capabilities: missing })).toBe(false);
+  for (const type of ["chat", "reranker", "image_generation"] as const) {
+    draft.type = type;
+    const other = modelDraftInput(draft, "openai-compatible");
+    expect(other.capabilities.embedding).toBeNull();
+    expect(isModelInput(other)).toBe(true);
+    expect(
+      isModelInput({
+        ...other,
+        capabilities: {
+          ...other.capabilities,
+          embedding: input.capabilities.embedding,
+        },
+      }),
+    ).toBe(false);
+    const { embedding: _unused, ...absent } = other.capabilities;
+    expect(isModelInput({ ...other, capabilities: absent })).toBe(false);
+  }
 });
 
 it("allows empty notes and preserves Unicode notes within the wire limits", async () => {

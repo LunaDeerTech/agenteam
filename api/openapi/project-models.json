@@ -4593,7 +4593,8 @@
           "structured_output_modes",
           "context_length",
           "max_output",
-          "reasoning_toggle_mode"
+          "reasoning_toggle_mode",
+          "embedding"
         ],
         "properties": {
           "tool_calls": {
@@ -4701,6 +4702,10 @@
               "thinking_type"
             ],
             "description": "Explicit OpenAI-compatible request dialect, only Chat with reasoning=true and no effort levels. null supports provider default only. enable_thinking uses a top-level boolean; thinking_type uses thinking.type=enabled/disabled. Never inferred from model ID."
+          },
+          "embedding": {
+            "type": "null",
+            "description": "Project model configuration is Chat-only; it cannot carry an embedding vector configuration."
           }
         },
         "allOf": [

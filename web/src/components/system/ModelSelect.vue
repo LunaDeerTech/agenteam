@@ -45,13 +45,48 @@ const queryIssue = computed(() =>
     ? "搜索词需在 128 字节内，且不能包含控制字符。"
     : undefined,
 );
+function capacityTag(label: string, value: string | null) {
+  if (!value) return [];
+  const count = BigInt(value);
+  let display = value;
+  if (count >= 1000n) {
+    const tenths = count / 100n;
+    display = `${tenths / 10n}${tenths % 10n ? `.${tenths % 10n}` : ""}K`;
+  }
+  return [{ label: display, title: `${label} ${value} tokens` }];
+}
+function modelTags(model: CatalogModelOption) {
+  const input = model.input;
+  const capabilities = input.capabilities;
+  const tags: { label: string; title?: string }[] = [
+    {
+      label: modelTypeChoices.find((choice) => choice.value === input.type)!
+        .label,
+    },
+  ];
+  if (input.type === "chat") {
+    tags.push(...capacityTag("上下文", capabilities.context_length));
+    if (capabilities.input_modalities.includes("image"))
+      tags.push({ label: "图片", title: "图片输入" });
+    if (capabilities.input_modalities.includes("file"))
+      tags.push({ label: "文件", title: "文件输入" });
+  } else if (input.type === "embedding") {
+    if (capabilities.embedding)
+      tags.push({ label: `${capabilities.embedding.dimensions} 维` });
+    tags.push(...capacityTag("输入", capabilities.context_length));
+  } else if (
+    input.type === "image_generation" &&
+    capabilities.input_modalities.includes("text") &&
+    capabilities.output_modalities.includes("image")
+  )
+    tags.push({ label: "文生图" });
+  return tags;
+}
 const options = computed(() =>
   list.items.value.map((model) => ({
     value: model.id,
     label: modelDisplayName(model.provider.name, model.input.provider_model_id),
-    description: modelTypeChoices.find(
-      (choice) => choice.value === model.input.type,
-    )?.label,
+    tags: modelTags(model),
     disabledReason: props.issue(model),
     details:
       !!model.input.notes.trim() ||

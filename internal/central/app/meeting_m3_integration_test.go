@@ -507,7 +507,7 @@ func meetingM3ReplacementModelRequest(t *testing.T, provider mc.ProviderID, orig
 
 func TestMeetingM3SummaryReplacementModelWire(t *testing.T) {
 	provider := guardID[mc.Provider](t)
-	original := json.RawMessage(`{"notes":"Original Summary","provider_model_id":"meeting-collaboration","type":"chat","enabled":true,"parameters":{},"request_overwrite":{},"header_overwrite":{},"capabilities":{"tool_calls":false,"parallel_tool_calls":false,"streaming":true,"reasoning": false, "reasoning_toggle_mode":null,"input_modalities":["text"],"output_modalities":["text"],"reasoning_efforts":[],"structured_output_modes":[],"context_length":null,"max_output":"2048"}}`)
+	original := json.RawMessage(`{"notes":"Original Summary","provider_model_id":"meeting-collaboration","type":"chat","enabled":true,"parameters":{},"request_overwrite":{},"header_overwrite":{},"capabilities":{"tool_calls":false,"parallel_tool_calls":false,"streaming":true,"reasoning": false, "reasoning_toggle_mode":null,"embedding":null,"input_modalities":["text"],"output_modalities":["text"],"reasoning_efforts":[],"structured_output_modes":[],"context_length":null,"max_output":"2048"}}`)
 	// Exercise the same request constructor and encoder as the actual POST.
 	raw := workAppJSON(t, meetingM3ReplacementModelRequest(t, provider, original))
 	var encoded struct {
@@ -889,7 +889,7 @@ func meetingM3ConfigureModel(t *testing.T, v *executionSchedulerApp, endpoint st
 		meetingM3SystemCall(t, v, http.MethodPost, "models", map[string]any{"provider_id": provider, "input": map[string]any{
 			"notes": fmt.Sprintf("Meeting fixture Model %d", n), "provider_model_id": "meeting-collaboration", "type": mc.ChatModel, "enabled": true,
 			"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
-			"capabilities": map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "reasoning_toggle_mode": nil,
+			"capabilities": map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "reasoning_toggle_mode": nil, "embedding": nil,
 				"input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{},
 				"structured_output_modes": structured, "context_length": nil, "max_output": mc.TokenCount(2048)},
 		}}, &receipt)
@@ -906,7 +906,7 @@ func meetingM3ConfigureModel(t *testing.T, v *executionSchedulerApp, endpoint st
 	meetingM3SystemCall(t, v, http.MethodPost, "models", map[string]any{"provider_id": embeddingProvider, "input": map[string]any{
 		"notes": "Meeting fixture embedding Model", "provider_model_id": "meeting-embedding", "type": mc.EmbeddingModel, "enabled": true,
 		"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
-		"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil,
+		"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil, "embedding": &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions},
 			"input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{},
 			"structured_output_modes": []string{}, "context_length": nil, "max_output": nil},
 	}}, &receipt)

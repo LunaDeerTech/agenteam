@@ -12,11 +12,10 @@ import (
 
 const retrievalRuntimeSetting = "RETRIEVAL_RUNTIME"
 
-// RetrievalRuntimeOptions fixes the deployment's index profile. Dimensions are
-// explicit: changing a model name cannot silently reinterpret stored vectors.
+// RetrievalRuntimeOptions selects the deployment retrieval backend. Embedding
+// dimensions belong to the selected Model and are frozen on each serving space.
 type RetrievalRuntimeOptions struct {
-	backend    lexical.Backend
-	dimensions int
+	backend lexical.Backend
 }
 
 func (c Config) RetrievalRuntime() (RetrievalRuntimeOptions, bool) {
@@ -26,11 +25,7 @@ func (c Config) RetrievalRuntime() (RetrievalRuntimeOptions, bool) {
 	return *c.retrievalRuntime, true
 }
 func (v RetrievalRuntimeOptions) Backend() lexical.Backend { return v.backend }
-func (v RetrievalRuntimeOptions) Dimensions() int          { return v.dimensions }
 func (v RetrievalRuntimeOptions) Validate() error {
-	if v.dimensions < 1 || v.dimensions > 4096 {
-		return invalid(retrievalRuntimeSetting)
-	}
 	if _, err := lexical.Expressions(v.backend, lexical.KnowledgeChunks, 1); err != nil {
 		return invalid(retrievalRuntimeSetting)
 	}
@@ -58,13 +53,12 @@ func loadRetrievalRuntime(lookup LookupEnv) (*RetrievalRuntimeOptions, error) {
 		return nil, invalid(retrievalRuntimeSetting)
 	}
 	var wire struct {
-		Backend    lexical.Backend `json:"backend"`
-		Dimensions int             `json:"dimensions"`
+		Backend lexical.Backend `json:"backend"`
 	}
-	if !runtimeObject(json.RawMessage(raw), &wire, "backend", "dimensions") {
+	if !runtimeObject(json.RawMessage(raw), &wire, "backend") {
 		return nil, invalid(retrievalRuntimeSetting)
 	}
-	out := &RetrievalRuntimeOptions{wire.Backend, wire.Dimensions}
+	out := &RetrievalRuntimeOptions{backend: wire.Backend}
 	if err := out.Validate(); err != nil {
 		return nil, err
 	}

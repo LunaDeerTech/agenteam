@@ -153,8 +153,8 @@ func (s *IndexService) RunPending(ctx context.Context) (processed bool, resultEr
  JOIN agenteam_knowledge.index_state st ON st.project_id=p.project_id AND st.serving_profile_id=p.id
  JOIN agenteam_project.projects pr ON pr.id=j.project_id
  WHERE j.state='pending' AND p.state='active' AND p.retention_state='retained' AND pr.lifecycle='active' AND pr.initialized_at IS NOT NULL
- AND p.parser_profile=$1 AND p.chunker_profile=$2 AND p.soft_chunk_bytes=$3 AND p.hard_chunk_bytes=$4 AND p.forced_overlap_bytes=$5 AND p.dimension=$6 AND p.lexical_backend=$7
- ORDER BY j.created_at,j.id LIMIT 1`, cfg.ParserProfile, chunker.Profile, cfg.Chunker.SoftBytes, cfg.Chunker.HardBytes, cfg.Chunker.ForcedOverlapBytes, cfg.Dimension, string(cfg.Backend)).Scan(&j.id, &project, &document, &version, &j.object, &p.ID, &profileVersion, &snapshot, &p.Dimension, &backend)
+ AND p.parser_profile=$1 AND p.chunker_profile=$2 AND p.soft_chunk_bytes=$3 AND p.hard_chunk_bytes=$4 AND p.forced_overlap_bytes=$5 AND p.lexical_backend=$6
+ ORDER BY j.created_at,j.id LIMIT 1`, cfg.ParserProfile, chunker.Profile, cfg.Chunker.SoftBytes, cfg.Chunker.HardBytes, cfg.Chunker.ForcedOverlapBytes, string(cfg.Backend)).Scan(&j.id, &project, &document, &version, &j.object, &p.ID, &profileVersion, &snapshot, &p.Dimension, &backend)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}

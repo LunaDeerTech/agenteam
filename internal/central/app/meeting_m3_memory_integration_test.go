@@ -27,7 +27,7 @@ func TestMeetingM3MemoryConfiguration(t *testing.T) {
 	workAppCheck(t, "meeting-memory-complete-config", cfg.Validate())
 	runtime, execution := cfg.ExecutionRuntime()
 	retrieval, indexed := cfg.RetrievalRuntime()
-	if !execution || !runtime.ToolLoop() || !indexed || retrieval.Dimensions() != 2 {
+	if !execution || !runtime.ToolLoop() || !indexed || retrieval.Backend() != "native_pg_fts" {
 		t.Fatal("Meeting Memory fixture lost its original execution and retrieval graph")
 	}
 	_, err := meetingMemoryAgentIntent(guardID[id.Agent](t), guardID[mc.Model](t))

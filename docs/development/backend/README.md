@@ -56,6 +56,10 @@ Chat text、structured 与 Embeddings 必须注入同一 `Budget`，共用全局
 
 Chat 配置必须声明 `text` 输入、固定 `text` 输出，可以额外保存 `image`、`file` 输入能力。纯文本调用不要求传入媒体；实际附件必须满足声明及来源授权。当前多模态组合候选将 PNG/JPEG/WEBP/非动画 GIF 编为原生图片、PDF 编为原生文件，plain/Markdown/DOCX 明确提取正文；不支持的 MIME 拒绝，不读取任意 URL/path，不静默把原生文件降级。组合 App 与权限/清退验证尚未完成，不能将候选源码当作已验证部署能力。Embedding 当前固定 `text → vector`，不接受 Chat 的 tools、streaming、reasoning、结构化输出能力或 `max_output`。Chat 的 JSON Schema 支持通过 `structured_output_modes` 声明；共享总结 selector 仍要求 `json_schema`。
 
+模型能力中的 `embedding` 为必填 nullable 字段：嵌入模型必须使用 `{dimensions:"1536",dimensions_mode:"fixed"}`，维度为规范十进制字符串 1–4096，模式仅 `fixed` 或 `request`；其他类型必须为 null。固定模式只校验真实向量长度，不发送上游调整参数；指定模式由当前 `openai-embeddings-dimensions-v3` profile 发送整数 `dimensions`，仍逐向量严格校验。维度与模式进入不可变模型快照、EmbeddingProfile 摘要及管理测试命令，不从型号、首响应或部署默认值猜测。
+
+`AGENTEAM_CENTRAL_RETRIEVAL_RUNTIME` 只保留后端开关，不再接受 `dimensions`。Knowledge 与 Memory 构建新空间时从可信模型 profile 取得维度；切换模型或维度后，原 serving 查询继续使用该代际原 snapshot/空间，完成新代际后切换，且所有当前授权与模型策略仍须通过。缺少维度的旧开发数据须重建；迁移 `00153` 不补默认值，也不自动把旧向量装入新空间。本轮隔离真实 App/PG/受控 TLS 链已验证：管理 fixed/request 请求与错维度幂等回执、153 的 profile 约束、2维旧空间在3维新索引构建期间的真实 query/read，以及新代际发布后旧 profile/digest 不变；正式调用共6次Embedding与3次Chat，材料及App实际join。首轮遗漏serving resolver的v3白名单已最小修复；第二轮仅纠正独立fixture对刻意暂停索引的退休断言范围，最终原top通过。Memory复用本轮作者profile/授权单元门，未宣称另跑真实Memory链；这不表示已部署公开服务，也未使用真实外部模型。
+
 工具调用同样区分能力声明与本次请求：模型同时声明 `text`、`json_schema` 时，可以执行 `ResponseFormat=text` 的工具调用，编码不发送 `response_format`。本轮移除旧 tools profile 对额外 schema 能力的误拒；仍拒绝实际请求 tools + `ResponseFormat=json_schema`，未增加该 wire 组合，也不改变旧验收或 STOP 的历史范围。非空输出模式列表必须包含 `text`；只声明 `json_schema` 的模型仍不能走文本工具 profile。
 
 `reasoning` 只声明模型是否支持推理。`reasoning_efforts` 是最多 32 项的 `{name,value}` 列表：`name` 是去除首尾空白后 1–64 个 Unicode 码点的显示名称，禁止控制字符；`value` 是最多 32 字节的 ASCII 字母、数字或 `-_.:`，用于真实请求。名称和值分别唯一。`reasoning=false` 要求空列表；`true` 配空列表表示支持推理但无可调等级。服务端拒绝未规范化的名称，不替调用者猜等级或修改值。

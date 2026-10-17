@@ -37,6 +37,7 @@ const model = (): CatalogModel => ({
     request_overwrite: {},
     header_overwrite: {},
     capabilities: {
+      embedding: null,
       tool_calls: false,
       parallel_tool_calls: false,
       streaming: true,

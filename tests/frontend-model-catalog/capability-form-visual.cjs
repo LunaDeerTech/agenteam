@@ -92,6 +92,10 @@ function sampleModel(n, type, modelId) {
         structured_output_modes: type === "chat" ? ["text"] : [],
         context_length: ["chat", "embedding"].includes(type) ? "8192" : null,
         max_output: type === "chat" ? "1024" : null,
+        embedding:
+          type === "embedding"
+            ? { dimensions: "1536", dimensions_mode: "fixed" }
+            : null,
       },
     },
   };
@@ -659,6 +663,7 @@ async function createFour({ p, s }) {
         structured_output_modes: [],
         context_length: null,
         max_output: null,
+        embedding: null,
       },
     },
   });

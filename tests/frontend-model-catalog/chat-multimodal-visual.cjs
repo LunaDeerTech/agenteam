@@ -156,6 +156,7 @@ async function setup(context, options = {}) {
         structured_output_modes: ["text"],
         context_length: "8192",
         max_output: "1024",
+        embedding: null,
       },
     },
   };

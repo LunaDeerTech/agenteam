@@ -2708,7 +2708,8 @@
           "structured_output_modes",
           "context_length",
           "max_output",
-          "reasoning_toggle_mode"
+          "reasoning_toggle_mode",
+          "embedding"
         ],
         "properties": {
           "tool_calls": {
@@ -2800,6 +2801,36 @@
               "thinking_type"
             ],
             "description": "Explicit OpenAI-compatible request dialect, only Chat with reasoning=true and no effort levels. null supports provider default only. enable_thinking uses a top-level boolean; thinking_type uses thinking.type=enabled/disabled. Never inferred from model ID."
+          },
+          "embedding": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "dimensions",
+                  "dimensions_mode"
+                ],
+                "properties": {
+                  "dimensions": {
+                    "type": "string",
+                    "pattern": "^(?:[1-9][0-9]{0,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-6])$",
+                    "description": "Configured output vector dimension, from 1 through 4096. Never inferred from a model name or an earlier response."
+                  },
+                  "dimensions_mode": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "request"
+                    ],
+                    "description": "fixed validates this output size without sending dimensions; request also sends the same integer to the supported embedding protocol."
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "description": "Reasoning capability does not enable a request setting. Explicit choices must match a declared value; absent choices use the provider default. reasoning=false requires no efforts. max_output must not exceed context_length when both are present.",
@@ -2935,6 +2966,9 @@
                       "const": [
                         "text"
                       ]
+                    },
+                    "embedding": {
+                      "type": "null"
                     }
                   }
                 }
@@ -2986,6 +3020,29 @@
                     },
                     "reasoning_toggle_mode": {
                       "type": "null"
+                    },
+                    "embedding": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "dimensions",
+                        "dimensions_mode"
+                      ],
+                      "properties": {
+                        "dimensions": {
+                          "type": "string",
+                          "pattern": "^(?:[1-9][0-9]{0,2}|[1-3][0-9]{3}|40[0-8][0-9]|409[0-6])$",
+                          "description": "Configured output vector dimension, from 1 through 4096. Never inferred from a model name or an earlier response."
+                        },
+                        "dimensions_mode": {
+                          "type": "string",
+                          "enum": [
+                            "fixed",
+                            "request"
+                          ],
+                          "description": "fixed validates this output size without sending dimensions; request also sends the same integer to the supported embedding protocol."
+                        }
+                      }
                     }
                   }
                 }
@@ -3037,6 +3094,9 @@
                       "const": []
                     },
                     "reasoning_toggle_mode": {
+                      "type": "null"
+                    },
+                    "embedding": {
                       "type": "null"
                     }
                   }
@@ -3092,6 +3152,9 @@
                     },
                     "reasoning_toggle_mode": {
                       "type": "null"
+                    },
+                    "embedding": {
+                      "type": "null"
                     }
                   }
                 }
@@ -3099,7 +3162,7 @@
             }
           }
         ],
-        "description": "Chat requires text input and text output; optional image/file declarations do not enable media requests. Embedding is fixed text input and vector output with no chat-only capabilities or max_output. Reasoning values are protocol values; no selected value leaves the provider default unchanged. Reranker is text input with ranked index/score results (no output modality); image_generation is text input and image output. Both reject chat-only features and capacity fields. Management tests validate bounded protocol responses without downloading image URLs or creating Objects."
+        "description": "Chat requires text input and text output; optional image/file declarations do not enable media requests. Embedding is fixed text input and vector output with no chat-only capabilities or max_output. Reasoning values are protocol values; no selected value leaves the provider default unchanged. Reranker is text input with ranked index/score results (no output modality); image_generation is text input and image output. Both reject chat-only features and capacity fields. Management tests validate bounded protocol responses without downloading image URLs or creating Objects. Embedding requires explicit dimensions and fixed/request mode; non-embedding types require embedding:null. The configuration is captured in immutable snapshots and determines retrieval vector spaces."
       },
       "Provider": {
         "type": "object",

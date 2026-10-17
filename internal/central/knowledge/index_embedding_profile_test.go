@@ -78,20 +78,23 @@ func TestIndexBuildLedgerDoesNotAcceptMixedAuthority(t *testing.T) {
 }
 
 func TestEmbeddingProfileSnapshotRequiresExactSelectionAndIdentity(t *testing.T) {
-	p := mc.EmbeddingProfile{SelectionVersion: 1, ModelID: newID[mc.Model](t), ModelVersion: 2, ProviderID: newID[mc.Provider](t), ProviderVersion: 3, AdapterRevision: "openai.embeddings.float.v2"}
+	p := mc.EmbeddingProfile{SelectionVersion: 1, ModelID: newID[mc.Model](t), ModelVersion: 2, ProviderID: newID[mc.Provider](t), ProviderVersion: 3, AdapterRevision: "openai.embeddings.float.v2", Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}
 	v := p.SelectionVersion
-	snapshot := mc.ConfigSnapshot{SelectionVersion: &v, Identity: mc.ModelIdentity{ModelID: p.ModelID, ProviderID: p.ProviderID, AdapterRevision: p.AdapterRevision}}
+	snapshot := mc.ConfigSnapshot{Capabilities: mc.Capabilities{Embedding: &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}}, SelectionVersion: &v, Identity: mc.ModelIdentity{ModelID: p.ModelID, ProviderID: p.ProviderID, AdapterRevision: p.AdapterRevision}}
 	if !embeddingProfileMatchesSnapshot(p, snapshot) {
 		t.Fatal("matching snapshot rejected")
 	}
 	for _, mutate := range []func(*mc.ConfigSnapshot){
+		func(s *mc.ConfigSnapshot) { s.Capabilities.Embedding = nil },
+		func(s *mc.ConfigSnapshot) { s.Capabilities.Embedding.Dimensions = 3 },
+		func(s *mc.ConfigSnapshot) { s.Capabilities.Embedding.DimensionsMode = mc.EmbeddingRequestDimensions },
 		func(s *mc.ConfigSnapshot) { s.SelectionVersion = nil },
 		func(s *mc.ConfigSnapshot) { n := f.Version(2); s.SelectionVersion = &n },
 		func(s *mc.ConfigSnapshot) { s.Identity.ModelID = newID[mc.Model](t) },
 		func(s *mc.ConfigSnapshot) { s.Identity.ProviderID = newID[mc.Provider](t) },
 		func(s *mc.ConfigSnapshot) { s.Identity.AdapterRevision = "other" },
 	} {
-		other := snapshot
+		other := snapshot.Clone()
 		mutate(&other)
 		if embeddingProfileMatchesSnapshot(p, other) {
 			t.Fatal("snapshot substituted embedding space")
@@ -100,7 +103,7 @@ func TestEmbeddingProfileSnapshotRequiresExactSelectionAndIdentity(t *testing.T)
 	// Model/provider revisions are deliberately observed by the Reader before
 	// and after Resolve; snapshot identity alone cannot prove those revisions.
 	before, _ := p.Digest()
-	for _, mutate := range []func(*mc.EmbeddingProfile){func(p *mc.EmbeddingProfile) { p.ModelVersion++ }, func(p *mc.EmbeddingProfile) { p.ProviderVersion++ }} {
+	for _, mutate := range []func(*mc.EmbeddingProfile){func(p *mc.EmbeddingProfile) { p.ModelVersion++ }, func(p *mc.EmbeddingProfile) { p.ProviderVersion++ }, func(p *mc.EmbeddingProfile) { p.Dimensions++ }, func(p *mc.EmbeddingProfile) { p.DimensionsMode = mc.EmbeddingRequestDimensions }} {
 		changed := p
 		mutate(&changed)
 		after, _ := changed.Digest()

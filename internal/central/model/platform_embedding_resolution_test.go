@@ -39,7 +39,7 @@ func platformEmbeddingTestRequest(t *testing.T, purpose mc.Purpose) mc.ResolveRe
 }
 
 func platformEmbeddingTestProfile() (providerRecord, modelRecord) {
-	return providerRecord{Input: providerInput{Name: "embedding-provider", Protocol: mc.OpenAIEmbeddings, BaseURL: "https://embedding.example/v1", Enabled: true, Options: json.RawMessage(`{}`)}}, modelRecord{Input: mc.ModelInput{Notes: "embedding-model", ProviderModelID: "fixed-model", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}}}}
+	return providerRecord{Input: providerInput{Name: "embedding-provider", Protocol: mc.OpenAIEmbeddings, BaseURL: "https://embedding.example/v1", Enabled: true, Options: json.RawMessage(`{}`)}}, modelRecord{Input: mc.ModelInput{Notes: "embedding-model", ProviderModelID: "fixed-model", Type: mc.EmbeddingModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}, Embedding: &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}}}}
 }
 
 func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
@@ -57,7 +57,7 @@ func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
 					t.Fatal("invalid positive profile", e)
 				}
 				revision, e := resolutionProfile(&p, &m, selection)
-				if e != nil || revision != adapter.OpenAIEmbeddingsFloatUsageRevision {
+				if e != nil || revision != adapter.OpenAIEmbeddingsDimensionsRevision {
 					t.Fatal("float profile", revision, e)
 				}
 				after, e := json.Marshal(m.Input)
@@ -166,6 +166,7 @@ func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
 		_, e := resolutionProfile(&p, &m, old)
 		requireCode(t, e, f.CapabilityUnsupported)
 		p.Input.Protocol, m.Input.Type = mc.OpenAIChat, mc.ChatModel
+		m.Input.Capabilities.Embedding = nil
 		m.Input.Capabilities.OutputModalities = []string{"text"}
 		if old.Selector == mc.SummarySelector {
 			m.Input.Capabilities.StructuredOutputModes = []string{"json_schema"}

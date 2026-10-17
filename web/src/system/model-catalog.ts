@@ -55,6 +55,10 @@ export interface ReasoningEffort {
   value: string;
 }
 export type ReasoningToggleMode = "enable_thinking" | "thinking_type";
+export interface EmbeddingCapabilities {
+  dimensions: string;
+  dimensions_mode: "fixed" | "request";
+}
 export interface Capabilities {
   tool_calls: boolean;
   parallel_tool_calls: boolean;
@@ -67,6 +71,7 @@ export interface Capabilities {
   structured_output_modes: string[];
   context_length: string | null;
   max_output: string | null;
+  embedding: EmbeddingCapabilities | null;
 }
 export interface ModelInput {
   notes: string;
@@ -237,6 +242,18 @@ export function isReasoningEfforts(v: unknown): v is ReasoningEffort[] {
     new Set(v.map((item) => item.value)).size === v.length
   );
 }
+export function isEmbeddingCapabilities(
+  v: unknown,
+): v is EmbeddingCapabilities {
+  return (
+    isRecord(v) &&
+    onlyKeys(v, ["dimensions", "dimensions_mode"]) &&
+    typeof v.dimensions === "string" &&
+    /^[1-9][0-9]{0,3}$/.test(v.dimensions) &&
+    Number(v.dimensions) <= 4096 &&
+    (v.dimensions_mode === "fixed" || v.dimensions_mode === "request")
+  );
+}
 export function isCapabilities(v: unknown): v is Capabilities {
   return (
     isRecord(v) &&
@@ -252,6 +269,7 @@ export function isCapabilities(v: unknown): v is Capabilities {
       "structured_output_modes",
       "context_length",
       "max_output",
+      "embedding",
     ]) &&
     [v.tool_calls, v.parallel_tool_calls, v.streaming, v.reasoning].every(
       (x) => typeof x === "boolean",
@@ -279,6 +297,7 @@ export function isCapabilities(v: unknown): v is Capabilities {
     (!!v.reasoning || v.reasoning_efforts.length === 0) &&
     (v.context_length === null || isVersion(v.context_length)) &&
     (v.max_output === null || isVersion(v.max_output)) &&
+    (v.embedding === null || isEmbeddingCapabilities(v.embedding)) &&
     (v.context_length === null ||
       v.max_output === null ||
       BigInt(v.max_output as string) <= BigInt(v.context_length as string))
@@ -309,6 +328,9 @@ export function isModelInput(v: unknown): v is ModelInput {
     isRecord(v.header_overwrite) &&
     Object.values(v.header_overwrite).every((x) => typeof x === "string") &&
     isCapabilities(v.capabilities) &&
+    (v.type === "embedding"
+      ? isEmbeddingCapabilities(v.capabilities.embedding)
+      : v.capabilities.embedding === null) &&
     (v.type === "chat" || v.capabilities.reasoning_toggle_mode === null)
   );
 }

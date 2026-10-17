@@ -28,6 +28,7 @@ function modelInput(name, providerModelID) {
       structured_output_modes: ["json_schema"],
       context_length: null,
       max_output: null,
+      embedding: null,
     },
   };
 }

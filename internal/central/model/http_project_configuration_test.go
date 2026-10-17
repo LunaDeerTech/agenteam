@@ -26,7 +26,7 @@ const configurationTestModels = projectHTTPTestBase + "/models"
 const configurationTestModel = configurationTestModels + "/" + projectHTTPTestModel
 const configurationTestLookup = projectHTTPTestBase + "/model-commands/lookup"
 const configurationTestProviderJSON = `{"name":"provider-private","protocol":"openai-chat-completions","base_url":"https://provider.example/v1","enabled":true,"credential_ref":null,"options":{}}`
-const configurationTestModelJSON = `{"notes":"model-private","provider_model_id":"model-remote-private","type":"chat","enabled":true,"parameters":{},"request_overwrite":{},"header_overwrite":{},"capabilities":{"tool_calls":false,"parallel_tool_calls":false,"streaming":false,"reasoning":false,"reasoning_toggle_mode":null,"input_modalities":["text"],"output_modalities":["text"],"reasoning_efforts":[],"structured_output_modes":[],"context_length":null,"max_output":null}}`
+const configurationTestModelJSON = `{"notes":"model-private","provider_model_id":"model-remote-private","type":"chat","enabled":true,"parameters":{},"request_overwrite":{},"header_overwrite":{},"capabilities":{"tool_calls":false,"parallel_tool_calls":false,"streaming":false,"reasoning":false,"reasoning_toggle_mode":null,"embedding":null,"input_modalities":["text"],"output_modalities":["text"],"reasoning_efforts":[],"structured_output_modes":[],"context_length":null,"max_output":null}}`
 
 type configurationTestCase struct{ kind, method, path, body string }
 

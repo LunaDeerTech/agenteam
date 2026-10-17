@@ -111,7 +111,7 @@ func (m *Models) currentProfile(ctx context.Context, entry *call) (mc.EmbeddingP
 	return profile, nil
 }
 
-func (s *Service) servingProfileMatches(ctx context.Context, entry *call, serving rc.ServingIdentity, current mc.EmbeddingProfile, dimension int) (bool, error) {
+func (s *Service) servingProfileMatches(ctx context.Context, entry *call, serving rc.ServingIdentity, current mc.EmbeddingProfile) (bool, error) {
 	cause, err := readCause("generation-profile")
 	if err != nil {
 		return false, err
@@ -137,7 +137,7 @@ func (s *Service) servingProfileMatches(ctx context.Context, entry *call, servin
 		if err != nil || string(digest) != *stored {
 			return fault(f.DependencyUnavailable)
 		}
-		matched = profile == current && serving.Dimension == dimension
+		matched = profile == current && serving.Dimension == current.Dimensions
 		return nil
 	})
 	return matched, err
@@ -145,6 +145,8 @@ func (s *Service) servingProfileMatches(ctx context.Context, entry *call, servin
 
 func profileMatchesSnapshot(profile mc.EmbeddingProfile, snapshot mc.ConfigSnapshot) bool {
 	return profile.Validate() == nil && snapshot.SelectionVersion != nil && *snapshot.SelectionVersion == profile.SelectionVersion &&
+		snapshot.Capabilities.Embedding != nil && int(snapshot.Capabilities.Embedding.Dimensions) == profile.Dimensions &&
+		snapshot.Capabilities.Embedding.DimensionsMode == profile.DimensionsMode &&
 		snapshot.Identity.ModelID == profile.ModelID && snapshot.Identity.ProviderID == profile.ProviderID && snapshot.Identity.AdapterRevision == profile.AdapterRevision
 }
 

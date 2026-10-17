@@ -88,7 +88,7 @@ func constructMemory(cfg config.Config, db database, b *executionRuntimeAssembly
 	if err != nil {
 		return err
 	}
-	b.memory, err = memory.NewRuntime(domain, modelCalls, search, memory.RuntimeConfig{Dimensions: options.Dimensions(), Limits: m3RetrievalLimits()})
+	b.memory, err = memory.NewRuntime(domain, modelCalls, search, memory.RuntimeConfig{Limits: m3RetrievalLimits()})
 	if err != nil {
 		return err
 	}

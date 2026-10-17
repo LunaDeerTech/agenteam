@@ -7,6 +7,7 @@ import {
   isCatalogReceipt,
   onlyKeys,
   isModelChoice,
+  isEmbeddingCapabilities,
   type ModelChoice,
   type CatalogModel,
   type CatalogOperation,
@@ -143,6 +144,11 @@ export function modelPurposeIssue(
       model.input.capabilities.output_modalities[0] !== "vector")
   )
     return "嵌入模型需要 text 输入与 vector 输出能力";
+  if (
+    purpose === "embedding" &&
+    !isEmbeddingCapabilities(model.input.capabilities.embedding)
+  )
+    return "嵌入模型需要配置有效的向量维度";
   if (
     purpose === "summary" &&
     !model.input.capabilities.structured_output_modes.includes("json_schema")

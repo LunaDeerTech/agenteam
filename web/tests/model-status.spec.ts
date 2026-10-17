@@ -36,6 +36,7 @@ const model = (): CatalogModel => ({
     request_overwrite: { metadata: { purpose: "fixture" } },
     header_overwrite: { "X-Model-Region": "primary" },
     capabilities: {
+      embedding: null,
       tool_calls: true,
       parallel_tool_calls: false,
       streaming: true,

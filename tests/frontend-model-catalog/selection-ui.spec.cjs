@@ -29,6 +29,10 @@ function modelInput(name, type, structured = true, providerModelID) {
         type === "chat" && structured ? ["json_schema"] : [],
       context_length: null,
       max_output: null,
+      embedding:
+        type === "embedding"
+          ? { dimensions: "3", dimensions_mode: "fixed" }
+          : null,
     },
   };
 }

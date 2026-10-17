@@ -35,7 +35,7 @@ func memoryM3Settings() map[string]string {
 	// Keep completed Task history from becoming an unrelated re-launch during
 	// this bounded test. The original Scheduler still discovers every new Task.
 	runtime = strings.Replace(runtime, `"relaunch_skip_count":0`, `"relaunch_skip_count":100000`, 1)
-	return map[string]string{"PUBLIC_ORIGIN": "http://localhost:8080", "SHUTDOWN_TIMEOUT": "5s", "EXECUTION_RUNTIME": runtime, "RETRIEVAL_RUNTIME": `{"backend":"native_pg_fts","dimensions":2}`, "SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS": "2", "SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF": "100ms", "SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF": "1s"}
+	return map[string]string{"PUBLIC_ORIGIN": "http://localhost:8080", "SHUTDOWN_TIMEOUT": "5s", "EXECUTION_RUNTIME": runtime, "RETRIEVAL_RUNTIME": `{"backend":"native_pg_fts"}`, "SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS": "2", "SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF": "100ms", "SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF": "1s"}
 }
 func TestMemoryM3AppConfiguration(t *testing.T) {
 	cfg := testConfig(t, "5s", memoryM3Settings())
@@ -43,7 +43,7 @@ func TestMemoryM3AppConfiguration(t *testing.T) {
 	runtime, enabled := cfg.ExecutionRuntime()
 	retrieval, indexed := cfg.RetrievalRuntime()
 	_, retry := cfg.SchedulerLaunchRetryPolicy()
-	if !enabled || !runtime.ToolLoop() || !indexed || retrieval.Dimensions() != 2 || !retry {
+	if !enabled || !runtime.ToolLoop() || !indexed || retrieval.Backend() != "native_pg_fts" || !retry {
 		t.Fatal("Memory fixture lost its complete deployed graph")
 	}
 }
@@ -87,7 +87,7 @@ func memoryM3CrossExecutionConfigured(t *testing.T, switchProfile bool, options 
 	}
 	settings := memoryM3Settings()
 	if options.RetrievalBackend != "" {
-		settings["RETRIEVAL_RUNTIME"] = string(workAppJSON(t, map[string]any{"backend": options.RetrievalBackend, "dimensions": 2}))
+		settings["RETRIEVAL_RUNTIME"] = string(workAppJSON(t, map[string]any{"backend": options.RetrievalBackend}))
 		workAppCheck(t, "memory-shared-config", testConfig(t, "5s", settings).Validate())
 	}
 	network, err := netfixture.Load()
@@ -397,7 +397,10 @@ func memoryM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentScenar
 		meetingM3SystemCall(t, v, "POST", "model-providers", map[string]any{"input": map[string]any{"name": fmt.Sprintf("Memory fixture provider %d", n), "protocol": protocol, "base_url": "https://fixture.test:8443/case/" + scenario, "enabled": true, "credential_ref": credential.Metadata.CredentialRef.Details().ID, "options": map[string]any{}}}, &receipt)
 		provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 		workAppCheck(t, "memory-provider-id", err)
-		capabilities := map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": n != 2, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{output}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
+		capabilities := map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": n != 2, "reasoning": false, "reasoning_toggle_mode": nil, "embedding": nil, "input_modalities": []string{"text"}, "output_modalities": []string{output}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
+		if n == 2 {
+			capabilities["embedding"] = &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}
+		}
 		if n == 1 {
 			capabilities["structured_output_modes"] = []string{"text", "json_schema"}
 		}
@@ -510,7 +513,8 @@ func memoryM3ReplaceEmbedding(t *testing.T, v *executionSchedulerApp, scenario s
 	meetingM3SystemCall(t, v, "POST", "model-providers", map[string]any{"input": map[string]any{"name": "Memory replacement provider", "protocol": mc.OpenAIEmbeddings, "base_url": "https://fixture.test:8443/case/" + scenario, "enabled": true, "credential_ref": credential.Metadata.CredentialRef.Details().ID, "options": map[string]any{}}}, &receipt)
 	provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 	workAppCheck(t, "memory-replacement-provider", err)
-	capabilities := map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
+	capabilities := map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "reasoning_toggle_mode": nil, "embedding": nil, "input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}
+	capabilities["embedding"] = &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}
 	meetingM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": map[string]any{"notes": "Memory replacement model", "provider_model_id": "memory-replacement", "type": mc.EmbeddingModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": capabilities}}, &receipt)
 	model, err := f.ParseID[mc.Model](receipt.ResourceID)
 	workAppCheck(t, "memory-replacement-model", err)

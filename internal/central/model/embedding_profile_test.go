@@ -98,7 +98,7 @@ func newEmbeddingProfileFixture(t *testing.T) *embeddingProfileFixture {
 				*out[4].(*mc.ModelType), *out[5].(*bool) = mc.EmbeddingModel, true
 				*out[6].(*json.RawMessage), *out[7].(*json.RawMessage) = json.RawMessage(`{}`), json.RawMessage(`{}`)
 				*out[8].(*[]byte) = []byte(`{}`)
-				*out[9].(*[]byte), _ = json.Marshal(mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}})
+				*out[9].(*[]byte), _ = json.Marshal(mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"vector"}, Embedding: &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}})
 				*out[10].(*f.Version) = 2
 				*out[11].(*time.Time), *out[12].(*time.Time) = at, at
 				return nil

@@ -41,7 +41,7 @@ func servingResolutionDraft(ctx context.Context, x postgres.SQLExecutor, r mc.Re
 	}
 	compatible := snapshot.Identity.ModelType == r.Purpose.ModelType()
 	if snapshot.Identity.ModelType == mc.EmbeddingModel {
-		compatible = compatible && (snapshot.Identity.AdapterRevision == wire.OpenAIEmbeddingsFloatRevision || snapshot.Identity.AdapterRevision == wire.OpenAIEmbeddingsFloatUsageRevision)
+		compatible = compatible && (snapshot.Identity.AdapterRevision == wire.OpenAIEmbeddingsFloatRevision || snapshot.Identity.AdapterRevision == wire.OpenAIEmbeddingsFloatUsageRevision || snapshot.Identity.AdapterRevision == wire.OpenAIEmbeddingsDimensionsRevision)
 	} else {
 		compatible = compatible && snapshot.SelectionVersion != nil && (snapshot.Identity.AdapterRevision == wire.OpenAIChatTextRevision || snapshot.Identity.AdapterRevision == wire.OpenAIChatStructuredRevision)
 	}

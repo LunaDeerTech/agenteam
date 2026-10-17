@@ -1,4 +1,4 @@
-# 当前状态：6d8ad217 已部署，Embedding 维度与选择器标签开发中
+# 当前状态：6d8ad217 已部署，Embedding 维度与选择器标签验证完成（未部署）
 
 ## 当前部署与恢复入口
 
@@ -14,19 +14,27 @@
 
 ## 当前任务：Embedding 维度与模型选择器标签
 
-本轮从 `cce339c3b94f1e2cceb21804a8189e275a73e262` 开发，只修改代码；公开预览继续使用顶部 6d8 冻结版本，不随本轮更新。root 负责协调与全部 Git；三个既有工作树已原路径切到新分支，避免重新复制，旧分支检查点仍在远端保存。
+本轮从 `cce339c3b94f1e2cceb21804a8189e275a73e262` 开发，只修改代码，未部署；公开预览继续使用顶部 6d8 冻结版本。root 已按唯一写域整合后端 `d032da0f`、Vue 产品 `ed42b39e` 与独审 harness `23e2d3c9`；独立真实 App 最终候选为 `63f18e59`，主树整合待 root 最终 checkpoint。三个既有工作树原路径复用，历史分支检查点仍保留。
 
-| 工作树                                        | 当前分支                               | Owner                                               |
-| --------------------------------------------- | -------------------------------------- | --------------------------------------------------- |
+| 工作树 | 当前分支 | Owner |
+| --- | --- | --- |
 | `/workspace/agenteam-chat-multimodal-backend` | `ai/model-dimensions-backend-20261017` | `/root/account_backend`，含同树 consumer 的唯一写域 |
-| `/workspace/agenteam-chat-multimodal-vue`     | `ai/model-dimensions-vue-20261017`     | `/root/proxy_copy`，含 picker_units                 |
-| `/workspace/agenteam-chat-multimodal-tests`   | `ai/model-dimensions-tests-20261017`   | `/root/reasoning_validation`，独立验证              |
+| `/workspace/agenteam-chat-multimodal-vue` | `ai/model-dimensions-vue-20261017` | `/root/proxy_copy`，含 picker_units；独审 `/root/preview_deploy` |
+| `/workspace/agenteam-chat-multimodal-tests` | `ai/model-dimensions-tests-20261017` | `/root/reasoning_validation`，独立真实链 |
 
-已定合同：`capabilities.embedding` 是必传键。Embedding 类型填写闭集对象 `{dimensions:"1536", dimensions_mode:"fixed"|"request"}`；维度为 1..4096 的正十进制字符串，不能省略、为 null、使用数字类型或前导零；其他三类模型该键必须为 null。`fixed` 不向上游发送 dimensions，`request` 发送同一维度的整数；两者都精确核验响应向量长度，管理测试与正式 runtime 一致。
+已实现合同：`capabilities.embedding` 必传。Embedding 使用闭集对象 `{dimensions:"1536", dimensions_mode:"fixed"|"request"}`；维度为 1..4096 的正十进制字符串，不能省略、为 null、使用数字类型或前导零；其余三类模型该键必须为 null。`fixed` 不向上游发送 dimensions，`request` 发送同一维度整数；管理测试与正式 runtime 均精确核验响应向量长度。模型 profile/snapshot 是维度唯一权威，移除 `RETRIEVAL_RUNTIME.dimensions`，仅保留 backend 选择；Knowledge/Memory 新空间使用新 profile，旧 serving 查询保持原 snapshot/维度并复核当前授权。迁移 153 同步两类 profile_data 的八字段闭集及维度一致性约束；公开实例尚未应用本轮迁移。
 
-模型 profile/snapshot 是维度唯一权威，移除 `RETRIEVAL_RUNTIME.dimensions`，只保留 backend 选择。Knowledge/Memory 新空间跟随新 profile；旧空间查询使用原 snapshot/维度，并重新检查当前授权，不混入新向量。Chat 原有能力保持。选择器标签按类型→已配置容量→图像/文件能力排序；Embedding 显示类型、N维与已配 input tokens，Reranker 仅类型，Image 显示类型与“文生图”；未配置容量不编造零或无限，不猜测 batch/维度默认值。
+选择器保持“供应商/模型 ID”主行，第二行按类型→已配容量→图片/文件排列；最新容量简写为 `128K`、`8.1K`，图片/文件使用短标签，title 保留完整 tokens 与输入语义。Embedding 显示类型、N维与已配输入容量，Reranker 仅类型，Image 显示类型与“文生图”；空容量不编造零或无限。维度表单提供“向量维度”与“请求指定维度”，不猜默认维度；Chat 原有能力保持。
 
-当前处于实现阶段：后端及 consumer 接线同一合同，Vue 完成维度表单与标签，reviewer 随稳定输入做定向单元及最小 current-only PG/MinIO/TLS 联调，再更新实际结果。资源预检已完成，旧 Vue `output/` 证据与 `web/node_modules` 共享链接原位保留；489 项昨日冷 Go 缓存已精确裁剪，今日热缓存、工具链、公开产物与备份保持。编译、浏览器和 fixture 临时数据使用 owner 独占 `/tmp`，复用现有工具与依赖，重 Go 编译由 root 协调；资源就绪不代表本轮产品验证通过。
+作者后端累计 26 个顶层定向用例和两份 OpenAPI 全部 schema 检查实际通过，包含 serving v3 闭集补正；不称全仓矩阵通过。首 HTTP projection 测试的零 UUID 夹具失败修为合法身份后定向通过。Vue 维度与标签主体六项受影响用例分轮通过，类型/生产构建实际通过；后续简标签增量的一项定向检查实际通过。选择器首 5 秒 timeout 的同预算诊断后来通过，原原因仍未定；作者 provider 详情首行等待失败及随后诊断截图 timeout 均保留，不追认作者整条浏览器链通过。
+
+独立合成 UI 按场景通过 1440 深色、390 浅色及原生 200%/reduced-motion，覆盖四类型、空容量、长 ID/备注、禁用说明、fixed/request 维度、合成保存读回与思考菜单键盘/回焦。两次 harness 先因直接点击 aria-disabled 按钮、再因窄屏首焦点预期错误退出 1，均保留原记录；最小改正后只补受影响场景。最新 `ed42b39e` 仅复验桌面简标签/title，actual0、合成 GET-only、零写入，不重跑编辑/窄屏/缩放。[新版桌面标签原图](https://img.lunadeer.cn/i/2026/10/17/6ad387dfb1648.png) 已实际查看、上传和匿名下载 200 且字节一致；此前窄屏图仍属于原标签输入。受控 UI 不代替真实后端或外部模型验证，适用细节见[模型工作项](../docs/development/work-items/frontend-model-catalog.md)。
+
+独立真实 App 首候选 `cff685fe` 编译实际 0；原 48112/App Wait1、FAIL 27.30s：fixed2 管理成功、request3 收到 2 维响应时 invalid_response、同 key 回放不重复出站均通过；首 Knowledge 自动索引在调用前因 `CAPABILITY_UNSUPPORTED` 失败，旧 serving 查询、新 3 维空间及后置 wire/join 尚未执行。根因是 `resolution_serving` revision 闭集遗漏 v3；父 owner 仅补该合法 revision，权限、immutable 与未知 revision 拒绝保持，新增定向 unit 实际 0。增量候选 `2d38c50b1b526695e12b358c597f9a06a3b45c10` 的 App-c 36735 actual0；原 top 第二轮 78313 actual1/42.81s，v3 首索引、153 的正负 DB 约束、旧 query/read 真实 Tools 与三轮 Model 均已成功。随后复用 helper 要求 Project 全部 operations retired，与本 case 故意保持 B index held 的设置冲突；该失败属于 harness 退休范围误期望，生产不再改动。reviewer 仅在独占新测试中将原全 Project 退休检查移至 B 发布后，held 期间精确检查原 query 退休；原 query/read/successor、最终 App join 与预算保持，两轮失败不追认成功。
+
+最终候选 `63f18e59fcdf16b2c6181064ce314a0e3d1035fa` 的 App-c 68604 actual0；原 `TestModelEmbeddingDimensionsIndependentReview` 第三轮 72887 PASS 57.16s，App633329 原 Wait0、外层 actual0。实际覆盖 fixed 省略/request 整数、错维度安全拒绝与同 key 仅一次出站、153 严格 profile SQL、B 索引 held 时 A 旧 snapshot 的 2 维真实 query/read 三轮，以及 B 的 3 维空间发布后旧 profile/digest 保持；6 次 Embedding 与 3 次 Chat wire、Secret 释放和 App/Knowledge/runtime join 均通过。此为受控隔离 App，不是外部真实供应商验证，前轮多模态外呼失败边界保持。正式恢复用例为 `internal/central/app/model_embedding_dimensions_review_test.go`，三轮安全日志与清理记录保留于私有 `/tmp/agenteam-dimensions-review._vrwx0z5/`。
+
+所有临时 Vue/Chrome 已按 owner 精确关闭，profile 与自有缓存清退；共享依赖、截图和正式 harness 保留。三轮 App 各自的三容器/三网络/四进程均精确清零，六个基线容器与六个基线网络保留、extra0；最终空闲 1760321536 字节。唯一 owned `app.test` 已核 exe/maps/fd 无消费者后精确删除 91612295 字节并确认不存在，两空 scratch 子目录已删，安全日志/manifest/cleanup 记录留在原 0700 私有目录，本轮无自有 Go/App/fixture 遗留。资源 owner 首消费者 guard 曾阻断而零删除退出；随后在无编译窗口按 inode/size/mtime/atime 分两批精确清理昨日冷 Go 缓存 82 项/380832743 字节与 29 项/65925081 字节，两批 actual0、skip0。今日热缓存、modules、工具链、部署产物/备份与业务数据未动。第二轮 fixture 运行已观测最低空闲 622014464 字节，高于 512MiB；第三轮增量编译 actual0 后因余量略低 1.7GB 门槛先暂停，最小补清后恢复 1763217408 字节才放行原链。后续沿峰值约 1.13GB 重新核容量，不以结束后余量代运行期检查。
 
 ## 前轮多模态结果（受控验证完成，外部混合输入未成功）
 

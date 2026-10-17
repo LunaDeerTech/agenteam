@@ -7,6 +7,7 @@ import {
   UiIconButton,
   UiInput,
   UiSelect,
+  UiSwitch,
 } from "../ui";
 import type { ModelDraft } from "../../system/model-draft";
 import { modelTypeChoices, type Protocol } from "../../system/model-catalog";
@@ -22,6 +23,22 @@ const modalityOptions = [
   { value: "file", label: "文件", icon: "file" },
 ];
 const chat = computed(() => props.draft.type === "chat");
+const requestDimensions = computed({
+  get: () => props.draft.embeddingDimensionsMode === "request",
+  set: (value: boolean) => {
+    props.draft.embeddingDimensionsMode = value ? "request" : "fixed";
+  },
+});
+watch(
+  () => props.draft.type,
+  (type, previous) => {
+    if (previous === "embedding" && type !== "embedding") {
+      props.draft.embeddingDimensions = "";
+      props.draft.embeddingDimensionsMode = "fixed";
+    }
+  },
+  { flush: "sync" },
+);
 const reranker = computed(() => props.draft.type === "reranker");
 const output = computed(() => {
   switch (props.draft.type) {
@@ -135,6 +152,24 @@ async function removeLevel(index: number) {
           <span class="fixed-value"
             ><UiIcon :name="output.icon" :size="14" />{{ output.label }}</span
           >
+        </div>
+      </div>
+      <div v-if="draft.type === 'embedding'" class="embedding-fields">
+        <UiInput
+          v-model="draft.embeddingDimensions"
+          label="向量维度"
+          inputmode="numeric"
+          maxlength="4"
+          required
+        />
+        <div class="embedding-mode">
+          <div class="embedding-mode-label">
+            <span>请求指定维度</span>
+            <UiSwitch v-model="requestDimensions" label="请求指定维度" />
+          </div>
+          <p class="model-hint">
+            开启后向供应商请求指定维度；关闭时仅校验输出维度。
+          </p>
         </div>
       </div>
       <template v-if="chat">
@@ -264,6 +299,18 @@ async function removeLevel(index: number) {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: start;
   gap: 14px;
+}
+.embedding-fields {
+  display: grid;
+  gap: 14px;
+}
+.embedding-mode-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
 }
 .model-checks {
   display: flex;

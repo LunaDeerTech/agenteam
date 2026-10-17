@@ -154,7 +154,7 @@ func TestRunUsesRealControlledHTTPAndBoundCredentials(t *testing.T) {
 	}))
 	defer server.Close()
 	transport, call, endpoint := wireFixture(t, server, true)
-	for _, request := range []Request{{Action: "discovery", Protocol: chatProtocol, Endpoint: endpoint}, {Action: "test", Protocol: chatProtocol, Endpoint: endpoint, Model: "chat"}, {Action: "test", Protocol: embedProtocol, Endpoint: endpoint, Model: "embedding"}} {
+	for _, request := range []Request{{Action: "discovery", Protocol: chatProtocol, Endpoint: endpoint}, {Action: "test", Protocol: chatProtocol, Endpoint: endpoint, Model: "chat"}, {Action: "test", Protocol: embedProtocol, Endpoint: endpoint, Model: "embedding", Embedding: fixedEmbedding(3)}} {
 		result, err := transport.Run(context.Background(), request, &material, call)
 		if err != nil || result.Reason != "" {
 			t.Fatal("controlled operation failed", result.Reason, err)

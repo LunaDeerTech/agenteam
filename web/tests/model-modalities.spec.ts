@@ -241,6 +241,7 @@ it("keeps toggle mapping only for level-free chat reasoning and clears it when h
   await selectOption("思考开关格式", "enable_thinking");
   await selectType("嵌入（Embedding）");
   expect(hasMapping()).toBe(false);
+  await field("向量维度").setValue("1536");
   expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
   await selectType("对话（Chat）");
   expect(hasMapping()).toBe(true);
@@ -250,6 +251,17 @@ it("keeps toggle mapping only for level-free chat reasoning and clears it when h
 it("switches new models to fixed embedding capabilities without leaking chat settings", async () => {
   await fillChatSettings();
   await selectType("嵌入（Embedding）");
+  const requestDimensions = () =>
+    wrapper!.get('[role="switch"][aria-label="请求指定维度"]');
+  expect((field("向量维度").element as HTMLInputElement).value).toBe("");
+  expect(requestDimensions().attributes("aria-checked")).toBe("false");
+  expect(() => serialize()).toThrow("维度");
+  await field("向量维度").setValue("1536");
+  expect(serialize().capabilities.embedding).toEqual({
+    dimensions: "1536",
+    dimensions_mode: "fixed",
+  });
+  await requestDimensions().trigger("click");
   for (const text of [
     "图像",
     "文件",
@@ -266,6 +278,7 @@ it("switches new models to fixed embedding capabilities without leaking chat set
   const input = serialize();
   expect(input.type).toBe("embedding");
   expect(input.capabilities).toEqual({
+    embedding: { dimensions: "1536", dimensions_mode: "request" },
     input_modalities: ["text"],
     output_modalities: ["vector"],
     tool_calls: false,
@@ -280,7 +293,18 @@ it("switches new models to fixed embedding capabilities without leaking chat set
   });
   wrapper!.unmount();
   mountFields(input);
+  expect((field("向量维度").element as HTMLInputElement).value).toBe("1536");
+  expect(requestDimensions().attributes("aria-checked")).toBe("true");
   expect(serialize()).toEqual(input);
+  await selectType("对话（Chat）");
+  expect(
+    wrapper!.findAll("label").some((item) => item.text() === "向量维度"),
+  ).toBe(false);
+  expect(serialize().capabilities.embedding).toBeNull();
+  await selectType("嵌入（Embedding）");
+  expect((field("向量维度").element as HTMLInputElement).value).toBe("");
+  expect(requestDimensions().attributes("aria-checked")).toBe("false");
+  expect(() => serialize()).toThrow("维度");
 });
 
 it.each([
@@ -324,6 +348,7 @@ it.each([
     const input = serialize();
     expect(input.type).toBe(type);
     expect(input.capabilities).toEqual({
+      embedding: null,
       input_modalities: ["text"],
       output_modalities: output,
       tool_calls: false,

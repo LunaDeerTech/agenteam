@@ -91,6 +91,10 @@ function sampleModel(n, type, modelId) {
         structured_output_modes: type === "chat" ? ["json_schema"] : [],
         context_length: "8192",
         max_output: "1024",
+        embedding:
+          type === "embedding"
+            ? { dimensions: "1536", dimensions_mode: "fixed" }
+            : null,
       },
     },
   };

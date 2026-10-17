@@ -78,7 +78,7 @@ func (s *IndexService) ensureAutomaticProfile(ctx context.Context) (processed bo
  WHERE p.project_id=$1 AND p.profile_digest=$2 AND p.parser_profile=$3 AND p.chunker_profile=$4
  AND p.soft_chunk_bytes=$5 AND p.hard_chunk_bytes=$6 AND p.forced_overlap_bytes=$7 AND p.dimension=$8 AND p.lexical_backend=$9
  AND ((p.state='active' AND p.retention_state='retained' AND st.serving_profile_id=p.id)
- OR (p.state='failed' AND p.source_digest=$10)))`, key, string(digest), cfg.ParserProfile, chunker.Profile, cfg.Chunker.SoftBytes, cfg.Chunker.HardBytes, cfg.Chunker.ForcedOverlapBytes, cfg.Dimension, string(cfg.Backend), string(source)).Scan(&currentOrFailed)
+ OR (p.state='failed' AND p.source_digest=$10)))`, key, string(digest), cfg.ParserProfile, chunker.Profile, cfg.Chunker.SoftBytes, cfg.Chunker.HardBytes, cfg.Chunker.ForcedOverlapBytes, b.profile.Dimensions, string(cfg.Backend), string(source)).Scan(&currentOrFailed)
 		if err != nil {
 			return unavailable(err)
 		}

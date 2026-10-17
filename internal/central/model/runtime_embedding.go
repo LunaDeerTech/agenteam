@@ -21,7 +21,10 @@ func prepareRuntimeEmbedding(ctx context.Context, r mc.EmbeddingRequest) (*mc.Em
 		return nil, fault(f.SchemaUnsupported)
 	}
 	s, c := r.Model.Snapshot, r.Model.Snapshot.Capabilities
-	if r.Model.LeaseOwner.Details().Kind != sc.ModelCallOwner || s.Identity.Protocol != mc.OpenAIEmbeddings || s.Identity.Profile != mc.OpenAIEmbeddingsV1 || s.Identity.ModelType != mc.EmbeddingModel || s.Identity.AdapterRevision != wire.OpenAIEmbeddingsFloatRevision && s.Identity.AdapterRevision != wire.OpenAIEmbeddingsFloatUsageRevision || !runtimeOnlyText(c.InputModalities) || len(c.OutputModalities) != 1 || c.OutputModalities[0] != "vector" || c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || s.CredentialRef == nil || r.Model.CredentialLease == nil {
+	if c.Embedding == nil || c.Embedding.Validate() != nil || int(c.Embedding.Dimensions) != r.ExpectedDimensions {
+		return nil, fault(f.InvalidArgument)
+	}
+	if r.Model.LeaseOwner.Details().Kind != sc.ModelCallOwner || s.Identity.Protocol != mc.OpenAIEmbeddings || s.Identity.Profile != mc.OpenAIEmbeddingsV1 || s.Identity.ModelType != mc.EmbeddingModel || s.Identity.AdapterRevision != wire.OpenAIEmbeddingsFloatRevision && s.Identity.AdapterRevision != wire.OpenAIEmbeddingsFloatUsageRevision && s.Identity.AdapterRevision != wire.OpenAIEmbeddingsDimensionsRevision || !runtimeOnlyText(c.InputModalities) || len(c.OutputModalities) != 1 || c.OutputModalities[0] != "vector" || c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || s.CredentialRef == nil || r.Model.CredentialLease == nil {
 		return nil, fault(f.CapabilityUnsupported)
 	}
 	copy := r.Clone()

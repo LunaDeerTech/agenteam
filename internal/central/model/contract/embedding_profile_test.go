@@ -48,10 +48,11 @@ func TestEmbeddingProfileBindsOriginalRuntimeOperation(t *testing.T) {
 	must(t, r.Validate())
 }
 func TestEmbeddingProfileDigestTracksEveryStableRevision(t *testing.T) {
-	p := EmbeddingProfile{SelectionVersion: 1, ModelID: fresh[Model](t), ModelVersion: 2, ProviderID: fresh[Provider](t), ProviderVersion: 3, AdapterRevision: "openai-embeddings-float-usage-v2"}
+	p := EmbeddingProfile{SelectionVersion: 1, ModelID: fresh[Model](t), ModelVersion: 2, ProviderID: fresh[Provider](t), ProviderVersion: 3, AdapterRevision: "openai-embeddings-float-usage-v2", Dimensions: 1536, DimensionsMode: EmbeddingFixedDimensions}
 	old, err := p.Digest()
 	must(t, err)
 	for _, edit := range []func(*EmbeddingProfile){
+		func(p *EmbeddingProfile) { p.Dimensions++ }, func(p *EmbeddingProfile) { p.DimensionsMode = EmbeddingRequestDimensions },
 		func(p *EmbeddingProfile) { p.SelectionVersion++ }, func(p *EmbeddingProfile) { p.ModelID = fresh[Model](t) }, func(p *EmbeddingProfile) { p.ModelVersion++ }, func(p *EmbeddingProfile) { p.ProviderID = fresh[Provider](t) }, func(p *EmbeddingProfile) { p.ProviderVersion++ }, func(p *EmbeddingProfile) { p.AdapterRevision = "future-v3" },
 	} {
 		copy := p

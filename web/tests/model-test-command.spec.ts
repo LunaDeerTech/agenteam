@@ -52,6 +52,7 @@ const model = (type: "chat" | "image_generation" = "chat"): CatalogModel => ({
     request_overwrite: {},
     header_overwrite: {},
     capabilities: {
+      embedding: null,
       input_modalities: type === "chat" ? ["text", "image", "file"] : ["text"],
       output_modalities: [type === "chat" ? "text" : "image"],
       tool_calls: false,

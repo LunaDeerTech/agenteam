@@ -61,9 +61,9 @@ func TestMemoryEmbeddingProfileRequiresOriginalLiveToolOwner(t *testing.T) {
 }
 
 func TestMemoryEmbeddingProfileRequiresStableCaptureIdentity(t *testing.T) {
-	profile := mc.EmbeddingProfile{SelectionVersion: 3, ModelID: testID[mc.Model](t), ModelVersion: 2, ProviderID: testID[mc.Provider](t), ProviderVersion: 4, AdapterRevision: "openai-embeddings-float-usage-v2"}
+	profile := mc.EmbeddingProfile{SelectionVersion: 3, ModelID: testID[mc.Model](t), ModelVersion: 2, ProviderID: testID[mc.Provider](t), ProviderVersion: 4, AdapterRevision: "openai-embeddings-float-usage-v2", Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}
 	version := profile.SelectionVersion
-	snapshot := mc.ConfigSnapshot{ID: testID[mc.Snapshot](t), SelectionVersion: &version, Identity: mc.ModelIdentity{ModelID: profile.ModelID, ProviderID: profile.ProviderID, AdapterRevision: profile.AdapterRevision}}
+	snapshot := mc.ConfigSnapshot{Capabilities: mc.Capabilities{Embedding: &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}}, ID: testID[mc.Snapshot](t), SelectionVersion: &version, Identity: mc.ModelIdentity{ModelID: profile.ModelID, ProviderID: profile.ProviderID, AdapterRevision: profile.AdapterRevision}}
 	if !profileMatchesSnapshot(profile, snapshot) {
 		t.Fatal("matching captured configuration rejected")
 	}
@@ -73,11 +73,14 @@ func TestMemoryEmbeddingProfileRequiresStableCaptureIdentity(t *testing.T) {
 		t.Fatal("random capture identity treated as profile change")
 	}
 	for name, change := range map[string]func(*mc.ConfigSnapshot){
-		"selection":   func(s *mc.ConfigSnapshot) { *s.SelectionVersion++ },
-		"unversioned": func(s *mc.ConfigSnapshot) { s.SelectionVersion = nil },
-		"model":       func(s *mc.ConfigSnapshot) { s.Identity.ModelID = testID[mc.Model](t) },
-		"provider":    func(s *mc.ConfigSnapshot) { s.Identity.ProviderID = testID[mc.Provider](t) },
-		"adapter":     func(s *mc.ConfigSnapshot) { s.Identity.AdapterRevision = "future-v3" },
+		"missing-dimensions": func(s *mc.ConfigSnapshot) { s.Capabilities.Embedding = nil },
+		"dimensions":         func(s *mc.ConfigSnapshot) { s.Capabilities.Embedding.Dimensions++ },
+		"dimensions-mode":    func(s *mc.ConfigSnapshot) { s.Capabilities.Embedding.DimensionsMode = mc.EmbeddingRequestDimensions },
+		"selection":          func(s *mc.ConfigSnapshot) { *s.SelectionVersion++ },
+		"unversioned":        func(s *mc.ConfigSnapshot) { s.SelectionVersion = nil },
+		"model":              func(s *mc.ConfigSnapshot) { s.Identity.ModelID = testID[mc.Model](t) },
+		"provider":           func(s *mc.ConfigSnapshot) { s.Identity.ProviderID = testID[mc.Provider](t) },
+		"adapter":            func(s *mc.ConfigSnapshot) { s.Identity.AdapterRevision = "future-v3" },
 	} {
 		t.Run(name, func(t *testing.T) {
 			s := snapshot.Clone()

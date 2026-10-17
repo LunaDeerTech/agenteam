@@ -314,20 +314,24 @@ func (e ReasoningEffort) Validate() error {
 }
 
 type Capabilities struct {
-	ToolCalls             bool              `json:"tool_calls"`
-	ParallelToolCalls     bool              `json:"parallel_tool_calls"`
-	Streaming             bool              `json:"streaming"`
-	Reasoning             bool              `json:"reasoning"`
-	ReasoningToggleMode   *string           `json:"reasoning_toggle_mode"`
-	InputModalities       []string          `json:"input_modalities"`
-	OutputModalities      []string          `json:"output_modalities"`
-	ReasoningEfforts      []ReasoningEffort `json:"reasoning_efforts"`
-	StructuredOutputModes []string          `json:"structured_output_modes"`
-	ContextLength         *TokenCount       `json:"context_length,omitempty"`
-	MaxOutput             *TokenCount       `json:"max_output,omitempty"`
+	ToolCalls             bool                   `json:"tool_calls"`
+	ParallelToolCalls     bool                   `json:"parallel_tool_calls"`
+	Streaming             bool                   `json:"streaming"`
+	Reasoning             bool                   `json:"reasoning"`
+	ReasoningToggleMode   *string                `json:"reasoning_toggle_mode"`
+	InputModalities       []string               `json:"input_modalities"`
+	OutputModalities      []string               `json:"output_modalities"`
+	ReasoningEfforts      []ReasoningEffort      `json:"reasoning_efforts"`
+	StructuredOutputModes []string               `json:"structured_output_modes"`
+	ContextLength         *TokenCount            `json:"context_length,omitempty"`
+	MaxOutput             *TokenCount            `json:"max_output,omitempty"`
+	Embedding             *EmbeddingCapabilities `json:"embedding"`
 }
 
 func (c Capabilities) Validate() error {
+	if c.Embedding != nil && c.Embedding.Validate() != nil {
+		return bad()
+	}
 	if c.ReasoningToggleMode != nil && (!c.Reasoning || len(c.ReasoningEfforts) != 0 || !one(*c.ReasoningToggleMode, "enable_thinking", "thinking_type")) || c.ParallelToolCalls && !c.ToolCalls || !c.Reasoning && len(c.ReasoningEfforts) > 0 || !unique(c.InputModalities, "text", "image", "file", "vector") || !unique(c.OutputModalities, "text", "image", "file", "vector") || !unique(c.StructuredOutputModes, "text", "json_schema") || !validReasoningEfforts(c.ReasoningEfforts) {
 		return bad()
 	}
@@ -391,6 +395,7 @@ func (c Capabilities) Clone() Capabilities {
 	c.ContextLength = copyPtr(c.ContextLength)
 	c.MaxOutput = copyPtr(c.MaxOutput)
 	c.ReasoningToggleMode = copyPtr(c.ReasoningToggleMode)
+	c.Embedding = copyPtr(c.Embedding)
 	return c
 }
 
@@ -428,6 +433,9 @@ type ConfigSnapshot struct {
 }
 
 func (s ConfigSnapshot) Validate() error {
+	if s.Capabilities.ValidateForModelType(s.Identity.ModelType) != nil {
+		return bad()
+	}
 	if s.ReasoningEnabled != nil && (s.ReasoningEffort != "" || s.Identity.ModelType != ChatModel || !s.Capabilities.Reasoning || s.Capabilities.ReasoningToggleMode == nil || len(s.Capabilities.ReasoningEfforts) != 0) || s.ID.Validate() != nil || s.Identity.Validate() != nil || !endpoint(s.Endpoint) || objectJSON(s.Parameters, 64<<10) != nil || overwrite(s.RequestOverwrite, s.HeaderOverwrite) != nil || s.Capabilities.Validate() != nil || s.ReasoningEffort != "" && (s.Identity.ModelType != ChatModel || !s.Capabilities.SupportsReasoningEffort(s.ReasoningEffort)) || s.CredentialRef != nil && s.CredentialRef.Validate() != nil || s.SelectionVersion != nil && s.SelectionVersion.Validate() != nil {
 		return bad()
 	}

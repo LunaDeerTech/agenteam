@@ -137,6 +137,11 @@ func readEmbeddingProfile(ctx context.Context, x postgres.SQLExecutor) (mc.Embed
 	if err != nil {
 		return out, err
 	}
+	if m.Input.Capabilities.Embedding == nil {
+		return out, fault(f.InvalidState)
+	}
+	out.Dimensions = int(m.Input.Capabilities.Embedding.Dimensions)
+	out.DimensionsMode = m.Input.Capabilities.Embedding.DimensionsMode
 	if err := out.Validate(); err != nil {
 		return out, unavailable(err)
 	}

@@ -70,6 +70,9 @@ const model = (n: number, embedding = false): CatalogModel => ({
     request_overwrite: {},
     header_overwrite: {},
     capabilities: {
+      embedding: embedding
+        ? { dimensions: "1536", dimensions_mode: "fixed" }
+        : null,
       tool_calls: false,
       parallel_tool_calls: false,
       streaming: false,
@@ -313,12 +316,74 @@ describe("platform model selections", () => {
     expect(writes).toHaveLength(0);
   });
   it("offers cross-provider models in one list and explains choices that do not match the purpose", async () => {
+    const embedding = modelOption(12, true);
+    embedding.input.capabilities.context_length = "8000";
+    const chat = modelOption(13);
+    chat.input.capabilities.context_length = "128000";
+    chat.input.capabilities.input_modalities = ["text", "image", "file"];
+    const reranker = modelOption(14);
+    reranker.input.type = "reranker";
+    reranker.input.capabilities.output_modalities = [];
+    reranker.input.capabilities.structured_output_modes = [];
+    const image = modelOption(15);
+    image.input.type = "image_generation";
+    image.input.capabilities.output_modalities = ["image"];
+    image.input.capabilities.structured_output_modes = [];
+    const capacities = ["131072", "1536", "999", null].map((value, index) => {
+      const candidate = modelOption(16 + index);
+      candidate.input.capabilities.context_length = value;
+      return candidate;
+    });
+    gets = (path) =>
+      path === "/system/models"
+        ? json({
+            items: [embedding, chat, reranker, image, ...capacities],
+            next_cursor: null,
+          })
+        : undefined;
     const view = await page();
     expect(candidateReads()).toHaveLength(0);
     await view.get('[aria-label^="选择嵌入模型"]').trigger("click");
     await flushPromises();
     const choices = view.get('[role="grid"]').findAll('[role="row"]');
-    expect(choices).toHaveLength(2);
+    expect(choices).toHaveLength(8);
+    const tags = (index: number) =>
+      choices[index]!.findAll(".ui-search-select-tags > span");
+    expect(tags(0).map((tag) => tag.text())).toEqual([
+      "嵌入（Embedding）",
+      "1536 维",
+      "8K",
+    ]);
+    expect(tags(0)[2]!.attributes("title")).toBe("输入 8000 tokens");
+    expect(tags(1).map((tag) => tag.text())).toEqual([
+      "对话（Chat）",
+      "128K",
+      "图片",
+      "文件",
+    ]);
+    expect(tags(1)[1]!.attributes("title")).toBe("上下文 128000 tokens");
+    expect(tags(1)[2]!.attributes("title")).toBe("图片输入");
+    expect(tags(1)[3]!.attributes("title")).toBe("文件输入");
+    expect(tags(2).map((tag) => tag.text())).toEqual(["重排（ReRank）"]);
+    expect(tags(3).map((tag) => tag.text())).toEqual([
+      "图像生成（Image Generation）",
+      "文生图",
+    ]);
+    for (const [index, text, title] of [
+      [4, "131K", "上下文 131072 tokens"],
+      [5, "1.5K", "上下文 1536 tokens"],
+      [6, "999", "上下文 999 tokens"],
+    ] as const) {
+      expect(tags(index).map((tag) => tag.text())).toEqual([
+        "对话（Chat）",
+        text,
+      ]);
+      expect(tags(index)[1]!.attributes("title")).toBe(title);
+    }
+    expect(tags(7).map((tag) => tag.text())).toEqual(["对话（Chat）"]);
+    expect(
+      choices.some((row) => row.find(".ui-search-select-tags button").exists()),
+    ).toBe(false);
     expect(choices[0]!.text()).toContain("Vector Provider/upstream-12");
     expect(choices[1]!.text()).toContain("Chat Provider/upstream-13");
     expect(choices[1]!.get("button").attributes("aria-disabled")).toBe("true");

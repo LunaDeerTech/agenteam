@@ -180,7 +180,9 @@ func (a *IndexAuthority) RequireEmbeddingProfileInTx(ctx context.Context, tx f.T
 	return b.authorizeInTx(ctx, tx)
 }
 func embeddingProfileMatchesSnapshot(p mc.EmbeddingProfile, s mc.ConfigSnapshot) bool {
-	return p.Validate() == nil && s.SelectionVersion != nil && *s.SelectionVersion == p.SelectionVersion && s.Identity.ModelID == p.ModelID && s.Identity.ProviderID == p.ProviderID && s.Identity.AdapterRevision == p.AdapterRevision
+	return p.Validate() == nil && s.SelectionVersion != nil && *s.SelectionVersion == p.SelectionVersion && s.Capabilities.Embedding != nil && int(s.Capabilities.Embedding.Dimensions) == p.Dimensions &&
+		s.Capabilities.Embedding.DimensionsMode == p.DimensionsMode &&
+		s.Identity.ModelID == p.ModelID && s.Identity.ProviderID == p.ProviderID && s.Identity.AdapterRevision == p.AdapterRevision
 }
 
 var _ mc.EmbeddingProfileAuthority = (*IndexAuthority)(nil)

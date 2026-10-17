@@ -32,6 +32,7 @@ func embeddingUnitInput(t *testing.T) (EmbeddingRequest, CallOptions) {
 	chat.Snapshot.Identity.AdapterRevision = OpenAIEmbeddingsFloatRevision
 	chat.Snapshot.Capabilities.Streaming = false
 	chat.Snapshot.Capabilities.OutputModalities = []string{"vector"}
+	chat.Snapshot.Capabilities.Embedding = &mc.EmbeddingCapabilities{Dimensions: 2, DimensionsMode: mc.EmbeddingFixedDimensions}
 	return EmbeddingRequest{Snapshot: chat.Snapshot, Texts: []string{"  text & 世界\n"}, ExpectedDimensions: 2}, o
 }
 
@@ -203,6 +204,7 @@ func TestOpenAIEmbeddingsInputLimits(t *testing.T) {
 			r.Snapshot.Identity.Protocol = mc.OpenAIChat
 			r.Snapshot.Identity.Profile = mc.OpenAIChatV1
 			r.Snapshot.Identity.ModelType = mc.ChatModel
+			r.Snapshot.Capabilities.Embedding = nil
 		}, true},
 		{"streaming", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.Streaming = true }, true},
 		{"tools", func(r *EmbeddingRequest, _ *CallOptions) { r.Snapshot.Capabilities.ToolCalls = true }, true},
@@ -253,6 +255,7 @@ func TestOpenAIEmbeddingsInputLimits(t *testing.T) {
 	t.Run("max_product_and_total_text", func(t *testing.T) {
 		r, o := embeddingUnitInput(t)
 		r.ExpectedDimensions = 2048
+		r.Snapshot.Capabilities.Embedding.Dimensions = 2048
 		r.Texts = make([]string, 128)
 		for i := range r.Texts {
 			r.Texts[i] = strings.Repeat("x", 32768)

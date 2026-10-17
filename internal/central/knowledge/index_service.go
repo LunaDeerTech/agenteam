@@ -22,14 +22,13 @@ type IndexSettings struct {
 	ParserProfile string
 	Chunker       chunker.Config
 	Backend       lexical.Backend
-	Dimension     int
 	Retrieval     rc.Limits
 	Timeouts      runtime.Timeouts
 	ModelTimeout  time.Duration
 }
 
 func (s IndexSettings) Validate() error {
-	if (s.ParserProfile != document.Profile && s.ParserProfile != document.RegistryProfile && s.ParserProfile != document.PopplerRegistryProfile) || s.Chunker.Validate() != nil || s.Dimension < 1 || s.Dimension > 4096 || s.Retrieval.Validate() != nil || s.ModelTimeout <= 0 || s.ModelTimeout > 2*time.Minute {
+	if (s.ParserProfile != document.Profile && s.ParserProfile != document.RegistryProfile && s.ParserProfile != document.PopplerRegistryProfile) || s.Chunker.Validate() != nil || s.Retrieval.Validate() != nil || s.ModelTimeout <= 0 || s.ModelTimeout > 2*time.Minute {
 		return fault(f.InvalidArgument)
 	}
 	if _, err := lexical.Expressions(s.Backend, lexical.KnowledgeChunks, 1); err != nil {

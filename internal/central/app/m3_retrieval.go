@@ -16,7 +16,8 @@ import (
 )
 
 // These bounded initial values are deployment defaults, not a claim of tuned
-// relevance. Backend and dimensions must always be explicitly configured.
+// relevance. The backend is deployment configuration; embedding dimensions
+// come from the selected Model and are frozen on each serving space.
 func m3RetrievalLimits() rc.Limits {
 	return rc.Limits{LexicalK: 64, DenseK: 64, FusedK: 64, ResultK: 8, RRFConstant: 60, MaxResultBytes: 64 << 10}
 }
@@ -52,7 +53,7 @@ func constructKnowledgeIndex(ctx context.Context, cfg config.Config, db database
 		}
 		profile = document.PopplerRegistryProfile
 	}
-	settings := knowledge.IndexSettings{ParserProfile: profile, Chunker: chunker.Config{SoftBytes: 2048, HardBytes: 4096, ForcedOverlapBytes: 256}, Backend: options.Backend(), Dimension: options.Dimensions(), Retrieval: m3RetrievalLimits(), Timeouts: m3RetrievalTimeouts(), ModelTimeout: 2 * time.Minute}
+	settings := knowledge.IndexSettings{ParserProfile: profile, Chunker: chunker.Config{SoftBytes: 2048, HardBytes: 4096, ForcedOverlapBytes: 256}, Backend: options.Backend(), Retrieval: m3RetrievalLimits(), Timeouts: m3RetrievalTimeouts(), ModelTimeout: 2 * time.Minute}
 	index, err := knowledge.NewIndexService(store, documents.pair.Service(), authority.knowledge, knowledge.IndexDependencies{Models: indexModelServices{models, execution.modelCalls}, Calls: execution.modelRuntime, ServingRetention: execution.servingRetention, EmbeddingProfiles: execution.embeddingProfiles, Parser: parser, Settings: settings, Observer: observer})
 	if err != nil {
 		return err
