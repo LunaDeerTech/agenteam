@@ -1,4 +1,10 @@
-# 当前状态：统一总结模型已完成适用验证
+# 当前状态：ModelPicker锚定浮层与全局搜索实施中
+
+2026-10-17，起点`857d94a3`。用户已确认ModelPicker改为触发选框下方的可复用锚定浮层，一层跨供应商模型列表与搜索、当前勾选和不可选原因；空选框“点击选择模型”，已选“供应商名称/模型ID”始终可见，hover只改样式。四用途各有短描述，image显示“图像生成模型”，重排/图像生成明确尚未绑定。后台提供真实全局查询，禁止前端拼供应商各页；单summary保存、草稿与Unknown不改。
+
+account_backend在`/workspace/agenteam-model-picker-backend`（`ai/model-picker-backend-20261017`），proxy_copy在`/workspace/agenteam-model-picker-vue`（`ai/model-picker-vue-20261017`），runtime在`/workspace/agenteam-model-picker-tests`（`ai/model-picker-tests-20261017`）；root负责集成/Git，组件规范由Vue owner维护。已锁GET/HEAD `/system/models`可省provider_id跨供应商查询，q按名称/模型ID字面子串检索，列表项带provider安全投影；实现及适用验证尚待，不称已完成。合同沿[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)，不新增卡；本轮仍只交图床匿名校验后的截图，不部署公网、不动现用户数据或外部SMTP。
+
+## 前轮统一总结模型结果
 
 2026-10-17，起点`0c182e08`。用户已确认Memory与Meeting共用一个“总结模型”，平台用途改为向量/总结/重排/图像四项；唯一`/system/model-selection`资源按一id/version/回执原子保存，summary须为启用的System chat且支持`json_schema`。两业务消费者统一`SummarySelector='summary'`，业务Purpose保持；删除旧memory字段与System独立meeting-summary配置/API，00149仅重建用途配置，不迁旧值。Project未绑定预留契约不扩展。模型显示改为“供应商名称/模型ID”，保留页头“重新获取”和单保存。
 
@@ -164,7 +170,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-统一总结模型的实现、适用验证、截图与隔离资源清退已齐，由root集成最后测试/独审说明及本批文档后交付。后续若需继续隔离验证，应由owner重建专属环境，不能复用已退出的端口或runtime。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
+下一步完成已锁wire的全局查询、锚定组件与页面接线，再由owned真实接口/受控视觉验证搜索、选择与焦点及未变保存边界。旧总结模型fixture已退出，不能复用其端口或runtime；由本轮owner提供隔离环境。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 

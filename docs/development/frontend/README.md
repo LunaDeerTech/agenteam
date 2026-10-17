@@ -58,6 +58,8 @@ AppShell组织系统导航、项目上下文和内容区；“个人设置”只
 
 发现、逐项导入和真实测试仅按[本包合同](../work-items/frontend-model-catalog.md)的协议能力开放；配置保存不自动调用供应商。未知结果保原请求并按相应命令恢复，不能只凭历史lookup认定本次材料已提交。先在owned App与模拟供应商联调，不使用当前公网实例或用户凭据。原页面与旧D09通过只证明其原输入，新组合结果以当前状态为准。
 
+当前ModelPicker增量改为选框下方的可复用锚定浮层，一层跨供应商搜索列表展示当前勾选和不可选原因；搜索使用`GET /system/models`省略provider_id并传q，不拼接各供应商页。空框“点击选择模型”，已选名称常显，hover只改样式；关闭仅退出选择，不丢页面草稿或改变单资源保存/Unknown恢复。四用途加简短功能描述，“图像生成模型”与重排说明当前尚未绑定能力。组件接口见[共享组件规范](components.md)，本轮状态与验证边界仍以工作项为准。
+
 ## 出站规则与代理（新Vue）
 
 入口为 `/system/outbound-policy`，仅当前已确认的系统管理员可读取、保存；页面在唯一SettingsShell下提供“访问规则 / 代理设置”两个Tab。规则沿原集合GET/PUT，代理使用独立版本的 `/api/v1/system/outbound-policy/proxy`。字段、密码空保持/非空替换、网关身份变化及Unknown恢复以[工程契约](../work-items/system-outbound-policy-proxy.md)为准，不沿下方归档前端的状态实现。

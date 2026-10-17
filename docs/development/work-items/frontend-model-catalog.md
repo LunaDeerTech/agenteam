@@ -1,6 +1,6 @@
 # 新 Vue 模型接入与平台模型用途
 
-状态：2026-10-17 原包起点 `97ac04e3`；从 `0c182e08` 开始的统一总结模型已实现并完成本轮适用验证。记忆与会议共用真实单配置，四用途整组保存；此前五用途、两资源的页面调整及验证保留为历史，不替代本次验证。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型已完成下述适用验证，当前从`857d94a3`实施可复用锚定ModelPicker与真实跨供应商搜索。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -10,9 +10,15 @@
 | --- | --- |
 | `/system/models` | “模型接入”先呈现供应商列表；页头右侧新建供应商，配置在弹窗中。 |
 | `/system/models/:providerId` | 独立供应商详情，以模型列表为主体；返回目录恢复列表位置/焦点。供应商设置、凭据配置、手工添加/编辑模型、发现选择导入和测试结果使用对应弹窗，不纵向堆叠全部表单。 |
-| `/system/model-selection` | 独立的平台用途页；向量、总结、重排、图像四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；候选与已选模型显示为“供应商名称/模型ID”。 |
+| `/system/model-selection` | 独立的平台用途页；向量、总结、重排、图像生成模型四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；右侧选框常显“供应商名称/模型ID”，点击打开下方锚定ModelPicker。 |
 
 完整出口是供应商与凭据配置→模型手工添加或发现勾选导入→显式真实测试→合法用途可选。复用SettingsShell、SystemList、UiDialog和共享页头动作；目录使用宽正文，标题无需装饰描述。页级动作在标题右侧，表单保存/取消贴近字段。宽窄、空态、读取失败、权限失效、409、Unknown、取消及返回焦点在对应任务中闭环。
+
+### 可复用模型选择浮层
+
+ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层跨供应商模型列表承载搜索、当前选中勾选及不可选原因，不再要求先进入某个供应商才能找模型。空选框显示“点击选择模型”，已选时“供应商名称/模型ID”始终可见，hover只改变样式、不替换内容。搜索、分页、空结果、失败重读及迟到结果由同一请求owner管理；关闭浮层不清页面草稿，Escape返回触发控件。窄屏与缩放需保持触发关联、搜索及结果可达，正式组件接口由[共享组件规范](../frontend/components.md)维护。
+
+四用途各保留一句功能描述：向量用于知识/记忆检索，总结用于记忆提取整理及会议摘要，重排用于检索结果排序，图像生成用于生成图片。重排与图像生成须明确当前运行能力尚未绑定，不能以配置入口或可保存状态暗示已可调用；不在本轮解除其STOP。选择只改本地草稿，单summary资源保存、409与Unknown合同不变。
 
 ## 2. 既有接口与数据
 
@@ -22,13 +28,15 @@
 | --- | --- |
 | `/system/model-providers`、`/{id}` | GET列表或对象；POST `{input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version}`。对象为`{id,input,version,created_at,updated_at}`。 |
 | Provider input | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat和embedding模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。 |
-| `/system/models`、`/{id}` | GET列表必须`provider_id`；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。对象为`{id,provider_id,input,version,created_at,updated_at}`。 |
+| `/system/models`、`/{id}` | GET/HEAD列表可选`provider_id`、`q`、`cursor`、`limit`，省略provider为跨System供应商；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。模型对象为`{id,provider_id,input,version,created_at,updated_at}`，列表项另含下述provider安全投影，详情DTO不变。 |
 | Model input | `{name,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；新family按每个模型的type选择既有chat或embedding adapter，能力必须通过真实校验，不能由模型名字猜推理、工具、上下文或价格。capabilities各字段严格沿schema，未知容量保持null。 |
 | `/system/model-credentials`、`/{id}` | POST `{value}`；GET对象只读`{credential_id,purpose:'model',version}`；PUT `{expected_version,value}`；DELETE `{expected_version}`。写结果`{credential_id,purpose,version,deleted}`，材料从不回显。 |
 | 配置receipt | `{kind,resource_id,version,affected_references}`，kind使用`provider.create`、`model.update`等现有点号枚举。Provider/Model/用途各有独立版本。 |
 | 配置lookup | POST `/system/model-commands/lookup`，body `{command}`、原key→`{found,receipt}`；Secret用 `/system/model-credential-commands/lookup`，create `{kind:'create'}`，update/delete另带`credential_id,expected_version`→`{observed,result}`。 |
 
-列表使用真实cursor/limit（后端1..100、默认50；新UI默认10，可选5/10/20/50），页长或供应商变化清cursor历史。不做当前页过滤冒充全目录筛选。用途候选按供应商分页和选中供应商懒加载模型，不自动无界遍历所有供应商。
+管理列表使用真实cursor/limit（后端1..100、默认50；管理页默认10，可选5/10/20/50），页长或供应商变化清cursor历史。ModelPicker用同一服务端列表做跨供应商查询，不拼接各供应商页面或把当前页过滤称为全局搜索。
+
+全局查询`q`可省略，trim后lowercase规范化；原始与规范化值各最多128个UTF-8字节，拒绝控制字符。它按字面子串匹配供应商名称、模型名称或provider_model_id，`%`与`_`不作为通配符。返回`{items,next_cursor}`，每个列表项新增必填`provider:{id,name,protocol,enabled,version}`安全投影，不含凭据；next_cursor为string或null。游标绑定当前用户、provider过滤及规范q，沿既有created_at/id水位排序，不承诺跨页MVCC快照；查询变化清旧cursor并退休旧读取。未新增purpose/type参数，停用或不符合当前用途的模型仍返回，由UI按既有能力规则显示不可选原因，保存时仍由后端重验。Project列表与模型详情DTO不变；本次不改迁移、鉴权或selector写入。
 
 凭据弹窗空输入表示不发替换请求，非空才创建/替换；删除为显式动作。凭据写入和Provider关联是两个独立命令：已确认的凭据不能因关联失败再创建，显示实际部分完成并只恢复未完成步骤。取消不回滚已确认写入；解除关联和删除Secret不是同一事实，不能误删被其他配置引用的凭据。Provider删除不自动级联模型或独立Secret。
 
@@ -69,6 +77,10 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 ## 5. 实施与验收边界
 
 account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
+
+ModelPicker增量交互与全局查询wire已确定，实现与适用验证仍在推进。独立工作树为`/workspace/agenteam-model-picker-backend`、`/workspace/agenteam-model-picker-vue`、`/workspace/agenteam-model-picker-tests`；组件规范由Vue owner同步。尚未取得本轮新截图或验收结果，不复用下面的居中选择器画面证明新浮层完成。
+
+### 已完成的统一总结模型验证
 
 统一总结模型产品集成`846fe701`（backend `b87ed09b`、Vue `0852da63`、harness `5edd81b1`），后续产品输入未变，适用验证已收口：
 
