@@ -259,7 +259,7 @@ describe("platform model selections", () => {
         .findAll('button[aria-label^="选择"]')
         .map((item) => item.attributes("aria-label")?.split("，")[0]),
     ).toEqual([
-      "选择向量模型（Embedding）",
+      "选择嵌入模型（Embedding）",
       "选择总结模型（Chat）",
       "选择重排模型（Rerank）",
       "选择图像生成模型（Image Generation）",
@@ -274,7 +274,7 @@ describe("platform model selections", () => {
   it("offers cross-provider models in one list and explains choices that do not match the purpose", async () => {
     const view = await page();
     expect(candidateReads()).toHaveLength(0);
-    await view.get('[aria-label^="选择向量模型"]').trigger("click");
+    await view.get('[aria-label^="选择嵌入模型"]').trigger("click");
     await flushPromises();
     const choices = view.findAll('[role="option"]');
     expect(choices).toHaveLength(2);
@@ -283,7 +283,7 @@ describe("platform model selections", () => {
     expect(choices[1]!.attributes("aria-disabled")).toBe("true");
     expect(choices[1]!.text()).toContain("模型类型不适用于此用途");
     await choices[1]!.trigger("click");
-    expect(view.get('[aria-label^="选择向量模型"]').text()).toBe(
+    expect(view.get('[aria-label^="选择嵌入模型"]').text()).toBe(
       "Vector Provider/upstream-10",
     );
     expect(button("保存").attributes("disabled")).toBeDefined();
@@ -300,7 +300,7 @@ describe("platform model selections", () => {
     await choices[0]!.trigger("click");
     await flushPromises();
     expect(view.find('[role="dialog"]').exists()).toBe(false);
-    expect(view.get('[aria-label^="选择向量模型"]').text()).toBe(
+    expect(view.get('[aria-label^="选择嵌入模型"]').text()).toBe(
       "Vector Provider/upstream-12",
     );
     expect(button("保存").attributes("disabled")).toBeUndefined();
@@ -384,7 +384,7 @@ describe("platform model selections", () => {
         : undefined;
     const view = await page();
     expect(view.text()).toContain("读取失败");
-    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
+    for (const purpose of ["嵌入模型", "总结模型", "重排模型", "图像生成模型"])
       expect(
         view.get(`[aria-label^="选择${purpose}"]`).attributes("disabled"),
       ).toBeDefined();
@@ -398,7 +398,7 @@ describe("platform model selections", () => {
         : undefined;
     await page();
     expect(button("保存").attributes("disabled")).toBeDefined();
-    await pick("向量模型", true);
+    await pick("嵌入模型", true);
     expect(button("保存").attributes("disabled")).toBeDefined();
     await pick("总结模型");
     await click("保存");
@@ -413,7 +413,7 @@ describe("platform model selections", () => {
   });
   it("saves all changed purposes in one pending request and never repeats it after receipt or read", async () => {
     await page();
-    await pick("向量模型", true);
+    await pick("嵌入模型", true);
     await pick("总结模型");
     let finish!: (value: Response) => void;
     puts = () =>
@@ -428,7 +428,7 @@ describe("platform model selections", () => {
       summary: id(13),
     });
     expect(writes[0]!.key).toBeTruthy();
-    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
+    for (const purpose of ["嵌入模型", "总结模型", "重排模型", "图像生成模型"])
       expect(
         wrapper!.get(`[aria-label^="选择${purpose}"]`).attributes("disabled"),
       ).toBeDefined();
@@ -466,7 +466,7 @@ describe("platform model selections", () => {
     "preserves the whole draft after $code and adopts a fresh version only explicitly",
     async ({ code, status }) => {
       await page();
-      await pick("向量模型", true);
+      await pick("嵌入模型", true);
       await pick("总结模型");
       puts = () => json({ code, commit_state: "not_started" }, status);
       await click("保存");
@@ -502,7 +502,7 @@ describe("platform model selections", () => {
   );
   it("keeps an unknown request frozen after lookup and accepts only its original body and key", async () => {
     await page();
-    await pick("向量模型", true);
+    await pick("嵌入模型", true);
     await pick("总结模型");
     puts = () => {
       throw new TypeError("Synthetic interrupted response");
@@ -514,7 +514,7 @@ describe("platform model selections", () => {
     expect(original.key).toBeTruthy();
     expect(wrapper!.text()).toContain("原操作结果尚未确认");
     expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
-    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
+    for (const purpose of ["嵌入模型", "总结模型", "重排模型", "图像生成模型"])
       expect(
         wrapper!.get(`[aria-label^="选择${purpose}"]`).attributes("disabled"),
       ).toBeDefined();
@@ -550,7 +550,7 @@ describe("platform model selections", () => {
         : undefined;
     await page();
     expect(wrapper!.text()).toContain("当前引用的模型或供应商已不存在");
-    await pick("向量模型", true);
+    await pick("嵌入模型", true);
     puts = () => json({ code: "FORBIDDEN", commit_state: "not_started" }, 403);
     await click("保存");
     expect(wrapper!.text()).toContain("页面数据已清除");
@@ -619,7 +619,7 @@ describe("platform model selections", () => {
             : undefined;
     await page();
     expect(wrapper!.text()).toContain("当前协议仅支持查看现有用途");
-    await pick("向量模型", true);
+    await pick("嵌入模型", true);
     await click("保存");
     expect(writes).toHaveLength(1);
     expect(JSON.parse(writes[0]!.body).image).toBe(id(14));
@@ -641,4 +641,50 @@ describe("platform model selections", () => {
       "vector",
     );
   });
+  it.each([
+    {
+      type: "reranker",
+      purpose: "reranker",
+      output: [],
+      legacy: "jina-rerank",
+      issue: "重排模型需要查询与文档排序能力",
+    },
+    {
+      type: "image_generation",
+      purpose: "image",
+      output: ["image"],
+      legacy: "openai-images-generations",
+      issue: "图像生成模型需要文本生成图像能力",
+    },
+  ] as const)(
+    "accepts compatible $type choices but rejects unsuitable capabilities and legacy protocols",
+    async ({ type, purpose, output, legacy, issue }) => {
+      const { modelPurposeIssue } =
+        await import("../src/system/model-selection");
+      const candidate = model(14);
+      candidate.input.type = type;
+      candidate.input.capabilities.output_modalities = [...output];
+      candidate.input.capabilities.structured_output_modes = [];
+      const source = provider();
+      expect(modelPurposeIssue(purpose, candidate, source)).toBeUndefined();
+
+      candidate.input.capabilities.output_modalities = ["vector"];
+      expect(modelPurposeIssue(purpose, candidate, source)).toBe(issue);
+      candidate.input.capabilities.output_modalities = [...output];
+      candidate.input.capabilities.reasoning = true;
+      candidate.input.capabilities.reasoning_efforts = [
+        { name: "深入", value: "high" },
+      ];
+      candidate.input.capabilities.context_length = "128000";
+      expect(modelPurposeIssue(purpose, candidate, source)).toBe(issue);
+
+      candidate.input.capabilities.reasoning = false;
+      candidate.input.capabilities.reasoning_efforts = [];
+      candidate.input.capabilities.context_length = null;
+      source.input.protocol = legacy;
+      expect(modelPurposeIssue(purpose, candidate, source)).toContain(
+        "不能新增选择",
+      );
+    },
+  );
 });
