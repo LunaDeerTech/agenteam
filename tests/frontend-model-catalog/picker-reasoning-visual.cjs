@@ -581,7 +581,7 @@ async function desktop({ p, state }) {
     noNotesInOrdinaryRows: true,
     notesOnlySupported: true,
     unmappedDefaultOnly: true,
-    rightAndLeftSide: true,
+    sideWithinViewportAndWideRight: true,
     hoverPathRetained: true,
     sameModelRetains: true,
     newModelResets: true,
@@ -629,11 +629,9 @@ async function narrow({ p, state }) {
 async function form({ p, state }) {
   stage = "form-labels-order-and-optional-notes";
   const t = p.getByRole("table", { name: "供应商模型", exact: true });
-  const r = t
-    .getByRole("row")
-    .filter({
-      has: p.getByRole("cell", { name: "sample-chat-basic", exact: true }),
-    });
+  const r = t.getByRole("row").filter({
+    has: p.getByRole("cell", { name: "sample-chat-basic", exact: true }),
+  });
   await btn(r, "编辑").click();
   const d = p.getByRole("dialog", { name: "编辑模型", exact: true });
   const identity = field(d, "模型 ID"),
@@ -727,6 +725,126 @@ async function zoomWork({ p, state }) {
     ...(await noOverflow(p)),
   };
 }
+async function keyboard({ p, state }) {
+  stage = "left-flip-and-keyboard-entry";
+  await p.setViewportSize({ width: 1280, height: 1000 });
+  await openPicker(p);
+  const primary = row(p, state, 13).getByRole("button").first();
+  await primary.focus();
+  await p.keyboard.press("Tab");
+  await expect(more(p, state, 13)).toBeFocused();
+  await p.keyboard.press("Shift+Tab");
+  await expect(primary).toBeFocused();
+  await p.keyboard.press("ArrowRight");
+  const menu = details(p, state, 13);
+  await expect(radio(menu, "供应商默认")).toBeFocused();
+  const child = await visibleBounds(menu, p);
+  const anchor = await more(p, state, 13).boundingBox();
+  assert(child.x + child.width <= anchor.x, "1280 side must flip left");
+  await p.keyboard.press("ArrowDown");
+  await expect(radio(menu, "轻度思考")).toBeChecked();
+  await expect(radio(menu, "轻度思考")).toBeFocused();
+  assert.equal(state.writes.length, 0);
+  await screenshot(p, "08-left-keyboard-dark");
+  const focus = async () =>
+    p.evaluate(() => {
+      const a = document.activeElement;
+      const r = a?.getBoundingClientRect();
+      return {
+        tag: a?.tagName,
+        label: a?.getAttribute("aria-label"),
+        text: a?.textContent?.trim().slice(0, 100),
+        width: r?.width,
+        height: r?.height,
+        documentHasFocus: document.hasFocus(),
+        focusVisible: a?.matches(":focus-visible"),
+      };
+    });
+  stage = "keyboard-tab-exit";
+  if (args.includes("--focus-diagnostic")) {
+    const observations = [];
+    await p.evaluate(() => {
+      window.__safeFocus = [];
+      for (const type of ["focusin", "focusout", "blur", "focus"])
+        window.addEventListener(
+          type,
+          (event) => {
+            window.__safeFocus.push({
+              type,
+              tag: event.target?.tagName,
+              label: event.target?.getAttribute?.("aria-label"),
+              documentHasFocus: document.hasFocus(),
+            });
+          },
+          true,
+        );
+    });
+    for (const key of ["Tab", "Shift+Tab", "Tab", "Tab", "Shift+Tab"]) {
+      await p.keyboard.press(key);
+      await p.evaluate(
+        () =>
+          new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
+          ),
+      );
+      observations.push({
+        key,
+        focus: await focus(),
+        sideVisible: await menu.isVisible(),
+        parentVisible: await panel(p).isVisible(),
+      });
+    }
+    const events = await p.evaluate(() => window.__safeFocus);
+    await fs.writeFile(
+      path.join(out, "focus-diagnostic.json"),
+      JSON.stringify({ observations, events }, null, 2),
+    );
+    return {
+      diagnosticOnly: true,
+      leftFlip: true,
+      primaryMoreTabRoundTrip: true,
+      arrowOpensAndSelects: true,
+      observations,
+      events,
+      zeroWrites: state.writes.length === 0,
+    };
+  }
+  await p.keyboard.press("Tab");
+  const forward = await focus();
+  // This last DOM control yields to Chromium's chrome. That is a native
+  // nonmodal boundary, not a lost document focus, provided Shift+Tab returns.
+  assert.equal(forward.documentHasFocus, false, JSON.stringify(forward));
+  assert.equal(forward.tag, "BODY");
+  await p.keyboard.press("Shift+Tab");
+  await expect(radio(menu, "轻度思考")).toBeFocused();
+  await expect(radio(menu, "轻度思考")).toBeChecked();
+  const backward = await focus();
+  assert(backward.documentHasFocus && backward.focusVisible);
+  await p.keyboard.press("Tab");
+  await p.keyboard.press("Tab");
+  await expect(
+    p.getByRole("link", { name: "跳到主要内容", exact: true }),
+  ).toBeFocused();
+  await expect(menu).toHaveCount(0);
+  await expect(panel(p)).toHaveCount(0);
+  await openPicker(p);
+  const retained = await openDetails(p, state, 13);
+  await expect(radio(retained, "轻度思考")).toBeChecked();
+  await closeDetails(p, state, 13);
+  await closePicker(p);
+  await btn(p, "放弃修改").click();
+  assert.equal(state.writes.length, 0);
+  return {
+    leftFlip: true,
+    primaryMoreTabRoundTrip: true,
+    arrowOpensAndSelects: true,
+    tabExit: forward,
+    shiftTabExit: backward,
+    draftRetained: true,
+    zeroWrites: true,
+    ...(await noOverflow(p)),
+  };
+}
 const results = [];
 async function record(context, name, work) {
   let data;
@@ -771,7 +889,9 @@ async function record(context, name, work) {
 async function main() {
   await fs.mkdir(out, { recursive: true });
   const only = args.includes("--only") ? arg("--only") : undefined;
-  assert(!only || ["desktop", "narrow", "form", "zoom"].includes(only));
+  assert(
+    !only || ["desktop", "narrow", "form", "zoom", "keyboard"].includes(only),
+  );
   let browser;
   try {
     if (only !== "zoom") {
@@ -783,6 +903,7 @@ async function main() {
         ["desktop", desktop],
         ["narrow", narrow],
         ["form", form],
+        ...(only === "keyboard" ? [["keyboard", keyboard]] : []),
       ]) {
         if (only && name !== only) continue;
         const context = await browser.newContext({
@@ -790,7 +911,9 @@ async function main() {
             name === "narrow"
               ? { width: 390, height: 844 }
               : { width: 1440, height: 1000 },
-          colorScheme: name === "desktop" ? "dark" : "light",
+          colorScheme: ["desktop", "keyboard"].includes(name)
+            ? "dark"
+            : "light",
           hasTouch: name === "narrow",
           serviceWorkers: "block",
         });
