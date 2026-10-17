@@ -217,7 +217,11 @@ onBeforeUnmount(() => {
   alive = false;
   clear();
 });
-useLeaveProtection(() => props.open && (dirty.value || locked.value));
+useLeaveProtection(
+  () =>
+    props.open &&
+    (dirty.value || locked.value || (!!receipt.value && !canonical.value)),
+);
 </script>
 <template>
   <UiDialog

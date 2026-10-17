@@ -62,6 +62,10 @@ function modelSaved(model: CatalogModel) {
     (item) => ({ ...item, ...model }),
   );
 }
+function modelEdited(model: CatalogModel) {
+  modelSaved(model);
+  void list.refresh({ preserve: true });
+}
 async function modelDeleted() {
   await list.refresh({ preserve: true });
   await nextTick();
@@ -347,7 +351,7 @@ onBeforeUnmount(() => {
         v-model:open="modelEditing"
         :provider="provider"
         :model="selectedModel"
-        @saved="list.refresh({ preserve: true })"
+        @saved="modelEdited"
         @deleted="modelDeleted"
       />
       <ModelDiscoveryDialog
