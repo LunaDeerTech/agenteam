@@ -266,7 +266,10 @@ async function detailsFor(label: string) {
   expect(panel.get("legend").text()).toBe("思考策略");
   return panel;
 }
-function reasoningRadio(panel: DOMWrapper<Element>, text: string) {
+function reasoningRadio(
+  panel: Pick<DOMWrapper<Element>, "findAll">,
+  text: string,
+) {
   const labels = panel.findAll("label").filter((item) => item.text() === text);
   expect(labels, `Exactly one reasoning option ${text}`).toHaveLength(1);
   return labels[0]!.get('input[type="radio"]');
