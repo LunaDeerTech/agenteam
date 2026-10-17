@@ -275,6 +275,88 @@ function createGroup(summary: boolean) {
 const platform = createGroup(false);
 const summary = createGroup(true);
 const groups = [platform, summary];
+const rows = groups.flatMap((group) =>
+  group.purposes.map((purpose) => ({ purpose, group })),
+);
+const saving = ref(false);
+const saveStatus = ref<"complete" | "partial">();
+let saveRevision = 0;
+const dirty = computed(() => groups.some((group) => group.dirty.value));
+const editingLocked = computed(
+  () =>
+    !available.value ||
+    saving.value ||
+    groups.some(
+      (group) =>
+        group.reading.value ||
+        group.command.busy.value ||
+        group.command.observing.value ||
+        group.command.uncertain.value,
+    ),
+);
+const canSave = computed(
+  () =>
+    !editingLocked.value &&
+    groups.every((group) => !!group.baseline.value) &&
+    dirty.value &&
+    groups.every(
+      (group) =>
+        !group.dirty.value || (!group.invalid.value && !group.conflict.value),
+    ),
+);
+const hasLatest = computed(() => groups.some((group) => !!group.latest.value));
+async function saveAll() {
+  if (!canSave.value) return;
+  const owner = ++saveRevision;
+  const generation = access.generation.value;
+  const current = () =>
+    alive && owner === saveRevision && generation === access.generation.value;
+  const changed = groups.filter((group) => group.dirty.value);
+  saving.value = true;
+  saveStatus.value = undefined;
+  groups.forEach((group) => (group.saved.value = false));
+  try {
+    for (const group of changed) {
+      await group.save();
+      if (!current()) return;
+      if (!group.saved.value) {
+        if (changed.some((item) => item.saved.value))
+          saveStatus.value = "partial";
+        return;
+      }
+    }
+    saveStatus.value = "complete";
+  } finally {
+    if (owner === saveRevision) saving.value = false;
+  }
+}
+async function confirmOriginal(group: (typeof groups)[number]) {
+  const owner = saveRevision;
+  await group.command.retry();
+  if (alive && owner === saveRevision && group.saved.value)
+    saveStatus.value = dirty.value ? "partial" : "complete";
+}
+function readAll() {
+  if (editingLocked.value) return;
+  groups.forEach((group) => void group.read());
+}
+function adoptLatest() {
+  if (editingLocked.value) return;
+  groups.forEach((group) => group.adoptLatest());
+  saveStatus.value = undefined;
+}
+function discardAll() {
+  if (editingLocked.value) return;
+  groups.forEach((group) => group.discard());
+  saveStatus.value = undefined;
+}
+function clearPurpose(purpose: ModelPurpose) {
+  const group = purpose === "meeting_summary" ? summary : platform;
+  if (editingLocked.value || group.locked.value) return;
+  group.draft.value[purpose] = "";
+  group.saved.value = false;
+  saveStatus.value = undefined;
+}
 const picking = ref<ModelPurpose>();
 const provider = shallowRef<Provider>();
 const pickerOpen = computed({
@@ -293,7 +375,7 @@ const models = useCursorList(
 );
 function openPicker(purpose: ModelPurpose) {
   const group = purpose === "meeting_summary" ? summary : platform;
-  if (group.locked.value) return;
+  if (editingLocked.value || group.locked.value) return;
   provider.value = undefined;
   providers.reset();
   models.reset();
@@ -312,15 +394,19 @@ function selectModel(model: CatalogModel) {
   )
     return;
   const group = purpose === "meeting_summary" ? summary : platform;
-  if (group.locked.value) return;
+  if (editingLocked.value || group.locked.value) return;
   references.value[model.id] = { model, provider: provider.value };
   group.draft.value[purpose] = model.id;
   group.saved.value = false;
+  saveStatus.value = undefined;
   picking.value = undefined;
 }
 watch(
   access.generation,
   () => {
+    saveRevision++;
+    saving.value = false;
+    saveStatus.value = undefined;
     referenceGeneration++;
     referenceOwners.clear();
     references.value = {};
@@ -337,13 +423,15 @@ watch(
   },
   { immediate: true },
 );
-useLeaveProtection(() =>
-  groups.some(
-    (group) =>
-      group.dirty.value ||
-      group.command.uncertain.value ||
-      group.command.busy.value,
-  ),
+useLeaveProtection(
+  () =>
+    saving.value ||
+    groups.some(
+      (group) =>
+        group.dirty.value ||
+        group.command.uncertain.value ||
+        group.command.busy.value,
+    ),
 );
 onBeforeUnmount(() => {
   alive = false;
@@ -363,127 +451,118 @@ onBeforeUnmount(() => {
       <UiButton @click="access.recheck">重新检查权限</UiButton>
     </div>
     <template v-else>
-      <section
-        v-for="group in groups"
-        :key="String(group.summary)"
-        class="selection-section"
-        :aria-label="group.summary ? '会议摘要' : '平台模型用途'"
-      >
-        <div class="section-heading">
-          <h2>{{ group.summary ? "会议摘要" : "平台模型用途" }}</h2>
-          <UiButton
-            :loading="group.reading.value"
-            :disabled="
-              group.command.busy.value || group.command.uncertain.value
-            "
-            @click="group.read"
+      <section class="selection-section" aria-label="平台模型用途">
+        <div class="section-heading selection-toolbar">
+          <UiButton :disabled="editingLocked" @click="readAll"
             >重新读取</UiButton
           >
         </div>
-        <p v-if="group.reading.value" class="form-note" role="status">
-          正在读取配置…
-        </p>
-        <p v-if="group.readError.value" class="form-feedback" role="alert">
-          读取失败。{{ catalogError(group.readError.value) }}
-        </p>
-        <template v-if="group.baseline.value">
-          <div
-            v-for="purpose in group.purposes"
-            :key="purpose"
-            class="purpose-row"
-          >
-            <div class="purpose-info">
-              <h3>
-                {{ purposeLabels[purpose]
-                }}<span
-                  v-if="purpose === 'reranker' || purpose === 'image'"
-                  class="optional"
-                  >可选</span
-                >
-              </h3>
-              <p class="selected-name">
-                {{ referenceLabel(group.draft.value[purpose] || "") }}
-              </p>
-              <p
-                v-if="
-                  group.draft.value[purpose] &&
-                  referenceIssue(purpose, group.draft.value[purpose] || '')
-                "
-                class="reference-issue"
-                role="status"
+        <div
+          v-for="{ purpose, group } in rows"
+          :key="purpose"
+          class="purpose-row"
+        >
+          <div class="purpose-info">
+            <h3>
+              {{ purposeLabels[purpose]
+              }}<span
+                v-if="purpose === 'reranker' || purpose === 'image'"
+                class="optional"
+                >可选</span
               >
-                {{ referenceIssue(purpose, group.draft.value[purpose] || "") }}
-              </p>
-              <p v-if="purpose === 'memory'" class="form-note">
-                需要支持 json_schema 的对话模型。
-              </p>
-            </div>
-            <div class="purpose-actions">
-              <UiButton
-                :disabled="group.locked.value"
-                :aria-label="`选择${purposeLabels[purpose]}`"
-                @click="openPicker(purpose)"
-                >选择模型</UiButton
-              >
-              <UiButton
-                v-if="
-                  (purpose === 'reranker' || purpose === 'image') &&
-                  group.draft.value[purpose]
-                "
-                :disabled="group.locked.value"
-                :aria-label="`清除${purposeLabels[purpose]}`"
-                @click="
-                  group.draft.value[purpose] = '';
-                  group.saved.value = false;
-                "
-                >清除</UiButton
-              >
-            </div>
+            </h3>
+            <p v-if="group.baseline.value" class="selected-name">
+              {{ referenceLabel(group.draft.value[purpose] || "") }}
+            </p>
+            <p v-else class="form-note" role="status">
+              {{ group.reading.value ? "正在读取配置…" : "配置尚未读取。" }}
+            </p>
+            <p
+              v-if="
+                group.draft.value[purpose] &&
+                referenceIssue(purpose, group.draft.value[purpose] || '')
+              "
+              class="reference-issue"
+              role="status"
+            >
+              {{ referenceIssue(purpose, group.draft.value[purpose] || "") }}
+            </p>
+            <p v-if="purpose === 'memory'" class="form-note">
+              需要支持 json_schema 的对话模型。
+            </p>
           </div>
-          <div v-if="group.latest.value" class="form-feedback" role="status">
-            <p>已读取最新配置，当前草稿仍保留。采用最新版本后可重新保存。</p>
-            <UiButton :disabled="group.locked.value" @click="group.adoptLatest"
-              >采用最新版本并保留草稿</UiButton
+          <div class="purpose-actions">
+            <UiButton
+              :disabled="editingLocked || group.locked.value"
+              :aria-label="`选择${purposeLabels[purpose]}`"
+              @click="openPicker(purpose)"
+              >选择模型</UiButton
+            >
+            <UiButton
+              v-if="
+                (purpose === 'reranker' || purpose === 'image') &&
+                group.draft.value[purpose]
+              "
+              :disabled="editingLocked || group.locked.value"
+              :aria-label="`清除${purposeLabels[purpose]}`"
+              @click="clearPurpose(purpose)"
+              >清除</UiButton
             >
           </div>
-          <CatalogCommandFeedback
-            :error="group.command.error.value"
-            :uncertain="group.command.uncertain.value"
-            :replayable="group.command.replayable.value"
-            :busy="group.command.busy.value"
-            :observing="group.command.observing.value"
-            :observation="group.command.observation.value"
-            :observation-error="group.command.observationError.value"
-            @observe="group.command.observe"
-            @retry="group.command.retry"
-          />
-          <p v-if="group.saved.value" class="form-note" role="status">
-            {{
-              group.summary ? "会议摘要用途已保存。" : "平台模型用途已保存。"
+        </div>
+        <template v-for="group in groups" :key="String(group.summary)">
+          <p v-if="group.readError.value" class="form-feedback" role="alert">
+            {{ group.summary ? "会议摘要模型" : "其他模型用途" }}读取失败。{{
+              catalogError(group.readError.value)
             }}
           </p>
-          <div class="form-actions section-actions">
-            <UiButton
-              variant="primary"
-              :loading="group.command.busy.value"
-              :disabled="
-                group.locked.value ||
-                !group.dirty.value ||
-                group.invalid.value ||
-                group.conflict.value
-              "
-              @click="group.save"
-              >{{
-                group.summary ? "保存会议摘要用途" : "保存平台模型用途"
-              }}</UiButton
-            >
-            <UiButton
-              :disabled="group.locked.value || !group.dirty.value"
-              @click="group.discard"
-              >放弃修改</UiButton
-            >
+          <div
+            v-if="group.command.error.value || group.command.uncertain.value"
+          >
+            <p class="form-note">
+              {{ group.summary ? "会议摘要模型" : "其他模型用途" }}：
+            </p>
+            <CatalogCommandFeedback
+              :error="group.command.error.value"
+              :uncertain="group.command.uncertain.value"
+              :replayable="group.command.replayable.value"
+              :busy="group.command.busy.value"
+              :observing="group.command.observing.value"
+              :observation="group.command.observation.value"
+              :observation-error="group.command.observationError.value"
+              @observe="group.command.observe"
+              @retry="confirmOriginal(group)"
+            />
           </div>
         </template>
+        <div v-if="hasLatest" class="form-feedback" role="status">
+          <p>已读取最新配置，当前草稿仍保留。采用最新版本后可重新保存。</p>
+          <UiButton :disabled="editingLocked" @click="adoptLatest"
+            >采用最新版本并保留草稿</UiButton
+          >
+        </div>
+        <p v-if="saveStatus === 'partial'" class="form-note" role="status">
+          部分用途已保存，剩余修改尚未保存。
+        </p>
+        <p
+          v-else-if="saveStatus === 'complete' && !dirty"
+          class="form-note"
+          role="status"
+        >
+          已保存。
+        </p>
+        <div class="form-actions section-actions">
+          <UiButton
+            variant="primary"
+            :loading="saving"
+            :disabled="!canSave"
+            @click="saveAll"
+            >保存</UiButton
+          >
+          <UiButton :disabled="editingLocked || !dirty" @click="discardAll"
+            >放弃修改</UiButton
+          >
+        </div>
       </section>
     </template>
     <UiDialog
@@ -553,11 +632,6 @@ onBeforeUnmount(() => {
 .selection-page {
   max-width: 760px;
 }
-.selection-section + .selection-section {
-  margin-top: 34px;
-  padding-top: 28px;
-  border-top: 1px solid var(--border-subtle);
-}
 .section-heading {
   display: flex;
   align-items: center;
@@ -565,7 +639,9 @@ onBeforeUnmount(() => {
   gap: 16px;
   margin-bottom: 10px;
 }
-h2,
+.selection-toolbar {
+  justify-content: flex-end;
+}
 h3 {
   margin: 0;
   color: var(--text-primary);

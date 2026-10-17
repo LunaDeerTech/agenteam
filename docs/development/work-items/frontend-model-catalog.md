@@ -1,6 +1,6 @@
 # 新 Vue 模型目录与平台模型用途
 
-状态：2026-10-17 已授权实施，起点 `97ac04e3`。本卡是本包共同合同，已实现并完成下述本地适用验证，不以旧D09或旧前端验收替代新组合结果。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 已授权实施，起点 `97ac04e3`。本卡是本包共同合同，前轮及五用途平级、单保存调整已完成下述适用验证，不以前轮、旧D09或旧前端结果替代本次结果。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -10,7 +10,7 @@
 | --- | --- |
 | `/system/models` | 先呈现供应商列表；页头右侧新建供应商，配置在弹窗中。 |
 | `/system/models/:providerId` | 独立供应商详情，以模型列表为主体；返回目录恢复列表位置/焦点。供应商设置、凭据配置、手工添加/编辑模型、发现选择导入和测试结果使用对应弹窗，不纵向堆叠全部表单。 |
-| `/system/model-selection` | 独立的平台用途页；平台四用途与Meeting Summary分区，独立草稿、版本和保存，不因共页合成事务。 |
+| `/system/model-selection` | 独立的平台用途页；向量、记忆、重排、图像与会议摘要五用途平级，整页一个保存动作，内部保留既有两资源的版本与命令。 |
 
 完整出口是供应商与凭据配置→模型手工添加或发现勾选导入→显式真实测试→合法用途可选。复用SettingsShell、SystemList、UiDialog和共享页头动作；目录使用宽正文，标题无需装饰描述。页级动作在标题右侧，表单保存/取消贴近字段。宽窄、空态、读取失败、权限失效、409、Unknown、取消及返回焦点在对应任务中闭环。
 
@@ -36,7 +36,9 @@
 
 `GET /system/model-selection`→`{id,version,configured:null|{embedding,memory,reranker,image}}`；PUT发送`{id,expected_version,embedding,memory,reranker,image}`。embedding与memory必填，reranker/image可null；候选按模型type、能力及当前启用/可用状态判断，同一openai-compatible供应商下可分别选择chat与embedding模型。未配置null不等于读取失败。
 
-Meeting Summary沿独立 `/system/model-selection/meeting-summary` GET/PUT：`{id,version,model:ID|null}`与`{id,expected_version,model:ID}`。其版本和保存不与四用途互推，也不能以另一分区保存清除本区草稿；恢复方式与该资源实际receipt契约一致。
+会议摘要沿既有 `/system/model-selection/meeting-summary` GET/PUT：`{id,version,model:ID|null}`与`{id,expected_version,model:ID}`。页面五用途平级、只设一个保存按钮；后端不改，内部两资源仍各持id、version和原命令。正常页不显示第二标题或资源拆分说明。保存只校验并写入有改动的资源，未改动资源尚未配置不阻塞本次保存；按平台四用途→会议摘要串行；首失败、409或Unknown即停止。每个严格receipt确认后推进该资源baseline，后续保存跳过已完成资源；全部草稿已确认才显示整页保存成功，部分成功仅在异常恢复时提示。
+
+Unknown查询仅观察，须用原key/body确认；确认后若尚有未提交草稿，由唯一保存动作继续。409显式重读并采用新版本时保留未完成草稿；放弃只撤未完成本地草稿，不回滚已确认写入。成功不依赖后续GET；重读失败不使成功PUT重发。当前单保存行为覆盖旧分区双保存指令，历史验证按原输入保留。
 
 模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除引用。
 
@@ -77,13 +79,17 @@ account_backend唯一维护后端/API/schema及00147、00148；proxy_copy唯一�
 
 r3原链actual exit0，App/TLS/供应商join，4容器+4网络及4专属目录清零；风险fixture另6资源/3目录亦清零。Vue5281 TERM后原wait143且无进程/监听，5282/5283无监听；5288仅确认进程/监听已无，旧launcher wait不可恢复。两个测试二进制按原SHA删除，必要私有证据保持0700/0600、不入Git；既有公开服务和用户数据未操作。
 
-本轮最终交付为示例数据截图，四图均由视觉owner上传并匿名下载核对；截图证明页面呈现，不替代真实API验收，也不代表公网已更新：
+前轮四张示例图均由视觉owner上传并匿名下载核对；用途旧分区图仅保留历史，当前五用途单保存以其后的新图为准。截图证明页面呈现，不替代真实API验收，也不代表公网已更新：
 
 | 页面 | 原图 |
 | --- | --- |
 | 供应商目录 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d9385b204.png) |
 | 同供应商聊天与嵌入模型 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d9385c771.png) |
 | 发现与导入 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d938aa5e8.png) |
-| 深色平台用途 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d938569be.png) |
+| 前轮深色平台用途（旧分区） | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d938569be.png) |
+
+五用途单保存增量以`09efa870`为起点，仅修改页面和对应单测，后端不变。定向15/15、vue-tsc、Vite build及限定格式通过；既有正式spec适配通过语法/格式与列表加载，未重跑真实PG。独审4个受控实际Vue场景通过：双dirty单保存串行、第二阶段400后仅续写会议摘要、Unknown同key/body恢复且不重发成功四用途、四用途未配置时仅保存会议摘要。1440/390浅深、焦点与reduced-motion实看无返修；这是受控UI验证，不新增真实API或公网结论。
+
+临时5314经精确进程身份核对后TERM，原launcher actual143，进程消失且端口无监听，浏览器已关闭。新[五用途单保存深色原图](https://img.lunadeer.cn/i/2026/10/17/6ad2e10dcc7bb.png)为1440×960示例数据，已实看、上传200、匿名下载200且字节一致；本轮仅交截图，不部署公网。
 
 精确恢复状态与待办见[当前状态](../../../.agent-state/current.md)。

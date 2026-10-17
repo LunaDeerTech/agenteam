@@ -70,7 +70,7 @@ async function pick(page, label, item) {
   await expect(trigger).toBeFocused();
 }
 
-test("real purpose picker persists choices and model deletion replaces required references", async ({
+test("one purpose form saves both resources and model deletion replaces required references", async ({
   page,
   owned,
 }) => {
@@ -132,12 +132,42 @@ test("real purpose picker persists choices and model deletion replaces required 
     .click();
   await expect(dialog).toHaveCount(0);
   await pick(page, "向量模型", embedding);
-  await page
-    .getByRole("button", { name: "保存平台模型用途", exact: true })
-    .click();
-  await expect(
-    page.getByText("平台模型用途已保存。", { exact: true }),
-  ).toBeVisible();
+  await pick(page, "会议摘要模型", chat);
+  for (const label of [
+    "向量模型",
+    "记忆模型",
+    "重排模型",
+    "图像模型",
+    "会议摘要模型",
+  ]) {
+    await expect(
+      page.getByRole("button", { name: `选择${label}`, exact: true }),
+    ).toHaveCount(1);
+  }
+  const save = page.getByRole("button", { name: "保存", exact: true });
+  await expect(save).toHaveCount(1);
+  const writes = [];
+  const recordWrite = (request) => {
+    const path = new URL(request.url()).pathname;
+    if (
+      request.method() === "PUT" &&
+      (path === "/api/v1/system/model-selection" ||
+        path === "/api/v1/system/model-selection/meeting-summary")
+    )
+      writes.push(path);
+  };
+  page.on("request", recordWrite);
+  try {
+    await save.click();
+    await expect(page.getByText("已保存。", { exact: true })).toBeVisible();
+    expect(writes).toEqual([
+      "/api/v1/system/model-selection",
+      "/api/v1/system/model-selection/meeting-summary",
+    ]);
+    await expect(save).toBeDisabled();
+  } finally {
+    page.off("request", recordWrite);
+  }
   const platform = await api(page, "/system/model-selection");
   expect(platform.status).toBe(200);
   expect(
@@ -145,22 +175,14 @@ test("real purpose picker persists choices and model deletion replaces required 
       platform.value.configured.memory === chat.model,
   ).toBe(true);
 
-  await pick(page, "会议摘要模型", chat);
-  await page
-    .getByRole("button", { name: "保存会议摘要用途", exact: true })
-    .click();
-  await expect(
-    page.getByText("会议摘要用途已保存。", { exact: true }),
-  ).toBeVisible();
   const summary = await api(page, "/system/model-selection/meeting-summary");
   expect(summary.status).toBe(200);
   expect(summary.value.model === chat.model).toBe(true);
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(
-    page
-      .locator('section[aria-label="平台模型用途"]')
-      .getByText(chat.modelName, { exact: false }),
-  ).toBeVisible();
+  const selectedChat = page.getByText(chat.modelName, { exact: false });
+  await expect(selectedChat).toHaveCount(2);
+  await expect(selectedChat.nth(0)).toBeVisible();
+  await expect(selectedChat.nth(1)).toBeVisible();
 
   const replacementName = `Replacement ${suffix}`;
   const replacement = await api(page, "/system/models", "POST", {
