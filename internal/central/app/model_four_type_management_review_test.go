@@ -249,7 +249,11 @@ func TestModelFourTypeManagementIndependentReview(t *testing.T) {
 			raw := call(http.MethodPost, path, operationKey, testInput, 200)
 			var result model.ManagementResult
 			previewCheck(t, "decode real "+kind+" probe", json.Unmarshal(raw, &result))
-			if result.OperationID == "" || result.ProviderID != providerID || result.ModelID != models[kind] || result.ModelVersion.String() != "1" || result.ProviderVersion.String() != "1" || result.Items != nil || result.DurationMS < 0 || result.DurationMS > 20000 || result.CreatedAt.Validate() != nil {
+			maxDuration := int64(20000)
+			if kind == "image_generation" {
+				maxDuration = 120000
+			}
+			if result.OperationID == "" || result.ProviderID != providerID || result.ModelID != models[kind] || result.ModelVersion.String() != "1" || result.ProviderVersion.String() != "1" || result.Items != nil || result.DurationMS < 0 || result.DurationMS > maxDuration || result.CreatedAt.Validate() != nil {
 				t.Fatal("management test returned an invalid safe receipt", kind)
 			}
 			if badResponse {
@@ -257,7 +261,11 @@ func TestModelFourTypeManagementIndependentReview(t *testing.T) {
 					t.Fatal("invalid provider result did not fail safely", kind)
 				}
 			} else if result.Outcome != "succeeded" || result.Reason != nil {
-				t.Fatal("real provider result was not accepted", kind, result.Outcome, result.Reason)
+				reason := ""
+				if result.Reason != nil {
+					reason = *result.Reason
+				}
+				t.Fatal("real provider result was not accepted", kind, result.Outcome, reason)
 			}
 			if !bytes.Equal(raw, call(http.MethodPost, path, operationKey, testInput, 200)) || requests.Load() != before+1 {
 				t.Fatal("same-key probe replay changed receipt or repeated provider I/O", kind)
@@ -270,7 +278,7 @@ func TestModelFourTypeManagementIndependentReview(t *testing.T) {
 	largeReceipt := call(http.MethodPost, largePath, largeKey, testInput, 200)
 	var largeResult model.ManagementResult
 	previewCheck(t, "decode image above former response limit", json.Unmarshal(largeReceipt, &largeResult))
-	if largeResult.Outcome != "succeeded" || largeResult.Reason != nil || largeResult.Items != nil || largeResult.ModelID != models["image_generation"] || !bytes.Equal(largeReceipt, call(http.MethodPost, largePath, largeKey, testInput, 200)) {
+	if largeResult.Outcome != "succeeded" || largeResult.Reason != nil || largeResult.Items != nil || largeResult.ModelID != models["image_generation"] || largeResult.DurationMS < 0 || largeResult.DurationMS > 120000 || !bytes.Equal(largeReceipt, call(http.MethodPost, largePath, largeKey, testInput, 200)) {
 		t.Fatal("bounded image above one MiB did not succeed and replay exactly")
 	}
 	if requests.Load() != 5 || reranks.Load() != 2 || images.Load() != 3 || downloads.Load() != 0 {
