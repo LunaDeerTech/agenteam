@@ -339,9 +339,7 @@ async function editor(p, modelID = "sample-chat") {
   return d;
 }
 async function advanced(d) {
-  const details = d
-    .locator("details")
-    .filter({ has: d.locator("summary", { hasText: "高级选项" }) });
+  const details = d.locator("details").filter({ hasText: "高级选项" });
   if (!(await details.evaluate((e) => e.open)))
     await details.locator("summary").click();
 }
