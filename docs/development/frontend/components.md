@@ -10,7 +10,7 @@
 | `UiIcon` | `name: string`、`size?: number` | 装饰性 SVG；需要可访问名称的操作使用 UiIconButton |
 | `UiIconButton` | 必填 `label`、`icon`；可选 `disabled`、`active` | 原生 button，label 同时用于可访问名称和 title；点击事件沿 Vue attrs 传递 |
 | `UiSwitch` | 必填 `modelValue: boolean`、`label`；可选 `disabled`、`loading` | 受控原生 button，`role="switch"` 与 `aria-checked` 表达已确认值；`update:modelValue` 仅提出新值。loading 保留焦点、标记 busy/aria-disabled 并阻止重复切换；业务 owner 负责写入、错误与最终值，不直连 API。 |
-| `UiInput` | 必填 `label`；字符串 `v-model`；可选 `id`、`hint`、`error`、`disabled`、`type`（默认 text） | label 关联 input；attrs 传到 input，hint/error 与外部 `aria-describedby` 合并；error 设置无效状态 |
+| `UiInput` | 必填 `label`；字符串 `v-model`；可选 `id`、`hint`、`error`、`disabled`、`type`（默认 text）、`secretConfigured`（默认 false） | label 关联 input；attrs 传到 input，hint/error 与外部 `aria-describedby` 合并；error 设置无效状态。`secretConfigured`仅在password类型且草稿为空时显示固定圆点placeholder与已配置的可访问说明，不写入value/model、不触发编辑；仅由已保存配置元数据驱动，不用于登录/账号密码。 |
 | `UiSelect` | 必填 `label`、`options: SelectOption[]`；字符串 `v-model`；可选 `id`、`placeholder`（默认“请选择”）、`disabled`、`hint`、`error` | 锚定列表选择，不提供远程查询或搜索服务；选项字段为 `value`、`label`、可选 `disabled` |
 | `UiTabs` | 必填 `label`、`items: TabItem[]`、字符串 `v-model` | 默认插槽接收 `{ value }`；项字段为 `value`、`label`、可选 `disabled`，显示一个当前面板 |
 | `UiMenu` | 必填 `label`、`items: MenuItem[]`；可选 `disabled`、`align: start/end`（默认 end） | `select(id)`；trigger 插槽可定制触发内容；项字段为 `id`、`label`、可选 `checked`、`disabled`、`icon` |

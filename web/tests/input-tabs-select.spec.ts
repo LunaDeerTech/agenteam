@@ -22,8 +22,10 @@ describe("shared field contracts", () => {
         name: "displayName",
         maxlength: 20,
         autocomplete: "off",
+        placeholder: "输入名称",
         "aria-describedby": "external-help",
       },
+      attachTo: document.body,
     });
     const input = wrapper.get("input");
     expect(wrapper.get("label").attributes("for")).toBe(input.attributes("id"));
@@ -45,6 +47,56 @@ describe("shared field contracts", () => {
     expect((input.element as HTMLInputElement).value).toBe("外部更新");
     expect(input.attributes("aria-invalid")).toBeUndefined();
     expect((input.element as HTMLInputElement).disabled).toBe(true);
+
+    await wrapper.setProps({
+      type: "password",
+      secretConfigured: true,
+      modelValue: "",
+      disabled: false,
+      "onUpdate:modelValue": (value: string) => {
+        void wrapper!.setProps({ modelValue: value });
+      },
+    });
+    expect(input.attributes("placeholder")).toBe("••••••••");
+    expect((input.element as HTMLInputElement).value).toBe("");
+    const descriptions = input.attributes("aria-describedby")!.split(" ");
+    expect(descriptions).toContain("external-help");
+    expect(
+      descriptions
+        .filter((id) => id !== "external-help")
+        .some((id) => wrapper!.get(`[id="${id}"]`).text().includes("已配置")),
+    ).toBe(true);
+    (input.element as HTMLInputElement).focus();
+    await input.trigger("focus");
+    expect(document.activeElement).toBe(input.element);
+    expect((input.element as HTMLInputElement).value).toBe("");
+    expect(wrapper.emitted("update:modelValue")).toEqual([["新名称"]]);
+
+    await input.setValue("synthetic-replacement");
+    expect(input.attributes("placeholder")).not.toBe("••••••••");
+    await wrapper.setProps({ disabled: true });
+    expect((input.element as HTMLInputElement).disabled).toBe(true);
+    expect((input.element as HTMLInputElement).value).toBe(
+      "synthetic-replacement",
+    );
+    await wrapper.setProps({ disabled: false });
+    await input.setValue("");
+    expect(input.attributes("placeholder")).toBe("••••••••");
+    expect((input.element as HTMLInputElement).value).toBe("");
+    await wrapper.setProps({ disabled: true });
+    expect(input.attributes("placeholder")).toBe("••••••••");
+    expect((input.element as HTMLInputElement).value).toBe("");
+    await wrapper.setProps({ secretConfigured: false });
+    expect(input.attributes("placeholder")).toBe("输入名称");
+    await wrapper.setProps({ secretConfigured: true, type: "text" });
+    expect(input.attributes("placeholder")).toBe("输入名称");
+    expect((input.element as HTMLInputElement).value).toBe("");
+    expect(input.attributes("aria-describedby")).toBe(`${ids[0]} ${ids[1]}`);
+    expect(wrapper.emitted("update:modelValue")).toEqual([
+      ["新名称"],
+      ["synthetic-replacement"],
+      [""],
+    ]);
   });
 
   it("selects only enabled options through the keyboard and follows external model updates", async () => {

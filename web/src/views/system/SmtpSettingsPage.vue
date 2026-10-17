@@ -720,6 +720,10 @@ useLeaveProtection(
                   v-model="draft.password"
                   label="密码"
                   type="password"
+                  :secret-configured="
+                    baseline.credential_present &&
+                    draft.credential_action !== 'remove'
+                  "
                   autocomplete="new-password"
                   :error="fieldIssue('password')"
                   :hint="

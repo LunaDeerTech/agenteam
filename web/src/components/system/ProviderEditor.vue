@@ -478,6 +478,7 @@ onBeforeUnmount(() => {
               v-model="credential"
               label="API 凭据（可选）"
               type="password"
+              :secret-configured="!!baseline?.input.credential_ref"
               autocomplete="new-password"
               :disabled="!!credentialSaved || secretConflict || deletionActive"
               :hint="

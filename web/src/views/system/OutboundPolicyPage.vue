@@ -424,6 +424,10 @@ useLeaveProtection(
               v-model="proxy.draft.value.password"
               label="密码（可选）"
               type="password"
+              :secret-configured="
+                !!proxy.baseline.value?.gateway?.credential_present &&
+                !proxy.draft.value.removeCredential
+              "
               :placeholder="
                 proxy.baseline.value?.gateway?.credential_present &&
                 !proxy.draft.value.removeCredential

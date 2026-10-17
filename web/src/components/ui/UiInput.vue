@@ -10,6 +10,7 @@ const props = withDefaults(
     error?: string;
     disabled?: boolean;
     type?: string;
+    secretConfigured?: boolean;
   }>(),
   { type: "text" },
 );
@@ -17,12 +18,17 @@ const model = defineModel<string>({ default: "" });
 const attrs = useAttrs();
 const generatedId = useId();
 const inputId = computed(() => props.id ?? `${generatedId}-input`);
+const configuredPlaceholder = computed(
+  () =>
+    props.type === "password" && props.secretConfigured && model.value === "",
+);
 const description = computed(
   () =>
     [
       attrs["aria-describedby"],
       props.hint ? `${inputId.value}-hint` : "",
       props.error ? `${inputId.value}-error` : "",
+      configuredPlaceholder.value ? `${inputId.value}-configured` : "",
     ]
       .filter(Boolean)
       .join(" ") || undefined,
@@ -38,10 +44,21 @@ const description = computed(
       v-model="model"
       class="ui-input"
       :type="type"
+      :placeholder="
+        configuredPlaceholder
+          ? '••••••••'
+          : ($attrs.placeholder as string | undefined)
+      "
       :disabled="disabled"
       :aria-invalid="error ? true : undefined"
       :aria-describedby="description"
     />
+    <span
+      v-if="configuredPlaceholder"
+      :id="`${inputId}-configured`"
+      class="sr-only"
+      >已配置。留空保留已保存内容。</span
+    >
     <p v-if="hint" :id="`${inputId}-hint`" class="ui-field-hint">{{ hint }}</p>
     <p v-if="error" :id="`${inputId}-error`" class="ui-field-error">
       {{ error }}

@@ -417,10 +417,11 @@ describe("inline provider settings", () => {
       expect((field("API 端点").element as HTMLInputElement).value).toBe(
         provider().input.base_url,
       );
-      expect(
-        (wrapper!.get('input[type="password"]').element as HTMLInputElement)
-          .value,
-      ).toBe("");
+      const credential = wrapper!.get('input[type="password"]');
+      expect(credential.attributes("placeholder")).toBe("••••••••");
+      (credential.element as HTMLInputElement).focus();
+      await credential.trigger("focus");
+      expect((credential.element as HTMLInputElement).value).toBe("");
       await field("API 端点").setValue("https://changed.invalid/v1");
       await submit();
       expect(providerWrites()).toHaveLength(1);
@@ -434,6 +435,8 @@ describe("inline provider settings", () => {
       const savedProvider = feedbackEditor.emitted("saved")![0]![0] as Provider;
       await flushPromises();
       expect(wrapper!.text()).toContain("供应商已保存。");
+      expect(credential.attributes("placeholder")).toBe("••••••••");
+      expect((credential.element as HTMLInputElement).value).toBe("");
       expect((field("API 端点").element as HTMLInputElement).value).toBe(
         "https://changed.invalid/v1",
       );
@@ -560,10 +563,15 @@ describe("inline provider settings", () => {
   });
 
   it("keeps a confirmed credential update across provider failure and retries only unfinished work", async () => {
+    const credential = wrapper!.get('input[type="password"]');
+    expect(credential.attributes("placeholder")).toBe("••••••••");
+    expect((credential.element as HTMLInputElement).value).toBe("");
     await field("供应商名称").setValue("Changed Provider");
-    await wrapper!
-      .get('input[type="password"]')
-      .setValue("synthetic-new-secret");
+    await credential.setValue("synthetic-new-secret");
+    expect(credential.attributes("placeholder")).not.toBe("••••••••");
+    expect((credential.element as HTMLInputElement).value).toBe(
+      "synthetic-new-secret",
+    );
     putProvider = () =>
       json({ code: "INVALID_ARGUMENT", commit_state: "not_started" }, 400);
     await submit();
@@ -575,10 +583,9 @@ describe("inline provider settings", () => {
     });
     expect(providerWrites()).toHaveLength(1);
     expect(wrapper!.text()).toContain("凭据已保存；供应商配置尚未完成");
-    expect(
-      (wrapper!.get('input[type="password"]').element as HTMLInputElement)
-        .value,
-    ).toBe("");
+    expect(credential.attributes("placeholder")).toBe("••••••••");
+    expect((credential.element as HTMLInputElement).value).toBe("");
+    expect((credential.element as HTMLInputElement).disabled).toBe(true);
     expect(wrapper!.emitted("saved")).toBeUndefined();
     putProvider = acceptProvider;
     readProvider = () =>
