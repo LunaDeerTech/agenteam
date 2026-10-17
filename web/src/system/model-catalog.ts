@@ -31,7 +31,7 @@ export const protocolChoices = [
 ];
 export const modelTypeChoices = [
   { value: "chat", label: "对话" },
-  { value: "embedding", label: "向量" },
+  { value: "embedding", label: "嵌入" },
   { value: "reranker", label: "重排" },
   { value: "image_generation", label: "图像生成" },
 ];
