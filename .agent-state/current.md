@@ -1,6 +1,10 @@
-# 当前状态：类型感知模型能力与思考等级实现中
+# 当前状态：类型感知模型能力与真实保存读回验证完成
 
-2026-10-17 用户重新授权实施，独立Vue树以376a4c29为基础。首表单已接typed reasoning_efforts对象数组、JSON Schema开关、Chat文本固定及media声明、Embedding text→vector与有效容量字段；已有类型锁定，未实现的高级JSON输入已移除。首type检查实际通过；定向单元、完整状态独立浏览器、后端联调与最终生产构建仍待完成，不把旧图标轮证据当作新功能通过。公网与真实用户数据未操作。
+恢复入口仍是主活动分支`ai/frontend-vue-rebuild-20261016`；本包Vue工作树`/workspace/agenteam-model-capabilities-vue`仅承担独立开发，root负责Git集成。2026-10-17用户已授权实施：Chat文本基础及media能力声明、JSON Schema开关、可空name/value思考等级、Embedding固定text→vector、已有类型锁定及有效高级容量已完成；原版本/Unknown/确认后重读语义保留，未实现JSON输入移除。
+
+13项定向用例分轮通过，最终type/build和格式通过。合法`__proto__`导入草稿反应性缺口已修复并以原用例验证；首setup超时和一次不足修复保留。独审桌面/390/reduced-motion已覆盖全部可配置类型、相关状态、完整滚动及焦点；两个Embedding首列表等待失败原因未定，同输入/预算加观察器后通过，不称产品修复。14张合成图均已实际查看、上传及匿名校验，见[工作项完整截图索引](../docs/development/work-items/frontend-model-catalog.md#1-页面与完整流程)。
+
+独立真实PG、冻结snapshot与受控TLS调用，以及App API/Vue保存读回链均已通过：真实创建typed等级/Schema，GET与刷新编辑保持，关闭思考一次保存推进版本并清空等级。首UI遗漏类型选择已修正测试，产品未改；不把本范围扩大为完整Agent装配或媒体消息接通。全部测试会话/浏览器已退出，App/PG容器网络已精确清退；自有Vite核验后TERM、原launcher实际143、进程及5281监听归零，本树自建node_modules链接已移除、共享目标保留。所有拥有源与文档停止写入，后续由root完成活动分支集成保存。公网仍为原冻结快照，未部署、操作真实用户数据或调用外部模型。
 
 ## 前轮模态多选
 
