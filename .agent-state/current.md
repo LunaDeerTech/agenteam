@@ -1,6 +1,6 @@
 # 当前状态：模型目录与平台模型用途实施中
 
-2026-10-17新授权：实现[模型目录与平台模型用途](../docs/development/work-items/frontend-model-catalog.md)，起点97ac04e3。系统模型三入口收为两入口（系统10项/正式39叶）；目录先供应商列表，详情主体模型列表，供应商/凭据/模型弹窗，支持手工和发现勾选导入、显式真实测试及独立用途页。新建只开放OpenAI chat/embedding两协议，既存其他协议只读；新增管理操作需真实System Secret owner与持久结果恢复。00147由account_backend唯一维护，proxy_copy负责新Vue，本卡/必要入口由account_contract维护，root负责全部Git；测试与独审独立分工。首断点为新管理调用与新Vue接线，尚无本包通过，不操作用户公网、凭据或外部供应商。
+2026-10-17新授权：实现[模型目录与平台模型用途](../docs/development/work-items/frontend-model-catalog.md)，起点97ac04e3。系统模型三入口收为两入口（系统10项/正式39叶）；目录先供应商列表，详情主体模型列表，供应商/凭据/模型弹窗，支持手工和发现勾选导入、显式真实测试及独立用途页。新建统一为`openai-compatible`供应商family，共享地址/凭据，同一供应商可管理chat与embedding，由每个模型type派发既有两个adapter；旧协议记录只读、不迁移。新增管理操作需真实System Secret owner与持久结果恢复；family调整尚待新输入验证，已有权限/生命周期结果仅按未变范围复用。00147由account_backend唯一维护，proxy_copy负责新Vue，本卡/必要入口由account_contract维护，root负责全部Git；测试与独审独立分工。首断点为新管理调用与新Vue接线，尚无本包通过，不操作用户公网、凭据或外部供应商。
 
 ## 既有预览与前轮交付
 

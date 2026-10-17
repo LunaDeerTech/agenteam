@@ -21,9 +21,9 @@
 | 资源 | 方法与正文 / 返回 |
 | --- | --- |
 | `/system/model-providers`、`/{id}` | GET列表或对象；POST `{input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version}`。对象为`{id,input,version,created_at,updated_at}`。 |
-| Provider input | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅允许创建/编辑真实支持的OpenAI chat或embedding供应商；既存其他协议记录只读显示不支持状态，不扩旧库枚举能力。 |
+| Provider input | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat和embedding模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。 |
 | `/system/models`、`/{id}` | GET列表必须`provider_id`；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。对象为`{id,provider_id,input,version,created_at,updated_at}`。 |
-| Model input | `{name,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；协议/类型及能力必须通过真实校验，不能由模型名字猜推理、工具、上下文或价格。capabilities各字段严格沿schema，未知容量保持null。 |
+| Model input | `{name,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；新family按每个模型的type选择既有chat或embedding adapter，能力必须通过真实校验，不能由模型名字猜推理、工具、上下文或价格。capabilities各字段严格沿schema，未知容量保持null。 |
 | `/system/model-credentials`、`/{id}` | POST `{value}`；GET对象只读`{credential_id,purpose:'model',version}`；PUT `{expected_version,value}`；DELETE `{expected_version}`。写结果`{credential_id,purpose,version,deleted}`，材料从不回显。 |
 | 配置receipt | `{kind,resource_id,version,affected_references}`，kind使用`provider.create`、`model.update`等现有点号枚举。Provider/Model/用途各有独立版本。 |
 | 配置lookup | POST `/system/model-commands/lookup`，body `{command}`、原key→`{found,receipt}`；Secret用 `/system/model-credential-commands/lookup`，create `{kind:'create'}`，update/delete另带`credential_id,expected_version`→`{observed,result}`。 |
@@ -34,7 +34,7 @@
 
 ## 3. 用途、删除影响与恢复
 
-`GET /system/model-selection`→`{id,version,configured:null|{embedding,memory,reranker,image}}`；PUT发送`{id,expected_version,embedding,memory,reranker,image}`。embedding与memory必填，reranker/image可null；严格匹配对应类型及当前启用/可用状态。未配置null不等于读取失败。
+`GET /system/model-selection`→`{id,version,configured:null|{embedding,memory,reranker,image}}`；PUT发送`{id,expected_version,embedding,memory,reranker,image}`。embedding与memory必填，reranker/image可null；候选按模型type、能力及当前启用/可用状态判断，同一openai-compatible供应商下可分别选择chat与embedding模型。未配置null不等于读取失败。
 
 Meeting Summary沿独立 `/system/model-selection/meeting-summary` GET/PUT：`{id,version,model:ID|null}`与`{id,expected_version,model:ID}`。其版本和保存不与四用途互推，也不能以另一分区保存清除本区草稿；恢复方式与该资源实际receipt契约一致。
 
@@ -44,13 +44,13 @@ Meeting Summary沿独立 `/system/model-selection/meeting-summary` GET/PUT：`{i
 
 ## 4. 新增发现与有界真实测试
 
-新增能力由后端真实System管理调用owner提供，不能借Project Invocation身份读取凭据。仅OpenAI chat与OpenAI embeddings支持本包发现/测试；其它既存协议只读显示实际不可用原因，不恢复Jina/Image等原STOP。保存配置、选择模型和打开页面均不自动出网。
+新增能力由后端真实System管理调用owner提供，不能借Project Invocation身份读取凭据。本包只开放`openai-compatible`供应商family，以Model.type派发既有OpenAI chat与embeddings两个运行adapter；family不是第三种运行协议，配置校验、snapshot/Profile与管理测试须一致解析。旧协议记录只读，不恢复Jina/Image等原STOP。保存配置、选择模型和打开页面均不自动出网。
 
 | 接口 | 严格输入与输出 |
 | --- | --- |
-| GET `/system/model-capabilities` | `{protocols:[{protocol,model_types,discovery,test}]}`；未支持能力不可显示可执行按钮。 |
+| GET `/system/model-capabilities` | `{protocols:[{protocol:"openai-compatible",model_types:["chat","embedding"],discovery:true,test:true}]}`；新建入口只有这一个family，不显示两套供应商协议选择。 |
 | POST `/system/model-providers/{id}/discovery` | `{expected_version}`→`{operation_id,provider_id,provider_version,outcome,reason,items:[{provider_model_id}],duration_ms,created_at}`；只从已保存供应商的固定`models`路径获取ID，不据ID猜能力。失败或未知时items为空。 |
-| POST `/system/models/{id}/test` | `{expected_version,provider_version}`→`{operation_id,model_id,model_version,provider_version,outcome,reason,duration_ms,created_at}`；使用已保存模型/凭据和固定最小协议payload，不接自由prompt、任意URL或客户端Secret。 |
+| POST `/system/models/{id}/test` | `{expected_version,provider_version}`→`{operation_id,provider_id,model_id,model_version,provider_version,outcome,reason,duration_ms,created_at}`；使用已保存模型/凭据和固定最小协议payload，不接自由prompt、任意URL或客户端Secret。 |
 
 outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集为`unsupported_protocol,configuration_changed,credential_unavailable,policy_rejected,network_failed,tls_failed,timeout,cancelled,upstream_rejected,invalid_response,response_limit,interrupted`。duration_ms为0..20000的JSON整数，created_at沿正式UTC时间。返回不含供应商原文、认证头、响应内容或Secret；一次成功不标记供应商持续在线，不替用户保证后续调用可用。
 
@@ -58,10 +58,10 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 主操作20秒，真实I/O结束并join后有界5秒持久/lease收尾；全局最多4个、不排队，满额`RESOURCE_BUSY`。发现响应最多2MiB、1000个ID，超限明确失败而非假完整目录；测试响应最多1MiB。只允许已保存配置派生路径，拒绝redirect；复用统一出站DNS/当前规则/代理/TLS，不读取环境代理兜底。实际网络期间当前Session/admin与Provider/Model/Secret版本由共享锁保护；关闭/取消需实际停止并join，界面不把取消请求当上游未执行证明。
 
-勾选导入使用现有`model.create`逐项串行，单批最多100项；每项独立key/body/receipt并显示已成功、失败、未开始或Unknown。不重复成功项，不把部分完成写成整体回滚；取消仅停止未开始项。导入前明确合法类型和能力配置，不从发现结果制造上下文、工具或推理支持。
+同一供应商发现一次，勾选导入时逐模型明确chat或embedding类型及合法能力，再使用现有`model.create`逐项串行，单批最多100项；每项独立key/body/receipt并显示已成功、失败、未开始或Unknown。不重复成功项，不把部分完成写成整体回滚；取消仅停止未开始项。导入前明确合法类型和能力配置，不从发现结果制造上下文、工具或推理支持。
 
 ## 5. 实施与验收边界
 
 account_backend唯一维护后端/API/schema及00147；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-首链为供应商/凭据→模型→测试→用途保存与刷新；并检查部分完成、权限/CSRF、409、Unknown原请求终结、引用阻断、能力不支持与取消。发现/test使用任务拥有的模拟供应商和真实App/Secret/出站实现，不用用户现有凭据或外部供应商实发。页面核桌面/窄屏、键盘/modal回焦、返回列表与部分结果；现系统导航10项需要新检查，旧11项通过事实保留为历史。当前尚无本包实现或验收PASS，先按稳定合同并行实施和隔离联调。
+首链为供应商/凭据→模型→测试→用途保存与刷新；并检查部分完成、权限/CSRF、409、Unknown原请求终结、引用阻断、能力不支持与取消。发现/test使用任务拥有的模拟供应商和真实App/Secret/出站实现，不用用户现有凭据或外部供应商实发。页面核桌面/窄屏、键盘/modal回焦、返回列表与部分结果；现系统导航10项需要新检查，旧11项通过事实保留为历史。当前family调整仍在实施和隔离联调；先前冻结输入的权限/生命周期等未变结果可限定复用，不把旧协议整页或旧配置链当作新family验收。

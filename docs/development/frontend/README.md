@@ -54,7 +54,7 @@ AppShell组织系统导航、项目上下文和内容区；“个人设置”只
 
 ## 模型目录与平台模型用途（实施中）
 
-仅保留 `/system/models` 模型目录和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。后台配置、凭据与两个用途资源各自有版本与回执；不得把合并页面误作一次事务。
+仅保留 `/system/models` 模型目录和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。新建仅使用`openai-compatible`供应商family，一份地址/凭据管理chat与embedding模型，类型在模型上明确；旧协议记录只读、不迁移。后台配置、凭据与两个用途资源各自有版本与回执；不得把合并页面误作一次事务。
 
 发现、逐项导入和真实测试仅按[本包合同](../work-items/frontend-model-catalog.md)的协议能力开放；配置保存不自动调用供应商。未知结果保原请求并按相应命令恢复，不能只凭历史lookup认定本次材料已提交。先在owned App与模拟供应商联调，不使用当前公网实例或用户凭据。原页面与旧D09通过只证明其原输入，新组合结果以当前状态为准。
 
