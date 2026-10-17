@@ -4,7 +4,7 @@ import {
   mount,
   type VueWrapper,
 } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import UiSearchSelect from "../src/components/ui/UiSearchSelect.vue";
 
 let wrapper: VueWrapper | undefined;
@@ -43,10 +43,18 @@ function action(text: string) {
   expect(buttons).toHaveLength(1);
   return buttons[0]!;
 }
+beforeEach(() => {
+  vi.stubGlobal("matchMedia", () => ({
+    matches: false,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+});
 afterEach(() => {
   wrapper?.unmount();
   wrapper = undefined;
   document.body.replaceChildren();
+  vi.unstubAllGlobals();
 });
 
 describe("searchable model selection control", () => {
