@@ -42,6 +42,8 @@ const draft = reactive(modelDraft(props.provider.input.protocol));
 const baseline = shallowRef<CatalogModel>();
 const initial = ref("");
 const discarding = ref(false);
+const discardActions = ref<HTMLDivElement>();
+const editorForm = ref<HTMLFormElement>();
 const deleting = ref(false);
 const removed = ref(false);
 const reading = ref(false);
@@ -106,11 +108,28 @@ function clear() {
   baseline.value = undefined;
   initial.value = JSON.stringify(draft);
 }
+async function changeDiscarding(value: boolean) {
+  const previousFocus = document.activeElement;
+  discarding.value = value;
+  await nextTick();
+  if (
+    !alive ||
+    !props.open ||
+    discarding.value !== value ||
+    (document.activeElement !== document.body &&
+      document.activeElement !== previousFocus)
+  )
+    return;
+  const target = value
+    ? discardActions.value?.querySelector<HTMLButtonElement>("button")
+    : editorForm.value?.querySelector<HTMLInputElement>("input:not(:disabled)");
+  target?.focus({ preventScroll: true });
+}
 function close(force = false) {
   if (locked.value || deleting.value || (receipt.value && !canonical.value))
     return;
   if (dirty.value && !force) {
-    discarding.value = true;
+    void changeDiscarding(true);
     return;
   }
   clear();
@@ -235,8 +254,8 @@ useLeaveProtection(
   >
     <div v-if="discarding" class="account-form">
       <p class="form-note">尚未保存的模型配置将被丢弃。</p>
-      <div class="form-actions">
-        <UiButton @click="discarding = false">继续编辑</UiButton
+      <div ref="discardActions" class="form-actions">
+        <UiButton @click="changeDiscarding(false)">继续编辑</UiButton
         ><UiButton variant="danger" @click="close(true)">放弃修改</UiButton>
       </div>
     </div>
@@ -252,7 +271,7 @@ useLeaveProtection(
         >完成</UiButton
       >
     </div>
-    <form v-else class="account-form" @submit.prevent="save">
+    <form v-else ref="editorForm" class="account-form" @submit.prevent="save">
       <fieldset :disabled="locked || readOnly" class="model-editor-fields">
         <ModelFormFields :draft="draft" :protocol="provider.input.protocol" />
       </fieldset>
