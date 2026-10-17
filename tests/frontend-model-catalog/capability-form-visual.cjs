@@ -140,7 +140,11 @@ async function setup(c, variant) {
     api: [],
     errors: [],
     unexpected: [],
+    timeline: [],
   };
+  const started = Date.now();
+  const mark = (event, extra = {}) =>
+    s.timeline.push({ event, ms: Date.now() - started, ...extra });
   c.review = s;
   await c.routeWebSocket("**/*", (ws) => ws.close());
   await c.route("**/*", async (route) => {
@@ -159,13 +163,16 @@ async function setup(c, variant) {
       return route.abort("blockedbyclient");
     }
     s.api.push(method + " " + ep);
-    const reply = (value, status = 200) =>
-      route.fulfill({
+    mark("request", { method, ep });
+    const reply = async (value, status = 200) => {
+      await route.fulfill({
         status,
         contentType:
           status >= 400 ? "application/problem+json" : "application/json",
         body: JSON.stringify(value),
       });
+      mark("fulfilled", { method, ep, status });
+    };
     if (method === "GET" && ep === "/api/v1/session")
       return reply({
         user,
@@ -263,11 +270,14 @@ async function setup(c, variant) {
   p.on("pageerror", (e) =>
     s.errors.push({ name: e.name, message: e.message.slice(0, 250) }),
   );
+  mark("navigation-start");
   await p.goto(origin + "/system/models/" + id(1), {
     waitUntil: "domcontentloaded",
     timeout: 30000,
   });
+  mark("domcontentloaded");
   await expect(table(p)).toBeVisible();
+  mark("table-visible");
   return { p, s };
 }
 
@@ -671,13 +681,44 @@ async function main() {
         results.push({ name, outcome: "observed", detail });
       } catch (e) {
         const p = c.pages().at(-1);
+        const diagnostic =
+          p && !p.isClosed()
+            ? {
+                locatorCount: await table(p).count(),
+                locatorVisible: await table(p).isVisible(),
+                dom: await p.evaluate(() => ({
+                  readyState: document.readyState,
+                  tables: [...document.querySelectorAll("table")].map((e) => {
+                    const r = e.getBoundingClientRect();
+                    const c = getComputedStyle(e);
+                    return {
+                      ariaLabel: e.getAttribute("aria-label"),
+                      role: e.getAttribute("role"),
+                      hidden: e.hidden,
+                      width: r.width,
+                      height: r.height,
+                      display: c.display,
+                      visibility: c.visibility,
+                      hiddenAncestor:
+                        e.closest('[hidden],[aria-hidden="true"]')?.tagName ??
+                        null,
+                      rows: [...e.rows].map((row) =>
+                        row.cells[0]?.textContent?.trim(),
+                      ),
+                    };
+                  }),
+                })),
+              }
+            : null;
         if (p && !p.isClosed())
           await shot(p, "failure-" + name).catch(() => {});
         results.push({
           name,
           outcome: "failed",
           stage,
-          check: String(e.message).split("\n")[0],
+          check: String(e.message),
+          diagnostic,
+          timeline: c.review?.timeline,
           location: String(e.stack)
             .split("\n")
             .filter((x) => x.includes("capability-form-visual.cjs:"))
