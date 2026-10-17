@@ -9,7 +9,7 @@ import {
   UiSelect,
 } from "../ui";
 import type { ModelDraft } from "../../system/model-draft";
-import type { Protocol } from "../../system/model-catalog";
+import { modelTypeChoices, type Protocol } from "../../system/model-catalog";
 const props = defineProps<{
   draft: ModelDraft;
   protocol: Protocol;
@@ -22,6 +22,19 @@ const modalityOptions = [
   { value: "file", label: "文件", icon: "file" },
 ];
 const chat = computed(() => props.draft.type === "chat");
+const reranker = computed(() => props.draft.type === "reranker");
+const output = computed(() => {
+  switch (props.draft.type) {
+    case "embedding":
+      return { label: "向量", icon: "vector" };
+    case "reranker":
+      return { label: "排序结果", icon: "chart" };
+    case "image_generation":
+      return { label: "图像", icon: "image" };
+    default:
+      return { label: "文本", icon: "text" };
+  }
+});
 const inputModalities = computed({
   get: () => [
     "text",
@@ -71,10 +84,7 @@ async function removeLevel(index: number) {
       v-model="draft.type"
       label="模型类型"
       :disabled="typeLocked"
-      :options="[
-        { value: 'chat', label: '对话' },
-        { value: 'embedding', label: '向量' },
-      ]"
+      :options="modelTypeChoices"
     />
     <label class="model-check"
       ><input v-model="draft.enabled" type="checkbox" />启用模型</label
@@ -93,15 +103,17 @@ async function removeLevel(index: number) {
           </p>
         </div>
         <div v-else class="fixed-modality">
-          <span class="fixed-label">输入模态</span>
-          <span class="fixed-value"><UiIcon name="text" :size="14" />文本</span>
+          <span class="fixed-label">{{ reranker ? "输入" : "输入模态" }}</span>
+          <span class="fixed-value"
+            ><UiIcon name="text" :size="14" />{{
+              reranker ? "查询与文档" : "文本"
+            }}</span
+          >
         </div>
         <div class="fixed-modality">
-          <span class="fixed-label">输出模态</span>
+          <span class="fixed-label">{{ reranker ? "输出" : "输出模态" }}</span>
           <span class="fixed-value"
-            ><UiIcon :name="chat ? 'text' : 'vector'" :size="14" />{{
-              chat ? "文本" : "向量"
-            }}</span
+            ><UiIcon :name="output.icon" :size="14" />{{ output.label }}</span
           >
         </div>
       </div>
@@ -134,9 +146,6 @@ async function removeLevel(index: number) {
           class="reasoning-levels"
           aria-label="思考等级"
         >
-          <p class="model-hint">
-            名称用于显示，值发送给模型；不添加等级时不可调节思考强度。
-          </p>
           <div ref="levels" class="reasoning-rows">
             <div
               v-for="(effort, index) in draft.reasoningEfforts"
@@ -146,11 +155,13 @@ async function removeLevel(index: number) {
               <UiInput
                 v-model="effort.name"
                 :label="`等级名称 ${index + 1}`"
+                placeholder="名称"
                 required
               />
               <UiInput
                 v-model="effort.value"
                 :label="`等级值 ${index + 1}`"
+                placeholder="值"
                 required
                 maxlength="32"
                 autocomplete="off"
@@ -167,13 +178,13 @@ async function removeLevel(index: number) {
             <UiButton
               :disabled="draft.reasoningEfforts.length >= 32"
               @click="appendLevel"
-              >添加等级</UiButton
+              >添加思考等级</UiButton
             >
           </div>
         </section>
       </template>
     </fieldset>
-    <details v-if="draft.type" class="model-advanced">
+    <details v-if="chat || draft.type === 'embedding'" class="model-advanced">
       <summary>高级选项</summary>
       <div class="model-grid">
         <UiInput
@@ -261,9 +272,6 @@ async function removeLevel(index: number) {
   display: grid;
   gap: 12px;
 }
-.reasoning-levels > .model-hint {
-  margin: 0;
-}
 .reasoning-rows {
   display: grid;
   gap: 12px;
@@ -271,8 +279,19 @@ async function removeLevel(index: number) {
 .reasoning-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-  align-items: end;
+  align-items: center;
   gap: 10px;
+}
+.reasoning-row :deep(.ui-field-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .model-advanced {
   font-size: 13px;
@@ -287,19 +306,6 @@ async function removeLevel(index: number) {
 @media (max-width: 480px) {
   .model-grid {
     grid-template-columns: 1fr;
-  }
-  .reasoning-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-  .reasoning-row > :first-child {
-    grid-column: 1;
-  }
-  .reasoning-row > :nth-child(2) {
-    grid-column: 1;
-  }
-  .reasoning-row > :last-child {
-    grid-column: 2;
-    grid-row: 2;
   }
 }
 </style>

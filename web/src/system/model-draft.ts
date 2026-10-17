@@ -1,6 +1,7 @@
 import { isVersion } from "../account/types";
 import {
   isReasoningEfforts,
+  modelTypes,
   type ModelInput,
   type ModelType,
   type Protocol,
@@ -49,8 +50,7 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
   if (!d.providerModelId.trim() || [...d.providerModelId.trim()].length > 256)
     throw new Error("模型 ID 须为 1–256 个字符。");
   if (
-    (protocol === "openai-compatible" &&
-      !["chat", "embedding"].includes(d.type)) ||
+    (protocol === "openai-compatible" && !modelTypes.includes(d.type)) ||
     (protocol === "openai-chat-completions" && d.type !== "chat") ||
     (protocol === "openai-embeddings" && d.type !== "embedding")
   )
@@ -71,11 +71,19 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
     return values;
   }
   const chat = d.type === "chat";
+  const embedding = d.type === "embedding";
+  const capacity = chat || embedding;
   const declaredInput = chat
     ? values(d.inputModalities, ["text", "image", "file"])
     : [];
   const input = ["text", ...declaredInput.filter((value) => value !== "text")];
-  const output = [chat ? "text" : "vector"];
+  const output = chat
+    ? ["text"]
+    : embedding
+      ? ["vector"]
+      : d.type === "image_generation"
+        ? ["image"]
+        : [];
   if (chat && d.parallelToolCalls && !d.toolCalls)
     throw new Error("并行工具调用需要同时启用工具调用。");
   const efforts =
@@ -92,7 +100,10 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
     throw new Error(
       "思考等级最多32项，名称须为1–64个字符，值须为1–32位字母、数字或 - _ . :；名称和值均不可重复。",
     );
-  for (const value of [d.contextLength, chat ? d.maxOutput : ""])
+  for (const value of [
+    capacity ? d.contextLength : "",
+    chat ? d.maxOutput : "",
+  ])
     if (value && !isVersion(value))
       throw new Error("容量须为正整数，未知时留空。");
   if (
@@ -123,7 +134,7 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
         : d.structuredOutput
           ? ["text", "json_schema"]
           : ["text"],
-      context_length: d.contextLength || null,
+      context_length: capacity ? d.contextLength || null : null,
       max_output: chat ? d.maxOutput || null : null,
     },
   };
