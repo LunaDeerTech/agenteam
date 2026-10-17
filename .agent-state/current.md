@@ -1,6 +1,8 @@
 # 当前状态：模型目录与平台模型用途实施中
 
-2026-10-17新授权：实现[模型目录与平台模型用途](../docs/development/work-items/frontend-model-catalog.md)，起点97ac04e3。系统模型三入口收为两入口（系统10项/正式39叶）；目录先供应商列表，详情主体模型列表，供应商/凭据/模型弹窗，支持手工和发现勾选导入、显式真实测试及独立用途页。新建统一为`openai-compatible`供应商family，共享地址/凭据，同一供应商可管理chat与embedding，由每个模型type派发既有两个adapter；旧协议记录只读、不迁移。新增管理操作需真实System Secret owner与持久结果恢复；family调整尚待新输入验证，已有权限/生命周期结果仅按未变范围复用。00147由account_backend唯一维护，proxy_copy负责新Vue，本卡/必要入口由account_contract维护，root负责全部Git；测试与独审独立分工。首断点为新管理调用与新Vue接线，尚无本包通过，不操作用户公网、凭据或外部供应商。
+2026-10-17当前包为[模型目录与平台模型用途](../docs/development/work-items/frontend-model-catalog.md)：系统模型入口三并二（系统10项/正式39叶），供应商列表→模型主体详情，配置用弹窗；新建`openai-compatible`供应商共享地址/凭据，Model.type派发chat/embedding两个既有adapter，旧协议记录只读。用户最新明确完成后不部署公网，只交新增页面功能截图，由视觉owner上传图床；既有公开版本与数据保持，不使用用户凭据或外部供应商验收。
+
+当前主树`eb37708c`已集成backend `e48dceaf`、Vue `4156e34a`与tests `1cc6bf2b`。r1旧CRUD/权限与Vue供应商首链实际通过；r2启动前`DEPENDENCY_UNAVAILABLE`原因未定，已正常清退；r3安全phase观察与family/00148真链仍在编译，真实风险PG和独立权限probe待ready，尚未整包完成。前端格式、type、业务build及17文件86unit通过，后续`__proto__`字典定向1项通过；独审窄屏根横溢已修并按同输入关闭，其余状态仍在审。已锁known Secret 409清秘密输入、保非秘密草稿并显式读新版本后重填；Unknown仍由原命令owner保原材料恢复，前端窄修在途。00147/00148由backend维护，Vue、测试、视觉及安全各按单写域推进，root负责Git。
 
 ## 既有预览与前轮交付
 
@@ -146,7 +148,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-当前下一步按[模型目录工作项](../docs/development/work-items/frontend-model-catalog.md)完成供应商与凭据、模型、显式测试和用途的首链；新管理调用与页面尚在实施，不把合同冻结或旧模块结果写成本包通过。root先保存本批合同，后续只按作者、隔离联调及独审的实际输入补验收。既有预览保持上一轮部署组合；IP Origin下Passkey不可用但密码登录保持，正式域名、物理设备与外部邮件限制不变。
+下一步等待隔离r3与安全probe就绪，完成family发现/测试/用途真链及剩余状态独审；旧CRUD/权限结果仅按未变范围复用。最终交付图床功能截图，不将新包部署到公网；原公开预览、IP下Passkey限制和外部邮件暂停保持。只按实际输入与终态补记录，不把工程检查或首链通过写成整包完成。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 
