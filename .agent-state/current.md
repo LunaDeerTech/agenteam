@@ -1,4 +1,10 @@
-# 当前状态：ModelPicker锚定浮层与全局搜索已完成适用验证
+# 当前状态：供应商列表与详情配置调整中
+
+2026-10-17，起点`90a1229b`。用户要求模型接入列表增加“供应商列表”小标题，启用状态改为可操作开关，右侧凭据状态改为“配置”按钮。名称链接进入供应商详情默认“模型”Tab；“配置”进入`/system/models/:providerId?tab=config`，同页“配置”Tab直接编辑API端点、凭据与供应商属性，创建仍用共享modal。结构已定，实施验证尚在途；Provider命令版本/key/Unknown、凭据独立命令与部分成功恢复合同保持。
+
+proxy_copy唯一实现树为`/workspace/agenteam-provider-settings-vue`，account_backend只读核既有API边界，outbound_visual独立审查；本角色仅维护主树当前状态、[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)及必要蓝图，root负责Git。当前为WIP，尚未取得本轮工程或浏览器结果；暂不更新公网，不动用户账号、SMTP、密钥及业务数据。下方ModelPicker与命名检查仍保留原输入。
+
+## 前轮ModelPicker与用途命名结果
 
 2026-10-17 用户命名微调：四用途展示名改为“向量模型（Embedding）”“总结模型（Chat）”“重排模型（Rerank）”“图像生成模型（Image Generation）”，仅共享标签与必要精确定位器随动；限定格式、3个CJS语法及既有页面读取/清除2项用例通过，未新增测试、重跑浏览器/完整工程矩阵或启动服务，用途key/API不变。
 
@@ -178,7 +184,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-本轮真实API/UI、独立视觉与精确资源清退已完成，由root统一保存最终harness、记录与截图。以后隔离复验须由owner提供新的环境，不能复用已退出的端口或runtime。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
+当前先完成供应商列表开关/配置入口与详情分区，再核真实命令恢复边界、适用工程检查和有限视觉；新结果按输入记录，不复用旧页面通过事实。旧隔离服务已清退，后续验证由owner提供专属环境。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，暂不更新公网。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 
