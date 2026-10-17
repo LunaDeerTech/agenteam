@@ -9,6 +9,7 @@ import {
   isModelChoice,
   isEmbeddingCapabilities,
   type ModelChoice,
+  type ModelType,
   type CatalogModel,
   type CatalogOperation,
   type CatalogReceipt,
@@ -24,6 +25,12 @@ export const platformPurposes = [
 ] as const;
 export type PlatformPurpose = (typeof platformPurposes)[number];
 export type ModelPurpose = PlatformPurpose;
+export const purposeModelTypes = {
+  embedding: "embedding",
+  summary: "chat",
+  reranker: "reranker",
+  image: "image_generation",
+} as const satisfies Record<ModelPurpose, ModelType>;
 export const purposeLabels: Record<ModelPurpose, string> = {
   embedding: "嵌入模型（Embedding）",
   summary: "总结模型（Chat）",
@@ -126,13 +133,8 @@ export function modelPurposeIssue(
   if (model.provider_id !== provider.id) return "供应商不匹配";
   if (!providerInput.enabled) return "供应商已停用";
   if (!model.input.enabled) return "模型已停用";
-  const wanted = {
-    embedding: "embedding",
-    summary: "chat",
-    reranker: "reranker",
-    image: "image_generation",
-  };
-  if (model.input.type !== wanted[purpose]) return "模型类型不适用于此用途";
+  if (model.input.type !== purposeModelTypes[purpose])
+    return "模型类型不适用于此用途";
   const supported = providerInput.protocol === "openai-compatible";
   if (!supported && !retainExisting)
     return "当前协议仅支持查看现有用途，不能新增选择";

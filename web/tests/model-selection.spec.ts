@@ -6,7 +6,20 @@ import {
   type VueWrapper,
 } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CatalogModel, Provider } from "../src/system/model-catalog";
+import type {
+  CatalogModel,
+  ModelType,
+  Provider,
+} from "../src/system/model-catalog";
+type PickerProps = InstanceType<
+  typeof import("../src/components/system/ModelSelect.vue").default
+>["$props"];
+// @ts-expect-error Every picker caller must explicitly provide a model type.
+const missingKind: Pick<PickerProps, "label" | "issue" | "requiredKind"> = {
+  label: "模型",
+  issue: () => undefined,
+};
+void missingKind;
 const id = (n: number) =>
   `019a0000-0000-7000-8000-${String(n).padStart(12, "0")}`;
 const choice = (n: number) => ({
@@ -194,6 +207,7 @@ beforeEach(async () => {
   );
   vi.stubGlobal("fetch", fetcher);
   await (await import("../src/account/session")).refreshSession();
+  await import("../src/views/system/ModelSelectionPage.vue");
 });
 afterEach(() => {
   wrapper?.unmount();
@@ -315,7 +329,7 @@ describe("platform model selections", () => {
     expect(String(selectionReads()[0]![0])).toBe(`/api/v1${selectionPath}`);
     expect(writes).toHaveLength(0);
   });
-  it("offers cross-provider models in one list and explains choices that do not match the purpose", async () => {
+  it("requires each purpose's type and hides mismatches while retaining same-type eligibility reasons", async () => {
     const embedding = modelOption(12, true);
     embedding.input.capabilities.context_length = "8000";
     const chat = modelOption(13);
@@ -329,88 +343,183 @@ describe("platform model selections", () => {
     image.input.type = "image_generation";
     image.input.capabilities.output_modalities = ["image"];
     image.input.capabilities.structured_output_modes = [];
-    const capacities = ["131072", "1536", "999", null].map((value, index) => {
-      const candidate = modelOption(16 + index);
-      candidate.input.capabilities.context_length = value;
-      return candidate;
-    });
+    const disabled = modelOption(16);
+    disabled.input.capabilities.structured_output_modes = [];
+    // Deliberately return mixed types to check the component's defensive filter.
     gets = (path) =>
       path === "/system/models"
         ? json({
-            items: [embedding, chat, reranker, image, ...capacities],
+            items: [embedding, chat, reranker, image, disabled],
             next_cursor: null,
           })
         : undefined;
     const view = await page();
-    expect(candidateReads()).toHaveLength(0);
-    await view.get('[aria-label^="选择嵌入模型"]').trigger("click");
-    await flushPromises();
-    const choices = view.get('[role="grid"]').findAll('[role="row"]');
-    expect(choices).toHaveLength(8);
-    const tags = (index: number) =>
-      choices[index]!.findAll(".ui-search-select-tags > span");
-    expect(tags(0).map((tag) => tag.text())).toEqual([
-      "嵌入（Embedding）",
-      "1536 维",
-      "8K",
-    ]);
-    expect(tags(0)[2]!.attributes("title")).toBe("输入 8000 tokens");
-    expect(tags(1).map((tag) => tag.text())).toEqual([
-      "对话（Chat）",
-      "128K",
-      "图片",
-      "文件",
-    ]);
-    expect(tags(1)[1]!.attributes("title")).toBe("上下文 128000 tokens");
-    expect(tags(1)[2]!.attributes("title")).toBe("图片输入");
-    expect(tags(1)[3]!.attributes("title")).toBe("文件输入");
-    expect(tags(2).map((tag) => tag.text())).toEqual(["重排（ReRank）"]);
-    expect(tags(3).map((tag) => tag.text())).toEqual([
-      "图像生成（Image Generation）",
-      "文生图",
-    ]);
-    for (const [index, text, title] of [
-      [4, "131K", "上下文 131072 tokens"],
-      [5, "1.5K", "上下文 1536 tokens"],
-      [6, "999", "上下文 999 tokens"],
+    for (const [purpose, type, labels, tags] of [
+      [
+        "嵌入模型",
+        "embedding",
+        ["Vector Provider/upstream-12"],
+        ["嵌入（Embedding）", "1536 维", "8K"],
+      ],
+      [
+        "总结模型",
+        "chat",
+        ["Chat Provider/upstream-13", "Chat Provider/upstream-16"],
+        ["对话（Chat）", "128K", "图片", "文件"],
+      ],
+      [
+        "重排模型",
+        "reranker",
+        ["Chat Provider/upstream-14"],
+        ["重排（ReRank）"],
+      ],
+      [
+        "图像生成模型",
+        "image_generation",
+        ["Chat Provider/upstream-15"],
+        ["图像生成（Image Generation）", "文生图"],
+      ],
     ] as const) {
-      expect(tags(index).map((tag) => tag.text())).toEqual([
-        "对话（Chat）",
-        text,
-      ]);
-      expect(tags(index)[1]!.attributes("title")).toBe(title);
+      const trigger = view.get(`[aria-label^="选择${purpose}"]`);
+      await trigger.trigger("click");
+      await flushPromises();
+      const choices = view.get('[role="grid"]').findAll('[role="row"]');
+      expect(
+        choices.map((row) => row.get(".ui-search-select-name").text()),
+      ).toEqual(labels);
+      expect(
+        choices[0]!
+          .findAll(".ui-search-select-tags > span")
+          .map((tag) => tag.text()),
+      ).toEqual(tags);
+      expect(candidateReads().at(-1)!.searchParams.get("type")).toBe(type);
+      expect(candidateReads().at(-1)!.searchParams.has("provider_id")).toBe(
+        false,
+      );
+      if (type === "chat") {
+        expect(choices[1]!.text()).toContain("总结模型需要 json_schema 能力");
+        expect(choices[1]!.get("button").attributes("aria-disabled")).toBe(
+          "true",
+        );
+        await choices[1]!.get("button").trigger("click");
+        expect(trigger.text()).toBe("Chat Provider/upstream-11");
+      }
+      await trigger.trigger("click");
     }
-    expect(tags(7).map((tag) => tag.text())).toEqual(["对话（Chat）"]);
-    expect(
-      choices.some((row) => row.find(".ui-search-select-tags button").exists()),
-    ).toBe(false);
-    expect(choices[0]!.text()).toContain("Vector Provider/upstream-12");
-    expect(choices[1]!.text()).toContain("Chat Provider/upstream-13");
-    expect(choices[1]!.get("button").attributes("aria-disabled")).toBe("true");
-    expect(choices[1]!.text()).toContain("模型类型不适用于此用途");
-    await choices[1]!.get("button").trigger("click");
-    expect(view.get('[aria-label^="选择嵌入模型"]').text()).toBe(
-      "Vector Provider/upstream-10",
-    );
-    expect(button("保存").attributes("disabled")).toBeDefined();
-    expect(candidateReads()).toHaveLength(1);
-    expect(candidateReads()[0]!.searchParams.has("provider_id")).toBe(false);
-    expect(candidateReads()[0]!.searchParams.get("limit")).toBe("10");
-    expect(
-      fetcher.mock.calls.some(
-        ([input]) =>
-          new URL(String(input), "https://fixture.test").pathname ===
-          "/api/v1/system/model-providers",
-      ),
-    ).toBe(false);
-    await choices[0]!.get("button").trigger("click");
-    await flushPromises();
-    expect(view.find('[role="dialog"]').exists()).toBe(false);
-    expect(view.get('[aria-label^="选择嵌入模型"]').text()).toBe(
-      "Vector Provider/upstream-12",
-    );
-    expect(button("保存").attributes("disabled")).toBeUndefined();
     expect(writes).toHaveLength(0);
+  });
+  it.each([undefined, "unknown"])(
+    "does not issue an unfiltered request for invalid requiredKind %s",
+    async (kind) => {
+      const Picker = (await import("../src/components/system/ModelSelect.vue"))
+        .default;
+      wrapper = mount(Picker, {
+        attachTo: document.body,
+        props: {
+          label: "选择模型",
+          requiredKind: kind as ModelType,
+          issue: () => undefined,
+        },
+        global: { stubs: { Teleport: true } },
+      });
+      const trigger = wrapper.get('[aria-label="选择模型"]');
+      expect(trigger.attributes("disabled")).toBeDefined();
+      await trigger.trigger("click");
+      await flushPromises();
+      expect(candidateReads()).toHaveLength(0);
+    },
+  );
+  it("retires old requests, pages and details when the required type changes", async () => {
+    let finish!: (value: Response) => void;
+    gets = (path, url) => {
+      if (path !== "/system/models") return undefined;
+      if (url.searchParams.has("cursor"))
+        return new Promise<Response>((resolve) => {
+          finish = resolve;
+        });
+      return json({ items: [modelOption(13)], next_cursor: "chat-next" });
+    };
+    const Picker = (await import("../src/components/system/ModelSelect.vue"))
+      .default;
+    wrapper = mount(Picker, {
+      attachTo: document.body,
+      props: {
+        label: "选择模型",
+        requiredKind: "chat",
+        issue: () => undefined,
+      },
+      global: { stubs: { Teleport: true } },
+    });
+    await wrapper.get('[aria-label="选择模型"]').trigger("click");
+    await flushPromises();
+    await wrapper
+      .get('button[aria-label="Chat Provider/upstream-13，更多"]')
+      .trigger("click");
+    await flushPromises();
+    expect(wrapper.findAll('[role="dialog"]')).toHaveLength(2);
+    await wrapper.setProps({ requiredKind: "embedding" });
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
+    await wrapper.setProps({ requiredKind: "chat" });
+    await wrapper.get('[aria-label="选择模型"]').trigger("click");
+    await flushPromises();
+    await click("下一页");
+    expect(candidateReads().at(-1)!.searchParams.get("cursor")).toBe(
+      "chat-next",
+    );
+    await wrapper.setProps({ requiredKind: "embedding" });
+    gets = (path) =>
+      path === "/system/models"
+        ? json({ items: [], next_cursor: null })
+        : undefined;
+    await wrapper.get('[aria-label="选择模型"]').trigger("click");
+    await flushPromises();
+    finish(json({ items: [modelOption(17, true)], next_cursor: "stale-next" }));
+    await flushPromises();
+    expect(wrapper.text()).toContain("没有匹配的嵌入（Embedding）模型。");
+    expect(wrapper.text()).not.toContain("upstream-17");
+    expect(button("下一页").attributes("disabled")).toBeDefined();
+    expect(candidateReads().at(-1)!.searchParams.get("type")).toBe("embedding");
+    expect(candidateReads().at(-1)!.searchParams.has("cursor")).toBe(false);
+  });
+  it("passes the refreshed original model type to the delete replacement picker", async () => {
+    gets = (path) =>
+      path.endsWith("/deletion-impact")
+        ? json({
+            model_id: id(11),
+            version: "3",
+            reference_count: "1",
+            reference_groups: [
+              { owner_kind: "platform_selector", role: "summary", count: "1" },
+            ],
+            replacement_requirement: "required",
+            delete_blocker: null,
+          })
+        : undefined;
+    const Dialog = (
+      await import("../src/components/system/CatalogDeleteDialog.vue")
+    ).default;
+    wrapper = mount(Dialog, {
+      attachTo: document.body,
+      props: { open: false, provider: provider(), model: model(11, true) },
+      global: {
+        stubs: {
+          Teleport: true,
+          UiDialog: { template: "<section><slot /></section>" },
+        },
+      },
+    });
+    await flushPromises();
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+    await wrapper.get('[aria-label="选择替代模型"]').trigger("click");
+    await flushPromises();
+    expect(candidateReads().at(-1)!.searchParams.get("type")).toBe("chat");
+    expect(wrapper.get('[role="grid"]').text()).toContain(
+      "Chat Provider/upstream-13",
+    );
+    expect(wrapper.get('[role="grid"]').text()).not.toContain(
+      "Vector Provider",
+    );
   });
   describe("model candidate search", () => {
     let view: VueWrapper;
@@ -461,6 +570,11 @@ describe("platform model selections", () => {
       expect(candidateReads()).toHaveLength(3);
       const request = candidateReads()[2]!;
       expect(request.searchParams.get("q")).toBe("needle");
+      expect(
+        candidateReads().every(
+          (read) => read.searchParams.get("type") === "chat",
+        ),
+      ).toBe(true);
       expect(request.searchParams.has("cursor")).toBe(false);
       expect(request.searchParams.has("provider_id")).toBe(false);
       expect(view.get('[role="dialog"]').text()).toContain("第 1 页");

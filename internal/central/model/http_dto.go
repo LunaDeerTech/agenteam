@@ -248,7 +248,7 @@ func httpListQuery(r *http.Request, models bool) (SystemQuery, mc.ProviderID, er
 		return SystemQuery{}, zero, fault(f.InvalidArgument)
 	}
 	for key, values := range q {
-		if key != "cursor" && key != "limit" && !(models && (key == "provider_id" || key == "q")) || len(values) != 1 || values[0] == "" {
+		if key != "cursor" && key != "limit" && !(models && (key == "provider_id" || key == "q" || key == "type")) || len(values) != 1 || values[0] == "" {
 			return SystemQuery{}, zero, fault(f.InvalidArgument)
 		}
 	}
@@ -276,6 +276,12 @@ func httpListQuery(r *http.Request, models bool) (SystemQuery, mc.ProviderID, er
 	if models && q.Has("q") {
 		out.Search, err = normalizeModelSearch(q.Get("q"))
 		if err != nil || out.Search == "" {
+			return SystemQuery{}, zero, fault(f.InvalidArgument)
+		}
+	}
+	if models && q.Has("type") {
+		out.Type = mc.ModelType(q.Get("type"))
+		if !out.Type.Valid() {
 			return SystemQuery{}, zero, fault(f.InvalidArgument)
 		}
 	}

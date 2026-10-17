@@ -811,3 +811,34 @@ it("confines global model search to the model list and rejects oversized or cont
     ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
   expect(fetcher).toHaveBeenCalledTimes(1);
 });
+
+it("limits model type filters to the model-list route and four valid types", async () => {
+  const fetcher = vi.fn(async (_url: string) => json({ accepted: true }));
+  vi.stubGlobal("fetch", fetcher);
+  const { accountRequest } = await import("../src/account/transport");
+  for (const type of [
+    "chat",
+    "embedding",
+    "reranker",
+    "image_generation",
+  ] as const) {
+    await accountRequest("/system/models", {
+      query: { type, q: "needle", provider_id: id, cursor: "next", limit: 10 },
+    });
+    expect(
+      new URL(
+        fetcher.mock.calls.at(-1)![0],
+        "http://localhost",
+      ).searchParams.get("type"),
+    ).toBe(type);
+  }
+  for (const path of ["/me", "/system/model-providers"])
+    await expect(
+      accountRequest(path, { query: { type: "chat" } }),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+  for (const type of ["", "image", "Chat", "unknown"])
+    await expect(
+      accountRequest("/system/models", { query: { type: type as "chat" } }),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+  expect(fetcher).toHaveBeenCalledTimes(4);
+});

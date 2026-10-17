@@ -220,6 +220,11 @@ async function intercept(context, state) {
       const items = state.models
         .filter(
           (m) =>
+            !url.searchParams.has("type") ||
+            m.input.type === url.searchParams.get("type"),
+        )
+        .filter(
+          (m) =>
             !url.searchParams.get("provider_id") ||
             m.provider_id === url.searchParams.get("provider_id"),
         )
@@ -323,7 +328,7 @@ async function shot(page, label, native = false) {
 }
 async function open(page) {
   await trigger(page).click();
-  await expect(panel(page).getByRole("row")).toHaveCount(7);
+  await expect(panel(page).getByRole("row")).toHaveCount(3);
   await expect(panel(page).getByRole("combobox")).toBeFocused();
 }
 async function close(page) {
@@ -336,10 +341,6 @@ async function picker(page, state, label, native) {
   await open(page);
   const expected = {
     10: ["对话（Chat）", "128K", "图片", "文件"],
-    11: ["嵌入（Embedding）", "1536 维", "8.1K"],
-    12: ["嵌入（Embedding）", "1024 维"],
-    13: ["重排（ReRank）"],
-    14: ["图像生成（Image Generation）", "文生图"],
     15: ["对话（Chat）"],
     16: ["对话（Chat）"],
   };
@@ -381,12 +382,13 @@ async function picker(page, state, label, native) {
     [10, "128K", "上下文 128000 tokens"],
     [10, "图片", "图片输入"],
     [10, "文件", "文件输入"],
-    [11, "8.1K", "输入 8192 tokens"],
   ]) {
     await expect(
       row(page, state, n).getByText(label, { exact: true }),
     ).toHaveAttribute("title", title);
   }
+  for (const n of [11, 12, 13, 14])
+    await expect(row(page, state, n)).toHaveCount(0);
   const geometry = await within(panel(page), page);
   await shot(page, `${label}-picker-top`, native);
   if (label === "desktop-tags") {
@@ -394,7 +396,7 @@ async function picker(page, state, label, native) {
     await close(page);
     return {
       geometry,
-      tagsAllTypes: true,
+      matchingChatTags: true,
       compactLabels: true,
       exactCapacityAndInputTitles: true,
       writes: 0,
@@ -460,7 +462,7 @@ async function picker(page, state, label, native) {
   await close(page);
   return {
     geometry,
-    tagsAllTypes: true,
+    matchingChatTags: true,
     nullCapacityNotInvented: true,
     disabledReason: true,
     reasoningFocusReturned: true,

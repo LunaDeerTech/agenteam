@@ -296,6 +296,8 @@ async function serveFixture(state, route, request, url) {
     const query = (url.searchParams.get("q") ?? "").trim().toLowerCase();
     const filtered = state.models.filter(
       (item) =>
+        (!url.searchParams.has("type") ||
+          url.searchParams.get("type") === item.input.type) &&
         (!url.searchParams.has("provider_id") ||
           url.searchParams.get("provider_id") === item.provider_id) &&
         `${state.provider.input.name}\n${item.input.provider_model_id}\n${item.input.notes}`
@@ -489,10 +491,7 @@ async function desktop({ p, state }) {
   await expect(row(p, state, 10)).not.toContainText(
     state.models[0].input.notes,
   );
-  await expect(row(p, state, 14).getByRole("button").first()).toHaveAttribute(
-    "aria-disabled",
-    "true",
-  );
+  await expect(row(p, state, 14)).toHaveCount(0);
   await screenshot(p, "01-picker-primary-dark");
   const dBasic = await openDetails(p, state, 10);
   await expect(dBasic).toHaveText(state.models[0].input.notes);

@@ -633,7 +633,7 @@
             "LocalSession": []
           }
         ],
-        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters. Global or provider-filtered System catalog. Rows include only safe provider display metadata, not endpoint/options/credentials. Disabled models/providers remain visible. Order is created_at DESC,id DESC with the original upper watermark; cursor binds current user, provider filter and normalized search. This is not a cross-page snapshot or a selection authorization.",
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters. System catalog with optional type, provider_id and q filters that can be combined; SQL applies the type filter before cursor pagination. Rows include only safe provider display metadata, not endpoint/options/credentials. Disabled models/providers remain visible. Order is created_at DESC,id DESC with the original upper watermark; cursor binds current user, type filter, provider filter and normalized search. This is not a cross-page snapshot or a selection authorization.",
         "parameters": [
           {
             "in": "query",
@@ -661,7 +661,16 @@
             "schema": {
               "$ref": "./common.json#/components/schemas/ID"
             },
-            "description": "Optional System provider filter. Omit to search the entire System catalog; an explicit empty value is invalid."
+            "description": "Optional System provider filter. Omit for no provider restriction; an explicit empty value is invalid."
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ModelInput/properties/type"
+            },
+            "description": "Optional model type filter: chat, embedding, reranker or image_generation. Omit to include all types; an empty, repeated or unsupported value returns 400 InvalidArgument. Can be combined with provider_id and q. General management callers may omit it; model selection components must send the required type."
           },
           {
             "in": "query",
@@ -741,7 +750,7 @@
             "LocalSession": []
           }
         ],
-        "description": "Same current permission and query as GET; no response body. Global or provider-filtered System catalog. Rows include only safe provider display metadata, not endpoint/options/credentials. Disabled models/providers remain visible. Order is created_at DESC,id DESC with the original upper watermark; cursor binds current user, provider filter and normalized search. This is not a cross-page snapshot or a selection authorization.",
+        "description": "Same current permission and query as GET; no response body. System catalog with optional type, provider_id and q filters that can be combined; SQL applies the type filter before cursor pagination. Rows include only safe provider display metadata, not endpoint/options/credentials. Disabled models/providers remain visible. Order is created_at DESC,id DESC with the original upper watermark; cursor binds current user, type filter, provider filter and normalized search. This is not a cross-page snapshot or a selection authorization.",
         "parameters": [
           {
             "in": "query",
@@ -769,7 +778,16 @@
             "schema": {
               "$ref": "./common.json#/components/schemas/ID"
             },
-            "description": "Optional System provider filter. Omit to search the entire System catalog; an explicit empty value is invalid."
+            "description": "Optional System provider filter. Omit for no provider restriction; an explicit empty value is invalid."
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ModelInput/properties/type"
+            },
+            "description": "Optional model type filter: chat, embedding, reranker or image_generation. Omit to include all types; an empty, repeated or unsupported value returns 400 InvalidArgument. Can be combined with provider_id and q. General management callers may omit it; model selection components must send the required type."
           },
           {
             "in": "query",

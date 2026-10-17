@@ -466,7 +466,10 @@ export const listModels = (
   current?: () => boolean,
   limit = 10,
   query?: string,
+  type?: ModelType,
 ) => {
+  if (type !== undefined && !modelTypes.includes(type))
+    throw new AccountError("INVALID_ARGUMENT", 400);
   const q = query?.trim().toLowerCase();
   return systemRequest(
     "/system/models",
@@ -477,6 +480,7 @@ export const listModels = (
         limit,
         ...(provider ? { provider_id: provider } : {}),
         ...(q ? { q } : {}),
+        ...(type ? { type } : {}),
       },
     },
     pageOf(isCatalogModelOption, limit),

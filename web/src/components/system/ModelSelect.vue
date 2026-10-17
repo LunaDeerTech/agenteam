@@ -6,14 +6,17 @@ import {
   listModels,
   modelDisplayName,
   modelTypeChoices,
+  modelTypes,
   modelReasoningIssue,
   type CatalogModelOption,
   type ReasoningChoice,
+  type ModelType,
 } from "../../system/model-catalog";
 import { useCursorList } from "../../system/useCursorList";
 import { useSystemAccess } from "../../system/requests";
 const props = defineProps<{
   label: string;
+  requiredKind: ModelType;
   modelValue?: string;
   selectedLabel?: string;
   disabled?: boolean;
@@ -26,6 +29,7 @@ const emit = defineEmits<{
 }>();
 const id = useId();
 const access = useSystemAccess();
+const validKind = computed(() => modelTypes.includes(props.requiredKind));
 const opened = ref(false);
 const query = ref("");
 const searched = ref("");
@@ -33,9 +37,16 @@ const waiting = ref(false);
 let timer: ReturnType<typeof setTimeout> | undefined;
 const list = useCursorList(
   (cursor, current, limit) =>
-    listModels(undefined, cursor, current, limit, searched.value),
+    listModels(
+      undefined,
+      cursor,
+      current,
+      limit,
+      searched.value,
+      props.requiredKind,
+    ),
   {
-    enabled: () => opened.value && !props.disabled,
+    enabled: () => opened.value && !props.disabled && validKind.value,
     immediate: false,
   },
 );
@@ -82,8 +93,15 @@ function modelTags(model: CatalogModelOption) {
     tags.push({ label: "文生图" });
   return tags;
 }
+const candidates = computed(() =>
+  list.items.value.filter((model) => model.input.type === props.requiredKind),
+);
+const emptyText = computed(
+  () =>
+    `没有匹配的${modelTypeChoices.find((choice) => choice.value === props.requiredKind)?.label ?? "此类型"}模型。`,
+);
 const options = computed(() =>
-  list.items.value.map((model) => ({
+  candidates.value.map((model) => ({
     value: model.id,
     label: modelDisplayName(model.provider.name, model.input.provider_model_id),
     tags: modelTags(model),
@@ -94,7 +112,7 @@ const options = computed(() =>
   })),
 );
 function candidate(value: string) {
-  return list.items.value.find((model) => model.id === value);
+  return candidates.value.find((model) => model.id === value);
 }
 function currentReasoning(value: string): ReasoningChoice {
   return value === props.modelValue && props.reasoning
@@ -168,9 +186,18 @@ function openChanged(value: boolean) {
   if (value) void list.first();
 }
 function select(id: string) {
-  const model = list.items.value.find((item) => item.id === id);
-  if (model && !props.issue(model)) emit("select", model);
+  const model = candidate(id);
+  if (model && !props.disabled && !props.issue(model)) emit("select", model);
 }
+watch(
+  () => props.requiredKind,
+  () => {
+    opened.value = false;
+    cancelRead();
+    query.value = searched.value = "";
+  },
+  { flush: "sync" },
+);
 watch(access.generation, () => {
   opened.value = false;
   cancelRead();
@@ -180,14 +207,15 @@ onBeforeUnmount(cancelRead);
 </script>
 <template>
   <UiSearchSelect
-    :key="access.generation.value"
+    :key="`${access.generation.value}:${requiredKind}`"
     :label="label"
     :model-value="modelValue"
     :selected-label="selectedLabel"
     :options="options"
+    :empty-text="emptyText"
     rich
     :query="query"
-    :disabled="disabled || !access.allowed.value"
+    :disabled="disabled || !access.allowed.value || !validKind"
     :loading="list.pending.value || waiting"
     :error="
       queryIssue ||

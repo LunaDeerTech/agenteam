@@ -37,6 +37,7 @@ export interface AccountRequest {
     cursor?: string;
     limit?: string | number;
     provider_id?: string;
+    type?: "chat" | "embedding" | "reranker" | "image_generation";
     q?: string;
   }>;
 }
@@ -109,7 +110,13 @@ async function sendAccount<T>(
     if (value === undefined) continue;
     if (
       method !== "GET" ||
-      !["cursor", "limit", "provider_id", "q"].includes(name) ||
+      !["cursor", "limit", "provider_id", "q", "type"].includes(name) ||
+      (name === "type" &&
+        (path !== "/system/models" ||
+          typeof value !== "string" ||
+          !["chat", "embedding", "reranker", "image_generation"].includes(
+            String(value),
+          ))) ||
       !String(value) ||
       new TextEncoder().encode(String(value)).length > 8192 ||
       (name === "limit" &&

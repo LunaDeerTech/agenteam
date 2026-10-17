@@ -4,6 +4,10 @@
 
 2026-10-17，从 `a686540e374bc7b4f6ab89632a6c0780292c1e60` 接续。用户已授权完成强制类型过滤后更新原公网服务；最终候选与适用验证门未冻结前不替换服务、不执行迁移。组件调用必须明确类型，列表在分页前按类型筛选并绑定游标；最终契约与实现由各 owner 维护。当前源码已含前轮 Embedding 维度迁移 153，公开数据库仍为 152，部署前须只读检查旧 model/snapshot 与 Knowledge/Memory profile 是否满足新约束，不猜维度、不清数据。
 
+当前作者输入：后端 `a704357d` 与 Vue `1b2e1755959d4f8966c5e470770d04af0468db2c` 已冻结并由 root 保存。System 列表新增可选 `type`，严格拒绝空/重复/非法值；SQL 在分页前过滤且 cursor 绑定类型，管理列表仍可查看全部。ModelSelect 必传 `requiredKind: ModelType`，四用途和删除替换均显式接入，客户端必传过滤；错类型不展示，同类型原资格限制保留，换类型退休旧请求并清空游标/列表/展开层。后端三项定向 unit actual0；Vue七项定向unit、全源类型、build与14文件格式检查actual0。独立真实HTTP+PG及两视口浏览器仍在执行，结果待 owner 收尾后补写，不提前声称通过。
+
+原Vue作者build未显式设置或记录编译期 `VITE_ACCOUNT_ENABLED`，亦无构建期输入manifest，不能证明产物启用真实账号API。部署仅补一次明确 `VITE_ACCOUNT_ENABLED=true` 的生产Vite构建及冻结源清单，复用已通过类型/unit；Go生产候选待最终集成源码冻结及独审资源释放后构建。最终部署使用既有管理器与前轮保数据流程，停写前重查schema/mail/153适用性、备份后升级153、复核配置/数据投影与原端口实际产物，并以有限真实登录及已打通的只读公网归属通道检查。
+
 运行与空间 owner 为 `/root/filter_preview_platform`，独占本页及必要部署 harness；root 负责全部 Git 和最终集成。2026-10-17 15:12 UTC 实核原 Central PID587898/start_ticks4887180 存活且活动 manifest 仍指向 6d8，Vue PID588615 与 FRP helper16216/frpc16223 均存活。workspace 约剩 1.7 GiB，独立 `/tmp` 约剩 8.5 GiB；重型 Go 构建唯一窗口，所有本轮可写临时、binary 与 fixture 产物使用 owned `/tmp`，保留至少 512 MiB。原 SMTP/账号/Session/密钥/代理配置与业务数据保留；当前只做运行、容量、迁移适用性及严格公网 TLS 路径预检查。以下既有部署事实仍是恢复依据，历史公网 TLS 失败不追认成功。
 
 只读部署前检查已完成：schema152、migration journal 无未应用项；models、snapshots、Knowledge index_profiles、Memory generations 均为0，按153两函数的实际谓词投影计数违规均为0，不存在旧维度/profile阻塞。邮件非终态与未join attempt均0，数据库约27.6MB；18份immutable与3个基础容器nonce身份匹配。私有结果与精确SQL在 `/tmp/agenteam-model-filter-deploy-20261017/`。最终停写前仍须重查，因为用户可继续使用旧服务。
@@ -27,7 +31,7 @@
 
 原目标入口仍为 `https://154.12.86.233:18443`，服务保留。本轮公网 identity 与 release 各一次匿名请求均 curl60/HTTP000（证书主机名不匹配），没有取得公网 nonce/version；未放宽 TLS 或重试排障。本机 TLS/UI 通过不代公网成功，FRP 存活也不代公网归属证明。`identity.source_revision` 的 62ad 仍是历史基础设施标识，应用版本以当前 release 和实际产物为准。
 
-## 当前任务：Embedding 维度与模型选择器标签
+## 前轮：Embedding 维度与模型选择器标签
 
 本轮从 `cce339c3b94f1e2cceb21804a8189e275a73e262` 开发，只修改代码，未部署；公开预览继续使用顶部 6d8 冻结版本。root 已按唯一写域整合后端 `d032da0f`、Vue 产品 `ed42b39e` 与独审 harness `23e2d3c9`；独立真实 App 最终候选为 `63f18e59`，主树整合待 root 最终 checkpoint。三个既有工作树原路径复用，历史分支检查点仍保留。
 

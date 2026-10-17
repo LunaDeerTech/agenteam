@@ -15,6 +15,7 @@ type SystemQuery struct {
 	Cursor string
 	Limit  int
 	Search string
+	Type   mc.ModelType
 }
 type ProviderPage struct {
 	Items      []mc.ProviderView `json:"items"`

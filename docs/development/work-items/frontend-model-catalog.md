@@ -1,6 +1,10 @@
 # 新 Vue 模型接入与平台模型用途
 
-当前增量已完成适用验证：模型选择器保留“供应商/模型 ID”主行，第二行使用非交互简标签，类型优先。Chat 按已配置能力显示 `128K`、`图片`、`文件`；嵌入显示 `1536 维` 与已配置输入长度，例如 `8.1K`；重排仅类型，图像生成补 `文生图`。未知容量不填零或无限；K 按 1000、最多一位小数向下保留，title 保留完整 tokens 数及“上下文/输入”含义，图片/文件的 title 明确输入能力。备注、思考菜单、不可选原因及草稿/Unknown 行为不变。
+本轮模型类型筛选已完成Vue作者实现与定向自测，独立HTTP/PG及浏览器验收由对应owner继续：ModelSelect调用方必传四值类型，用途页通过强类型映射、删除替换通过最新原模型传入；列表请求传type，服务端过滤后分页，组件隐藏错类型结果。同类型不可选原因、备注、思考策略及保存重验保留，类型变化退休旧读取并清行/搜索/游标/展开层。
+
+作者7项定向unit、完整Vue类型检查及生产构建实际exit0。首次两项失败为首动态import/业务同计时超5秒及jsdom删除fixture准备缺失，最小调整准备与fixture后同5秒业务预算通过，首次失败不追认成功。旧三份browser fixture仅更新类型过滤/隐藏预期并通过语法与加载检查；本轮实际浏览器及后端组合结论待独审，不复述旧矩阵为当前通过。
+
+上一轮标签增量已完成适用验证：模型选择器保留“供应商/模型 ID”主行，第二行使用非交互简标签，类型优先。Chat 按已配置能力显示 `128K`、`图片`、`文件`；嵌入显示 `1536 维` 与已配置输入长度，例如 `8.1K`；重排仅类型，图像生成补 `文生图`。未知容量不填零或无限；K 按 1000、最多一位小数向下保留，title 保留完整 tokens 数及“上下文/输入”含义，图片/文件的 title 明确输入能力。备注、思考菜单、不可选原因及草稿/Unknown 行为不变。
 
 嵌入模型新增必填 `capabilities.embedding:{dimensions,dimensions_mode}`，维度为 1–4096 的规范十进制字符串，模式为 `fixed|request`；其余模型该键必须为 null。编辑表单提供“向量维度”和“请求指定维度”，新建默认 fixed、维度不猜测；fixed 只验证实际输出，request 另请求供应商输出指定维度，切换类型不提交隐藏旧值。新字段不保留旧 DTO fallback，也不将平台防御批次或部署环境维度冒充模型能力。
 
@@ -104,7 +108,7 @@ App实际覆盖enable_thinking:false、default和effort；on与thinking_type正�
 
 ### 可复用模型选择浮层
 
-ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层跨供应商模型列表承载搜索、当前选中勾选及不可选原因，不再要求先进入某个供应商才能找模型。空选框显示“点击选择模型”，已选时“供应商名称/模型ID”始终可见，hover只改变样式、不替换内容。搜索、分页、空结果、失败重读及迟到结果由同一请求owner管理。普通行以供应商/模型ID为主，类型及资格原因弱化；有备注或思考设置时在行尾提供更多按钮，备注只在更多顶部显示且不加label。桌面侧层可左右避让，窄屏改为父层内第二视图并提供返回；Escape逐层回焦，外点不抢新目标焦点。更多内思考选项只更新用途草稿，不自动PUT；关闭浮层不清页面草稿。窄屏与缩放需保持触发关联、搜索及结果可达，正式组件接口由[共享组件规范](../frontend/components.md)维护。
+ModelPicker锚定在触发选框下方，不使用居中modal。调用方必须传入所需模型类型；浮层仅显示匹配类型的一层跨供应商模型列表，承载搜索、当前选中勾选及同类型模型的不可选原因，不再要求先进入某个供应商才能找模型。空选框显示“点击选择模型”，已选时“供应商名称/模型ID”始终可见，hover只改变样式、不替换内容。搜索、分页、空结果、失败重读及迟到结果由同一请求owner管理。普通行以供应商/模型ID为主，类型及资格原因弱化；有备注或思考设置时在行尾提供更多按钮，备注只在更多顶部显示且不加label。桌面侧层可左右避让，窄屏改为父层内第二视图并提供返回；Escape逐层回焦，外点不抢新目标焦点。更多内思考选项只更新用途草稿，不自动PUT；关闭浮层不清页面草稿。窄屏与缩放需保持触发关联、搜索及结果可达，正式组件接口由[共享组件规范](../frontend/components.md)维护。
 
 四用途各保留一句功能描述：嵌入用于知识/记忆检索，总结用于记忆提取整理及会议摘要，重排用于检索结果排序，图像生成用于生成图片。重排与图像生成可以配置、选择及显式管理测试，但对应检索或图像Artifact业务consumer尚未绑定，不能以管理测试成功暗示完整业务已接通。选择只改本地草稿，单summary资源保存、409与Unknown合同不变。
 
@@ -116,7 +120,7 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/system/model-providers`、`/{id}`   | GET列表或对象；POST `{input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version}`。对象为`{id,input,version,created_at,updated_at}`。                                                                                                                                                                                       |
 | Provider input                       | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat、embedding、reranker和image_generation模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。                   |
-| `/system/models`、`/{id}`            | GET/HEAD列表可选`provider_id`、`q`、`cursor`、`limit`，省略provider为跨System供应商；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。模型对象为`{id,provider_id,input,version,created_at,updated_at}`，列表项另含下述provider安全投影，详情DTO不变。                   |
+| `/system/models`、`/{id}`            | GET/HEAD列表可选`provider_id`、`type`、`q`、`cursor`、`limit`，省略provider为跨System供应商；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。模型对象为`{id,provider_id,input,version,created_at,updated_at}`，列表项另含下述provider安全投影，详情DTO不变。           |
 | Model input                          | `{notes,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；notes必传可空，最多2000个Unicode码点且8000 UTF-8字节，禁止NUL；只用于备注/搜索，不作模型身份。family按type选择四类既定协议，能力必须通过真实校验，不能从ID或备注猜能力。capabilities各字段严格沿schema，未知容量保持null。 |
 | `/system/model-credentials`、`/{id}` | POST `{value}`；GET对象只读`{credential_id,purpose:'model',version}`；PUT `{expected_version,value}`；DELETE `{expected_version}`。写结果`{credential_id,purpose,version,deleted}`，材料从不回显。                                                                                                                                           |
 | 配置receipt                          | `{kind,resource_id,version,affected_references}`，kind使用`provider.create`、`model.update`等现有点号枚举。Provider/Model/用途各有独立版本。                                                                                                                                                                                                 |
@@ -124,7 +128,7 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 管理列表使用真实cursor/limit（后端1..100、默认50；管理页默认10，可选5/10/20/50），页长或供应商变化清cursor历史。ModelPicker用同一服务端列表做跨供应商查询，不拼接各供应商页面或把当前页过滤称为全局搜索。
 
-全局查询`q`可省略，trim后lowercase规范化；原始与规范化值各最多128个UTF-8字节，拒绝控制字符。它按字面子串匹配供应商名称、模型备注或provider_model_id，`%`与`_`不作为通配符。返回`{items,next_cursor}`，每个列表项新增必填`provider:{id,name,protocol,enabled,version}`安全投影，不含凭据；next_cursor为string或null。游标绑定当前用户、provider过滤及规范q，沿既有created_at/id水位排序，不承诺跨页MVCC快照；查询变化清旧cursor并退休旧读取。未新增purpose/type参数，停用或不符合当前用途的模型仍返回，由UI按既有能力规则显示不可选原因，保存时仍由后端重验。列表与详情均使用新的ModelInput；全局查询不改变权限边界或按备注重新排序。
+全局查询`q`可省略，trim后lowercase规范化；原始与规范化值各最多128个UTF-8字节，拒绝控制字符。它按字面子串匹配供应商名称、模型备注或provider_model_id，`%`与`_`不作为通配符。返回`{items,next_cursor}`，每个列表项新增必填`provider:{id,name,protocol,enabled,version}`安全投影，不含凭据；next_cursor为string或null。游标绑定当前用户、provider过滤、type及规范q，沿既有created_at/id水位排序，不承诺跨页MVCC快照；查询变化清旧cursor并退休旧读取。可选 `type` 使用 `chat` / `embedding` / `reranker` / `image_generation` 四值，在分页前筛选，省略时管理列表仍返回全部类型。选择器必传 `requiredKind: ModelType` 并送出 `type`，不得以当前页过滤代替服务端筛选；防御隐藏错类型返回，缺失/非法类型不发请求。用途页通过强类型映射传入，删除替换使用最新读取的原模型类型。类型变化清行、搜索、游标和展开层并退休旧读取；同类型模型的停用、协议、能力和思考策略资格检查保留，保存时仍由后端重验。列表与详情均使用新的ModelInput；全局查询不改变权限边界或按备注重新排序。
 
 配置Tab的凭据输入留空表示不发替换请求，非空才创建/替换；输入框旁提供独立“删除凭据”按钮，移除解除关联checkbox和详情重复菜单入口。无已保存凭据、旧协议只读或有未保存/未决编辑时不可发起删除。凭据写入和Provider关联是两个独立命令：已确认的凭据不能因关联失败再创建，显示实际部分完成并只恢复未完成步骤。取消不回滚已确认写入；解除关联和删除Secret不是同一事实，不能误删被其他配置引用的凭据。Provider删除不自动级联模型或独立Secret。
 

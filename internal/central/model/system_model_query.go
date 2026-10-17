@@ -44,8 +44,8 @@ func normalizeModelSearch(raw string) (string, error) {
 	return value, nil
 }
 
-func modelListBinding(actor id.Actor, provider, search string) (cursor.Binding, error) {
-	raw, err := json.Marshal(struct{ Format, User, Provider, Search string }{"system-model-list-v2", actor.Details().UserID, provider, search})
+func modelListBinding(actor id.Actor, provider, search string, typ mc.ModelType) (cursor.Binding, error) {
+	raw, err := json.Marshal(struct{ Format, User, Provider, Search, Type string }{"system-model-list-v3", actor.Details().UserID, provider, search, string(typ)})
 	if err != nil {
 		return cursor.Binding{}, unavailable(err)
 	}
@@ -69,6 +69,9 @@ func (r modelProviderScanner) Scan(values ...any) error {
 // row and its provider display fields come from one SQL statement snapshot.
 func (s *Service) ListModels(ctx context.Context, actor id.Actor, provider mc.ProviderID, q SystemQuery) (SystemModelPage, error) {
 	out := SystemModelPage{Items: []SystemModelListItem{}}
+	if q.Type != "" && !q.Type.Valid() {
+		return out, fault(f.InvalidArgument)
+	}
 	filtered := provider != (mc.ProviderID{})
 	if filtered && provider.Validate() != nil {
 		return out, fault(f.InvalidArgument)
@@ -93,7 +96,7 @@ func (s *Service) ListModels(ctx context.Context, actor id.Actor, provider mc.Pr
 				return fault(f.NotFound)
 			}
 		}
-		binding, err := modelListBinding(actor, providerKey, search)
+		binding, err := modelListBinding(actor, providerKey, search, q.Type)
 		if err != nil {
 			return err
 		}
@@ -101,10 +104,10 @@ func (s *Service) ListModels(ctx context.Context, actor id.Actor, provider mc.Pr
 		if err != nil {
 			return err
 		}
-		query := `SELECT ` + modelColumns + `,p.name,p.protocol,p.enabled,p.version FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='system' AND ($1::uuid IS NULL OR m.provider_id=$1::uuid) AND ($3::text='' OR strpos(lower(p.name),$3)>0 OR strpos(lower(m.notes),$3)>0 OR strpos(lower(m.provider_model_id),$3)>0)`
-		args := []any{null(providerKey), q.Limit + 1, search}
+		query := `SELECT ` + modelColumns + `,p.name,p.protocol,p.enabled,p.version FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='system' AND ($1::uuid IS NULL OR m.provider_id=$1::uuid) AND ($3::text='' OR strpos(lower(p.name),$3)>0 OR strpos(lower(m.notes),$3)>0 OR strpos(lower(m.provider_model_id),$3)>0) AND ($4::text='' OR m.type=$4)`
+		args := []any{null(providerKey), q.Limit + 1, search, string(q.Type)}
 		if position.Present {
-			query += ` AND (m.created_at,m.id)<=($4,$5::uuid) AND (m.created_at,m.id)<($6,$7::uuid)`
+			query += ` AND (m.created_at,m.id)<=($5,$6::uuid) AND (m.created_at,m.id)<($7,$8::uuid)`
 			args = append(args, position.WaterAt.Time(), position.WaterID, position.AfterAt.Time(), position.AfterID)
 		}
 		query += ` ORDER BY m.created_at DESC,m.id DESC LIMIT $2`

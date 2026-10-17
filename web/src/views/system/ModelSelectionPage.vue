@@ -26,6 +26,7 @@ import {
   platformPurposes,
   purposeLabels,
   purposeDescriptions,
+  purposeModelTypes,
   saveModelSelection,
   type ModelPurpose,
 } from "../../system/model-selection";
@@ -411,6 +412,7 @@ onBeforeUnmount(() => {
           </div>
           <div class="purpose-actions">
             <ModelSelect
+              :required-kind="purposeModelTypes[purpose]"
               :label="`选择${purposeLabels[purpose]}`"
               :model-value="selection.draft.value[purpose]?.model_id || ''"
               :reasoning="selection.draft.value[purpose]?.reasoning"

@@ -65,8 +65,8 @@ const title = computed(() =>
   props.credential ? "删除凭据" : props.model ? "删除模型" : "删除供应商",
 );
 function replacementIssue(item: CatalogModelOption) {
-  if (item.id === props.model?.id) return "不能替换为当前模型";
-  if (item.input.type !== props.model?.input.type)
+  if (item.id === currentModel.value?.id) return "不能替换为当前模型";
+  if (item.input.type !== currentModel.value?.input.type)
     return "模型类型不适用于此替换";
   if (!item.provider.enabled) return "供应商已停用";
   if (!item.input.enabled) return "模型已停用";
@@ -220,6 +220,8 @@ useLeaveProtection(() => props.open && locked.value);
             }}
           </p>
           <ModelSelect
+            v-if="currentModel"
+            :required-kind="currentModel.input.type"
             label="选择替代模型"
             :model-value="replacement?.id"
             :selected-label="

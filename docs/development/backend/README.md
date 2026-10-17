@@ -10,6 +10,8 @@ D05 有界metadata清理、Skills Cleanup、D04专用材料/receipt存储与Secr
 
 默认 Project initializer 仍为unbound，完整participant/guard未齐不能启用，包括内部默认服务。旧根649e业务PASS不抵销其后发现的规范拒绝；0747b02c撤回后，新真实单top接受默认创建拒绝及13项零事实、显式test-only真实端口fixture退休后既有数据读取/Avatar/原进程退出。生产Project Create与生命周期、UI和既有全局STOP不随此放行。
 
+System 模型列表 `GET/HEAD /api/v1/system/models` 接受可选 `type=chat|embedding|reranker|image_generation`，缺省返回全部类型，显式空值、重复或非法值返回 400。`type` 可与 `provider_id`、`q` 组合，SQL 先按类型过滤再执行 cursor 分页；cursor 绑定类型、供应商、规范化搜索词与当前用户。通用管理调用可省略 `type`，模型选择组件必须传所需类型；响应结构与当前管理员权限沿原契约，Project 固定 chat 目录和用途保存校验沿原规则。接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)。
+
 System Model 管理读口已实现并通过[独立验收](../agent-team/system-model-management-reads-verification.md)：GET/HEAD `/api/v1/system/model-credentials/{id}` 只返回当前安全 metadata（credential ID、purpose、version）；GET/HEAD `/api/v1/system/models/{id}/deletion-impact` 返回有界精确引用统计、替换要求和已知 adapter 阻断。两类读取各自拥有完整锁 union 的读取事务，在同一 Tx 内重验当前 Session/admin 后读取；最长 3 秒预算包含 HTTP 认证、锁等待和 SQL，并继承更早的调用方取消。仅确认 Committed 且 context 仍有效才返回结果，失败、Unknown 或取消不返回候选数据，也不自动重读。预览不授予删除权限，后续 DeleteModel 仍重验当前引用与替换事实；外域引用 adapter 仍未绑定。精确接口与边界见[管理读口规格](../work-items/recovery-d09-system-model-management-reads.md)。
 
 [Meeting Summary S1](../work-items/d09-system-meeting-summary-selection.md) 已实现迁移 `00020` 下的系统独立 selector、独立 ID/version 和精确引用。`InitializeMeetingSummarySelection` 在旧四用途技术 singleton 已存在后，幂等建立 version=1、model=NULL 的新技术行；`GetMeetingSummarySelection` / `UpdateMeetingSummarySelection` 在事务内重验当前 Session/System 管理员。显式选择只要求 enabled System Provider 下的 enabled chat 模型；命令沿原 `model.selection.update` action 和 `(kind,user,key)` 幂等命名空间，原 lookup 可读取其安全历史回执。未配置时不猜默认模型，也不是 Project 创建的前置条件；本库不创建项目；后继 Meeting 消费系统统一选择，不允许项目覆盖或复制创建时默认值。

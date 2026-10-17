@@ -214,6 +214,11 @@ def main():
             probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             probe.bind(("127.0.0.1", relay_port))
         result["relay_port_released"] = True
+        result["cleanup_complete"] = all(result.get(key) is True for key in (
+            "helper_absent", "frpc_absent", "relay_joined", "relay_port_released",
+        ))
+        if not result["cleanup_complete"]:
+            failure = failure or RuntimeError("owned_resources_not_joined")
         (args.output_directory / "result.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result))
     return 1 if failure else 0

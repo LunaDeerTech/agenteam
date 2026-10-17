@@ -194,6 +194,11 @@ async function run(browser, width, theme) {
       const items = models
         .filter(
           (item) =>
+            !url.searchParams.has("type") ||
+            item.input.type === url.searchParams.get("type"),
+        )
+        .filter(
+          (item) =>
             !url.searchParams.get("provider_id") ||
             item.provider_id === url.searchParams.get("provider_id"),
         )
@@ -252,14 +257,14 @@ async function run(browser, width, theme) {
         exact: true,
       });
       await expect(panel).toBeVisible();
-      await expect(
-        panel
-          .getByRole("row")
-          .filter({ hasText: "sample-embedding" })
-          .getByRole("gridcell")
-          .first()
-          .getByRole("button"),
-      ).toHaveAttribute("aria-disabled", "true");
+      for (const otherType of [
+        "sample-embedding",
+        "sample-rerank",
+        "sample-image",
+      ])
+        await expect(
+          panel.getByRole("row").filter({ hasText: otherType }),
+        ).toHaveCount(0);
       const chat = panel
         .getByRole("row")
         .filter({ hasText: "合成 OpenAI 服务/sample-chat" });
@@ -269,24 +274,6 @@ async function run(browser, width, theme) {
         "图片",
         "文件",
       ]);
-      await expect(
-        panel
-          .getByRole("row")
-          .filter({ hasText: "sample-embedding" })
-          .locator(".ui-search-select-tag"),
-      ).toHaveText(["嵌入（Embedding）", "1536 维", "8.1K"]);
-      await expect(
-        panel
-          .getByRole("row")
-          .filter({ hasText: "sample-rerank" })
-          .locator(".ui-search-select-tag"),
-      ).toHaveText(["重排（ReRank）"]);
-      await expect(
-        panel
-          .getByRole("row")
-          .filter({ hasText: "sample-image" })
-          .locator(".ui-search-select-tag"),
-      ).toHaveText(["图像生成（Image Generation）", "文生图"]);
       const geometry = await panel.boundingBox();
       assert(geometry.x >= 7 && geometry.x + geometry.width <= width - 7);
       await page.screenshot({
