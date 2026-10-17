@@ -195,6 +195,7 @@ async function page() {
   wrapper = mount(Page, {
     global: {
       stubs: {
+        SettingsPageActions: { template: "<div><slot /></div>" },
         UiDialog: {
           props: ["open", "title"],
           template:
@@ -361,7 +362,7 @@ describe("platform model selections", () => {
             return json(summary(resource === "summary" ? "11" : "8"));
         };
         expect(button("保存").attributes("disabled")).toBeDefined();
-        await click("重新读取");
+        await click("重新获取");
         expect(writes).toHaveLength(initialCount);
         expect(wrapper!.text()).toContain("Model 12");
         expect(wrapper!.text()).toContain("Model 13");

@@ -28,13 +28,13 @@ test("system settings navigation and appearance persist across a reload", async 
     exact: true,
   });
   await expect(settings.getByRole("link")).toHaveCount(10);
-  await settings.getByRole("link", { name: "模型目录", exact: true }).click();
+  await settings.getByRole("link", { name: "模型接入", exact: true }).click();
   await expect(page).toHaveURL(/\/system\/models$/);
   await expect(
-    page.getByRole("heading", { name: "模型目录", exact: true }),
+    page.getByRole("heading", { name: "模型接入", exact: true }),
   ).toBeFocused();
   await expect(
-    settings.getByRole("link", { name: "模型目录", exact: true }),
+    settings.getByRole("link", { name: "模型接入", exact: true }),
   ).toHaveAttribute("aria-current", "page");
   await page.goBack();
   await expect(

@@ -9,7 +9,7 @@ const settings = [
     pages: [
       ["users", "用户"],
       ["invitations", "待注册邀请"],
-      ["models", "模型目录"],
+      ["models", "模型接入"],
       ["model-selection", "平台模型用途"],
       ["runners", "Runner"],
       ["account-security", "账号安全"],

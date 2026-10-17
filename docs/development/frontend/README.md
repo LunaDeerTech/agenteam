@@ -1,6 +1,6 @@
 # 前端开发基础
 
-当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)及[Passkey/邮箱变更](../work-items/account-passkeys-email-change.md)已有各自结果；当前实施[模型目录与平台模型用途](../work-items/frontend-model-catalog.md)。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
+当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)及[Passkey/邮箱变更](../work-items/account-passkeys-email-change.md)已有各自结果；当前实施[模型接入与平台模型用途](../work-items/frontend-model-catalog.md)。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
 
 设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为 `ai/frontend-f0-refinement-20261015@746ddcb3` 的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
 
@@ -52,9 +52,9 @@ AppShell组织系统导航、项目上下文和内容区；“个人设置”只
 
 骨架阶段的主题使用本地 `agenteam.vue.appearance.v1` 缓存。本轮账号主题改为服务端保存与临时预览分离；匿名/失效使用system，本地缓存不作为用户偏好事实，不得跨账号继承。实际迁移实现与检查以本轮工作项及当前状态为准。
 
-## 模型目录与平台模型用途（实施中）
+## 模型接入与平台模型用途（实施中）
 
-仅保留 `/system/models` 模型目录和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。新建仅使用`openai-compatible`供应商family，一份地址/凭据管理chat与embedding模型，类型在模型上明确；旧协议记录只读、不迁移。平台用途五项（含会议摘要）平级、整页单保存；内部只串行写有改动的既有资源，分别确认版本与回执，失败即停、后续跳过成功项，具体恢复按工作项。配置与凭据的独立命令不变；旧分区保存验收保留为历史，不作为当前页面指令。
+仅保留 `/system/models` 模型接入和 `/system/model-selection` 平台模型用途；`/system/models/:providerId` 为目录内供应商详情，移除 `/system/providers` 而不保兼容入口。供应商/凭据与模型编辑使用弹窗，详情主体是模型列表，复用共享列表、页头动作和SettingsShell。新建仅使用`openai-compatible`供应商family，一份地址/凭据管理chat与embedding模型，类型在模型上明确；旧协议记录只读、不迁移。设置分类名为“模型配置”，上述URL不变。平台用途“重新获取”在标题行右侧，五项（含会议摘要）平级、整页单保存；内部只串行写有改动的既有资源，分别确认版本与回执，失败即停、后续跳过成功项，具体恢复按工作项。配置与凭据的独立命令不变；旧分区保存验收保留为历史，不作为当前页面指令。
 
 发现、逐项导入和真实测试仅按[本包合同](../work-items/frontend-model-catalog.md)的协议能力开放；配置保存不自动调用供应商。未知结果保原请求并按相应命令恢复，不能只凭历史lookup认定本次材料已提交。先在owned App与模拟供应商联调，不使用当前公网实例或用户凭据。原页面与旧D09通过只证明其原输入，新组合结果以当前状态为准。
 

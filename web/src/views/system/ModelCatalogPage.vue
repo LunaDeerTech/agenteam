@@ -51,7 +51,7 @@ function remember(id: string) {
       ></SettingsPageActions
     >
     <p v-if="!accountEnabled" class="form-feedback">
-      连接账号服务后可管理模型目录。
+      连接账号服务后可管理模型接入。
     </p>
     <div v-else-if="access.denied.value" class="form-feedback" role="alert">
       <p>当前没有系统管理权限，目录已清除。</p>

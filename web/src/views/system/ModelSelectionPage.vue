@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { UiButton, UiDialog } from "../../components/ui";
 import CatalogCommandFeedback from "../../components/system/CatalogCommandFeedback.vue";
 import SystemList from "../../components/system/SystemList.vue";
+import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
 import { useLeaveProtection } from "../../account/leave";
 import { AccountError, accountEnabled } from "../../account/transport";
 import {
@@ -451,12 +452,10 @@ onBeforeUnmount(() => {
       <UiButton @click="access.recheck">重新检查权限</UiButton>
     </div>
     <template v-else>
+      <SettingsPageActions>
+        <UiButton :disabled="editingLocked" @click="readAll">重新获取</UiButton>
+      </SettingsPageActions>
       <section class="selection-section" aria-label="平台模型用途">
-        <div class="section-heading selection-toolbar">
-          <UiButton :disabled="editingLocked" @click="readAll"
-            >重新读取</UiButton
-          >
-        </div>
         <div
           v-for="{ purpose, group } in rows"
           :key="purpose"
@@ -638,9 +637,6 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 10px;
-}
-.selection-toolbar {
-  justify-content: flex-end;
 }
 h3 {
   margin: 0;

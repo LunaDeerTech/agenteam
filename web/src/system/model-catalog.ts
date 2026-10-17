@@ -487,7 +487,7 @@ export function catalogError(error: unknown) {
     (
       {
         VERSION_CONFLICT: "配置已变化，已保留草稿。请读取最新配置后再保存。",
-        NOT_FOUND: "此对象已不存在，请返回模型目录。",
+        NOT_FOUND: "此对象已不存在，请返回模型接入。",
         RESOURCE_BUSY: "此对象仍被使用，请先处理关联项。",
         INVALID_ARGUMENT: "请检查填写内容。",
         FORBIDDEN: "当前没有系统管理权限。",

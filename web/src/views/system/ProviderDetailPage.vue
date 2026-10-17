@@ -148,7 +148,7 @@ let sequence = 0;
 let alive = true;
 useSettingsHeading(() => ({
   title: provider.value?.input.name ?? "供应商",
-  back: { to: "/system/models", label: "模型目录" },
+  back: { to: "/system/models", label: "模型接入" },
 }));
 async function load() {
   if (!accountEnabled || !access.allowed.value) return;
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
       <SystemList
         :list="list"
         :row-key="(item) => item.id"
-        label="模型目录"
+        label="模型接入"
         empty-text="此供应商尚未添加模型。"
         :disabled="!access.allowed.value"
       >

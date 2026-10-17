@@ -16,11 +16,11 @@ export const systemSettings: readonly SettingsPage[] = [
     group: "用户与邀请",
     icon: "mail",
   },
-  { key: "models", title: "模型目录", group: "模型与 Provider", icon: "grid" },
+  { key: "models", title: "模型接入", group: "模型配置", icon: "grid" },
   {
     key: "model-selection",
     title: "平台模型用途",
-    group: "模型与 Provider",
+    group: "模型配置",
     icon: "sliders",
   },
   { key: "runners", title: "Runner", group: "执行环境", icon: "monitor" },
@@ -58,19 +58,19 @@ export const projectSettings: readonly SettingsPage[] = [
   {
     key: "model-providers",
     title: "Providers",
-    group: "模型与 Provider",
+    group: "模型配置",
     icon: "server",
   },
   {
     key: "available-models",
     title: "可用模型",
-    group: "模型与 Provider",
+    group: "模型配置",
     icon: "grid",
   },
   {
     key: "model-usage",
     title: "调用记录",
-    group: "模型与 Provider",
+    group: "模型配置",
     icon: "activity",
   },
 ];
