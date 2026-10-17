@@ -147,7 +147,7 @@ func TestOpenAIChatRequestEncodingAndClosedInputs(t *testing.T) {
 		{"structured_capability", func(r *Request, _ *CallOptions) {
 			r.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
 		}, true},
-		{"image_modality", func(r *Request, _ *CallOptions) { r.Snapshot.Capabilities.InputModalities = []string{"text", "image"} }, true},
+		{"missing_text_modality", func(r *Request, _ *CallOptions) { r.Snapshot.Capabilities.InputModalities = []string{"image", "file"} }, true},
 		{"custom_header", func(r *Request, _ *CallOptions) {
 			r.Snapshot.HeaderOverwrite = map[string]string{"X-Custom": "unsupported"}
 		}, true},

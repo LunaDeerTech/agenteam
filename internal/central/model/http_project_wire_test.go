@@ -227,24 +227,21 @@ func TestProjectModelHTTPPureRepresentationBudget(t *testing.T) {
 			}
 		}
 	})
-	t.Run("legal_unbounded_efforts", func(t *testing.T) {
+	t.Run("bounded_typed_efforts", func(t *testing.T) {
 		p, _, mv, _ := projectHTTPValues(t)
-		const n = 1 << 20
-		efforts := make([]string, n)
+		const n = 33
+		efforts := make([]mc.ReasoningEffort, n)
 		for i := range efforts {
-			efforts[i] = fmt.Sprintf("r%08x", i)
+			efforts[i] = mc.ReasoningEffort{Name: fmt.Sprintf("Level %d", i), Value: fmt.Sprintf("r%08x", i)}
 		}
 		mv.Input.Capabilities.Reasoning = true
 		mv.Input.Capabilities.ReasoningEfforts = efforts
-		if e := mv.Input.Capabilities.Validate(); e != nil {
-			t.Fatal("counterexample not domain-legal", e)
-		}
-		if 1+12*n != 12582913 {
-			t.Fatal("counterexample size")
+		if e := mv.Input.Capabilities.Validate(); e == nil {
+			t.Fatal("effort limit not enforced")
 		}
 		body, e := projectHTTPEncodeModel(context.Background(), p, mv.ID, mv)
 		if e == nil || body != nil {
-			t.Fatal("legal oversize not zero projection")
+			t.Fatal("invalid effort count not zero projection")
 		}
 		requireCode(t, e, f.DependencyUnavailable)
 		// Admission itself rejects a huge container by len before inspecting invalid

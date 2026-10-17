@@ -72,7 +72,7 @@ func prepareToolsBody(ctx context.Context, r Request) ([]byte, error) {
 		return nil, contextFailure(err)
 	}
 	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
-	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.ResponseFormat.Kind != "text" || r.Mode != JSONResponse {
+	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !onlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.ResponseFormat.Kind != "text" || r.Mode != JSONResponse {
 		return nil, unsupported()
 	}
 	// Charge the entire owned encoding before Marshal expands text or schemas.

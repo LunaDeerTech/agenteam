@@ -25,8 +25,8 @@ func TestModelCurrentResolutionProfileClosedMatrix(t *testing.T) {
 	if e != nil || rev != adapter.OpenAIChatStructuredRevision {
 		t.Fatal("memory profile", e)
 	}
-	for name, change := range map[string]func(*providerRecord, *modelRecord){"options": func(p *providerRecord, _ *modelRecord) { p.Input.Options = json.RawMessage(`{"unsupported":true}`) }, "reasoning": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.Reasoning = true }, "tool": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ToolCalls = true }, "image": func(_ *providerRecord, m *modelRecord) {
-		m.Input.Capabilities.InputModalities = []string{"text", "image"}
+	for name, change := range map[string]func(*providerRecord, *modelRecord){"options": func(p *providerRecord, _ *modelRecord) { p.Input.Options = json.RawMessage(`{"unsupported":true}`) }, "tool": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ToolCalls = true }, "image": func(_ *providerRecord, m *modelRecord) {
+		m.Input.Capabilities.InputModalities = []string{"image"}
 	}, "overwrite": func(_ *providerRecord, m *modelRecord) {
 		m.Input.HeaderOverwrite = map[string]string{"X-Custom": "value"}
 	}, "protocol": func(p *providerRecord, _ *modelRecord) { p.Input.Protocol = mc.AnthropicMessages }} {
@@ -70,10 +70,9 @@ func TestModelMeetingSummaryResolutionProfileMatrix(t *testing.T) {
 		"overwrite": func(_ *providerRecord, m *modelRecord) {
 			m.Input.RequestOverwrite = json.RawMessage(`{"temperature":0.3}`)
 		},
-		"headers":   func(_ *providerRecord, m *modelRecord) { m.Input.HeaderOverwrite = map[string]string{"X-Foo": "x"} },
-		"tools":     func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ToolCalls = true },
-		"parallel":  func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ParallelToolCalls = true },
-		"reasoning": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.Reasoning = true },
+		"headers":  func(_ *providerRecord, m *modelRecord) { m.Input.HeaderOverwrite = map[string]string{"X-Foo": "x"} },
+		"tools":    func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ToolCalls = true },
+		"parallel": func(_ *providerRecord, m *modelRecord) { m.Input.Capabilities.ParallelToolCalls = true },
 		"efforts": func(_ *providerRecord, m *modelRecord) {
 			m.Input.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "high", Value: "high"}}
 		},

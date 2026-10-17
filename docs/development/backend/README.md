@@ -44,6 +44,14 @@ Chat text、structured 与 Embeddings 必须注入同一 `Budget`，共用全局
 
 [Central 嵌入 SPA 规格](../work-items/d28-central-spa-hosting.md)已在 `7a490ac` 经独立有界静审采纳，[原稿、审查与当前行政状态](../agent-team/system-central-spa-hosting-spec-verification.md)已归档。规划的显式 Web 发布将真实前端闭包嵌入 Central；普通无 tag Go 构建仍沿原行为。16路径私有实施已启动，但尚无发布构建、native HTTP或正式二进制浏览器验收；本段不宣称 Central 已提供生产 SPA，也不改变下列现有命令、运行依赖和 ready503。
 
+## 模型能力声明与推理选择
+
+Chat 配置必须声明 `text` 输入、固定 `text` 输出，可以额外保存 `image`、`file` 输入能力。额外声明不妨碍纯文本调用，也不启用媒体请求；实际媒体消息仍受既有 Runtime/adapter 拒绝门约束。Embedding 当前固定 `text → vector`，不接受 Chat 的 tools、streaming、reasoning、结构化输出能力或 `max_output`。Chat 的 JSON Schema 支持通过 `structured_output_modes` 声明；共享总结 selector 仍要求 `json_schema`。
+
+`reasoning` 只声明模型是否支持推理。`reasoning_efforts` 是最多 32 项的 `{name,value}` 列表：`name` 是去除首尾空白后 1–64 个 Unicode 码点的显示名称，禁止控制字符；`value` 是最多 32 字节的 ASCII 字母、数字或 `-_.:`，用于真实请求。名称和值分别唯一。`reasoning=false` 要求空列表；`true` 配空列表表示支持推理但无可调等级。服务端拒绝未规范化的名称，不替调用者猜等级或修改值。
+
+Agent 可以选择已声明的 `value`，也可以不选。明确选择在配置校验、解析事务和不可变 Model snapshot 中绑定，并进入后续轮次语义摘要；OpenAI-compatible Chat 的既有 text、structured 和 tools JSON 编码路径仅在明确选择时写固定字段 `reasoning_effort`。未选时省略该字段，保留上游默认；Summary、Memory 与管理测试没有新增等级选择，也不强加默认等级。其它协议、任意 `parameters`/request/header overwrite 以及原 STOP 范围未因此开放。
+
 ## 构建与验证
 
 D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。D26 [认证](../agent-team/d26-authentication-verification.md)和[个人设置](../agent-team/personal-settings-verification.md)已有各自产品页面验收，[公开 Account 入口](../agent-team/public-account-entry-verification.md)的 25 路径范围已验收并以 `787a5c7` 提交推送；生产 SPA 托管及完整 D26/D27 仍未完成，独立测试 harness 本身不作为产品 UI。

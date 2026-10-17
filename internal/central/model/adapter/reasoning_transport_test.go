@@ -41,6 +41,7 @@ func TestReasoningPreparedRequestOwnedTLSTransport(t *testing.T) {
 				r.Snapshot.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "深入思考", Value: "custom:deep"}}
 				if selection == "custom" {
 					r.Snapshot.ReasoningEffort = "custom:deep"
+					r.Snapshot.Capabilities.InputModalities = []string{"text", "image", "file"}
 				} else if selection == "fixed" {
 					r.Snapshot.Capabilities.ReasoningEfforts = nil
 				}

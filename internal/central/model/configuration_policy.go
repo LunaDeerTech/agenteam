@@ -55,6 +55,16 @@ func modelPolicy(v mc.ModelInput, protocol mc.Protocol) error {
 		return fault(f.CapabilityUnsupported)
 	}
 	c := v.Capabilities
+	switch v.Type {
+	case mc.ChatModel:
+		if !c.SupportsTextInput() || !slices.Equal(c.OutputModalities, []string{"text"}) {
+			return fault(f.CapabilityUnsupported)
+		}
+	case mc.EmbeddingModel:
+		if !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"vector"}) || c.MaxOutput != nil {
+			return fault(f.CapabilityUnsupported)
+		}
+	}
 	if v.Type != mc.ChatModel && (c.ToolCalls || c.ParallelToolCalls || c.Streaming || c.Reasoning || len(c.StructuredOutputModes) > 0) {
 		return fault(f.CapabilityUnsupported)
 	}

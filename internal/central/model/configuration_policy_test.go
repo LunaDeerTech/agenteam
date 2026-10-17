@@ -17,14 +17,11 @@ func TestModelPolicyDoesNotClaimUnverifiedNativeSchemas(t *testing.T) {
 		p.Options = json.RawMessage(`{"unverified_native":true}`)
 		requireCode(t, providerPolicy(p), f.CapabilityUnsupported)
 	}
-	m := mc.ModelInput{Name: "metadata", ProviderModelID: "provider-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{StructuredOutputModes: []string{"json_schema"}}}
+	m := mc.ModelInput{Name: "metadata", ProviderModelID: "provider-model", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"json_schema"}}}
 	if e := modelPolicy(m, mc.OpenAIChat); e != nil {
 		t.Fatal(e)
 	}
-	for _, mutate := range []func(*mc.ModelInput){func(v *mc.ModelInput) { v.Parameters = json.RawMessage(`{"temperature":0.5}`) }, func(v *mc.ModelInput) { v.RequestOverwrite = json.RawMessage(`{"temperature":0.5}`) }, func(v *mc.ModelInput) { v.HeaderOverwrite = map[string]string{"X-Feature": "native"} }, func(v *mc.ModelInput) {
-		v.Capabilities.Reasoning = true
-		v.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "guessed", Value: "guessed"}}
-	}} {
+	for _, mutate := range []func(*mc.ModelInput){func(v *mc.ModelInput) { v.Parameters = json.RawMessage(`{"temperature":0.5}`) }, func(v *mc.ModelInput) { v.RequestOverwrite = json.RawMessage(`{"temperature":0.5}`) }, func(v *mc.ModelInput) { v.HeaderOverwrite = map[string]string{"X-Feature": "native"} }, func(v *mc.ModelInput) { v.Capabilities.InputModalities = []string{"vector"} }} {
 		v := m.Clone()
 		mutate(&v)
 		requireCode(t, modelPolicy(v, mc.OpenAIChat), f.CapabilityUnsupported)
