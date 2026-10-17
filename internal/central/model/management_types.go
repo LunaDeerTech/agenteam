@@ -9,6 +9,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model/managementwire"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
@@ -63,6 +64,9 @@ type managementOperation struct {
 	ProviderVersion, ModelVersion, CredentialVersion                                          f.Version
 	Result                                                                                    json.RawMessage
 	CreatedAt                                                                                 f.Instant
+	// Only the live operation needs its immutable model type to bound timing.
+	// Recovery emits duration zero; successful replays use the persisted receipt.
+	modelType mc.ModelType
 }
 
 func managementLock(key string, mode f.LockMode) f.LockRequest {
@@ -91,7 +95,8 @@ func readManagement(ctx context.Context, x postgres.SQLExecutor, column, key str
 	return &o, nil
 }
 func (o *managementOperation) result(reason string, duration time.Duration) ManagementResult {
-	r := ManagementResult{OperationID: o.ID, ProviderID: o.Provider, ProviderVersion: o.ProviderVersion, ModelID: o.Model, ModelVersion: o.ModelVersion, Outcome: "failed", Reason: &reason, DurationMS: min(max(duration.Milliseconds(), 0), 20000), CreatedAt: o.CreatedAt}
+	budget := managementwire.Timeout(managementwire.Request{Action: o.Action, Protocol: string(mc.OpenAICompatible.EffectiveProtocol(o.modelType))})
+	r := ManagementResult{OperationID: o.ID, ProviderID: o.Provider, ProviderVersion: o.ProviderVersion, ModelID: o.Model, ModelVersion: o.ModelVersion, Outcome: "failed", Reason: &reason, DurationMS: min(max(duration.Milliseconds(), 0), budget.Milliseconds()), CreatedAt: o.CreatedAt}
 	if reason == "" {
 		r.Outcome = "succeeded"
 		r.Reason = nil
@@ -104,6 +109,11 @@ func (o *managementOperation) result(reason string, duration time.Duration) Mana
 		r.Items = &items
 	}
 	return r
+}
+
+func managementRequestContext(parent context.Context, started time.Time, modelType mc.ModelType) (context.Context, context.CancelFunc) {
+	budget := managementwire.Timeout(managementwire.Request{Action: "test", Protocol: string(mc.OpenAICompatible.EffectiveProtocol(modelType))})
+	return context.WithDeadline(parent, started.Add(budget))
 }
 func managementUnknown() error {
 	v := f.NewFault(f.CommitUnknown, f.Unknown)

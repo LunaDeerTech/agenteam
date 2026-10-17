@@ -21,8 +21,11 @@ import (
 const (
 	discoveryLimit = 2 << 20
 	testLimit      = 1 << 20
+	imageTestLimit = 8 << 20
 	chatProtocol   = "openai-chat-completions"
 	embedProtocol  = "openai-embeddings"
+	rerankProtocol = "jina-rerank"
+	imageProtocol  = "openai-images-generations"
 )
 
 var errConfiguration = errors.New("MODEL_MANAGEMENT_WIRE_CONFIGURATION")
@@ -42,18 +45,37 @@ type Result struct {
 	Reason string
 }
 
+// Timeout is the bounded operation budget for this fixed management request.
+// Callers use the effective protocol of their authorized, saved model.
+func Timeout(input Request) time.Duration {
+	if input.Action == "test" && input.Protocol == imageProtocol {
+		return 120 * time.Second
+	}
+	return 20 * time.Second
+}
+
+func probeLimits(input Request, responseLimit int) outbound.Limits {
+	headers, idle := 15*time.Second, 5*time.Second
+	if input.Action == "test" && input.Protocol == imageProtocol {
+		headers, idle = 120*time.Second, 30*time.Second
+	}
+	return outbound.Limits{Overall: Timeout(input), ResponseHeaders: headers, ReadIdle: idle,
+		RequestHeaderBytes: 16 << 10, ResponseHeaderBytes: 32 << 10,
+		RequestBodyBytes: 4096, ResponseBodyBytes: int64(responseLimit)}
+}
+
 // Run never takes ownership of credential. A nil pointer explicitly selects an
 // anonymous provider; unavailable non-nil material cannot downgrade to anonymous.
 func (t Transport) Run(ctx context.Context, input Request, credential *sc.SecretMaterial, call outbound.CallContext) (result Result, err error) {
 	if ctx == nil {
 		return Result{}, errConfiguration
 	}
-	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, Timeout(input))
 	defer cancel()
 	if ctx.Err() != nil {
 		return Result{Reason: failure(ctx, ctx.Err())}, nil
 	}
-	if input.Protocol != chatProtocol && input.Protocol != embedProtocol {
+	if !supported(input) {
 		return Result{Reason: "unsupported_protocol"}, nil
 	}
 	request, limit, err := prepare(input)
@@ -81,9 +103,7 @@ func (t Transport) Run(ctx context.Context, input Request, credential *sc.Secret
 	}
 	profile, err := outbound.NewProfile(outbound.ProfileOptions{
 		Consumer: ac.Model, Context: call, Credentials: binding, NoRedirects: true,
-		Limits: outbound.Limits{Overall: 20 * time.Second, ResponseHeaders: 15 * time.Second,
-			ReadIdle: 5 * time.Second, RequestHeaderBytes: 16 << 10, ResponseHeaderBytes: 32 << 10,
-			RequestBodyBytes: 4096, ResponseBodyBytes: int64(limit)},
+		Limits: probeLimits(input, limit),
 	})
 	if err != nil {
 		return Result{}, errConfiguration
@@ -137,8 +157,19 @@ func (t Transport) Run(ctx context.Context, input Request, credential *sc.Secret
 	return result, nil
 }
 
+func supported(input Request) bool {
+	switch input.Protocol {
+	case chatProtocol, embedProtocol:
+		return true
+	case rerankProtocol, imageProtocol:
+		return input.Action == "test"
+	default:
+		return false
+	}
+}
+
 func prepare(input Request) (*http.Request, int, error) {
-	if input.Action != "discovery" && input.Action != "test" || len(input.Endpoint) > 8192 {
+	if input.Action != "discovery" && input.Action != "test" || !supported(input) || len(input.Endpoint) > 8192 {
 		return nil, 0, errConfiguration
 	}
 	u, err := url.Parse(input.Endpoint)
@@ -155,7 +186,8 @@ func prepare(input Request) (*http.Request, int, error) {
 			return nil, 0, errConfiguration
 		}
 		method, limit = http.MethodPost, testLimit
-		if input.Protocol == chatProtocol {
+		switch input.Protocol {
+		case chatProtocol:
 			suffix = "/chat/completions"
 			body, err = json.Marshal(struct {
 				Model               string              `json:"model"`
@@ -163,13 +195,31 @@ func prepare(input Request) (*http.Request, int, error) {
 				MaxCompletionTokens int                 `json:"max_completion_tokens"`
 				Stream              bool                `json:"stream"`
 			}{input.Model, []map[string]string{{"role": "user", "content": "Reply OK."}}, 16, false})
-		} else {
+		case embedProtocol:
 			suffix = "/embeddings"
 			body, err = json.Marshal(struct {
 				Model          string `json:"model"`
 				Input          string `json:"input"`
 				EncodingFormat string `json:"encoding_format"`
 			}{Model: input.Model, Input: "Connection test.", EncodingFormat: "float"})
+		case rerankProtocol:
+			suffix = "/rerank"
+			body, err = json.Marshal(struct {
+				Model           string   `json:"model"`
+				Query           string   `json:"query"`
+				Documents       []string `json:"documents"`
+				TopN            int      `json:"top_n"`
+				ReturnDocuments bool     `json:"return_documents"`
+			}{input.Model, "Which document mentions a cat?", []string{"A cat is resting.", "A tree is growing."}, 1, false})
+		case imageProtocol:
+			suffix, limit = "/images/generations", imageTestLimit
+			body, err = json.Marshal(struct {
+				Model  string `json:"model"`
+				Prompt string `json:"prompt"`
+				N      int    `json:"n"`
+			}{input.Model, "A plain blue circle on a white background.", 1})
+		default:
+			return nil, 0, errConfiguration
 		}
 		if err != nil {
 			return nil, 0, errConfiguration

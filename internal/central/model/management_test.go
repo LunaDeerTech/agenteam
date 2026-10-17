@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	"strings"
 	"testing"
@@ -50,4 +51,38 @@ func TestManagementSecretRejectsForgedOwnerWithoutWitness(t *testing.T) {
 	requireCode(t, e, f.Forbidden)
 	_, e = a.AuthorizeLeaseInTx(context.Background(), f.Tx{}, actor, ref, owner, sc.ReadLease)
 	requireCode(t, e, f.Forbidden)
+}
+
+func TestManagementImageBudgetPreservesCallerAndOtherTypes(t *testing.T) {
+	started := time.Now().Add(-time.Second)
+	for _, typ := range []mc.ModelType{"", mc.ChatModel, mc.EmbeddingModel, mc.RerankerModel, mc.ImageModel} {
+		want := 20 * time.Second
+		if typ == mc.ImageModel {
+			want = 120 * time.Second
+		}
+		ctx, cancel := managementRequestContext(context.Background(), started, typ)
+		deadline, ok := ctx.Deadline()
+		cancel()
+		if !ok || !deadline.Equal(started.Add(want)) {
+			t.Fatal("management budget restarted or changed type", typ)
+		}
+		parent, stop := context.WithDeadline(context.Background(), started.Add(2*time.Second))
+		ctx, cancel = managementRequestContext(parent, started, typ)
+		deadline, ok = ctx.Deadline()
+		cancel()
+		stop()
+		if !ok || !deadline.Equal(started.Add(2*time.Second)) {
+			t.Fatal("earlier caller deadline extended", typ)
+		}
+		o := managementOperation{Action: "test", modelType: typ}
+		if got := o.result("timeout", 130*time.Second).DurationMS; got != want.Milliseconds() {
+			t.Fatal("receipt duration does not follow model budget", typ, got)
+		}
+	}
+	// Recovery reads no live type and emits zero, while a completed replay uses
+	// the original persisted receipt without recomputing or clamping its value.
+	o := managementOperation{Action: "test"}
+	if got := o.result("interrupted", 0); got.DurationMS != 0 || got.Outcome != "unknown" {
+		t.Fatal("recovery fabricated a timing or success result")
+	}
 }

@@ -85,7 +85,8 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 		Expected, Provider f.Version
 	}{action, resource, expected, providerVersion})
 	digest, semantic := hash([]byte(ci.Canonical())).String(), hash(sem).String()
-	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	requestContext, requestStarted := ctx, time.Now()
+	ctx, cancel := managementRequestContext(requestContext, requestStarted, "")
 	defer cancel()
 	st := m.service.state()
 	cause, e := readCause("management")
@@ -159,6 +160,18 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 		o.Model = resource
 		o.ModelVersion = expected
 		o.Provider = mr.ProviderID
+		o.modelType = mr.Input.Type
+		if o.modelType == mc.ImageModel {
+			// Only a real loaded Image model may select the longer budget. Keep
+			// the original start/caller deadline; never restart a spent budget.
+			if e = ctx.Err(); e != nil {
+				return empty, e
+			}
+			cancel()
+			var imageCancel context.CancelFunc
+			ctx, imageCancel = managementRequestContext(requestContext, requestStarted, o.modelType)
+			defer imageCancel()
+		}
 	}
 	p, e := loadProvider(ctx, st.store, o.Provider)
 	if e != nil {

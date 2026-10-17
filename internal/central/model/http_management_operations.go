@@ -24,7 +24,7 @@ func (h *systemHTTP) modelCapabilities(_ http.ResponseWriter, r *http.Request, _
 	return struct {
 		Protocols []modelProtocolCapability `json:"protocols"`
 	}{[]modelProtocolCapability{
-		{"openai-compatible", []string{"chat", "embedding"}, true, true},
+		{"openai-compatible", []string{"chat", "embedding", "reranker", "image_generation"}, true, true},
 	}}, nil
 }
 func (h *systemHTTP) discoverModels(w http.ResponseWriter, r *http.Request, m mc.CommandMeta) (any, error) {

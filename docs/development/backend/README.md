@@ -46,6 +46,14 @@ Chat text、structured 与 Embeddings 必须注入同一 `Budget`，共用全局
 
 ## 模型能力声明与推理选择
 
+同一 `openai-compatible` 供应商共享 API 端点与凭据，配置四类模型：聊天 `chat`、嵌入 `embedding`、重排 `reranker`、图像生成 `image_generation`。这是兼容网关 family：Chat、Embedding、Images 分别采用 OpenAI 格式，Rerank 采用 Jina 兼容的 `/rerank` 格式，并非 OpenAI 官方重排协议。迁移 `00150` 扩展既有 protocol/type 关系，保留父记录共享锁、外键和 protocol 不可变约束。
+
+重排固定文本输入，结果为候选索引与相关分数，`output_modalities=[]`；图像生成固定文本输入与 `image` 输出。两者不接受 Chat 的能力开关、推理等级、结构化输出或 token 容量字段。平台用途继续复用一个 selection 的可选 `reranker`/`image` 字段与同一版本；配置选中不等于完整检索、Agent 媒体或 Image Artifact 消费已接线。
+
+显式管理测试使用固定的短输入，只确认协议请求与有界响应有效。Image 请求只使用共通 `model`、`prompt`、`n=1`，不依据模型 ID 猜参数，也不强加 `response_format`/`size`；返回 URL 只校验形状，不下载、不创建 Object、不回传上游内容。Chat/Embedding/Rerank 管理测试保持总计 20 秒、首响应头 15 秒、读空闲 5 秒与 1 MiB 响应上限。Image 单独采用总计 120 秒、首响应头最多到同一总 deadline、读空闲 30 秒、原响应 8 MiB、base64 解码 6 MiB 上限；解码流式计数后丢弃，不形成完整解码副本。尺寸与时长仍有明确上限，不承诺任意图像大小或生成耗时。全部类型继续继承更早的 caller deadline，保留全局 4 并发且不排队、Secret lease、精确 origin 凭据绑定、统一出站策略、禁止重定向和实际关闭 join；持久回执及 lease 释放仍用独立 5 秒收尾。Image 的 `duration_ms` 上限为 120000，其它测试和 discovery 仍为 20000。共享 Model 显式响应头预算扩展不改变默认 15 秒或其它 consumer；原 Chat/Embedding adapter 的显式 60 秒上界保留。
+
+协议依据为 [Jina 官方 OpenAPI](https://api.jina.ai/openapi.json)（2026-10-17 取得，版本 `2026.10.13.1624` 的 `/v1/rerank`、`TextRerankerRequest`/`RerankerV3Request`/`RerankingResult`），以及 OpenAI 官方 Python SDK 固定 commit `becc1d20eed83c1b8d85e15dc131a372d9dc7813` 的 [Image 请求类型](https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/image_generate_params.py)、[Image 返回类型](https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/image.py)和 [Images 请求路径](https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/images.py)。本次只补管理测试所用字段，不代替完整 Jina/Image Runtime 来源与业务验收。
+
 Chat 配置必须声明 `text` 输入、固定 `text` 输出，可以额外保存 `image`、`file` 输入能力。额外声明不妨碍纯文本调用，也不启用媒体请求；实际媒体消息仍受既有 Runtime/adapter 拒绝门约束。Embedding 当前固定 `text → vector`，不接受 Chat 的 tools、streaming、reasoning、结构化输出能力或 `max_output`。Chat 的 JSON Schema 支持通过 `structured_output_modes` 声明；共享总结 selector 仍要求 `json_schema`。
 
 `reasoning` 只声明模型是否支持推理。`reasoning_efforts` 是最多 32 项的 `{name,value}` 列表：`name` 是去除首尾空白后 1–64 个 Unicode 码点的显示名称，禁止控制字符；`value` 是最多 32 字节的 ASCII 字母、数字或 `-_.:`，用于真实请求。名称和值分别唯一。`reasoning=false` 要求空列表；`true` 配空列表表示支持推理但无可调等级。服务端拒绝未规范化的名称，不替调用者猜等级或修改值。
