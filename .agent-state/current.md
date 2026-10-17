@@ -8,16 +8,16 @@
 
 严格本机TLS/leaf/SPKI、基础设施nonce及新增 `/__instance__/release.json` 的b9d/后端SHA匹配通过；live200、匿名受保护API401，ready503仍为既有DEPENDENCY_UNBOUND。真实浏览器登录200、模型接入空态、添加供应商打开/取消、平台模型用途及模型选择器打开/取消、五个系统GET200通过；无配置写入、模型调用或SMTP发送。logout204→session401，CLI/Chromium实际exit0，临时relay关闭且socket0。原映射仍是18443→TLS5256→Central5257/Vue5245，服务保留；本轮公网匿名校验经继承代理及域名CONNECT均curl60（证书主名openai.com与目标IP不匹配），独立直连curl7，均未取得公网nonce。`https://154.12.86.233:18443` 是原目标入口，当前不能称公网验证成功；FRP存活和旧login/start日志不代公网归属证明。
 
-## 当前多模态工作索引（实现已汇总，最后真实验证待完成）
+## 当前多模态工作索引（受控验证完成，外部混合输入未成功）
 
-以下四树从已部署的b9d开始；实现已陆续汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`；后端最新候选为 `9eaf1f04`（SourceReads产品修复 `73bf1c7a`），对应产品与review测试差量尚待root保存，整体仍待最终验收收口。root负责Git；公开服务仍使用顶部b9d冻结快照，不随主树开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
+以下四树从已部署的b9d开始；实现已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，源码检查点 `beb1f562` 已推送；后端候选为 `9eaf1f04`（SourceReads产品修复 `73bf1c7a`）。受控真实链和前端适用验证已完成，真实外部混合输入本轮未成功，不能写成外部模型支持已验证。root负责Git；公开服务仍使用顶部b9d冻结快照，不随主树开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
 
-| 工作树 / 分支                                                                             | Owner / 恢复输入                                                        |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`；HEAD `9eaf1f04`                                |
-| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers`；`db036954` 已纳入core与tests |
-| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`；HEAD `d2ce97f9`，产品 `8e6f2bef`                    |
-| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`；HEAD `624c2462`；准备唯一App-c与MCP复验   |
+| 工作树 / 分支                                                                             | Owner / 恢复输入                                                                |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`；HEAD `b7c95324`；受验输入 `9eaf1f04`                                        |
+| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers`；`db036954` 已纳入core与tests         |
+| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`；HEAD `d2ce97f9`，产品 `8e6f2bef`                            |
+| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`；HEAD `7b76a334`；受验输入 `624c2462`；编译actual0，最终序列64333已退出 |
 
 作者定向单元与App生产构建已通过。Vue新增18项定向用例、最终类型/格式/生产打包通过；作者两尺寸及独立合成浏览器已覆盖文本/附件、格式和能力拒绝、Unknown原key/body、纯文本回答、键盘移除回焦及原生200%/reduced-motion。最后附件移除焦点问题已修复并原场景通过；首大请求单例超时、准备/回执fixture失配及ENOSPC打包失败保留原边界。截图与UI详细验证见[模型工作项](../docs/development/work-items/frontend-model-catalog.md)；浏览器使用受控API，不代表真实浏览器后端E2E。
 
@@ -25,13 +25,13 @@
 
 Lifecycle原case现已PASS 42.20s，App560419原Wait实际0：active Task附件省略保持、显式[]清空、successor冻结source、接受取消后无后续HTTP及原reader/Model/Secret/App最终join均通过。三层json_schema能力误判修复与active Task合法更新被HTTP投影误拒的修复都已在原场景验证；此前一次Task创建本地HTTP错误未复现、根因仍不明，不归入这些修复或抹除。
 
-MCP supported仍未PASS。原48868在5m17s Go预算耗尽后actual exit2，测试清理栈等待ProcessGuard Flock；不能追认为App正常join。SourceReads现保留原私有执行context并另设清理预算，5项定向单元actual0（0.108s），独立静审接受。修后25140的Runtime/App已正常join，无Forbidden或guard挂起，但旧测试期待observer reader=1，与正式source路径不符而触发helper Fatal/Wait1；后置source==1及PNG wire断言尚未执行，仍不算通过。
+MCP supported最终原case PASS 47.82s（子场景42.96s），App576072原Wait实际0；source==1、精确ownership与released_at、reader0/active0、Secret释放、两次模型请求与successor PNG字节均实际断言通过。SourceReads保留原私有执行context并采用独立清理预算的修复已过5项定向单元（0.108s）与静审。保留此前48868原5m17s超时actual2/ProcessGuard Flock，以及修后25140旧observer计数误期望Fatal/Wait1；最终成功不追认先前未执行的source/PNG断言，nullable DTO等旧fixture失败亦保留。
 
-测试fixture已改为精确核source==1、released_at及process/owner，core `9eaf1f04`与tests `624c2462`均已保存推送；下一步仅唯一App-c与MCP原case，再按顺序执行一次真实App环境模型PNG+DOCX。App环境模型操作为零、ledger尚无；nullable DTO遗漏等既有fixture失败保留。
+随后真实App环境模型PNG+DOCX唯一正式POST已消费0600 ledger，测试FAIL 35.76s；安全回执outcome=failed、reason=network_failed、duration=617ms，没有可验回答、两个标记未匹配，未截断。严格未重发，外部混合输入未成功。有限只读诊断未发现确定的proxy/endpoint/CA接线缺陷；network_failed可涵盖DNS/TCP/CONNECT断连或成功HTTP后的body读取，完整非2xx应为upstream_rejected。缺少阶段证据，617ms不能定位，也不能确定请求未到供应商、未越过TLS或附件不受支持；最终保留原因未知，本轮不重发。成功分支的logout、lease SQL与app_joined记录未执行，不补写通过。
 
 此前三次直接外部协议探针为PNG成功、原生PDF两次HTTP400且原因未定；它们不是App验证，PDF成功仍未证实。受控真实链通过不扩大为真实外部供应商全格式支持。
 
-已完成App批次资源按owner精确清退；PG清理15秒失败及48868超时遗漏MCP清理均保留，后续只按精确nonce/id补清。上述4个nonce的容器、网络、owned临时目录和进程均已归零，6个部署/基础设施/外来基线资源保留。修后25140资源自动清退并独核归零。Vue全部浏览器退出，自有Vite核身份后TERM，原launcher33438实际143，进程/子进程与5281监听清零且端口可绑定；无消费者的独占 `/tmp` 生产outDir已删除，浏览器profile无残留。正式harness、截图、失败证据及共享依赖/工具保留。下一次真实验证资源仍由独立owner负责，当前没有遗留的本轮MCP运行实例。12:51:57 UTC只读终核确认Central/Vue/FRP仍为b9d部署身份，严格本机TLS、release/livez200、nonce及前后端hash匹配；identity的source_revision 62ad为基础设施历史标识，不是应用版本。单次公网仍curl60/HTTP000、hostname mismatch，未取得nonce。公开5245/5256/5257与18443目标、b9d快照及原用户数据保持，多模态未部署。
+已完成App批次资源按owner精确清退；PG清理15秒失败及48868超时遗漏MCP清理均保留，后续只按精确nonce/id补清。最终序列64333及外层actual exit1；本批4类nonce的容器、网络、owned临时目录祖先和原进程自动清退并独核归零，6个部署/基础设施/外来基线及原网络保留。进程退出与清理事实不代替未执行的外部成功分支断言。Vue全部浏览器退出，自有Vite核身份后TERM，原launcher33438实际143，进程/子进程与5281监听清零且端口可绑定；无消费者的独占 `/tmp` 生产outDir已删除，浏览器profile无残留。正式harness、截图、失败证据及共享依赖/工具保留。本轮没有遗留运行实例；所有原Wait已收，无app.test进程或消费者，唯一91,514,935字节测试binary已精确删除、路径确认不存在。原目录12文件包含该binary，现保留11个必要私有log/script/ledger，不含凭据，已消费ledger权限0600。12:51:57 UTC只读终核确认Central/Vue/FRP仍为b9d部署身份，严格本机TLS、release/livez200、nonce及前后端hash匹配；identity的source_revision 62ad为基础设施历史标识，不是应用版本。单次公网仍curl60/HTTP000、hostname mismatch，未取得nonce。公开5245/5256/5257与18443目标、b9d快照及原用户数据保持，多模态未部署。
 
 ## 前轮模型备注与选择思考配置
 
