@@ -1,16 +1,20 @@
-# 当前状态：b9d9357d 已保数据部署，多模态开始开发
+# 当前状态：多模态 6d8ad217 已保数据部署
 
 ## 当前部署与恢复入口
 
-2026-10-17，按用户“先部署既有后端，再开发多模态”的授权，Central与Vue已同步切至冻结版本 `b9d9357d26a2e3127fa089191810c5c3687666d7`；主树恢复分支仍为 `ai/frontend-vue-rebuild-20261016`。Go1.27.1生产构建、配置检查及Vue类型/生产构建均实际exit0。数据库已从146升级至151，Goose与migration journal全部applied；升级前实核模型相关数据为空，149只重建两个未配置的技术单例。账号/原Session/SMTP/Secret/规则/代理/对象等53组启动前后HMAC一致，18个immutable配置/密钥、数据目录及三基础容器身份保持。私有备份 `/workspace/scratch/model-deploy-b9d9357d/backup/database.dump` 为1593454字节，pg_dump和pg_restore --list均exit0，未执行还原。首次备份比较查询超过PG函数参数上限，分块修正后从停写状态完成备份，无数据重置。
+2026-10-17，按用户最新授权，Central 与 Vue 已从 b9d 同步升级至冻结版本 `6d8ad217f445b676228c7d63c8e9e0340fd49bf2`；恢复分支仍为 `ai/frontend-vue-rebuild-20261016`。Go 1.27.1 生产构建与配置检查实际 exit0，1897 项生产输入前后一致；Vue 类型与生产构建实际 exit0，142 份冻结源一致。首轮 Go 构建因部署脚本 300 秒预算被 TERM（actual -15，外层 exit1），无编译错误且子进程已清退；同输入复用热缓存、600 秒预算的第二轮实际通过，不追认首轮成功。
 
-活动manifest：`/workspace/scratch/agenteam-central-persistent-r1/runtime-staged-b9d9357d26a2e3127fa089191810c5c3687666d7.json`；管理仍用 `python3 scripts/manage-persistent-central.py <status|stop|start> --runtime <活动manifest>`。Central实际exe SHA256为 `483c16fa82cb4f658d9812719cce2891aad5a0b8330e2a9331d276dc38b3386a`。11:35 UTC终核Central PID481698/start_ticks4093294、Vue PID481776/start_ticks4094183、FRP helper16216/start_ticks144734及frpc16223/start_ticks144750均S，5245/5256/5257监听。前端固定于 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-b9d9357d/` 的生产dist，138份冻结源与候选一致；恢复只用其 `preview-record.json` 的命令、cwd与同锁依赖，见[固定快照说明](../docs/development/backend/account.md#固定已核验的前端快照)。原329/schema146及更早manifest不能重新启动当前数据库。私有run-state已更新；进程不会随环境快照保留，恢复须重新实核。
+数据库从 151 升级至 152，Goose 153 行全部 applied，journal 152 applied 且无未应用项。152 仅给 tasks/messages 新增默认 `[]` 的附件列与最多四项约束；原列投影、账号/原 Session/SMTP/Secret/代理/规则/对象及模型配置共 71 组启动前后 HMAC 一致，18 个 immutable 文件（含配置与密钥）、4 个数据目录及 3 个基础容器身份保持。旧应用停写后形成私有备份 `/workspace/scratch/multimodal-deploy-6d8ad217/backup/database.dump`（1601067 字节），pg_dump 与 pg_restore --list 均 exit0，未执行还原；配置/密钥备份及旧 b9d 产物保留。既往 b9d 的 146→151 升级与备份仍保存在 `/workspace/scratch/model-deploy-b9d9357d/`，本轮没有重置数据。
 
-严格本机TLS/leaf/SPKI、基础设施nonce及新增 `/__instance__/release.json` 的b9d/后端SHA匹配通过；live200、匿名受保护API401，ready503仍为既有DEPENDENCY_UNBOUND。真实浏览器登录200、模型接入空态、添加供应商打开/取消、平台模型用途及模型选择器打开/取消、五个系统GET200通过；无配置写入、模型调用或SMTP发送。logout204→session401，CLI/Chromium实际exit0，临时relay关闭且socket0。原映射仍是18443→TLS5256→Central5257/Vue5245，服务保留；本轮公网匿名校验经继承代理及域名CONNECT均curl60（证书主名openai.com与目标IP不匹配），独立直连curl7，均未取得公网nonce。`https://154.12.86.233:18443` 是原目标入口，当前不能称公网验证成功；FRP存活和旧login/start日志不代公网归属证明。
+活动 manifest：`/workspace/scratch/agenteam-central-persistent-r1/runtime-staged-6d8ad217f445b676228c7d63c8e9e0340fd49bf2.json`。管理使用 `python3 scripts/manage-persistent-central.py <status|stop|start> --runtime <活动manifest>`；实际 Central exe SHA256 为 `572787c6a925f61efd1f04ff51917108d30a4d5d5f2695ca58ace6524dd09520`。13:47:40 UTC 核验 Central PID587898/start_ticks4887180、Vue PID588615/start_ticks4891624、FRP helper16216/start_ticks144734 与 frpc16223/start_ticks144750 身份匹配且均 S，原映射保持 18443→TLS5256→Central5257/Vue5245。前端固定于 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-6d8ad217/` 的生产 dist；其 `preview-record.json` 保存绝对恢复命令、cwd、同锁依赖、源 hash 和进程身份。私有 `central-release.json` 与 `run-state.json` 已更新。数据库已到 152，不能启动旧 b9d/151 或更早 manifest，也不自动还原旧 dump；进程不会随环境快照保留，恢复须重新实核。
+
+严格本机 CA/IP/leaf、基础设施 nonce 与 `/__instance__/release.json` 的 6d8/实际后端及前端 index SHA 匹配，live200、匿名受保护 API401；ready503 仍为既有 DEPENDENCY_UNBOUND。真实浏览器登录200、模型空态、供应商弹窗打开/取消、平台用途和选择器打开/取消、五个只读 GET200 通过。当前真实供应商与模型均为零，未创建配置，模型编辑/测试弹窗未实际打开；实际部署 bundle 已无“图像和文件仅记录能力，当前调用仅支持文本”，已包含 PNG/JPEG/WebP/静态 GIF、PDF 与 TXT/Markdown/DOCX 提取文字的新说明及文本/附件测试控件。未发送模型或 SMTP 请求；自有登录会话 logout204→401，CLI/Chromium 实际 exit0，临时 relay 关闭且 socket0。可恢复的有限部署检查源为 [check-persistent-model-ui.cjs](../scripts/check-persistent-model-ui.cjs)，私有结果见 `/workspace/scratch/multimodal-deploy-6d8ad217/browser-result.json`。
+
+原目标入口仍为 `https://154.12.86.233:18443`，服务保留。本轮公网 identity 与 release 各一次匿名请求均 curl60/HTTP000（证书主机名不匹配），没有取得公网 nonce/version；未放宽 TLS 或重试排障。本机 TLS/UI 通过不代公网成功，FRP 存活也不代公网归属证明。`identity.source_revision` 的 62ad 仍是历史基础设施标识，应用版本以当前 release 和实际产物为准。
 
 ## 当前多模态工作索引（受控验证完成，外部混合输入未成功）
 
-以下四树从已部署的b9d开始；实现已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，源码检查点 `beb1f562` 已推送；后端候选为 `9eaf1f04`（SourceReads产品修复 `73bf1c7a`）。受控真实链和前端适用验证已完成，真实外部混合输入本轮未成功，不能写成外部模型支持已验证。root负责Git；公开服务仍使用顶部b9d冻结快照，不随主树开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
+以下四树从已部署的b9d开始；实现已汇总到主工作分支 `ai/frontend-vue-rebuild-20261016`，源码检查点 `beb1f562` 已推送；后端候选为 `9eaf1f04`（SourceReads产品修复 `73bf1c7a`）。受控真实链和前端适用验证已完成，真实外部混合输入本轮未成功，不能写成外部模型支持已验证。root负责Git；公开服务现已按新授权切至顶部6d8冻结快照，不随主树后续开发更新。后端已接线图片/文件输入、运行时与协议适配、Task/Meeting/Summary附件投影及生命周期；Vue只扩展现有模型测试弹窗，不新建会议或任务页面。
 
 | 工作树 / 分支                                                                             | Owner / 恢复输入                                                                |
 | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -31,7 +35,7 @@ MCP supported最终原case PASS 47.82s（子场景42.96s），App576072原Wait�
 
 此前三次直接外部协议探针为PNG成功、原生PDF两次HTTP400且原因未定；它们不是App验证，PDF成功仍未证实。受控真实链通过不扩大为真实外部供应商全格式支持。
 
-已完成App批次资源按owner精确清退；PG清理15秒失败及48868超时遗漏MCP清理均保留，后续只按精确nonce/id补清。最终序列64333及外层actual exit1；本批4类nonce的容器、网络、owned临时目录祖先和原进程自动清退并独核归零，6个部署/基础设施/外来基线及原网络保留。进程退出与清理事实不代替未执行的外部成功分支断言。Vue全部浏览器退出，自有Vite核身份后TERM，原launcher33438实际143，进程/子进程与5281监听清零且端口可绑定；无消费者的独占 `/tmp` 生产outDir已删除，浏览器profile无残留。正式harness、截图、失败证据及共享依赖/工具保留。本轮没有遗留运行实例；所有原Wait已收，无app.test进程或消费者，唯一91,514,935字节测试binary已精确删除、路径确认不存在。原目录12文件包含该binary，现保留11个必要私有log/script/ledger，不含凭据，已消费ledger权限0600。12:51:57 UTC只读终核确认Central/Vue/FRP仍为b9d部署身份，严格本机TLS、release/livez200、nonce及前后端hash匹配；identity的source_revision 62ad为基础设施历史标识，不是应用版本。单次公网仍curl60/HTTP000、hostname mismatch，未取得nonce。公开5245/5256/5257与18443目标、b9d快照及原用户数据保持，多模态未部署。
+已完成App批次资源按owner精确清退；PG清理15秒失败及48868超时遗漏MCP清理均保留，后续只按精确nonce/id补清。最终序列64333及外层actual exit1；本批4类nonce的容器、网络、owned临时目录祖先和原进程自动清退并独核归零，6个部署/基础设施/外来基线及原网络保留。进程退出与清理事实不代替未执行的外部成功分支断言。Vue全部浏览器退出，自有Vite核身份后TERM，原launcher33438实际143，进程/子进程与5281监听清零且端口可绑定；无消费者的独占 `/tmp` 生产outDir已删除，浏览器profile无残留。正式harness、截图、失败证据及共享依赖/工具保留。该轮隔离测试没有遗留运行实例；所有原Wait已收，无app.test进程或消费者，唯一91,514,935字节测试binary已精确删除、路径确认不存在。原目录12文件包含该binary，现保留11个必要私有log/script/ledger，不含凭据，已消费ledger权限0600。部署前12:51:57 UTC的历史只读终核确认Central/Vue/FRP仍为b9d部署身份，严格本机TLS、release/livez200、nonce及前后端hash匹配；identity的source_revision 62ad为基础设施历史标识，不是应用版本。单次公网仍curl60/HTTP000、hostname mismatch，未取得nonce。该次检查时公开5245/5256/5257与18443目标、b9d快照及原用户数据保持，多模态尚未部署；之后的新授权升级已完成，当前版本与恢复入口见顶部。
 
 ## 前轮模型备注与选择思考配置
 
