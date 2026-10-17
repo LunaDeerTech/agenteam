@@ -70,7 +70,17 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-统一总结模型目前处于实施中：Vue四用途单资源及名称展示已冻结，作者17项受影响单测、type/build通过；独立UI、四字段真实保存、两消费者解析与引用替换、能力拒绝及409/Unknown尚待本轮接受，暂未取得新截图。以下结果均属此前冻结输入，不能据此宣称新selector已完成或已部署。
+统一总结模型当前集成`846fe701`（backend `b87ed09b`、Vue `0852da63`、harness `5edd81b1`），仍待动态接受：
+
+- 作者contract、Model分轮及Memory/Meeting单测通过，tests/model integration编译通过；源码静审缺口与00149 summary CHECK独立复核已关闭。原route测试、schema环境与既有media fixture失配保留，修后仅按受影响结果记录，不称首次全绿。
+- Vue受影响18项单测分轮通过、type/build通过；导入结果裸模型ID的P2已改用共享斜杠名称，局部type及原受控case复验通过。有限独审覆盖四用途单GET/PUT、Unknown、390长ID及焦点；这些使用受控输入，不代真实API或数据库验证。
+- 真实API/UI、作者PG与Memory→Meeting实际共用选择、独立CAS探针尚待；runtime唯一App编译/运行与后端自有测试fixture分别推进，资源未报告清退前不写已完成。
+
+两张当前示例图已实看、上传200并匿名下载核对字节：[四用途页面](https://img.lunadeer.cn/i/2026/10/17/6ad2ed1e4c216.png)、[模型选择器](https://img.lunadeer.cn/i/2026/10/17/6ad2ed1e40ef9.png)。仅用于页面交付，不代表公网部署；用户公开实例保持。
+
+### 此前模型接入与页面调整结果
+
+以下结果均属此前冻结输入，不能据此宣称新selector已完成或已部署。
 
 首链为供应商/凭据→模型→测试→用途保存与刷新；并检查部分完成、权限/CSRF、409、Unknown原请求终结、引用阻断、能力不支持与取消。发现/test使用任务拥有的模拟供应商和真实App/Secret/出站实现，不用用户现有凭据或外部供应商实发。页面核桌面/窄屏、键盘/modal回焦、返回列表与部分结果；现系统导航10项需要新检查，旧11项通过事实保留为历史。新family已完成下述真实链；先前冻结输入的权限/生命周期等未变结果仅限定复用，不把旧协议整页或旧配置链当作新family验收。
 

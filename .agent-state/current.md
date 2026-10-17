@@ -2,7 +2,11 @@
 
 2026-10-17，起点`0c182e08`。用户已确认Memory与Meeting共用一个“总结模型”，平台用途改为向量/总结/重排/图像四项；唯一`/system/model-selection`资源按一id/version/回执原子保存，summary须为启用的System chat且支持`json_schema`。两业务消费者统一`SummarySelector='summary'`，业务Purpose保持；删除旧memory字段与System独立meeting-summary配置/API，00149仅重建用途配置，不迁旧值。Project未绑定预留契约不扩展。模型显示改为“供应商名称/模型ID”，保留页头“重新获取”和单保存。
 
-backend负责独立后端树及00149，proxy_copy负责独立Vue树，runtime/security/visual按root分工做隔离验证。Vue四用途单资源与统一名称展示已落地并冻结，作者17项受影响单测、type/build通过；独立UI及真实API尚待，后端本轮验收尚未收齐，不称整包完成。当前任务见[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。用户仍只要新增截图、不部署公网；现有公开版本、账号/SMTP/密钥与数据保持，外部邮件暂停。下方既有检查均保留其原输入，不作为本轮通过事实。
+主树`846fe701`已集成backend `b87ed09b`、Vue `0852da63`和harness `5edd81b1`；共同合同先存于`0537`。接续工作树分别为`/workspace/agenteam-summary-backend`（account_backend）、`/workspace/agenteam-summary-vue`（proxy_copy）和`/workspace/agenteam-summary-tests`（runtime）；security与visual独立审查。当前任务见[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。用户仍只要新增截图、不部署公网；现有公开版本、账号/SMTP/密钥与数据保持，外部邮件暂停。
+
+已核本轮限定结果：作者contract、Model分轮及Memory/Meeting单测通过，tests/model integration编译通过；源码静审未结缺口已关闭，00149 summary CHECK已独立复核。Vue受影响18项单测分轮通过，type/build通过；发现导入结果漏用斜杠名称的P2已局部修复，补type与原受控case复验通过。有限视觉已覆盖单GET/PUT、Unknown、390长ID与回焦，两张示例图已实看、上传及匿名核对。原route测试、schema环境及既有media fixture失配保留修前事实，不称首次全绿；受控UI和静审不代真实后端接受。
+
+尚待真实API/UI、作者PG与真实Memory→Meeting消费、独立CAS探针及owned资源清退。runtime负责唯一App编译/运行，后端测试子包使用自有fixture，未取得动态终态前不标整包完成；精确结果和截图见工作项。下方旧检查均保留原输入，不作为本轮通过事实。
 
 ## 前轮模型页面结果
 
@@ -160,7 +164,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-下一步由各owner在隔离新库核验统一SummarySelector、单资源API的真实保存/解析/替换、权限/冲突/Unknown，并完成四用途页面独审后交截图；root负责集成与Git。当前作者前端检查不替代整体接受。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
+下一步由各owner完成隔离新库的真实API/UI、Memory→Meeting共用选择及引用替换、独立CAS门，再精确清理owned资源；root收齐动态终态后保存最终记录并交截图。当前编译、单测与受控页面结果不替代这些待验项。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 
