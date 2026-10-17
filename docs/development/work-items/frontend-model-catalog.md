@@ -2,7 +2,13 @@
 
 状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型、ModelPicker及从`90a1229b`开始的供应商列表/详情配置及模型列表动作增量已完成各自适用验证。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
-当前增量（4107e01b后）：模型ID作为主标识、原名称改为可空备注，类型补英文后缀，容量字段标注tokens；共享选择器更多菜单编辑用途思考策略。前端22项适用单测分轮通过（7领域、8搜索选择默认行为、7Select/Menu），最终type、生产构建及限定格式通过；作者两尺寸与独立4场景加键盘补段均通过。覆盖四种策略只在显式保存时提交、同模型保策略/换模型default、备注空保存、ID层级与tokens、390触控及原生200%/reduced-motion。共享测试缺matchMedia和辅助函数类型标注已仅修测试；补段Tab进入浏览器工具栏经hasFocus/往返诊断确认无trap，修正过严断言后通过，无产品返修。真实App首轮在合法清空备注的PUT遇400：事件字段闭集尚未更新，后端正在单点修复。此前已过5模型创建/读取、全局长ID与备注及非法备注拒绝；Memory/Meeting尚未执行，完整真实联调待复验，不以合成API或此前结果替代。
+当前增量（4107e01b后）：模型ID作为主标识、原名称改为可空备注，类型补英文后缀，容量字段标注tokens；共享选择器更多菜单编辑用途思考策略。前端22项适用单测分轮通过（7领域、8搜索选择默认行为、7Select/Menu），最终type、生产构建及限定格式通过；作者两尺寸与独立4场景加键盘补段均通过。覆盖四种策略只在显式保存时提交、同模型保策略/换模型default、备注空保存、ID层级与tokens、390触控及原生200%/reduced-motion。共享测试缺matchMedia和辅助函数类型标注已仅修测试；补段Tab进入浏览器工具栏经hasFocus/往返诊断确认无trap，修正过严断言后通过，前端产品无返修。
+
+独立真实App输入`daff9b9b`（后端产品`31f396b3`、前端`e042a489`）：`TestModelPickerReasoningIndependentReview` PASS 35.81s，session88803及App原Wait实际退出0。真实链覆盖可空/2000 Unicode码点备注与256字节规范模型ID、配置严格DTO/幂等回放、Memory提取归纳与嵌入及两个显式false快照；Meeting使用声明的vendor:deep调用失败后，即使平台配置与旧模型能力改变，仍按原snapshot/value重试。引用更新、不兼容替换拒绝及兼容替换保留choice，撤权后fresh/replay/lookup/list拒绝均通过；实际wire为4次Agent、4次Summary、1次Embedding请求，备注不进入身份或wire，日志/Secret边界及drain/join通过。
+
+App实际覆盖enable_thinking:false、default和effort；on与thinking_type正反开关沿作者受控TLS矩阵复用，不扩大为本次App或真实外部供应商验证。保留首compile因旧fixture的input.Name遗漏而失败、合法清空备注因事件闭集拒400的产品问题经31f修复，以及后两次独立测试UUID join/text response_format省略的误期望修正；不追认首次通过。四批各自3容器、3网络、helpers/App均精确清退，所有自有临时描述/凭据目录、唯一binary及空目录已删除，共享cache与外来持久服务未动。
+
+上轮四类型Go review的旧DTO夹具已按notes、reasoning_toggle_mode及ModelChoice/default机械随动，未改产品或原行为断言、未重跑旧链，不扩大上述PASS范围。
 
 全部浏览器已关闭，自有Vite核身份后TERM、原launcher实际143，进程/子进程/5281监听清零且可绑定；仅unlink本树自建依赖链接，共享依赖及公开5245未动，公网未更新。
 

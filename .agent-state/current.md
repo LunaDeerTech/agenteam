@@ -1,10 +1,14 @@
-# 当前状态：模型备注与选择思考配置实现中
+# 当前状态：模型备注与选择思考配置已完成适用验证
 
 用户已授权长度字段显式标注tokens、四类型中英文名称、模型ID优先/备注次要，以及共享模型选择器的更多菜单与思考选择。恢复入口仍为`ai/frontend-vue-rebuild-20261016`，本包在独立Vue树`/workspace/agenteam-model-capabilities-vue`以4107e01b为基础开发，root负责Git。
 
 模型备注与选择合同已接线：`notes`必传可空，ID置顶；长度标注tokens。用途保存`{model_id,reasoning}`，default/on/off/effort闭集按模型能力校验，不把省略参数当关闭。更多菜单桌面侧开、窄屏第二视图；主行换模型重置供应商默认、同模型保当前选择，单选只改草稿，沿整组单保存/409/Unknown原请求。无等级思考开关格式由模型显式声明，有等级时清除映射。
 
-前端适用检查已完成：7项领域定向、8项搜索选择默认行为及7项Select/Menu回归分轮通过；最终type、生产构建和限定格式通过。作者1440深色/390浅色合成浏览器与独立4场景加键盘补段通过，覆盖策略仅入草稿、四种策略保存、ID/空备注、tokens、窄屏触控、左右避让、原生200%与reduced-motion。原共享测试缺matchMedia、测试helper类型标注及键盘probe误把Tab进入浏览器工具栏判失败，均按实际原因有限修正；无产品返修。真实App首轮在合法清空备注的PUT遇400：事件字段闭集尚未更新，后端正在单点修复。此前已过5模型创建/读取、全局长ID与备注及非法备注拒绝；Memory/Meeting尚未执行，完整真实联调待复验，不以合成API或此前结果替代。
+前端适用检查已完成：7项领域定向、8项搜索选择默认行为及7项Select/Menu回归分轮通过；最终type、生产构建和限定格式通过。作者1440深色/390浅色合成浏览器与独立4场景加键盘补段通过，覆盖策略仅入草稿、四种策略保存、ID/空备注、tokens、窄屏触控、左右避让、原生200%与reduced-motion。原共享测试缺matchMedia、测试helper类型标注及键盘probe误把Tab进入浏览器工具栏判失败，均按实际原因有限修正；前端产品无返修。
+
+独立真实App输入`daff9b9b`（后端产品`31f396b3`、前端`e042a489`），`TestModelPickerReasoningIndependentReview` PASS 35.81s，整session与App原Wait均实际0。覆盖备注/ID边界、严格选择DTO/回放/撤权、Memory提取归纳与嵌入的显式关闭快照、Meeting声明等级的冻结重试、引用替换及日志/Secret与drain/join。App实际验证enable_thinking的off、default与effort；on及thinking_type正反开关沿作者TLS矩阵复用，未验证真实外部供应商。保留首compile旧fixture的input.Name遗漏、合法清空备注触发事件闭集的产品失败（31f修复）、后续独立测试UUID join/text response_format误期望，不追认首次通过。
+
+四批独立资源各自3容器、3网络及helpers/App均精确清退；全部自有临时描述/凭据目录、唯一binary与空目录已删除，共享cache及外来服务未动。
 
 [本轮7张截图](../docs/development/work-items/frontend-model-catalog.md#模型备注与思考选择截图)均已由作者和独审实看、图床上传并匿名下载核对一致。全部浏览器已退出；自有Vite核身份后TERM，原launcher实际143，进程/子进程/5281监听清零且端口可绑定。仅unlink自建依赖链接，共享目标与公开5245未动；公网未更新。
 
