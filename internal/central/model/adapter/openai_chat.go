@@ -166,7 +166,7 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 		req, profile, err := prepareNativeRequest(r, o, raw, false)
 		return req, profile, nil, err
 	}
-	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" {
+	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" {
 		return fail(unsupported())
 	}
 	var schema *structuredSchema
@@ -220,13 +220,14 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 		maxOutput = &n
 	}
 	body := struct {
-		Model     string                `json:"model"`
-		Messages  []wireMessage         `json:"messages"`
-		Stream    bool                  `json:"stream"`
-		Options   map[string]bool       `json:"stream_options,omitempty"`
-		MaxOutput *int64                `json:"max_completion_tokens,omitempty"`
-		Format    *structuredWireFormat `json:"response_format,omitempty"`
-	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput, Format: format}
+		Model           string                `json:"model"`
+		Messages        []wireMessage         `json:"messages"`
+		Stream          bool                  `json:"stream"`
+		Options         map[string]bool       `json:"stream_options,omitempty"`
+		MaxOutput       *int64                `json:"max_completion_tokens,omitempty"`
+		Format          *structuredWireFormat `json:"response_format,omitempty"`
+		ReasoningEffort string                `json:"reasoning_effort,omitempty"`
+	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput, Format: format, ReasoningEffort: r.Snapshot.ReasoningEffort}
 	if body.Stream {
 		body.Options = map[string]bool{"include_usage": true}
 	}

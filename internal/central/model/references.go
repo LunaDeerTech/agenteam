@@ -168,7 +168,7 @@ func selectionCompatible(role string, m mc.ModelInput, effort string) error {
 		return fault(f.CapabilityUnsupported)
 	}
 
-	if effort != "" && (!m.Capabilities.Reasoning || !slices.Contains(m.Capabilities.ReasoningEfforts, effort)) {
+	if effort != "" && !m.Capabilities.SupportsReasoningEffort(effort) {
 		return fault(f.CapabilityUnsupported)
 	}
 	return nil

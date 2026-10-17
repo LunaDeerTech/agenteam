@@ -143,7 +143,9 @@ func TestProjectModelHTTPPureRejectWholeInvalidResult(t *testing.T) {
 			t.Fatal("invalid provider published")
 		}
 	}
-	for _, mutate := range []func(*mc.ModelView){func(v *mc.ModelView) { v.Scope = other }, func(v *mc.ModelView) { v.Input.Type = mc.EmbeddingModel }, func(v *mc.ModelView) { v.Input.Capabilities.ParallelToolCalls = true }, func(v *mc.ModelView) { v.Input.Capabilities.ReasoningEfforts = []string{"high"} }, func(v *mc.ModelView) { v.Input.Capabilities.InputModalities = []string{"text", "text"} }, func(v *mc.ModelView) { v.Input.Capabilities.OutputModalities = []string{"future"} }, func(v *mc.ModelView) { v.Input.Capabilities.MaxOutput = new(mc.TokenCount) }, func(v *mc.ModelView) { v.ProviderID = mc.ProviderID{} }} {
+	for _, mutate := range []func(*mc.ModelView){func(v *mc.ModelView) { v.Scope = other }, func(v *mc.ModelView) { v.Input.Type = mc.EmbeddingModel }, func(v *mc.ModelView) { v.Input.Capabilities.ParallelToolCalls = true }, func(v *mc.ModelView) {
+		v.Input.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "high", Value: "high"}}
+	}, func(v *mc.ModelView) { v.Input.Capabilities.InputModalities = []string{"text", "text"} }, func(v *mc.ModelView) { v.Input.Capabilities.OutputModalities = []string{"future"} }, func(v *mc.ModelView) { v.Input.Capabilities.MaxOutput = new(mc.TokenCount) }, func(v *mc.ModelView) { v.ProviderID = mc.ProviderID{} }} {
 		bad := mv.Clone()
 		mutate(&bad)
 		b, e := projectHTTPEncodeModel(ctx, p, mv.ID, bad)
@@ -152,7 +154,7 @@ func TestProjectModelHTTPPureRejectWholeInvalidResult(t *testing.T) {
 		}
 	}
 	for _, mutate := range []func(*AvailableChatModel){func(v *AvailableChatModel) { v.Scope = other }, func(v *AvailableChatModel) { v.ProviderName = "" }, func(v *AvailableChatModel) { v.Name = string([]byte{255}) }, func(v *AvailableChatModel) {
-		v.Capabilities.ReasoningEfforts = []string{"bad value"}
+		v.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "bad value", Value: "bad value"}}
 		v.Capabilities.Reasoning = true
 	}, func(v *AvailableChatModel) { v.Version = 0 }} {
 		bad := av

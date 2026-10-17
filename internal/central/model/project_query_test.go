@@ -50,14 +50,14 @@ func TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession(t *testing.T
 func TestModelProjectAvailableDTOContainsOnlySelectionFields(t *testing.T) {
 	scope, _ := id.InProject(mustID[id.Project](t))
 	count := mc.TokenCount(123)
-	caps := mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text"}, Reasoning: true, ReasoningEfforts: []string{"medium"}, ContextLength: &count, MaxOutput: &count}
+	caps := mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text"}, Reasoning: true, ReasoningEfforts: []mc.ReasoningEffort{{Name: "medium", Value: "medium"}}, ContextLength: &count, MaxOutput: &count}
 	v := AvailableChatModel{ID: mustID[mc.Model](t), ProviderID: mustID[mc.Provider](t), Scope: scope, Name: "public model", ProviderName: "public provider", Version: 1, Capabilities: caps.Clone()}
 	caps.InputModalities[0] = "image"
 	caps.OutputModalities[0] = "image"
 	caps.StructuredOutputModes[0] = "json_schema"
-	caps.ReasoningEfforts[0] = "high"
+	caps.ReasoningEfforts[0].Value = "high"
 	count = 999
-	if v.Capabilities.InputModalities[0] != "text" || v.Capabilities.OutputModalities[0] != "text" || v.Capabilities.StructuredOutputModes[0] != "text" || v.Capabilities.ReasoningEfforts[0] != "medium" || *v.Capabilities.ContextLength != 123 || *v.Capabilities.MaxOutput != 123 {
+	if v.Capabilities.InputModalities[0] != "text" || v.Capabilities.OutputModalities[0] != "text" || v.Capabilities.StructuredOutputModes[0] != "text" || v.Capabilities.ReasoningEfforts[0].Value != "medium" || *v.Capabilities.ContextLength != 123 || *v.Capabilities.MaxOutput != 123 {
 		t.Fatal("capabilities aliases caller storage")
 	}
 	raw, err := json.Marshal(v)

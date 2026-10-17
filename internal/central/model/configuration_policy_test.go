@@ -23,7 +23,7 @@ func TestModelPolicyDoesNotClaimUnverifiedNativeSchemas(t *testing.T) {
 	}
 	for _, mutate := range []func(*mc.ModelInput){func(v *mc.ModelInput) { v.Parameters = json.RawMessage(`{"temperature":0.5}`) }, func(v *mc.ModelInput) { v.RequestOverwrite = json.RawMessage(`{"temperature":0.5}`) }, func(v *mc.ModelInput) { v.HeaderOverwrite = map[string]string{"X-Feature": "native"} }, func(v *mc.ModelInput) {
 		v.Capabilities.Reasoning = true
-		v.Capabilities.ReasoningEfforts = []string{"guessed"}
+		v.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "guessed", Value: "guessed"}}
 	}} {
 		v := m.Clone()
 		mutate(&v)

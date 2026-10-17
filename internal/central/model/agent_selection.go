@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"slices"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -176,14 +175,8 @@ func readConfigurationSelection(ctx context.Context, x postgres.SQLExecutor, r m
 	if m.Input.Type != mc.ChatModel || !p.Input.Protocol.Supports(mc.ChatModel) {
 		return zero, fault(f.CapabilityUnsupported)
 	}
-	if r.Purpose == mc.AgentModelConfiguration {
-		if len(m.Input.Capabilities.ReasoningEfforts) == 0 {
-			if r.ReasoningEffort != nil {
-				return zero, fault(f.CapabilityUnsupported)
-			}
-		} else if r.ReasoningEffort == nil || !slices.Contains(m.Input.Capabilities.ReasoningEfforts, *r.ReasoningEffort) {
-			return zero, fault(f.CapabilityUnsupported)
-		}
+	if r.Purpose == mc.AgentModelConfiguration && r.ReasoningEffort != nil && !m.Input.Capabilities.SupportsReasoningEffort(*r.ReasoningEffort) {
+		return zero, fault(f.CapabilityUnsupported)
 	}
 	providerID, err := f.ParseID[mc.Provider](p.ID)
 	if err != nil {

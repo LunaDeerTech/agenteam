@@ -197,9 +197,9 @@ func TestProjectModelHTTPNativeWriteFlushCloseAndAbort(t *testing.T) {
 			if mode == "blocked_get_write" {
 				_, _, _, av := projectHTTPValues(t)
 				av.Capabilities.Reasoning = true
-				av.Capabilities.ReasoningEfforts = make([]string, 100000)
+				av.Capabilities.ReasoningEfforts = make([]mc.ReasoningEffort, 100000)
 				for i := range av.Capabilities.ReasoningEfforts {
-					av.Capabilities.ReasoningEfforts[i] = projectNativeToken(i)
+					av.Capabilities.ReasoningEfforts[i] = mc.ReasoningEffort{Name: projectNativeToken(i), Value: projectNativeToken(i)}
 				}
 				s.available = AvailableChatModelPage{Items: []AvailableChatModel{av}}
 			}

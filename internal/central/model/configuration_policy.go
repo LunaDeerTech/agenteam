@@ -55,9 +55,6 @@ func modelPolicy(v mc.ModelInput, protocol mc.Protocol) error {
 		return fault(f.CapabilityUnsupported)
 	}
 	c := v.Capabilities
-	if len(c.ReasoningEfforts) > 0 {
-		return fault(f.CapabilityUnsupported)
-	}
 	if v.Type != mc.ChatModel && (c.ToolCalls || c.ParallelToolCalls || c.Streaming || c.Reasoning || len(c.StructuredOutputModes) > 0) {
 		return fault(f.CapabilityUnsupported)
 	}

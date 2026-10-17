@@ -216,7 +216,7 @@ func TestDirectTextRequestRejectsUnsupportedProfiles(t *testing.T) {
 			s.Capabilities.ToolCalls = true
 		case "reasoning":
 			s.Capabilities.Reasoning = true
-			s.Capabilities.ReasoningEfforts = []string{"high"}
+			s.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "high", Value: "high"}}
 		case "parameters":
 			s.Parameters = json.RawMessage(`{"temperature":1}`)
 		case "request-overwrite":

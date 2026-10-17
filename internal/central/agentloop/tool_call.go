@@ -98,7 +98,7 @@ func buildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, act
 	if a.Kind != i.AgentRun || a.ProjectID != v.Request.Launch.ProjectID.String() || a.AgentID != v.Request.Launch.AgentID.String() || a.ExecutionID != v.Request.ExecutionID.String() {
 		return zero, loopFault(f.Forbidden)
 	}
-	if len(v.Tools) != 1 || v.Tools[0].BindingSnapshot.RunnerBinding != profile.Binding || definition.StableKey != profile.Definition.StableKey || !v.Model.Snapshot.Capabilities.ToolCalls || v.Model.Snapshot.Capabilities.ParallelToolCalls || v.Agent.Fields().Core.InjectAgentsMD || v.Agent.Fields().Core.ReasoningEffort != nil || len(v.Request.Launch.Policy.AllowedResourceConstraints) != 0 {
+	if !capturedReasoningMatches(v) || len(v.Tools) != 1 || v.Tools[0].BindingSnapshot.RunnerBinding != profile.Binding || definition.StableKey != profile.Definition.StableKey || !v.Model.Snapshot.Capabilities.ToolCalls || v.Model.Snapshot.Capabilities.ParallelToolCalls || v.Agent.Fields().Core.InjectAgentsMD || len(v.Request.Launch.Policy.AllowedResourceConstraints) != 0 {
 		return zero, unsupported()
 	}
 	canonical, err := tc.CanonicalDefinition(ctx, definition)
