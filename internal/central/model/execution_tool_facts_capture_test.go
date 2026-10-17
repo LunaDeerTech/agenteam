@@ -13,7 +13,7 @@ import (
 
 func TestExecutionToolFactsCaptureProfileIsExplicitAndClosed(t *testing.T) {
 	p := providerRecord{Input: providerInput{Protocol: mc.OpenAIChat, Enabled: true, Options: json.RawMessage(`{}`)}}
-	m := modelRecord{Input: mc.ModelInput{Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{ToolCalls: true, InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}}
+	m := modelRecord{Input: mc.ModelInput{Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{ToolCalls: true, Reasoning: true, InputModalities: []string{"text", "image", "file"}, OutputModalities: []string{"text"}}}}
 	sel := mc.SelectionRef{Kind: "direct"}
 	before, _ := json.Marshal(m)
 	revision, err := toolFactsResolutionProfile(&p, &m, sel)
@@ -32,7 +32,6 @@ func TestExecutionToolFactsCaptureProfileIsExplicitAndClosed(t *testing.T) {
 			m.Input.Capabilities.ParallelToolCalls = true
 		},
 		"streaming": func(_ *providerRecord, m *modelRecord, _ *mc.SelectionRef) { m.Input.Capabilities.Streaming = true },
-		"reasoning": func(_ *providerRecord, m *modelRecord, _ *mc.SelectionRef) { m.Input.Capabilities.Reasoning = true },
 		"schema": func(_ *providerRecord, m *modelRecord, _ *mc.SelectionRef) {
 			m.Input.Capabilities.StructuredOutputModes = []string{"json_schema"}
 		},

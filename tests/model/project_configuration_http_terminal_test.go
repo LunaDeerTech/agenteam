@@ -314,7 +314,7 @@ func projectConfigurationHTTPUnknown(t *testing.T, v *projectUsageHTTPFixture, p
 				t.Fatal("no real backend COMMIT/idle ACK drop")
 			}
 			if laterStatus == 503 {
-				// Bind the complete large-row transfer and terminal frames to the
+				// Bind the cumulative page-row transfer and terminal frames to the
 				// same unique dropped connection before the later independent GET.
 				events := proxy.snapshot()
 				connection, dropIndex := "", -1
@@ -340,13 +340,16 @@ func projectConfigurationHTTPUnknown(t *testing.T, v *projectUsageHTTPFixture, p
 						continue
 					}
 					if stage == 0 {
-						length, ok := strings.CutPrefix(kind, "forwarded-large-D:")
+						length, ok := strings.CutPrefix(kind, "forwarded-page-D:")
 						if !ok {
 							continue
 						}
 						size, err := strconv.ParseUint(length, 10, 32)
-						if err != nil || size <= 1<<20 || size > 16<<20 {
-							t.Fatal("large DataRow observation outside private fixture bound")
+						if err != nil || size > 16<<20 {
+							t.Fatal("page DataRow observation outside private fixture bound")
+						}
+						if size <= 1<<20 {
+							continue
 						}
 						stage++
 					} else if stage <= len(sequence) && kind == sequence[stage-1] {
@@ -354,7 +357,7 @@ func projectConfigurationHTTPUnknown(t *testing.T, v *projectUsageHTTPFixture, p
 					}
 				}
 				if stage != len(sequence)+1 {
-					t.Fatal("same-connection large DataRow/COMMIT/idle/ACKdrop sequence missing")
+					t.Fatal("same-connection complete page DataRows/COMMIT/idle/ACKdrop sequence missing")
 				}
 			}
 			tracked.hooks(nil, nil)
@@ -463,6 +466,7 @@ func (p *projectModelPGTrace) serveProjectConfigurationHTTP(client net.Conn, n i
 	go func() {
 		defer func() { done <- struct{}{} }()
 		completion := false
+		pageBytes := 0
 		for {
 			frame, err := p.readProjectConfigurationHTTPPGFrame(server, client, n)
 			if err != nil {
@@ -516,6 +520,10 @@ func (p *projectModelPGTrace) serveProjectConfigurationHTTP(client net.Conn, n i
 			}
 			if err = projectConfigurationHTTPPGWrite(client, frame); err != nil {
 				return
+			}
+			if frame[0] == 'D' {
+				pageBytes += len(frame) - 1
+				p.record(n, fmt.Sprintf("forwarded-page-D:%d", pageBytes))
 			}
 		}
 	}()

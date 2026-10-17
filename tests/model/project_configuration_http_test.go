@@ -160,29 +160,33 @@ func TestModelProjectConfigurationHTTPBoundedRepresentation(t *testing.T) {
 	v := newProjectConfigurationHTTP(t)
 	provider := v.projectProvider(t, nil)
 	m := v.projectModel(t, provider)
-	path := projectConfigurationHTTPPath(v.project.ID, "models/"+m.ID.String())
-	// This is accepted-domain storage preparation, not a new HTTP mutation or a
-	// claim that the preexisting DB/library allocations fit the HTTP DTO budget.
-	caps := m.Input.Capabilities.Clone()
-	caps.Reasoning = true
-	caps.ReasoningEfforts = make([]mc.ReasoningEffort, 1<<18)
-	for i := range caps.ReasoningEfforts {
-		caps.ReasoningEfforts[i] = mc.ReasoningEffort{Name: fmt.Sprintf("r%031x", i), Value: fmt.Sprintf("r%031x", i)}
+	path := projectConfigurationHTTPPath(v.project.ID, "models?limit=100")
+	// Prepare a page of individually domain-legal rows. Typed reasoning levels
+	// are bounded to 32; they can no longer produce one arbitrarily large row.
+	// JSON string escaping still makes this complete page exceed the wire cap.
+	// This is SQL-only read-defense material. Management modelPolicy still
+	// rejects nonempty parameters; this does not prove a writable configuration.
+	input := m.Input.Clone()
+	input.Parameters = json.RawMessage(`{"padding":"` + strings.Repeat("<", 60<<10) + `"}`)
+	if err := input.Validate(); err != nil {
+		t.Fatal("legal page row", err)
 	}
-	if e := caps.Validate(); e != nil {
-		t.Fatal("large legal counterexample", e)
+	row, err := json.Marshal(input)
+	if err != nil || len(row)*25 <= 8<<20 {
+		t.Fatal("page does not exceed representation cap", err)
 	}
-	raw, e := json.Marshal(caps)
-	if e != nil || len(raw) <= 8<<20 {
-		t.Fatal("legal capabilities not beyond cap", e)
+	v.sql(t, `UPDATE agenteam_model.models SET parameters=$2::jsonb WHERE id=$1`, m.ID.String(), []byte(input.Parameters))
+	for n := 1; n < 25; n++ {
+		v.sql(t, `INSERT INTO agenteam_model.models(id,provider_id,type,name,provider_model_id,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at) SELECT $2,provider_id,type,$3,$3,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at FROM agenteam_model.models WHERE id=$1`, m.ID.String(), newID[mc.Model](t).String(), fmt.Sprintf("bounded-page-%d", n))
 	}
-	v.sql(t, `UPDATE agenteam_model.models SET capabilities=$2::jsonb WHERE id=$1`, m.ID.String(), raw)
+	// A single row and the safe catalog fit; only the full Model page is large.
+	for _, target := range []string{projectConfigurationHTTPPath(v.project.ID, "models/"+m.ID.String()), projectConfigurationHTTPPath(v.project.ID, "available-chat-models?limit=100")} {
+		for _, method := range []string{"GET", "HEAD"} {
+			v.request(t, v.ownerBrowser, method, target).want(t, 200)
+		}
+	}
 	before := v.modelCounts(t)
-	for _, target := range []struct{ name, path string }{
-		{"model", path},
-		{"models", projectConfigurationHTTPPath(v.project.ID, "models")},
-		{"available", projectConfigurationHTTPPath(v.project.ID, "available-chat-models")},
-	} {
+	for _, target := range []struct{ name, path string }{{"models", path}} {
 		t.Run(target.name, func(t *testing.T) {
 			for _, method := range []string{"GET", "HEAD"} {
 				r := v.request(t, v.ownerBrowser, method, target.path).want(t, 503)
@@ -201,7 +205,7 @@ func TestModelProjectConfigurationHTTPBoundedRepresentation(t *testing.T) {
 			}
 		})
 	}
-	// The exact same persisted large candidate must not replace an actual Read
+	// The exact same persisted large page must not replace an actual Read
 	// Unknown with the later representation cap. Natural 2s still applies; a
 	// pre-HTTP library timeout/abort is a failed cap probe, never a cap PASS.
 	t.Run("oversize-original-Unknown", func(t *testing.T) { projectConfigurationHTTPUnknown(t, v, path, 503) })
