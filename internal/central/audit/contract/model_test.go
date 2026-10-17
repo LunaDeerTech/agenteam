@@ -27,8 +27,10 @@ func TestModelAuditClosedActionsMetadataAndResourceBinding(t *testing.T) {
 				fields.ChangedFields = []string{"created"}
 			case ProviderDelete, ModelDelete:
 				fields.ChangedFields = []string{"deleted"}
-			case ProviderUpdate, ModelUpdate:
+			case ProviderUpdate:
 				fields.ChangedFields = []string{"name", "enabled"}
+			case ModelUpdate:
+				fields.ChangedFields = []string{"notes", "enabled"}
 			case ModelSelectionUpdate:
 				fields = ModelMetadataFields{SelectionID: selection, Version: 1, SelectorKind: "platform", ChangedFields: []string{"selection"}}
 				kind, resource = ModelSelectionResource, selection
@@ -67,6 +69,16 @@ func TestModelAuditClosedActionsMetadataAndResourceBinding(t *testing.T) {
 			bad.ChangedFields = []string{"endpoint-secret"}
 			if _, e = ModelMetadata(action, bad); e == nil {
 				t.Fatal("free metadata accepted")
+			}
+			if action == ProviderUpdate || action == ModelUpdate {
+				wrongField := fields
+				wrongField.ChangedFields = []string{"notes"}
+				if action == ModelUpdate {
+					wrongField.ChangedFields = []string{"name"}
+				}
+				if _, err := ModelMetadata(action, wrongField); err == nil {
+					t.Fatal("provider/model display field namespaces mixed")
+				}
 			}
 			var object map[string]json.RawMessage
 			_ = json.Unmarshal(metadata.JSON(), &object)

@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -67,9 +68,13 @@ func TestModelEventPlansBindFullActorAndExactRegisteredPayload(t *testing.T) {
 		t.Fatal(e)
 	}
 	resource := mustID[mc.Model](t).String()
-	p := &preparedCommand{authority: authority, actor: actor, plan: mutationPlan{CommandID: mustID[struct{}](t).String(), Resource: resource, Receipt: mc.CommandReceipt{Kind: "model.update", ResourceID: resource, Version: 2}, Changed: []string{"name"}, At: now}}
+	p := &preparedCommand{authority: authority, actor: actor, plan: mutationPlan{CommandID: mustID[struct{}](t).String(), Resource: resource, Receipt: mc.CommandReceipt{Kind: "model.update", ResourceID: resource, Version: 2}, Changed: modelChanges(mc.ModelInput{Notes: "private note"}, mc.ModelInput{Notes: ""}), At: now}}
 	if e = s.prepareEvents(p); e != nil {
 		t.Fatal(e)
+	}
+	var payload mc.ConfigurationChanged
+	if len(p.plan.Events) != 1 || json.Unmarshal(p.plan.Events[0].Payload, &payload) != nil || len(payload.ChangedFields) != 1 || payload.ChangedFields[0] != "notes" || !validPersistedEvent(p.plan.Events[0]) {
+		t.Fatal("clearing notes did not produce a valid closed event")
 	}
 	ctx := commandContext(context.Background(), p)
 	event := p.events[0]
