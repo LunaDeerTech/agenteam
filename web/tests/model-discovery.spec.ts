@@ -1,6 +1,7 @@
 import { Blob as NodeBlob } from "node:buffer";
-import { mount, flushPromises } from "@vue/test-utils";
+import { mount, flushPromises, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import type { ModelInput } from "../src/system/model-catalog";
 const id = (n: number) =>
   `019a0000-0000-7000-8000-${String(n).padStart(12, "0")}`;
 const at = "2026-10-17T01:00:00.000000Z";
@@ -13,7 +14,11 @@ const json = (v: unknown, status = 200) =>
     },
   });
 let dispose: undefined | (() => void);
-beforeEach(() => {
+let wrapper: VueWrapper;
+let Fields: (typeof import("../src/components/system/ModelFormFields.vue"))["default"];
+let creates: string[];
+let importedInputs: ModelInput[];
+beforeEach(async () => {
   vi.resetModules();
   vi.stubEnv("VITE_ACCOUNT_ENABLED", "true");
   vi.stubGlobal("Blob", NodeBlob);
@@ -23,15 +28,8 @@ beforeEach(() => {
     removeEventListener() {},
   }));
   localStorage.clear();
-});
-afterEach(() => {
-  dispose?.();
-  vi.restoreAllMocks();
-  vi.unstubAllGlobals();
-  vi.unstubAllEnvs();
-});
-it("keeps successful imports, explicitly skips a failed item, and sends only the remaining model", async () => {
-  const creates: string[] = [];
+  creates = [];
+  importedInputs = [];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init: RequestInit) => {
@@ -70,6 +68,7 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
         });
       const body = JSON.parse(String(init.body));
       creates.push(body.input.provider_model_id);
+      importedInputs.push(body.input);
       if (body.input.provider_model_id === "rejected")
         return json(
           { code: "INVALID_ARGUMENT", commit_state: "not_committed" },
@@ -87,11 +86,9 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
   const Dialog = (
     await import("../src/components/system/ModelDiscoveryDialog.vue")
   ).default;
-  const Fields = (await import("../src/components/system/ModelFormFields.vue"))
+  Fields = (await import("../src/components/system/ModelFormFields.vue"))
     .default;
-  const Select = (await import("../src/components/ui/UiSelect.vue")).default;
-  const Input = (await import("../src/components/ui/UiInput.vue")).default;
-  const wrapper = mount(Dialog, {
+  wrapper = mount(Dialog, {
     props: {
       open: true,
       provider: {
@@ -109,9 +106,20 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
         },
       },
     },
+    attachTo: document.body,
     global: { stubs: { UiDialog: { template: "<div><slot /></div>" } } },
   });
   dispose = () => wrapper.unmount();
+});
+afterEach(() => {
+  dispose?.();
+  dispose = undefined;
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+  document.body.replaceChildren();
+});
+it("keeps successful imports, explicitly skips a failed item, and sends only the remaining model", async () => {
   const click = async (text: string) => {
     const button = wrapper.findAll("button").find((b) => b.text() === text);
     expect(button, text).toBeDefined();
@@ -123,13 +131,27 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
     await input.setValue(true);
   await click("配置所选模型");
   for (const field of wrapper.findAllComponents(Fields)) {
-    field.findComponent(Select).vm.$emit("update:modelValue", "chat");
-    for (const label of ["输入模态", "输出模态"])
-      await field
-        .findAllComponents(Input)
-        .find((c) => c.props("label") === label)!
-        .get("input")
-        .setValue("text");
+    const type = field.get('[role="combobox"]');
+    expect(type.attributes("disabled")).toBeUndefined();
+    await type.trigger("keydown", { key: "ArrowDown" });
+    await flushPromises();
+    await type.trigger("keydown", { key: "Enter" });
+    await flushPromises();
+    expect(type.text()).toBe("对话");
+    const input = field
+      .findAll("fieldset")
+      .find((group) => group.find("legend").text() === "输入模态")!;
+    const text = input
+      .findAll("label")
+      .find((label) => label.text() === "文本")!
+      .get('input[type="checkbox"]');
+    expect((text.element as HTMLInputElement).checked).toBe(true);
+    expect((text.element as HTMLInputElement).disabled).toBe(true);
+    await input
+      .findAll("label")
+      .find((label) => label.text() === "图像")!
+      .get('input[type="checkbox"]')
+      .setValue(true);
   }
   await click("导入所选模型");
   expect(creates).toEqual(["__proto__", "rejected"]);
@@ -138,6 +160,18 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
   expect(wrapper.text()).toContain("未开始");
   await click("跳过此项并继续");
   expect(creates).toEqual(["__proto__", "rejected", "last"]);
+  expect(importedInputs.map((input) => input.type)).toEqual([
+    "chat",
+    "chat",
+    "chat",
+  ]);
+  for (const input of importedInputs)
+    expect(input.capabilities).toMatchObject({
+      input_modalities: ["text", "image"],
+      output_modalities: ["text"],
+      structured_output_modes: ["text"],
+      reasoning_efforts: [],
+    });
   expect(wrapper.text()).toContain("已导入 2 / 3");
   expect(wrapper.text()).toContain("已跳过");
   expect(wrapper.text()).not.toContain("全部成功");

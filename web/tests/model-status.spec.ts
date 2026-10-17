@@ -42,7 +42,10 @@ const model = (): CatalogModel => ({
       reasoning: true,
       input_modalities: ["text", "image"],
       output_modalities: ["text"],
-      reasoning_efforts: ["low", "high"],
+      reasoning_efforts: [
+        { name: "轻量", value: "low" },
+        { name: "深入", value: "high" },
+      ],
       structured_output_modes: ["json_schema"],
       context_length: "128000",
       max_output: "4096",

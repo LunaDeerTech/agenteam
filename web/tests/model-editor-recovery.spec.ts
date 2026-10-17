@@ -228,6 +228,13 @@ describe("confirmed model editor recovery", () => {
   });
 
   it("protects a confirmed save awaiting readback and preserves it when leaving is cancelled", async () => {
+    const type = wrapper!.get('[role="combobox"]');
+    expect(
+      wrapper!.get(`[id="${type.attributes("aria-labelledby")}"]`).text(),
+    ).toBe("模型类型");
+    expect(type.attributes("disabled")).toBeDefined();
+    await type.trigger("keydown", { key: "ArrowDown" });
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
     const label = wrapper!
       .findAll("label")
       .find((item) => item.text() === "模型名称")!;
@@ -238,6 +245,7 @@ describe("confirmed model editor recovery", () => {
     await wrapper!.get("form").trigger("submit");
     await flushPromises();
     expect(writes()).toHaveLength(1);
+    expect(JSON.parse(writes()[0]!.body).input.type).toBe("chat");
     expect(modelReads()).toHaveLength(1);
     expect(wrapper!.text()).toContain("保存已完成，最新模型尚未读回。");
     expect(button("完成").attributes("disabled")).toBeDefined();
