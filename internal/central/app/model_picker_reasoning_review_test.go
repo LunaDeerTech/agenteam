@@ -135,7 +135,7 @@ func TestModelPickerReasoningIndependentReview(t *testing.T) {
 		t.Fatal("real retain did not publish its original canonical memory")
 	}
 	var memorySnapshots [][]byte
-	rows, err := v.admin.Query(v.ctx, `SELECT s.snapshot_data FROM agenteam_memory.model_calls c JOIN agenteam_model.snapshots s ON s.id::text=c.snapshot_id WHERE c.project_id::text=$1 AND c.purpose IN('memory_extraction','memory_consolidation') ORDER BY c.purpose`, v.a.String())
+	rows, err := v.admin.Query(v.ctx, `SELECT s.snapshot_data FROM agenteam_memory.model_calls c JOIN agenteam_model.snapshots s ON s.id=c.snapshot_id WHERE c.project_id::text=$1 AND c.purpose IN('memory_extraction','memory_consolidation') ORDER BY c.purpose`, v.a.String())
 	workAppCheck(t, "picker-memory-snapshots", err)
 	for rows.Next() {
 		var raw []byte
