@@ -240,15 +240,18 @@ func TestModelFourTypeManagementIndependentReview(t *testing.T) {
 		}
 	}()
 	var selection struct {
-		ID         string            `json:"id"`
-		Version    string            `json:"version"`
-		Configured map[string]string `json:"configured"`
+		ID         string         `json:"id"`
+		Version    string         `json:"version"`
+		Configured map[string]any `json:"configured"`
 	}
 	previewCheck(t, "initial four-purpose selection", json.Unmarshal(call(http.MethodGet, "model-selection", "", nil, 200), &selection))
 	if selection.ID == "" || selection.Version != "1" || selection.Configured != nil {
 		t.Fatal("isolated database had an invented default selection")
 	}
-	wantSelection := map[string]string{"summary": models["chat"], "embedding": models["embedding"], "reranker": models["reranker"], "image": models["image_generation"]}
+	wantSelection := make(map[string]any)
+	for role, id := range map[string]string{"summary": models["chat"], "embedding": models["embedding"], "reranker": models["reranker"], "image": models["image_generation"]} {
+		wantSelection[role] = map[string]any{"model_id": id, "reasoning": map[string]any{"mode": "default"}}
+	}
 	selectionInput := map[string]any{"id": selection.ID, "expected_version": "1"}
 	for role, id := range wantSelection {
 		selectionInput[role] = id
@@ -356,11 +359,11 @@ func fourTypeReviewInput(kind string) map[string]any {
 		outputs = []string{"image"}
 	}
 	return map[string]any{
-		"name": "Independent " + kind, "provider_model_id": "owned-" + kind, "type": kind, "enabled": true,
+		"notes": "Independent " + kind, "provider_model_id": "owned-" + kind, "type": kind, "enabled": true,
 		"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
 		"capabilities": map[string]any{
 			"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false,
-			"input_modalities": []string{"text"}, "output_modalities": outputs, "reasoning_efforts": []any{},
+			"input_modalities": []string{"text"}, "output_modalities": outputs, "reasoning_efforts": []any{}, "reasoning_toggle_mode": nil,
 			"structured_output_modes": structured, "context_length": nil, "max_output": nil,
 		},
 	}
