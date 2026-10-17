@@ -1,4 +1,10 @@
-# 当前状态：6d8ad217 已部署，Embedding 维度与选择器标签验证完成（未部署）
+# 当前状态：ModelSelect 强制类型过滤开发与部署预检查，公网仍为 6d8ad217
+
+## 当前任务：ModelSelect 强制类型过滤并更新原预览
+
+2026-10-17，从 `a686540e374bc7b4f6ab89632a6c0780292c1e60` 接续。用户已授权完成强制类型过滤后更新原公网服务；最终候选与适用验证门未冻结前不替换服务、不执行迁移。组件调用必须明确类型，列表在分页前按类型筛选并绑定游标；最终契约与实现由各 owner 维护。当前源码已含前轮 Embedding 维度迁移 153，公开数据库仍为 152，部署前须只读检查旧 model/snapshot 与 Knowledge/Memory profile 是否满足新约束，不猜维度、不清数据。
+
+运行与空间 owner 为 `/root/filter_preview_platform`，独占本页及必要部署 harness；root 负责全部 Git 和最终集成。2026-10-17 15:12 UTC 实核原 Central PID587898/start_ticks4887180 存活且活动 manifest 仍指向 6d8，Vue PID588615 与 FRP helper16216/frpc16223 均存活。workspace 约剩 1.7 GiB，独立 `/tmp` 约剩 8.5 GiB；重型 Go 构建唯一窗口，所有本轮可写临时、binary 与 fixture 产物使用 owned `/tmp`，保留至少 512 MiB。原 SMTP/账号/Session/密钥/代理配置与业务数据保留；当前只做运行、容量、迁移适用性及严格公网 TLS 路径预检查。以下既有部署事实仍是恢复依据，历史公网 TLS 失败不追认成功。
 
 ## 当前部署与恢复入口
 
