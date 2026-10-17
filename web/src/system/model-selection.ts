@@ -24,7 +24,7 @@ export type ModelPurpose = PlatformPurpose;
 export const purposeLabels: Record<ModelPurpose, string> = {
   embedding: "嵌入模型（Embedding）",
   summary: "总结模型（Chat）",
-  reranker: "重排模型（Rerank）",
+  reranker: "重排模型（ReRank）",
   image: "图像生成模型（Image Generation）",
 };
 export const purposeDescriptions: Record<ModelPurpose, string> = {

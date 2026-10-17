@@ -30,10 +30,10 @@ export const protocolChoices = [
   { value: "openai-compatible", label: "OpenAI 兼容" },
 ];
 export const modelTypeChoices = [
-  { value: "chat", label: "对话" },
-  { value: "embedding", label: "嵌入" },
-  { value: "reranker", label: "重排" },
-  { value: "image_generation", label: "图像生成" },
+  { value: "chat", label: "对话（Chat）" },
+  { value: "embedding", label: "嵌入（Embedding）" },
+  { value: "reranker", label: "重排（ReRank）" },
+  { value: "image_generation", label: "图像生成（Image Generation）" },
 ];
 export interface ProviderInput {
   name: string;

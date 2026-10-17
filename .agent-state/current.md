@@ -1,4 +1,10 @@
-# 当前状态：四类型模型配置与紧凑思考等级已完成适用验证
+# 当前状态：模型备注与选择思考配置实现中
+
+用户已授权长度字段显式标注tokens、四类型中英文名称、模型ID优先/备注次要，以及共享模型选择器的更多菜单与思考选择。恢复入口仍为`ai/frontend-vue-rebuild-20261016`，本包在独立Vue树`/workspace/agenteam-model-capabilities-vue`以4107e01b为基础开发，root负责Git。
+
+目前仅确定的表单层级/文案已接线；备注字段与思考闭集default/on/off/effort的持久化及实际消费合同尚在backend核定，未实现假开关，未把省略参数当作关闭。主行换模型重置供应商默认，同模型保当前选择；更多菜单只改用途草稿，沿整组单保存/409/Unknown原请求。此为WIP，尚未运行本轮验证或启动服务；公网不更新。
+
+## 前轮四类型模型配置
 
 恢复入口为主活动分支`ai/frontend-vue-rebuild-20261016`，本包独立Vue工作树为`/workspace/agenteam-model-capabilities-vue`，root负责Git集成。Embedding类型及用途名称改为“嵌入”，数学向量不改；同一兼容供应商支持四类配置。思考等级每行仅名称/值/叉号，390窄屏仍同排，保留可访问label、校验与焦点；下方统一“添加思考等级”。
 

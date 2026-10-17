@@ -72,13 +72,13 @@ async function removeLevel(index: number) {
 <template>
   <div class="model-fields">
     <template v-if="!bulk">
-      <UiInput v-model="draft.name" label="模型名称" required maxlength="128" />
       <UiInput
         v-model="draft.providerModelId"
         label="模型 ID"
         required
         maxlength="256"
       />
+      <UiInput v-model="draft.name" label="备注" maxlength="128" />
     </template>
     <UiSelect
       v-model="draft.type"
@@ -189,14 +189,14 @@ async function removeLevel(index: number) {
       <div class="model-grid">
         <UiInput
           v-model="draft.contextLength"
-          label="上下文长度（可选）"
+          label="上下文窗口（tokens，可选）"
           inputmode="numeric"
           placeholder="未知时留空"
         />
         <UiInput
           v-if="chat"
           v-model="draft.maxOutput"
-          label="最大输出（可选）"
+          label="最大输出（tokens，可选）"
           inputmode="numeric"
           placeholder="未知时留空"
         />
