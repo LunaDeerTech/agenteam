@@ -5,6 +5,7 @@ export interface CheckboxOption {
   value: string;
   label: string;
   icon?: string;
+  disabled?: boolean;
 }
 defineProps<{
   label: string;
@@ -24,7 +25,12 @@ const model = defineModel<string[]>({ default: () => [] });
         class="ui-checkbox-option"
         :class="{ 'is-selected': model.includes(option.value) }"
       >
-        <input v-model="model" type="checkbox" :value="option.value" />
+        <input
+          v-model="model"
+          type="checkbox"
+          :value="option.value"
+          :disabled="option.disabled"
+        />
         <UiIcon v-if="option.icon" :name="option.icon" :size="14" />
         <span>{{ option.label }}</span>
       </label>
