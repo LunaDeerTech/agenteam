@@ -50,6 +50,10 @@ export interface Provider {
   created_at: string;
   updated_at: string;
 }
+export interface ReasoningEffort {
+  name: string;
+  value: string;
+}
 export interface Capabilities {
   tool_calls: boolean;
   parallel_tool_calls: boolean;
@@ -57,7 +61,7 @@ export interface Capabilities {
   reasoning: boolean;
   input_modalities: string[];
   output_modalities: string[];
-  reasoning_efforts: string[];
+  reasoning_efforts: ReasoningEffort[];
   structured_output_modes: string[];
   context_length: string | null;
   max_output: string | null;
@@ -167,6 +171,26 @@ export function isProvider(v: unknown): v is Provider {
     isInstant(v.updated_at)
   );
 }
+export function isReasoningEfforts(v: unknown): v is ReasoningEffort[] {
+  return (
+    Array.isArray(v) &&
+    v.length <= 32 &&
+    v.every(
+      (item) =>
+        isRecord(item) &&
+        onlyKeys(item, ["name", "value"]) &&
+        typeof item.name === "string" &&
+        [...item.name].length > 0 &&
+        [...item.name].length <= 64 &&
+        !/^\p{White_Space}|\p{White_Space}$/u.test(item.name) &&
+        !/[\u0000-\u001f\u007f-\u009f]/.test(item.name) &&
+        typeof item.value === "string" &&
+        /^[A-Za-z0-9_.:-]{1,32}$/.test(item.value),
+    ) &&
+    new Set(v.map((item) => item.name)).size === v.length &&
+    new Set(v.map((item) => item.value)).size === v.length
+  );
+}
 export function isCapabilities(v: unknown): v is Capabilities {
   return (
     isRecord(v) &&
@@ -185,12 +209,9 @@ export function isCapabilities(v: unknown): v is Capabilities {
     [v.tool_calls, v.parallel_tool_calls, v.streaming, v.reasoning].every(
       (x) => typeof x === "boolean",
     ) &&
-    [
-      v.input_modalities,
-      v.output_modalities,
-      v.reasoning_efforts,
-      v.structured_output_modes,
-    ].every(strings) &&
+    [v.input_modalities, v.output_modalities, v.structured_output_modes].every(
+      strings,
+    ) &&
     (v.input_modalities as string[]).every((value) =>
       ["text", "image", "file", "vector"].includes(value),
     ) &&
@@ -200,11 +221,9 @@ export function isCapabilities(v: unknown): v is Capabilities {
     (v.structured_output_modes as string[]).every((value) =>
       ["text", "json_schema"].includes(value),
     ) &&
-    (v.reasoning_efforts as string[]).every(
-      (value) => value.length > 0 && value.length <= 32 && !/\s/.test(value),
-    ) &&
+    isReasoningEfforts(v.reasoning_efforts) &&
     (!v.parallel_tool_calls || !!v.tool_calls) &&
-    (!!v.reasoning || (v.reasoning_efforts as string[]).length === 0) &&
+    (!!v.reasoning || v.reasoning_efforts.length === 0) &&
     (v.context_length === null || isVersion(v.context_length)) &&
     (v.max_output === null || isVersion(v.max_output)) &&
     (v.context_length === null ||
