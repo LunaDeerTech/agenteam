@@ -1,8 +1,33 @@
 <script setup lang="ts">
-import { UiInput, UiSelect } from "../ui";
+import { computed } from "vue";
+import { UiCheckboxGroup, UiInput, UiSelect } from "../ui";
 import type { ModelDraft } from "../../system/model-draft";
 import type { Protocol } from "../../system/model-catalog";
-defineProps<{ draft: ModelDraft; protocol: Protocol; bulk?: boolean }>();
+const props = defineProps<{
+  draft: ModelDraft;
+  protocol: Protocol;
+  bulk?: boolean;
+}>();
+const modalityOptions = [
+  { value: "text", label: "文本" },
+  { value: "image", label: "图像" },
+  { value: "file", label: "文件" },
+  { value: "vector", label: "向量" },
+];
+function modalities(field: "inputModalities" | "outputModalities") {
+  return computed({
+    get: () =>
+      props.draft[field]
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    set: (values: string[]) => {
+      props.draft[field] = values.join(", ");
+    },
+  });
+}
+const inputModalities = modalities("inputModalities");
+const outputModalities = modalities("outputModalities");
 </script>
 <template>
   <div class="model-fields">
@@ -31,15 +56,14 @@ defineProps<{ draft: ModelDraft; protocol: Protocol; bulk?: boolean }>();
     <fieldset class="capability-fields">
       <legend>模型能力</legend>
       <div class="model-grid">
-        <UiInput
-          v-model="draft.inputModalities"
+        <UiCheckboxGroup
+          v-model="inputModalities"
           label="输入模态"
-          placeholder="例如 text, image"
-          hint="text、image、file 或 vector，以英文逗号分隔。"
-        /><UiInput
-          v-model="draft.outputModalities"
+          :options="modalityOptions"
+        /><UiCheckboxGroup
+          v-model="outputModalities"
           label="输出模态"
-          placeholder="例如 text 或 vector"
+          :options="modalityOptions"
         />
       </div>
       <div class="model-checks">
@@ -125,7 +149,8 @@ defineProps<{ draft: ModelDraft; protocol: Protocol; bulk?: boolean }>();
 }
 .model-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
   gap: 14px;
 }
 .model-checks {

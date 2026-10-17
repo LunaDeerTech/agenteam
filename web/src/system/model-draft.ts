@@ -82,7 +82,7 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
     "vector",
   ]);
   if (!input.length || !output.length)
-    throw new Error("请明确填写模型的输入和输出模态。");
+    throw new Error("请选择模型的输入和输出模态。");
   if (d.parallelToolCalls && !d.toolCalls)
     throw new Error("并行工具调用需要同时启用工具调用。");
   const efforts = values(d.reasoningEfforts);
