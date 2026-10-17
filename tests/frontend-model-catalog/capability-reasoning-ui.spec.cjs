@@ -5,6 +5,7 @@ const {
   api,
   loginHTTP,
   providerStats,
+  select,
 } = require("./owned-fixture.cjs");
 
 test("real Vue saves named reasoning values and reloads the canonical capability state", async ({
@@ -46,6 +47,7 @@ test("real Vue saves named reasoning values and reloads the canonical capability
     .getByLabel("模型名称", { exact: true })
     .fill(`Reasoning UI ${suffix}`);
   await dialog.getByLabel("模型 ID", { exact: true }).fill(modelID);
+  await select(page, "模型类型", "对话");
   await dialog
     .getByRole("checkbox", {
       name: "支持结构化输出（JSON Schema）",
