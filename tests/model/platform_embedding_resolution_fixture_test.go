@@ -296,7 +296,7 @@ func (v *platformEmbeddingResolutionFixture) choose(t *testing.T, mid mc.ModelID
 	}
 	selection := mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: mid}
 	if state.Configured == nil {
-		selection.Memory = v.resolutionModel(t, v.provider(t, mc.OpenAIChat, nil), false).ID
+		selection.Summary = v.resolutionModel(t, v.provider(t, mc.OpenAIChat, nil), false).ID
 	} else {
 		selection = state.Configured.Clone()
 		selection.Embedding = mid

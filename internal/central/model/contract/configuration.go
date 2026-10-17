@@ -104,15 +104,14 @@ func (m ModelView) Clone() ModelView { m.Input = m.Input.Clone(); return m }
 type SelectorKind string
 
 const (
-	EmbeddingSelector      SelectorKind = "embedding"
-	MemorySelector         SelectorKind = "memory"
-	RerankerSelector       SelectorKind = "reranker"
-	ImageSelector          SelectorKind = "image"
-	MeetingSummarySelector SelectorKind = "meeting_summary"
+	EmbeddingSelector SelectorKind = "embedding"
+	SummarySelector   SelectorKind = "summary"
+	RerankerSelector  SelectorKind = "reranker"
+	ImageSelector     SelectorKind = "image"
 )
 
 func (k SelectorKind) Valid() bool {
-	return one(string(k), "embedding", "memory", "reranker", "image", "meeting_summary")
+	return one(string(k), "embedding", "summary", "reranker", "image")
 }
 
 type SelectionRef struct {
@@ -136,7 +135,7 @@ func (s SelectionRef) Validate() error {
 			return bad()
 		}
 	case "project_summary":
-		if s.ProjectID == nil || s.ProjectID.Validate() != nil || s.Selector != MeetingSummarySelector {
+		if s.ProjectID == nil || s.ProjectID.Validate() != nil || s.Selector != SummarySelector {
 			return bad()
 		}
 	default:
@@ -173,7 +172,7 @@ func (s SelectionRequest) Validate() error {
 				return bad()
 			}
 		} else {
-			want := map[Purpose]SelectorKind{KnowledgeEmbedding: EmbeddingSelector, MemoryEmbedding: EmbeddingSelector, MemoryExtraction: MemorySelector, MemoryConsolidation: MemorySelector, MemoryReflection: MemorySelector, MeetingSummaryInitial: MeetingSummarySelector, MeetingSummaryUpdate: MeetingSummarySelector, Rerank: RerankerSelector, ImageGeneration: ImageSelector}
+			want := map[Purpose]SelectorKind{KnowledgeEmbedding: EmbeddingSelector, MemoryEmbedding: EmbeddingSelector, MemoryExtraction: SummarySelector, MemoryConsolidation: SummarySelector, MemoryReflection: SummarySelector, MeetingSummaryInitial: SummarySelector, MeetingSummaryUpdate: SummarySelector, Rerank: RerankerSelector, ImageGeneration: ImageSelector}
 			if want[s.Consumer.Purpose] != s.Selection.Selector {
 				return bad()
 			}
@@ -227,13 +226,13 @@ type PlatformSelection struct {
 	ID        string    `json:"id"`
 	Version   f.Version `json:"version"`
 	Embedding ModelID   `json:"embedding"`
-	Memory    ModelID   `json:"memory"`
+	Summary   ModelID   `json:"summary"`
 	Reranker  *ModelID  `json:"reranker"`
 	Image     *ModelID  `json:"image"`
 }
 
 func (s PlatformSelection) Validate() error {
-	if !uuid(s.ID) || s.Version.Validate() != nil || s.Embedding.Validate() != nil || s.Memory.Validate() != nil || s.Reranker != nil && s.Reranker.Validate() != nil || s.Image != nil && s.Image.Validate() != nil {
+	if !uuid(s.ID) || s.Version.Validate() != nil || s.Embedding.Validate() != nil || s.Summary.Validate() != nil || s.Reranker != nil && s.Reranker.Validate() != nil || s.Image != nil && s.Image.Validate() != nil {
 		return bad()
 	}
 	return nil

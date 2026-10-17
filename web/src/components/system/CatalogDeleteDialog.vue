@@ -15,6 +15,7 @@ import {
   catalogOperation,
   credentialOperation,
   catalogError,
+  modelDisplayName,
   getCredential,
   getProvider,
   getModel,
@@ -43,6 +44,7 @@ const reading = ref(false);
 const error = shallowRef<unknown>();
 const saved = ref(false);
 const replacement = shallowRef<CatalogModel>();
+const replacementProvider = shallowRef<Provider>();
 const picking = ref(false);
 const selectedProvider = shallowRef<Provider>();
 let alive = true;
@@ -87,7 +89,7 @@ function eligible(item: CatalogModel) {
     item.input.type === props.model?.input.type &&
     item.input.enabled &&
     selectedProvider.value?.input.enabled &&
-    (!impact.value?.reference_groups.some((g) => g.role === "memory") ||
+    (!impact.value?.reference_groups.some((g) => g.role === "summary") ||
       item.input.capabilities.structured_output_modes.includes("json_schema"))
   );
 }
@@ -102,6 +104,7 @@ function clear() {
   saved.value = false;
   reading.value = false;
   replacement.value = undefined;
+  replacementProvider.value = undefined;
   picking.value = false;
   selectedProvider.value = undefined;
   providers.reset();
@@ -228,16 +231,18 @@ useLeaveProtection(() => props.open && locked.value);
         :row-key="(item) => item.id"
         label="替代模型"
         empty-text="没有可选模型。"
-        ><template #item="{ item }"
-          >{{ item.input.name
-          }}<span class="form-note">{{
-            item.input.provider_model_id
-          }}</span></template
+        ><template #item="{ item }">{{
+          modelDisplayName(
+            selectedProvider.input.name,
+            item.input.provider_model_id,
+          )
+        }}</template
         ><template #actions="{ item }"
           ><UiButton
             :disabled="!eligible(item)"
             @click="
               replacement = item;
+              replacementProvider = selectedProvider;
               picking = false;
             "
             >选择</UiButton
@@ -250,12 +255,12 @@ useLeaveProtection(() => props.open && locked.value);
       <UiButton @click="close">完成</UiButton>
     </div>
     <div v-else class="account-form">
-      <p>
+      <p class="model-reference">
         {{
           credential
             ? "仅删除独立凭据，不会自动解除任何配置关联。"
             : model
-              ? `删除模型“${model.input.name}”？`
+              ? `删除模型“${modelDisplayName(provider.input.name, model.input.provider_model_id)}”？`
               : `删除供应商“${provider.input.name}”？模型和独立凭据不会自动删除。`
         }}
       </p>
@@ -284,7 +289,14 @@ useLeaveProtection(() => props.open && locked.value);
                 : "可选择替代模型；不选则清空这些用途。"
             }}
           </p>
-          <p v-if="replacement">{{ replacement.input.name }}</p>
+          <p v-if="replacement && replacementProvider" class="model-reference">
+            {{
+              modelDisplayName(
+                replacementProvider.input.name,
+                replacement.input.provider_model_id,
+              )
+            }}
+          </p>
           <UiButton @click="picking = true">选择替代模型</UiButton
           ><UiButton
             v-if="replacement && impact.replacement_requirement === 'optional'"
@@ -323,3 +335,10 @@ useLeaveProtection(() => props.open && locked.value);
     </div></UiDialog
   >
 </template>
+
+<style scoped>
+.model-reference {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+</style>

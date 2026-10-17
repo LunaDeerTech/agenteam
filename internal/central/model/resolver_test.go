@@ -18,7 +18,7 @@ func meetingResolutionTestRequest(t *testing.T) mc.ResolveRequest {
 	t.Helper()
 	actor, _ := id.NewHuman(mustID[id.User](t), mustID[id.Session](t))
 	owner, _ := sc.NewCredentialLeaseOwner(sc.ModelCallOwner, mustID[mc.Call](t).String())
-	return mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: mustID[id.Project](t), MeetingID: mustID[struct{}](t).String(), OperationID: mustID[struct{}](t).String(), Purpose: mc.MeetingSummaryInitial}, Purpose: mc.MeetingSummaryInitial, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}, LeaseOwner: owner}
+	return mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: mustID[id.Project](t), MeetingID: mustID[struct{}](t).String(), OperationID: mustID[struct{}](t).String(), Purpose: mc.MeetingSummaryInitial}, Purpose: mc.MeetingSummaryInitial, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}, LeaseOwner: owner}
 }
 
 func TestModelMeetingSummaryResolutionEntryGuards(t *testing.T) {

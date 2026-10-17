@@ -75,7 +75,7 @@ func TestMeetingM3AppPreparedSummaryColdRecovery(t *testing.T) {
 		Source    mc.ResolutionSource `json:"source"`
 		Selection *mc.SelectionRef    `json:"selection"`
 	}
-	if !prepared || process != first.process || json.Unmarshal(originalSource, &source) != nil || source.Source != mc.CurrentSelectionSource || source.Selection == nil || source.Selection.Kind != "platform" || source.Selection.Selector != mc.MeetingSummarySelector || source.Selection.Version != nil || f.Digest(binding).Validate() != nil {
+	if !prepared || process != first.process || json.Unmarshal(originalSource, &source) != nil || source.Source != mc.CurrentSelectionSource || source.Selection == nil || source.Selection.Kind != "platform" || source.Selection.Selector != mc.SummarySelector || source.Selection.Version != nil || f.Digest(binding).Validate() != nil {
 		t.Fatal("prepared source lost its original selection or process")
 	}
 	meetingM3ColdNoSummaryAdmission(t, v, call, generation)

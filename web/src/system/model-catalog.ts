@@ -5,6 +5,10 @@ import { systemCommand, systemRequest } from "./requests";
 import type { CursorPage } from "./useCursorList";
 import type { AccountCommand } from "../account/session";
 
+export function modelDisplayName(supplier: string, modelId: string): string {
+  return `${supplier}/${modelId}`;
+}
+
 export const protocols = [
   "openai-compatible",
   "openai-chat-completions",

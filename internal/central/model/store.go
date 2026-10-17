@@ -258,23 +258,23 @@ func loadModel(ctx context.Context, x postgres.SQLExecutor, id string) (*modelRe
 }
 
 type selectionRecord struct {
-	ID                                 string
-	Version                            f.Version
-	Configured                         bool
-	Embedding, Memory, Reranker, Image string
+	ID                                  string
+	Version                             f.Version
+	Configured                          bool
+	Embedding, Summary, Reranker, Image string
 }
 
 func loadSelection(ctx context.Context, x postgres.SQLExecutor) (*selectionRecord, error) {
 	var r selectionRecord
 	var ids [4]*string
-	e := x.QueryRow(ctx, `SELECT id::text,version,configured,embedding_id::text,memory_id::text,reranker_id::text,image_id::text FROM agenteam_model.platform_selection WHERE singleton`).Scan(&r.ID, &r.Version, &r.Configured, &ids[0], &ids[1], &ids[2], &ids[3])
+	e := x.QueryRow(ctx, `SELECT id::text,version,configured,embedding_id::text,summary_id::text,reranker_id::text,image_id::text FROM agenteam_model.platform_selection WHERE singleton`).Scan(&r.ID, &r.Version, &r.Configured, &ids[0], &ids[1], &ids[2], &ids[3])
 	if errors.Is(e, pgx.ErrNoRows) {
 		return nil, fault(f.InvalidState)
 	}
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	dest := []*string{&r.Embedding, &r.Memory, &r.Reranker, &r.Image}
+	dest := []*string{&r.Embedding, &r.Summary, &r.Reranker, &r.Image}
 	for i, v := range ids {
 		if v != nil {
 			*dest[i] = *v

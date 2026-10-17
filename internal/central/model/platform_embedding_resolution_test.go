@@ -159,20 +159,20 @@ func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
 			t.Fatal("C0 accepted a nonpositive context length")
 		}
 	}
-	// The new selector must neither broaden direct/Memory/Summary to embeddings
+	// The new selector must neither broaden direct/Summary/Summary to embeddings
 	// nor remove their accepted text/structured Chat profiles.
-	for _, old := range []mc.SelectionRef{{Kind: "direct"}, {Kind: "platform", Selector: mc.MemorySelector}, {Kind: "platform", Selector: mc.MeetingSummarySelector}} {
+	for _, old := range []mc.SelectionRef{{Kind: "direct"}, {Kind: "platform", Selector: mc.SummarySelector}, {Kind: "platform", Selector: mc.SummarySelector}} {
 		p, m := platformEmbeddingTestProfile()
 		_, e := resolutionProfile(&p, &m, old)
 		requireCode(t, e, f.CapabilityUnsupported)
 		p.Input.Protocol, m.Input.Type = mc.OpenAIChat, mc.ChatModel
 		m.Input.Capabilities.OutputModalities = []string{"text"}
-		if old.Selector == mc.MemorySelector {
+		if old.Selector == mc.SummarySelector {
 			m.Input.Capabilities.StructuredOutputModes = []string{"json_schema"}
 		}
 		revision, e := resolutionProfile(&p, &m, old)
 		want := adapter.OpenAIChatTextRevision
-		if old.Selector == mc.MemorySelector {
+		if old.Selector == mc.SummarySelector {
 			want = adapter.OpenAIChatStructuredRevision
 		}
 		if e != nil || revision != want {
@@ -237,7 +237,7 @@ func TestModelPlatformEmbeddingResolutionEntryGuards(t *testing.T) {
 				"model-ref":          func(c *mc.ResolveRequest) { v := mustID[mc.Model](t); c.ModelRef = &v },
 				"selection-project":  func(c *mc.ResolveRequest) { c.Selection.ProjectID = &c.Consumer.ProjectID },
 				"version-zero":       func(c *mc.ResolveRequest) { v := f.Version(0); c.Selection.Version = &v },
-				"wrong-selector":     func(c *mc.ResolveRequest) { c.Selection.Selector = mc.MemorySelector },
+				"wrong-selector":     func(c *mc.ResolveRequest) { c.Selection.Selector = mc.SummarySelector },
 				"wrong-purpose":      func(c *mc.ResolveRequest) { c.Purpose = mc.Rerank },
 				"missing-operation":  func(c *mc.ResolveRequest) { c.Consumer.OperationID = "" },
 				"execution":          func(c *mc.ResolveRequest) { v := mustID[id.Execution](t); c.Consumer.ExecutionID = &v },
@@ -291,7 +291,7 @@ func TestModelPlatformEmbeddingResolutionEntryGuards(t *testing.T) {
 				t.Fatal("request unsafe projection")
 			}
 			copy := r.Clone()
-			copy.Selection.Selector = mc.MemorySelector
+			copy.Selection.Selector = mc.SummarySelector
 			if r.Selection.Selector != mc.EmbeddingSelector {
 				t.Fatal("selection clone aliases caller")
 			}
@@ -311,9 +311,9 @@ func TestModelPlatformEmbeddingResolutionEntryGuards(t *testing.T) {
 	}
 	for _, purpose := range []mc.Purpose{mc.MemoryExtraction, mc.MemoryConsolidation, mc.MemoryReflection} {
 		r := platformEmbeddingTestRequest(t, mc.MemoryEmbedding)
-		r.Purpose, r.Consumer.Purpose, r.Selection.Selector = purpose, purpose, mc.MemorySelector
+		r.Purpose, r.Consumer.Purpose, r.Selection.Selector = purpose, purpose, mc.SummarySelector
 		if r.Validate() != nil || resolutionVariant(r) != nil {
-			t.Fatal("old Memory variant changed", purpose)
+			t.Fatal("old Summary variant changed", purpose)
 		}
 	}
 	for _, purpose := range []mc.Purpose{mc.MeetingSummaryInitial, mc.MeetingSummaryUpdate} {

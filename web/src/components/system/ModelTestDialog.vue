@@ -6,6 +6,7 @@ import { useLeaveProtection } from "../../account/leave";
 import { useSystemAccess } from "../../system/requests";
 import {
   catalogError,
+  modelDisplayName,
   type Provider,
   type CatalogModel,
 } from "../../system/model-catalog";
@@ -77,7 +78,11 @@ useLeaveProtection(() => props.open && locked.value);
     @update:open="close"
   >
     <div class="account-form">
-      <p>{{ model.input.name }}</p>
+      <p class="model-reference">
+        {{
+          modelDisplayName(provider.input.name, model.input.provider_model_id)
+        }}
+      </p>
       <p class="form-note">使用已保存配置发送一次最小测试请求。</p>
       <p v-if="state.busy.value" role="status">
         {{ cancelling ? "正在停止等待，操作结果仍须确认…" : "正在测试…" }}
@@ -119,3 +124,10 @@ useLeaveProtection(() => props.open && locked.value);
     </div></UiDialog
   >
 </template>
+
+<style scoped>
+.model-reference {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+</style>

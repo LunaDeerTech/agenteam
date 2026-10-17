@@ -20,13 +20,13 @@ func TestModelProjectConfigurationHTTPDefaultRoot(t *testing.T) {
 	m := v.projectModel(t, provider)
 	// Only remove unused nullable technical singletons, never initialize Summary
 	// or supply a replacement root. Public app.Run must restore their identities.
-	v.sql(t, `DELETE FROM agenteam_model.platform_selection; DELETE FROM agenteam_model.meeting_summary_selection`)
+	v.sql(t, `DELETE FROM agenteam_model.platform_selection`)
 	// A missing original table must fail default startup before listener publish.
 	// The accepted helper runs public app.Run(nil hooks), owns cancel/actual wait
 	// and retains the existing root cleanup contracts, including their limits.
-	v.sql(t, `ALTER TABLE agenteam_model.meeting_summary_selection RENAME TO unavailable_project_http_summary`)
+	v.sql(t, `ALTER TABLE agenteam_model.platform_selection RENAME TO unavailable_project_http_summary`)
 	restore := func() {
-		v.sql(t, `ALTER TABLE agenteam_model.unavailable_project_http_summary RENAME TO meeting_summary_selection`)
+		v.sql(t, `ALTER TABLE agenteam_model.unavailable_project_http_summary RENAME TO platform_selection`)
 	}
 	restored := false
 	t.Cleanup(func() {
@@ -56,7 +56,7 @@ func TestModelProjectConfigurationHTTPDefaultRoot(t *testing.T) {
 	root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-providers", nil).want(t, 200)
 	summary := root.request(t, v.adminBrowser, "GET", meetingSummarySettingsPath, nil).want(t, 200)
 	obj := summary.object(t)
-	if len(obj) != 3 || obj["model"] != nil || obj["version"] != "1" {
+	if len(obj) != 3 || obj["configured"] != nil || obj["version"] != "1" {
 		t.Fatal("default Summary changed")
 	}
 	path := projectOwnerReadPath(v.project.ID)

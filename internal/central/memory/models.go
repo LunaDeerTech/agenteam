@@ -76,7 +76,7 @@ func resolveRequest(inv *modelInvocation) mc.ResolveRequest {
 		snapshot := inv.serving.SnapshotID
 		r.Source, r.ServingSnapshotID, r.ServingGenerationID = mc.ServingSnapshotSource, &snapshot, inv.serving.GenerationID
 	} else {
-		selector := mc.MemorySelector
+		selector := mc.SummarySelector
 		if inv.consumer.Purpose == mc.MemoryEmbedding {
 			selector = mc.EmbeddingSelector
 		}

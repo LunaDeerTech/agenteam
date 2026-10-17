@@ -12,9 +12,9 @@ import (
 )
 
 func TestModelMeetingSummaryReplacement(t *testing.T) {
-	t.Run("summary-only-plain-text-cross-provider", func(t *testing.T) {
-		v := newMeetingSummaryFixture(t, true)
-		old, next := v.chat(t, false), v.chat(t, false)
+	t.Run("shared-summary-cross-provider", func(t *testing.T) {
+		v := newMeetingSummaryFixture(t)
+		old, next := v.chat(t, true), v.chat(t, true)
 		v.selectModel(t, old)
 		request := mc.DeleteModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: old, ExpectedVersion: 1}
 		before := v.summaryFacts(t)
@@ -27,7 +27,7 @@ func TestModelMeetingSummaryReplacement(t *testing.T) {
 			t.Fatal("summary replacement", e)
 		}
 		selected := v.summary(t)
-		if selected.Model == nil || *selected.Model != next || selected.Version != 3 {
+		if selected.Configured == nil || selected.Configured.Summary != next || selected.Version != 3 {
 			t.Fatal("canonical Summary did not move")
 		}
 		before = v.summaryFacts(t)
@@ -37,10 +37,9 @@ func TestModelMeetingSummaryReplacement(t *testing.T) {
 		}
 		httpSameFacts(t, before, v.summaryFacts(t))
 	})
-	t.Run("two-owners-atomic-and-current-mapping", func(t *testing.T) {
-		v := newMeetingSummaryFixture(t, true)
+	t.Run("one-owner-atomic-and-current-mapping", func(t *testing.T) {
+		v := newMeetingSummaryFixture(t)
 		old, next, plain := v.chat(t, true), v.chat(t, true), v.chat(t, false)
-		v.setMemory(t, old)
 		v.selectModel(t, old)
 		request := mc.DeleteModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: old, ExpectedVersion: 1, Replacement: &plain}
 		before := v.summaryFacts(t)
@@ -68,7 +67,7 @@ func TestModelMeetingSummaryReplacement(t *testing.T) {
 			t.Run(corrupt, func(t *testing.T) {
 				extra := newID[struct{}](t).String()
 				if corrupt == "third-owner" {
-					_, e = v.raw.Exec(testContext(t), `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,model_id,owner_version) VALUES('platform_selector',$1,'meeting_summary',$2,1)`, extra, old.String())
+					_, e = v.raw.Exec(testContext(t), `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,model_id,owner_version) VALUES('platform_selector',$1,'summary',$2,1)`, extra, old.String())
 				} else {
 					_, e = v.raw.Exec(testContext(t), `UPDATE agenteam_model.references SET owner_version=owner_version+1 WHERE owner_id=$1`, summary.ID)
 				}
@@ -119,16 +118,16 @@ func TestModelMeetingSummaryReplacement(t *testing.T) {
 			t.Fatal(e)
 		}
 		receipt, e := v.service.DeleteModel(testContext(t), request)
-		if e != nil || receipt.AffectedReferences != 2 {
-			t.Fatal("two-owner delete", e)
+		if e != nil || receipt.AffectedReferences != 1 {
+			t.Fatal("shared-owner delete", e)
 		}
 		s := v.summary(t)
 		p, e := v.service.GetPlatformSelection(testContext(t), v.admin)
-		if e != nil || s.Version != summary.Version+1 || s.Model == nil || *s.Model != next || p.Version != legacy.Version+1 || p.Configured == nil || p.Configured.Memory != next {
+		if e != nil || s.Version != summary.Version+1 || s.Configured == nil || s.Configured.Summary != next || p.Version != legacy.Version+1 || p.Configured == nil || p.Configured.Summary != next {
 			t.Fatal("owners not changed once", e)
 		}
 		var refs, afterEvents int64
-		if e = v.raw.QueryRow(testContext(t), `SELECT (SELECT count(*) FROM agenteam_model.references WHERE model_id=$1),(SELECT count(*) FROM agenteam_outbox.events WHERE producer='model')`, next.String()).Scan(&refs, &afterEvents); e != nil || refs != 2 || afterEvents-beforeEvents != 3 {
+		if e = v.raw.QueryRow(testContext(t), `SELECT (SELECT count(*) FROM agenteam_model.references WHERE model_id=$1),(SELECT count(*) FROM agenteam_outbox.events WHERE producer='model')`, next.String()).Scan(&refs, &afterEvents); e != nil || refs != 1 || afterEvents-beforeEvents != 2 {
 			t.Fatal("selector events/reference union", e, refs, afterEvents-beforeEvents)
 		}
 	})

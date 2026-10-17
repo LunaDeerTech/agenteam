@@ -199,8 +199,8 @@ func (h *projectHTTP) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	// Only the controller uses the capability adapter. Keep the business writer
 	// on the original middleware chain so Problem retains RequestID, code and
 	// committed-response ownership through the existing Unwrap contract.
-	w = meetingSummaryAbortWriter{ResponseWriter: w}
-	budget := meetingSummaryRequestIO{controller: http.NewResponseController(io), ctx: ctx, body: r.Body}
+	w = modelAbortWriter{ResponseWriter: w}
+	budget := modelRequestIO{controller: http.NewResponseController(io), ctx: ctx, body: r.Body}
 	normal := false
 	defer func() {
 		panicked := recover() != nil
@@ -216,10 +216,10 @@ func (h *projectHTTP) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		panic(http.ErrAbortHandler)
 	}
 	body, err := h.execute(w, r)
-	if meetingSummaryHTTPExpired(ctx) {
+	if modelHTTPExpired(ctx) {
 		panic(http.ErrAbortHandler)
 	}
-	if budget.closeBody() != nil || meetingSummaryHTTPExpired(ctx) {
+	if budget.closeBody() != nil || modelHTTPExpired(ctx) {
 		panic(http.ErrAbortHandler)
 	}
 	if err != nil {
@@ -233,10 +233,10 @@ func (h *projectHTTP) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 			_, _ = w.Write(body)
 		}
 	}
-	if meetingSummaryHTTPExpired(ctx) {
+	if modelHTTPExpired(ctx) {
 		panic(http.ErrAbortHandler)
 	}
-	if budget.controller.Flush() != nil || meetingSummaryHTTPExpired(ctx) {
+	if budget.controller.Flush() != nil || modelHTTPExpired(ctx) {
 		panic(http.ErrAbortHandler)
 	}
 	normal = true
@@ -246,7 +246,7 @@ func (h *projectHTTP) execute(w http.ResponseWriter, r *http.Request) ([]byte, e
 	if err := h.boundary.CheckRequest(w, r); err != nil {
 		return nil, err
 	}
-	if meetingSummaryHTTPExpired(r.Context()) {
+	if modelHTTPExpired(r.Context()) {
 		panic(http.ErrAbortHandler)
 	}
 	kind, rawProject, rawTarget := projectHTTPResource(r.URL.Path)
@@ -261,7 +261,7 @@ func (h *projectHTTP) execute(w http.ResponseWriter, r *http.Request) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
-	if meetingSummaryHTTPExpired(r.Context()) {
+	if modelHTTPExpired(r.Context()) {
 		panic(http.ErrAbortHandler)
 	}
 	if actor.Validate() != nil || actor.Details().Kind != id.Human {
@@ -276,10 +276,10 @@ func (h *projectHTTP) execute(w http.ResponseWriter, r *http.Request) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
-	if err = meetingSummaryHTTPEmptyBody(r); err != nil {
+	if err = modelHTTPEmptyBody(r); err != nil {
 		return nil, err
 	}
-	if meetingSummaryHTTPExpired(r.Context()) {
+	if modelHTTPExpired(r.Context()) {
 		panic(http.ErrAbortHandler)
 	}
 	switch kind {

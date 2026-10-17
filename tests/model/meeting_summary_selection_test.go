@@ -14,49 +14,25 @@ import (
 )
 
 func TestModelMeetingSummarySelection(t *testing.T) {
-	v := newMeetingSummaryFixture(t, false)
-	if out, e := v.service.GetMeetingSummarySelection(testContext(t), v.admin); e == nil || out.ID != "" {
-		t.Fatal("uninitialized selection published", e)
-	} else {
-		requireCode(t, e, f.DependencyUnbound)
+	v := newMeetingSummaryFixture(t)
+	s := v.summary(t)
+	if s.Configured != nil || s.Version != 1 {
+		t.Fatal("invented shared Summary default")
 	}
-	m := v.chat(t, false)
+	m := v.chat(t, true)
 	before := v.summaryFacts(t)
 	var wg sync.WaitGroup
-	errs := make(chan error, 2)
-	for range 2 {
-		wg.Add(1)
-		go func() { defer wg.Done(); errs <- v.service.InitializeMeetingSummarySelection(testContext(t)) }()
-	}
-	wg.Wait()
-	close(errs)
-	for e := range errs {
-		if e != nil {
-			t.Fatal(e)
-		}
-	}
-	s := v.summary(t)
-	if s.Model != nil || s.Version != 1 {
-		t.Fatal("invented Summary default")
-	}
-	old, e := v.service.GetPlatformSelection(testContext(t), v.admin)
-	if e != nil || old.ID == s.ID || old.Version != 1 || old.Configured != nil {
-		t.Fatal("selectors share state", e)
-	}
-	after := v.summaryFacts(t)
-	delete(before, "agenteam_model.meeting_summary_selection")
-	httpSameFacts(t, before, after)
-	if e = v.service.InitializeMeetingSummarySelection(testContext(t)); e != nil {
+	if e := v.service.Initialize(testContext(t)); e != nil {
 		t.Fatal(e)
 	}
-	httpSameFacts(t, after, v.summaryFacts(t))
+	httpSameFacts(t, before, v.summaryFacts(t))
 	r := v.choice(t, m)
-	receipt, e := v.service.UpdateMeetingSummarySelection(testContext(t), r)
+	receipt, e := v.service.UpdatePlatformSelection(testContext(t), r)
 	if e != nil || receipt.Kind != "model.selection.update" || receipt.ResourceID != s.ID || receipt.Version != 2 || receipt.AffectedReferences != 0 {
 		t.Fatal("first selection", e)
 	}
 	stable := v.summaryFacts(t)
-	replay, e := v.service.UpdateMeetingSummarySelection(testContext(t), r)
+	replay, e := v.service.UpdatePlatformSelection(testContext(t), r)
 	if e != nil || replay != receipt {
 		t.Fatal("same request did not replay", e)
 	}
@@ -70,14 +46,14 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 	if saved.Version != 3 {
 		t.Fatal("same value was mistaken for replay")
 	}
-	next := v.chat(t, false)
+	next := v.chat(t, true)
 	a, b := v.choice(t, m), v.choice(t, next)
 	results := make(chan error, 2)
-	for _, request := range []mc.UpdateMeetingSummarySelectionRequest{a, b} {
+	for _, request := range []mc.UpdatePlatformSelectionRequest{a, b} {
 		wg.Add(1)
-		go func(r mc.UpdateMeetingSummarySelectionRequest) {
+		go func(r mc.UpdatePlatformSelectionRequest) {
 			defer wg.Done()
-			_, e := v.service.UpdateMeetingSummarySelection(testContext(t), r)
+			_, e := v.service.UpdatePlatformSelection(testContext(t), r)
 			results <- e
 		}(request)
 	}
@@ -94,20 +70,23 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 	if successes != 1 {
 		t.Fatal("expected version admitted two writers")
 	}
-	for _, mode := range []string{"missing", "nonchat", "disabled-model", "disabled-provider", "nonadmin", "logged-out"} {
+	for _, mode := range []string{"missing", "nonchat", "plain-text-only", "disabled-model", "disabled-provider", "nonadmin", "logged-out"} {
 		t.Run(mode, func(t *testing.T) {
 			request := v.choice(t, m)
 			want := f.NotFound
 			switch mode {
 			case "missing":
-				request.Model = newID[mc.Model](t)
+				request.Selection.Summary = newID[mc.Model](t)
 			case "nonchat":
 				raw := v.model(t, v.provider(t, mc.OpenAIEmbeddings), mc.EmbeddingModel)
-				request.Model, _ = f.ParseID[mc.Model](raw)
+				request.Selection.Summary, _ = f.ParseID[mc.Model](raw)
 				want = f.InvalidArgument
+			case "plain-text-only":
+				request.Selection.Summary = v.chat(t, false)
+				want = f.CapabilityUnsupported
 			case "disabled-model":
-				request.Model = v.chat(t, false)
-				view, e := v.service.GetModel(testContext(t), v.admin, request.Model)
+				request.Selection.Summary = v.chat(t, true)
+				view, e := v.service.GetModel(testContext(t), v.admin, request.Selection.Summary)
 				if e != nil {
 					t.Fatal(e)
 				}
@@ -118,8 +97,8 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 				}
 				want = f.InvalidArgument
 			case "disabled-provider":
-				request.Model = v.chat(t, false)
-				view, e := v.service.GetModel(testContext(t), v.admin, request.Model)
+				request.Selection.Summary = v.chat(t, true)
+				view, e := v.service.GetModel(testContext(t), v.admin, request.Selection.Summary)
 				if e != nil {
 					t.Fatal(e)
 				}
@@ -145,7 +124,7 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 				want = f.SessionRevoked
 			}
 			before := v.summaryFacts(t)
-			out, e := v.service.UpdateMeetingSummarySelection(testContext(t), request)
+			out, e := v.service.UpdatePlatformSelection(testContext(t), request)
 			requireCode(t, e, want)
 			if out != (mc.CommandReceipt{}) {
 				t.Fatal("failed update leaked receipt")
@@ -162,7 +141,7 @@ func TestModelMeetingSummarySelection(t *testing.T) {
 	if _, e = v.service.UpdateModel(testContext(t), mc.UpdateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: m, ExpectedVersion: view.Version, Input: view.Input}); e != nil {
 		t.Fatal(e)
 	}
-	replay, e = v.service.UpdateMeetingSummarySelection(testContext(t), r)
+	replay, e = v.service.UpdatePlatformSelection(testContext(t), r)
 	if e != nil || replay != receipt {
 		t.Fatal("historical replay depended on current model availability", e)
 	}

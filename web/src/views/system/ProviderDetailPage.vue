@@ -17,6 +17,7 @@ import { useSettingsHeading } from "../../layouts/settingsHeading";
 import { accountEnabled } from "../../account/transport";
 import {
   catalogError,
+  modelDisplayName,
   editableProtocols,
   getProvider,
   listModels,
@@ -252,8 +253,8 @@ onBeforeUnmount(() => {
             <table class="model-table" aria-label="供应商模型">
               <thead>
                 <tr>
+                  <th>模型</th>
                   <th>名称</th>
-                  <th>模型 ID</th>
                   <th>类型</th>
                   <th>状态</th>
                   <th><span class="sr-only">操作</span></th>
@@ -261,8 +262,15 @@ onBeforeUnmount(() => {
               </thead>
               <tbody>
                 <tr v-for="model in items" :key="model.id">
+                  <td>
+                    {{
+                      modelDisplayName(
+                        provider.input.name,
+                        model.input.provider_model_id,
+                      )
+                    }}
+                  </td>
                   <td>{{ model.input.name }}</td>
-                  <td>{{ model.input.provider_model_id }}</td>
                   <td>
                     {{
                       modelTypeChoices.find(
@@ -273,7 +281,7 @@ onBeforeUnmount(() => {
                   <td>{{ model.input.enabled ? "已启用" : "已停用" }}</td>
                   <td>
                     <UiMenu
-                      :label="`${model.input.name}操作`"
+                      :label="`${modelDisplayName(provider.input.name, model.input.provider_model_id)}操作`"
                       :items="rowActions(model)"
                       @select="modelAction(model, $event)"
                     />

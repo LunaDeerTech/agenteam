@@ -286,3 +286,63 @@ it("rejects guessed or internally inconsistent capabilities and preserves explic
     "上下文长度",
   );
 });
+
+it("accepts the unified platform summary reference while rejecting removed platform roles", async () => {
+  let ownerKind = "platform_selector";
+  let role = "summary";
+  let blocker: string | null = null;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) => {
+      if (url.endsWith("/session")) return json(session);
+      expect(url).toBe(`/api/v1/system/models/${id}/deletion-impact`);
+      return json({
+        model_id: id,
+        version: "2",
+        reference_count: "1",
+        reference_groups: [{ owner_kind: ownerKind, role, count: "1" }],
+        replacement_requirement: "required",
+        delete_blocker: blocker,
+      });
+    }),
+  );
+  await (await import("../src/account/session")).useSession().refresh();
+  const { modelDraft, modelDraftInput } =
+    await import("../src/system/model-draft");
+  const draft = modelDraft("openai-compatible");
+  Object.assign(draft, {
+    type: "chat",
+    name: "Summary",
+    providerModelId: "summary-model",
+    inputModalities: "text",
+    outputModalities: "text",
+  });
+  const model = {
+    id,
+    provider_id: id,
+    version: "2",
+    input: modelDraftInput(draft, "openai-compatible"),
+    created_at: "2026-10-17T01:00:00.000000Z",
+    updated_at: "2026-10-17T01:00:00.000000Z",
+  };
+  const { getDeletionImpact } = await import("../src/system/model-operations");
+  await expect(getDeletionImpact(model)).resolves.toMatchObject({
+    replacement_requirement: "required",
+    delete_blocker: null,
+    reference_groups: [
+      { owner_kind: "platform_selector", role: "summary", count: "1" },
+    ],
+  });
+  for (const removed of ["memory", "meeting_summary"]) {
+    role = removed;
+    await expect(getDeletionImpact(model)).rejects.toMatchObject({
+      code: "INVALID_RESPONSE",
+    });
+  }
+  ownerKind = "project_summary";
+  role = "meeting_summary";
+  blocker = "reference_adapter_unbound";
+  await expect(getDeletionImpact(model)).resolves.toMatchObject({
+    delete_blocker: "reference_adapter_unbound",
+  });
+});

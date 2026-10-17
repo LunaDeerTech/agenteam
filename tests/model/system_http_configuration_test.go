@@ -73,7 +73,7 @@ func TestModelSystemHTTPSelectionAndReferenceDeletion(t *testing.T) {
 	memory := v.request(t, v.adminBrowser, "POST", "/api/v1/system/models", newID[struct{}](t).String(), chatBody).want(t, 200).object(t)["resource_id"].(string)
 	rerank := v.model(t, v.provider(t, mc.JinaRerank), mc.RerankerModel)
 	image := v.model(t, v.provider(t, mc.OpenAIImages), mc.ImageModel)
-	change := map[string]any{"id": selection["id"], "expected_version": "1", "embedding": embed, "memory": memory, "reranker": rerank, "image": image}
+	change := map[string]any{"id": selection["id"], "expected_version": "1", "embedding": embed, "summary": memory, "reranker": rerank, "image": image}
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).want(t, 200)
 	before := v.facts(t)
 	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), change).problem(t, 409, f.VersionConflict)

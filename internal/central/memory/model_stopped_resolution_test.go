@@ -22,7 +22,7 @@ func stoppedResolutionControl(t *testing.T) (*ModelAuthority, *stoppedResolution
 	actor, _ := reg.Actor(row.Operation.String(), scope)
 	owner, _ := sc.NewCredentialLeaseOwner(sc.ModelCallOwner, row.Call.String())
 	consumer := mc.Consumer{Kind: mc.MemoryConsumer, ProjectID: row.Project, AgentID: &row.Agent, OperationID: row.Operation.String(), Purpose: row.Purpose}
-	original := mc.ResolveRequest{Actor: actor, Consumer: consumer, Purpose: row.Purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MemorySelector}, LeaseOwner: owner}
+	original := mc.ResolveRequest{Actor: actor, Consumer: consumer, Purpose: row.Purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}, LeaseOwner: owner}
 	raw, binding, err := captureModelResolution(original)
 	if err != nil {
 		t.Fatal(err)

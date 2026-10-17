@@ -291,7 +291,7 @@ func (h *configurationHTTP) ServeHTTP(writer http.ResponseWriter, request *http.
 	}
 	// This transparent writer preserves the original middleware's code and
 	// committed state. The capability adapter is controller-only.
-	w := meetingSummaryAbortWriter{ResponseWriter: writer}
+	w := modelAbortWriter{ResponseWriter: writer}
 	body, err := h.execute(w, r)
 	configurationCheckBudget(ctx)
 	if budget.closeBody() != nil {

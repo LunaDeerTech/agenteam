@@ -190,7 +190,7 @@ func (h *systemHTTP) updateSelection(w http.ResponseWriter, r *http.Request, m m
 		ID        f.ID[struct{}]  `json:"id"`
 		Expected  f.Version       `json:"expected_version"`
 		Embedding mc.ModelID      `json:"embedding"`
-		Memory    mc.ModelID      `json:"memory"`
+		Summary   mc.ModelID      `json:"summary"`
 		Reranker  json.RawMessage `json:"reranker"`
 		Image     json.RawMessage `json:"image"`
 	}
@@ -205,7 +205,7 @@ func (h *systemHTTP) updateSelection(w http.ResponseWriter, r *http.Request, m m
 	if err != nil {
 		return nil, err
 	}
-	return h.core.UpdatePlatformSelection(r.Context(), mc.UpdatePlatformSelectionRequest{CommandMeta: m, ExpectedVersion: dto.Expected, Selection: mc.PlatformSelection{ID: dto.ID.String(), Version: dto.Expected, Embedding: dto.Embedding, Memory: dto.Memory, Reranker: reranker, Image: image}})
+	return h.core.UpdatePlatformSelection(r.Context(), mc.UpdatePlatformSelectionRequest{CommandMeta: m, ExpectedVersion: dto.Expected, Selection: mc.PlatformSelection{ID: dto.ID.String(), Version: dto.Expected, Embedding: dto.Embedding, Summary: dto.Summary, Reranker: reranker, Image: image}})
 }
 
 func (h *systemHTTP) lookupCommand(w http.ResponseWriter, r *http.Request, m mc.CommandMeta) (any, error) {

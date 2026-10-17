@@ -23,17 +23,13 @@ import (
 
 func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	meetingSummarySettingsBudget(t)
-	v := newMeetingSummaryFixture(t, false)
+	v := newMeetingSummaryFixture(t)
 	request := func(b systemHTTPBrowser, method, key string, body any) systemHTTPResponse {
 		return meetingSummarySettingsRequest(t, v.systemHTTPFixture, b, method, meetingSummarySettingsPath, key, body)
 	}
-	request(v.adminBrowser, "GET", "", nil).problem(t, 503, f.DependencyUnbound)
-	if e := v.service.InitializeMeetingSummarySelection(testContext(t)); e != nil {
-		t.Fatal(e)
-	}
 	empty := request(v.adminBrowser, "GET", "", nil).want(t, 200)
 	fields := empty.object(t)
-	if len(fields) != 3 || fields["model"] != nil || fields["version"] != "1" {
+	if len(fields) != 3 || fields["configured"] != nil || fields["version"] != "1" {
 		t.Fatal("null singleton projection")
 	}
 	meetingSummarySettingsSafeBody(t, "null", meetingSummarySettingsPath, empty)
@@ -41,15 +37,15 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	if len(head.body) != 0 || head.headers.Get("Content-Length") != empty.headers.Get("Content-Length") {
 		t.Fatal("HEAD differs")
 	}
-	plain, next := v.chat(t, false), v.chat(t, false)
+	plain, next := v.chat(t, true), v.chat(t, true)
 	original := v.choice(t, plain)
 	body := meetingSummarySettingsBody(original)
 	receipt := request(v.adminBrowser, "PUT", string(original.Key), body)
 	meetingSummarySettingsReceipt(t, receipt, original)
 	meetingSummarySettingsSafeBody(t, "receipt", meetingSummarySettingsPath, receipt, original)
 	configured := request(v.adminBrowser, "GET", "", nil).want(t, 200)
-	if out := configured.object(t); out["model"] != plain.String() || out["version"] != "2" {
-		t.Fatal("plain text chat not selected")
+	if out := configured.object(t); out["configured"].(map[string]any)["summary"] != plain.String() || out["version"] != "2" {
+		t.Fatal("shared summary model not selected")
 	}
 	meetingSummarySettingsSafeBody(t, "configured", meetingSummarySettingsPath, configured)
 	stable := v.summaryFacts(t)
@@ -57,22 +53,21 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	httpSameFacts(t, stable, v.summaryFacts(t))
 	same := v.choice(t, plain)
 	meetingSummarySettingsReceipt(t, request(v.adminBrowser, "PUT", string(same.Key), meetingSummarySettingsBody(same)), same)
-	legacy := v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", "", nil).want(t, 200).object(t)
-	if legacy["configured"] != nil || legacy["id"] == original.SelectionID || legacy["version"] != "1" {
-		t.Fatal("Summary changed old selector")
-	}
-	// The old seven-kind namespace must reject a different selector/body with the
-	// same key rather than turn a generic lookup receipt into write permission.
-	oldBody := map[string]any{"id": legacy["id"], "expected_version": "1", "embedding": v.model(t, v.provider(t, mc.OpenAIEmbeddings), mc.EmbeddingModel), "memory": v.chat(t, true).String(), "reranker": nil, "image": nil}
-	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", string(original.Key), oldBody).problem(t, 409, f.IdempotencyKeyReused)
+	different := meetingSummarySettingsBody(original)
+	different["summary"] = next.String()
+	request(v.adminBrowser, "PUT", string(original.Key), different).problem(t, 409, f.IdempotencyKeyReused)
+	clearBody := meetingSummarySettingsBody(same)
+	clearBody["summary"] = nil
+	wrongID := meetingSummarySettingsBody(same)
+	wrongID["id"] = newID[struct{}](t).String()
 	for _, tc := range []struct {
 		name   string
 		body   map[string]any
 		status int
 		code   f.Code
 	}{
-		{"clear", map[string]any{"id": original.SelectionID, "expected_version": "3", "model": nil}, 400, f.InvalidArgument},
-		{"wrong_selector", map[string]any{"id": legacy["id"], "expected_version": "1", "model": plain.String()}, 404, f.NotFound},
+		{"clear", clearBody, 400, f.InvalidArgument},
+		{"wrong_selector", wrongID, 404, f.NotFound},
 		{"stale", body, 409, f.VersionConflict},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -84,9 +79,9 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	a, b := v.choice(t, plain), v.choice(t, next)
 	responses := make(chan systemHTTPResponse, 2)
 	var wg sync.WaitGroup
-	for _, candidate := range []mc.UpdateMeetingSummarySelectionRequest{a, b} {
+	for _, candidate := range []mc.UpdatePlatformSelectionRequest{a, b} {
 		wg.Add(1)
-		go func(c mc.UpdateMeetingSummarySelectionRequest) {
+		go func(c mc.UpdatePlatformSelectionRequest) {
 			defer wg.Done()
 			raw := summaryJSON(t, meetingSummarySettingsBody(c))
 			r, abort, _ := meetingSummarySettingsRaw(testContext(t), v.http, v.adminBrowser, "PUT", meetingSummarySettingsPath, string(c.Key), raw, nil, false)
@@ -158,7 +153,7 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 			choice := v.choice(t, plain)
 			var fired atomic.Bool
 			v.tracked.setHooks(func(_ context.Context, cause f.TransactionCause) error {
-				if (cause.Details().Owner == "model.meeting-summary-query" || cause.Details().Primary.Namespace() == "model.system") && fired.CompareAndSwap(false, true) {
+				if (cause.Details().Owner == "model.query" || cause.Details().Primary.Namespace() == "model.system") && fired.CompareAndSwap(false, true) {
 					return v.account.Logout(testContext(t), account.LogoutRequest{Actor: browser.actor, Key: f.IdempotencyKey(newID[struct{}](t).String())})
 				}
 				return nil
@@ -177,7 +172,7 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 	})
 	// Canonical/reference/receipt/Audit/Event all agree, not merely an HTTP 200.
 	var consistent bool
-	e := v.raw.QueryRow(testContext(t), `SELECT EXISTS(SELECT 1 FROM agenteam_model.meeting_summary_selection s JOIN agenteam_model.references r ON r.owner_id=s.id AND r.owner_kind='platform_selector' AND r.role='meeting_summary' AND r.model_id=s.model_id AND r.owner_version=s.version WHERE EXISTS(SELECT 1 FROM agenteam_model.commands c WHERE c.resource_id=s.id AND c.phase='committed' AND c.safe_receipt IS NOT NULL AND EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.producer='model')) AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.resource_id=s.id AND a.producer='model' AND a.action='model.selection.update'))`).Scan(&consistent)
+	e := v.raw.QueryRow(testContext(t), `SELECT EXISTS(SELECT 1 FROM agenteam_model.platform_selection s JOIN agenteam_model.references r ON r.owner_id=s.id AND r.owner_kind='platform_selector' AND r.role='summary' AND r.model_id=s.summary_id AND r.owner_version=s.version WHERE EXISTS(SELECT 1 FROM agenteam_model.commands c WHERE c.resource_id=s.id AND c.phase='committed' AND c.safe_receipt IS NOT NULL AND EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.producer='model')) AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.resource_id=s.id AND a.producer='model' AND a.action='model.selection.update'))`).Scan(&consistent)
 	if e != nil || !consistent {
 		t.Fatal("atomic effects incomplete", e)
 	}
@@ -186,8 +181,8 @@ func TestModelMeetingSummarySettingsHTTP(t *testing.T) {
 func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 	meetingSummarySettingsBudget(t)
 	t.Run("accepted_short_response_and_historical_replay", func(t *testing.T) {
-		v := newMeetingSummaryFixture(t, true)
-		target, next := v.chat(t, false), v.chat(t, false)
+		v := newMeetingSummaryFixture(t)
+		target, next := v.chat(t, true), v.chat(t, true)
 		original := v.choice(t, target)
 		body := meetingSummarySettingsBody(original)
 		short, aborted, complete := meetingSummarySettingsRaw(testContext(t), v.http, v.adminBrowser, "PUT", meetingSummarySettingsPath, string(original.Key), summaryJSON(t, body), nil, true)
@@ -204,7 +199,7 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 		httpSameFacts(t, stable, v.summaryFacts(t))
 		meetingSummarySettingsSafeBody(t, "lookup", "/api/v1/system/model-commands/lookup", lookup, original)
 		changed := meetingSummarySettingsBody(original)
-		changed["model"] = next.String()
+		changed["summary"] = next.String()
 		meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "PUT", meetingSummarySettingsPath, string(original.Key), changed).problem(t, 409, f.IdempotencyKeyReused)
 		// A later disabled model is still observed, and the original receipt survives
 		// both disable and formal atomic replacement/deletion at a higher version.
@@ -217,7 +212,7 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 			t.Fatal(e)
 		}
 		current := meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "GET", meetingSummarySettingsPath, "", nil).want(t, 200).object(t)
-		if current["model"] != target.String() {
+		if current["configured"].(map[string]any)["summary"] != target.String() {
 			t.Fatal("disabled reference erased")
 		}
 		impactPath := "/api/v1/system/models/" + target.String() + "/deletion-impact"
@@ -243,8 +238,8 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 		t.Log("real accepted command with controlled truncated writer; lookup read-only; exact receipt retained across disable/delete/replacement and formal new Session")
 	})
 	t.Run("original_commit_ack_loss_via_http", func(t *testing.T) {
-		base := newMeetingSummaryFixture(t, true)
-		target := base.chat(t, false)
+		base := newMeetingSummaryFixture(t)
+		target := base.chat(t, true)
 		original := base.choice(t, target)
 		identity, e := f.NewCommandIdentity("model.system", []string{base.admin.Details().UserID}, "model.selection.update", original.Key)
 		if e != nil {
@@ -305,8 +300,8 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 		t.Log("original PG COMMIT/idle ACK dropped; real Unknown confirmed by existing service; HTTP returned original receipt, actual handler joined")
 	})
 	t.Run("pending_original_writer_then_lookup_and_replay", func(t *testing.T) {
-		base := newMeetingSummaryFixture(t, true)
-		target := base.chat(t, false)
+		base := newMeetingSummaryFixture(t)
+		target := base.chat(t, true)
 		original := base.choice(t, target)
 		identity, e := f.NewCommandIdentity("model.system", []string{base.admin.Details().UserID}, "model.selection.update", original.Key)
 		if e != nil {
@@ -377,7 +372,7 @@ func TestModelMeetingSummarySettingsRecovery(t *testing.T) {
 		stable := base.summaryFacts(t)
 		lookupResponse := base.request(t, base.adminBrowser, "POST", "/api/v1/system/model-commands/lookup", string(original.Key), map[string]any{"command": "model.selection.update"}).want(t, 200)
 		lookup := lookupResponse.object(t)
-		if lookup["found"] != false || lookup["receipt"] != nil || base.summary(t).Model != nil {
+		if lookup["found"] != false || lookup["receipt"] != nil || base.summary(t).Configured != nil {
 			t.Fatal("rolled-back writer became receipt")
 		}
 		httpSameFacts(t, stable, base.summaryFacts(t))

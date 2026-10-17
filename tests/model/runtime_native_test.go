@@ -210,7 +210,6 @@ CREATE TABLE model_runtime_fixture.operations(id uuid PRIMARY KEY,project_id uui
 	v.base.service, err = model.New(raw, v.base.authority, v.base.deps)
 	requireTextRuntime(t, err)
 	requireTextRuntime(t, v.base.service.Initialize(testContext(t)))
-	requireTextRuntime(t, v.base.service.InitializeMeetingSummarySelection(testContext(t)))
 	private := t.TempDir()
 	requireTextRuntime(t, os.Chmod(private, 0700))
 	logPath := filepath.Join(private, "account-recovery.jsonl")

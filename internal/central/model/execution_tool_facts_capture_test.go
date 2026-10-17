@@ -41,7 +41,7 @@ func TestExecutionToolFactsCaptureProfileIsExplicitAndClosed(t *testing.T) {
 			m.Input.Parameters = json.RawMessage(`{"temperature":1}`)
 		},
 		"selection": func(_ *providerRecord, _ *modelRecord, s *mc.SelectionRef) {
-			*s = mc.SelectionRef{Kind: "platform", Selector: mc.MemorySelector}
+			*s = mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

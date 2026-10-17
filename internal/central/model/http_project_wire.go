@@ -154,7 +154,7 @@ func projectHTTPContext(ctx context.Context) error {
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}
-	if meetingSummaryHTTPExpired(ctx) {
+	if modelHTTPExpired(ctx) {
 		return context.DeadlineExceeded
 	}
 	return nil

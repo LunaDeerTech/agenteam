@@ -256,7 +256,7 @@ export async function getDeletionImpact(
             "approval_model",
             "embedding",
             "image",
-            "memory",
+            "summary",
             "reranker",
             "meeting_summary",
           ].includes(String(g.role)) &&
@@ -274,13 +274,7 @@ export async function getDeletionImpact(
   const keys = result.reference_groups.map((g) => `${g.owner_kind}:${g.role}`);
   const validRoles: Record<string, string[]> = {
     agent: ["agent_model", "approval_model"],
-    platform_selector: [
-      "embedding",
-      "image",
-      "meeting_summary",
-      "memory",
-      "reranker",
-    ],
+    platform_selector: ["embedding", "image", "summary", "reranker"],
     project_summary: ["meeting_summary"],
   };
   const blocked = result.reference_groups.some(
@@ -289,7 +283,7 @@ export async function getDeletionImpact(
   const required =
     blocked ||
     result.reference_groups.some((g) =>
-      ["embedding", "memory", "meeting_summary"].includes(g.role),
+      ["embedding", "summary", "meeting_summary"].includes(g.role),
     );
   const requirement =
     result.reference_count === "0"

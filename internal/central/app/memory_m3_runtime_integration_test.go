@@ -411,7 +411,7 @@ func memoryM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentScenar
 	}
 	meetingM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	var receipt mc.CommandReceipt
-	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": models[2], "memory": models[1], "reranker": nil, "image": nil}, &receipt)
+	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": models[2], "summary": models[1], "reranker": nil, "image": nil}, &receipt)
 	return models[0]
 }
 func memoryM3CreateSprint(t *testing.T, v *executionSchedulerApp) wc.Sprint {
@@ -518,7 +518,7 @@ func memoryM3ReplaceEmbedding(t *testing.T, v *executionSchedulerApp, scenario s
 		ID         string    `json:"id"`
 		Version    f.Version `json:"version"`
 		Configured *struct {
-			Memory   mc.ModelID  `json:"memory"`
+			Summary  mc.ModelID  `json:"summary"`
 			Reranker *mc.ModelID `json:"reranker"`
 			Image    *mc.ModelID `json:"image"`
 		} `json:"configured"`
@@ -527,7 +527,7 @@ func memoryM3ReplaceEmbedding(t *testing.T, v *executionSchedulerApp, scenario s
 	if selection.Configured == nil {
 		t.Fatal("first generation lost configured selectors")
 	}
-	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": model, "memory": selection.Configured.Memory, "reranker": selection.Configured.Reranker, "image": selection.Configured.Image}, &receipt)
+	meetingM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": model, "summary": selection.Configured.Summary, "reranker": selection.Configured.Reranker, "image": selection.Configured.Image}, &receipt)
 	return model
 }
 

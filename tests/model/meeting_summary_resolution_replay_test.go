@@ -10,7 +10,7 @@ import (
 )
 
 func TestModelMeetingSummaryResolutionReplay(t *testing.T) {
-	v := newMeetingResolutionFixture(t, true)
+	v := newMeetingResolutionFixture(t)
 	_, first, _ := v.config(t, false, true)
 	provider, second, _ := v.config(t, false, true)
 	v.choose(t, first.ID)

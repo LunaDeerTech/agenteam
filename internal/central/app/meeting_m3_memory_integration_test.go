@@ -94,8 +94,9 @@ func TestMeetingM3AppMemoryTools(t *testing.T) {
 	content := map[string]any{"type": "procedure", "text": memoryM3Fact, "tags": []string{"migration"}, "importance": "normal"}
 	extraction := string(workAppJSON(t, map[string]any{"candidates": []any{content}}))
 	consolidation := string(workAppJSON(t, map[string]any{"actions": []any{map[string]any{"action": "ADD", "target_memory_id": "", "expected_revision": "", "content": content, "reason": "Reusable migration procedure"}}}))
+	summaryText := string(workAppJSON(t, map[string]string{"title": "Migration memory", "goals": "Remember migration checks", "decisions": "Use the retained procedure", "unresolved": "", "facts": "The same participant retained, recalled and reflected on a lesson"}))
 	memoryScenario, err := network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: []netfixture.WireScenario{
-		memoryM3TextReply(t, extraction, 1), memoryM3TextReply(t, consolidation, 2), memoryM3TextReply(t, memoryM3Reflection, 3),
+		memoryM3TextReply(t, extraction, 1), memoryM3TextReply(t, consolidation, 2), memoryM3TextReply(t, memoryM3Reflection, 3), meetingM3Reply(t, 4, summaryText),
 	}})
 	workAppCheck(t, "meeting-memory-structured-peer", err)
 	embeddingWire := netfixture.WireScenario{Status: http.StatusOK, Headers: map[string]string{"Content-Type": "application/json"}, Chunks: [][]byte{workAppJSON(t, map[string]any{
@@ -103,15 +104,9 @@ func TestMeetingM3AppMemoryTools(t *testing.T) {
 	})}}
 	embeddingScenario, err := network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_embeddings_wire", Wire: &embeddingWire})
 	workAppCheck(t, "meeting-memory-embedding-peer", err)
-	summaryText := string(workAppJSON(t, map[string]string{"title": "Migration memory", "goals": "Remember migration checks", "decisions": "Use the retained procedure", "unresolved": "", "facts": "The same participant retained, recalled and reflected on a lesson"}))
-	summaryWire := meetingM3Reply(t, 1, summaryText)
-	summaryScenario, err := network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", Wire: &summaryWire})
-	workAppCheck(t, "meeting-memory-summary-peer", err)
 	stage = "owner-model-configuration"
 	agentModel := memoryM3ConfigureModels(t, v, agentScenario, memoryScenario, embeddingScenario)
-	// This existing helper selects a separate text-only Summary model. Its
-	// unused Agent model does not replace the Agent's original memory peer.
-	meetingM3ConfigureModel(t, v, "https://fixture.test:8443/case/"+summaryScenario)
+	// Memory and Meeting now consume the same Summary model and controlled peer.
 	agent := guardID[id.Agent](t)
 	intent, err := meetingMemoryAgentIntent(agent, agentModel)
 	workAppCheck(t, "meeting-memory-agent-intent", err)
@@ -172,9 +167,8 @@ func TestMeetingM3AppMemoryTools(t *testing.T) {
 		t.Fatal("Meeting Memory App returned before all original owners joined")
 	}
 	state := w.joinedPeer(t, agentScenario, 4, 4)
-	w.joinedPeer(t, memoryScenario, 3, 3)
+	w.joinedPeer(t, memoryScenario, 4, 4)
 	w.joinedPeer(t, embeddingScenario, 3, 3)
-	w.joinedPeer(t, summaryScenario, 1, 1)
 	for index, want := range map[int]string{1: `"added"`, 2: memoryM3Fact, 3: memoryM3Reflection} {
 		if !strings.Contains(memoryM3LastTool(t, state.Requests[index].Body), want) {
 			t.Fatalf("Meeting Agent did not receive its original Memory result at round=%d", index+1)

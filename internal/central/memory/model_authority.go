@@ -265,7 +265,7 @@ func (a *ModelAuthority) witness(ctx context.Context, r mc.ConsumerRequest) (*mo
 				return nil, fault(f.Forbidden)
 			}
 		} else {
-			selector := mc.MemorySelector
+			selector := mc.SummarySelector
 			if inv.consumer.Purpose == mc.MemoryEmbedding {
 				selector = mc.EmbeddingSelector
 			}

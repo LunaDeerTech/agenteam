@@ -17,6 +17,7 @@ import { useSystemAccess } from "../../system/requests";
 import {
   catalogOperation,
   catalogError,
+  modelDisplayName,
   type Provider,
   type ModelInput,
   type CatalogReceipt,
@@ -282,7 +283,9 @@ useLeaveProtection(() => props.open && locked.value);
                   !selected.includes(item.provider_model_id) &&
                   selected.length >= 100
                 "
-              /><span>{{ item.provider_model_id }}</span></label
+              /><span>{{
+                modelDisplayName(provider.input.name, item.provider_model_id)
+              }}</span></label
             >
           </div>
           <template v-if="configuring"
@@ -292,7 +295,7 @@ useLeaveProtection(() => props.open && locked.value);
               class="import-configuration"
               :open="index === 0"
             >
-              <summary>{{ id }}</summary>
+              <summary>{{ modelDisplayName(provider.input.name, id) }}</summary>
               <ModelFormFields
                 :draft="drafts[id]!"
                 :protocol="provider.input.protocol"
@@ -324,7 +327,7 @@ useLeaveProtection(() => props.open && locked.value);
         </p>
         <ul class="import-results">
           <li v-for="item in batch" :key="item.id">
-            <span>{{ item.id }}</span
+            <span>{{ modelDisplayName(provider.input.name, item.id) }}</span
             ><span>{{
               {
                 pending: "未开始",

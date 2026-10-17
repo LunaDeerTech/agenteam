@@ -227,7 +227,7 @@ func (v *textRuntimeFixture) request(t *testing.T, key string) mc.ModelRequest {
 	providerID, _ := f.ParseID[mc.Provider](providerReceipt.ResourceID)
 	input := projectModelInput()
 	input.ProviderModelID = "fixture-native-model"
-	input.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, Streaming: true}
+	input.Capabilities = mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, Streaming: true, StructuredOutputModes: []string{"json_schema"}}
 	receipt, err := v.base.service.CreateModel(testContext(t), mc.CreateModelRequest{CommandMeta: v.base.meta(t, newID[struct{}](t).String()), ProviderID: providerID, Input: input})
 	if err != nil {
 		t.Fatal("real text Model create", err)
@@ -238,15 +238,16 @@ func (v *textRuntimeFixture) request(t *testing.T, key string) mc.ModelRequest {
 	if err != nil {
 		t.Fatal(err)
 	}
-	selection, err := v.base.service.GetMeetingSummarySelection(testContext(t), v.base.admin)
+	selection, err := v.base.service.GetPlatformSelection(testContext(t), v.base.admin)
 	if err != nil {
 		t.Fatal("real platform selection read", err)
 	}
-	_, err = v.base.service.UpdateMeetingSummarySelection(testContext(t), mc.UpdateMeetingSummarySelectionRequest{CommandMeta: v.base.meta(t, newID[struct{}](t).String()), SelectionID: selection.ID, ExpectedVersion: selection.Version, Model: modelID})
+	embedding := v.base.model(t, v.base.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel)
+	_, err = v.base.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.base.meta(t, newID[struct{}](t).String()), ExpectedVersion: selection.Version, Selection: mc.PlatformSelection{ID: selection.ID, Version: selection.Version, Embedding: embedding.ID, Summary: modelID}})
 	if err != nil {
 		t.Fatal("real platform summary selection update", err)
 	}
-	resolve := mc.ResolveRequest{Actor: v.base.owner, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: v.base.project.ID, MeetingID: newID[struct{}](t).String(), OperationID: newID[struct{}](t).String(), Purpose: mc.MeetingSummaryInitial}, Purpose: mc.MeetingSummaryInitial, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}, LeaseOwner: owner}
+	resolve := mc.ResolveRequest{Actor: v.base.owner, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: v.base.project.ID, MeetingID: newID[struct{}](t).String(), OperationID: newID[struct{}](t).String(), Purpose: mc.MeetingSummaryInitial}, Purpose: mc.MeetingSummaryInitial, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}, LeaseOwner: owner}
 	messages := []mc.Message{{Role: "user", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: textRuntimeInputCanary}}}}}
 	digest, err := model.TextInputDigest(messages)
 	if err != nil {

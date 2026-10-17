@@ -193,10 +193,10 @@ func knowledgeM3RetentionModels(t *testing.T, v *executionSchedulerApp, scenario
 	credential := knowledgeM3RetentionCredential(t, v, "owned-knowledge-retention")
 	var embedding, memory mc.ModelID
 	var embeddingProvider mc.ProviderID
-	for _, profile := range []string{"embedding", "memory"} {
+	for _, profile := range []string{"embedding", "summary"} {
 		protocol := mc.OpenAIEmbeddings
 		ref := credential
-		if profile == "memory" {
+		if profile == "summary" {
 			protocol = mc.OpenAIChat
 			ref = knowledgeM3RetentionCredential(t, v, "owned-knowledge-structured")
 		}
@@ -220,7 +220,7 @@ func knowledgeM3RetentionModels(t *testing.T, v *executionSchedulerApp, scenario
 	}
 	knowledgeM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	var receipt mc.CommandReceipt
-	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "memory": memory, "reranker": nil, "image": nil}, &receipt)
+	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "summary": memory, "reranker": nil, "image": nil}, &receipt)
 	return embeddingProvider, credential
 }
 
@@ -381,7 +381,7 @@ func TestKnowledgeM3AppConfiguration(t *testing.T) {
 	// Validate the exact inputs passed by live setup, including the distinct
 	// structured selector and the currently supported ToolLoop profile.
 	embedding := knowledgeM3ModelInput(t, "embedding", "fixture-embedding")
-	memory := knowledgeM3ModelInput(t, "memory", "fixture-chat")
+	memory := knowledgeM3ModelInput(t, "summary", "fixture-chat")
 	agent := knowledgeM3ModelInput(t, "agent", "fixture-chat")
 	if embedding.Type != mc.EmbeddingModel || memory.Type != mc.ChatModel || memory.Capabilities.ToolCalls || !slices.Equal(memory.Capabilities.StructuredOutputModes, []string{"text", "json_schema"}) || !agent.Capabilities.ToolCalls || agent.Capabilities.ParallelToolCalls || agent.Capabilities.Reasoning || !slices.Equal(agent.Capabilities.StructuredOutputModes, []string{"text"}) || !slices.Equal(agent.Capabilities.InputModalities, []string{"text"}) || !slices.Equal(agent.Capabilities.OutputModalities, []string{"text"}) {
 		t.Fatal("Knowledge platform structured and Agent ToolLoop profiles overlap")
@@ -479,7 +479,7 @@ func knowledgeM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentSou
 		credential, err := secrets.ExecuteWrite(v.ctx, sc.WriteRequest{Actor: v.actor, Scope: id.SystemScope(), Identity: identity, Kind: sc.Create, Purpose: sc.Model, Value: material})
 		material.Destroy()
 		workAppCheck(t, "knowledge-real-secret", err)
-		protocol, profile := mc.OpenAIChat, "memory"
+		protocol, profile := mc.OpenAIChat, "summary"
 		if kind == "EMBEDDING" {
 			protocol, profile = mc.OpenAIEmbeddings, "embedding"
 		}
@@ -511,7 +511,7 @@ func knowledgeM3ConfigureModels(t *testing.T, v *executionSchedulerApp, agentSou
 	}
 	knowledgeM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
 	var receipt mc.CommandReceipt
-	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "memory": memory, "reranker": nil, "image": nil}, &receipt)
+	knowledgeM3SystemCall(t, v, "PUT", "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "summary": memory, "reranker": nil, "image": nil}, &receipt)
 	if agentSources {
 		if agentModel.Validate() != nil || agentModel == memory {
 			t.Fatal("Knowledge Agent and structured platform Model profiles were not distinct")
@@ -528,7 +528,7 @@ func knowledgeM3ModelInput(t *testing.T, profile, upstream string) mc.ModelInput
 	case "embedding":
 		input.Type = mc.EmbeddingModel
 		input.Capabilities.OutputModalities = []string{"vector"}
-	case "memory":
+	case "summary":
 		limit := mc.TokenCount(128)
 		input.Capabilities.Streaming = true
 		input.Capabilities.MaxOutput = &limit

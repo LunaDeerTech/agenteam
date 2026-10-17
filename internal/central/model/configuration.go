@@ -150,13 +150,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			}
 		}
 	case "model.selection.update":
-		if r.MeetingSummary != nil {
-			version, e = s.prepareMeetingSummary(ctx, p, r)
-			if e != nil {
-				return nil, e
-			}
-			break
-		}
+
 		old, e := loadSelection(ctx, x)
 		if e != nil {
 			return nil, e
@@ -172,7 +166,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 		if e != nil {
 			return nil, e
 		}
-		v := selectionRecord{ID: old.ID, Version: version, Configured: true, Embedding: r.Selection.Embedding.String(), Memory: r.Selection.Memory.String()}
+		v := selectionRecord{ID: old.ID, Version: version, Configured: true, Embedding: r.Selection.Embedding.String(), Summary: r.Selection.Summary.String()}
 		if r.Selection.Reranker != nil {
 			v.Reranker = r.Selection.Reranker.String()
 		}
@@ -235,15 +229,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			p.locks = append(p.locks, recordLock(f.ReferenceRecordLock, "model:platform:"+ref.Owner+":"+ref.Role))
 		}
 	}
-	if plan.BeforeMeetingSummary != nil {
-		p.locks = append(p.locks, systemLock("model-meeting-summary-selection", f.Exclusive))
-		for _, ref := range append(meetingSummaryReferences(plan.BeforeMeetingSummary), meetingSummaryReferences(plan.AfterMeetingSummary)...) {
-			p.locks = append(p.locks, recordLock(f.ReferenceRecordLock, "model:platform:"+ref.Owner+":"+ref.Role))
-		}
-	}
-	if e = validateMeetingSummaryPlan(plan); e != nil {
-		return nil, e
-	}
+
 	if e = s.prepareEvents(p); e != nil {
 		return nil, e
 	}
@@ -261,18 +247,7 @@ func normalizedModel(v mc.ModelInput) mc.ModelInput {
 
 func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p *preparedCommand) error {
 	v := &p.plan
-	if e := validateMeetingSummaryPlan(v); e != nil {
-		return e
-	}
-	if v.BeforeMeetingSummary != nil {
-		current, e := loadMeetingSummaryState(ctx, x)
-		if e != nil {
-			return e
-		}
-		if !sameValue(current, v.BeforeMeetingSummary) {
-			return fault(f.ResourceBusy)
-		}
-	}
+
 	if v.BeforeProvider != nil {
 		current, e := loadProviderScope(ctx, x, v.BeforeProvider.ID, configurationScope(v.BeforeProvider.Project))
 		if e != nil {
@@ -378,7 +353,7 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
 		}
 	}
 	if r := v.AfterSelection; r != nil {
-		_, e := x.Exec(ctx, `UPDATE agenteam_model.platform_selection SET version=$2,configured=$3,embedding_id=$4,memory_id=$5,reranker_id=$6,image_id=$7,updated_at=$8 WHERE id=$1`, r.ID, int64(r.Version), r.Configured, null(r.Embedding), null(r.Memory), null(r.Reranker), null(r.Image), v.At.Time())
+		_, e := x.Exec(ctx, `UPDATE agenteam_model.platform_selection SET version=$2,configured=$3,embedding_id=$4,summary_id=$5,reranker_id=$6,image_id=$7,updated_at=$8 WHERE id=$1`, r.ID, int64(r.Version), r.Configured, null(r.Embedding), null(r.Summary), null(r.Reranker), null(r.Image), v.At.Time())
 		if e != nil {
 			return unavailable(e)
 		}
@@ -391,11 +366,7 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
 			}
 		}
 	}
-	if v.AfterMeetingSummary != nil {
-		if e := applyMeetingSummary(ctx, x, v.AfterMeetingSummary); e != nil {
-			return e
-		}
-	}
+
 	if v.Kind == "model.delete" {
 		if _, e := x.Exec(ctx, `DELETE FROM agenteam_model.models WHERE id=$1`, v.Resource); e != nil {
 			return unavailable(e)

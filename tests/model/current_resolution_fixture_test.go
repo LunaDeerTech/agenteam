@@ -330,7 +330,7 @@ func (v *currentResolutionFixture) memory(t *testing.T, m mc.ModelView) mc.Resol
 	actor := v.owner
 	agent := newID[id.Agent](t)
 	owner, _ := sc.NewCredentialLeaseOwner(sc.ModelCallOwner, newID[mc.Call](t).String())
-	r := mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.MemoryConsumer, ProjectID: v.project.ID, AgentID: &agent, OperationID: newID[struct{}](t).String(), Purpose: mc.MemoryExtraction}, Purpose: mc.MemoryExtraction, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MemorySelector}, LeaseOwner: owner}
+	r := mc.ResolveRequest{Actor: actor, Consumer: mc.Consumer{Kind: mc.MemoryConsumer, ProjectID: v.project.ID, AgentID: &agent, OperationID: newID[struct{}](t).String(), Purpose: mc.MemoryExtraction}, Purpose: mc.MemoryExtraction, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}, LeaseOwner: owner}
 	v.bind(t, r)
 	return r
 }

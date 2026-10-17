@@ -164,7 +164,7 @@ func TestRuntimeToolMediaReturnsCapabilityBeforeAdmission(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r := runtimeToolRequest(t)
 			r.ToolChoice = mc.ToolChoice{Kind: "auto"}
-			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.ArtifactFile, ProjectID: r.Model.Consumer.ProjectID, ArtifactID: mustID[struct{}](t).String(), FileID: mustID[struct{}](t).String()})
+			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.MCPFile, ProjectID: r.Model.Consumer.ProjectID, FileID: mustID[struct{}](t).String()})
 			if err != nil {
 				t.Fatal(err)
 			}

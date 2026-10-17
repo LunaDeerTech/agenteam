@@ -107,7 +107,7 @@ func validateSummaryResolveSource(ctx context.Context, x postgres.SQLExecutor, r
 	}
 	switch resolve.Source {
 	case mc.CurrentSelectionSource:
-		if row.attempt != 1 || resolve.Selection == nil || resolve.Selection.Kind != "platform" || resolve.Selection.Selector != mc.MeetingSummarySelector || snapshot != nil && *snapshot != r.SnapshotID.String() {
+		if row.attempt != 1 || resolve.Selection == nil || resolve.Selection.Kind != "platform" || resolve.Selection.Selector != mc.SummarySelector || snapshot != nil && *snapshot != r.SnapshotID.String() {
 			return fault(f.Forbidden)
 		}
 	case mc.ServingSnapshotSource:

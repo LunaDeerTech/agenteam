@@ -15,7 +15,7 @@ import (
 )
 
 func TestModelMeetingSummaryResolutionAuthorization(t *testing.T) {
-	v := newMeetingResolutionFixture(t, true)
+	v := newMeetingResolutionFixture(t)
 	_, m, _ := v.config(t, false, true)
 	v.choose(t, m.ID)
 	t.Run("canonical-meeting-operation-input-phase-version", func(t *testing.T) {

@@ -14,22 +14,21 @@ import {
 
 export const platformPurposes = [
   "embedding",
-  "memory",
+  "summary",
   "reranker",
   "image",
 ] as const;
 export type PlatformPurpose = (typeof platformPurposes)[number];
-export type ModelPurpose = PlatformPurpose | "meeting_summary";
+export type ModelPurpose = PlatformPurpose;
 export const purposeLabels: Record<ModelPurpose, string> = {
   embedding: "向量模型",
-  memory: "记忆模型",
+  summary: "总结模型",
   reranker: "重排模型",
   image: "图像模型",
-  meeting_summary: "会议摘要模型",
 };
 export interface SelectionValues {
   embedding: string;
-  memory: string;
+  summary: string;
   reranker: string | null;
   image: string | null;
 }
@@ -38,26 +37,16 @@ export interface ModelSelection {
   version: string;
   configured: SelectionValues | null;
 }
-export interface MeetingSummarySelection {
-  id: string;
-  version: string;
-  model: string | null;
-}
 export type SelectionInput = SelectionValues & {
   id: string;
   expected_version: string;
 };
-export interface MeetingSummaryInput {
-  id: string;
-  expected_version: string;
-  model: string;
-}
 export function isSelectionValues(value: unknown): value is SelectionValues {
   return (
     isRecord(value) &&
     onlyKeys(value, platformPurposes) &&
     isId(value.embedding) &&
-    isId(value.memory) &&
+    isId(value.summary) &&
     (value.reranker === null || isId(value.reranker)) &&
     (value.image === null || isId(value.image))
   );
@@ -71,29 +60,11 @@ export function isModelSelection(value: unknown): value is ModelSelection {
     (value.configured === null || isSelectionValues(value.configured))
   );
 }
-export function isMeetingSummarySelection(
-  value: unknown,
-): value is MeetingSummarySelection {
-  return (
-    isRecord(value) &&
-    onlyKeys(value, ["id", "version", "model"]) &&
-    isId(value.id) &&
-    isVersion(value.version) &&
-    (value.model === null || isId(value.model))
-  );
-}
 export const getModelSelection = (current?: () => boolean) =>
   systemRequest("/system/model-selection", { current }, isModelSelection);
-export const getMeetingSummarySelection = (current?: () => boolean) =>
-  systemRequest(
-    "/system/model-selection/meeting-summary",
-    { current },
-    isMeetingSummarySelection,
-  );
-
 function selectionOperation(
   path: string,
-  input: SelectionInput | MeetingSummaryInput,
+  input: SelectionInput,
 ): CatalogOperation<CatalogReceipt> {
   if (
     !isId(input.id) ||
@@ -134,9 +105,6 @@ function selectionOperation(
 }
 export const saveModelSelection = (input: SelectionInput) =>
   selectionOperation("/system/model-selection", input);
-export const saveMeetingSummarySelection = (input: MeetingSummaryInput) =>
-  selectionOperation("/system/model-selection/meeting-summary", input);
-
 /** Mirrors the selection rules; the server rechecks current model/provider state on save. */
 export function modelPurposeIssue(
   purpose: ModelPurpose,
@@ -149,16 +117,15 @@ export function modelPurposeIssue(
   if (!model.input.enabled) return "模型已停用";
   const wanted = {
     embedding: "embedding",
-    memory: "chat",
+    summary: "chat",
     reranker: "reranker",
     image: "image_generation",
-    meeting_summary: "chat",
   };
   if (model.input.type !== wanted[purpose]) return "模型类型不适用于此用途";
   const supported =
     purpose === "embedding"
       ? provider.input.protocol === "openai-compatible"
-      : (purpose === "memory" || purpose === "meeting_summary") &&
+      : purpose === "summary" &&
         provider.input.protocol === "openai-compatible";
   if (!supported && !retainExisting)
     return "当前协议仅支持查看现有用途，不能新增选择";
@@ -171,9 +138,9 @@ export function modelPurposeIssue(
   )
     return "向量模型需要 text 输入与 vector 输出能力";
   if (
-    purpose === "memory" &&
+    purpose === "summary" &&
     !model.input.capabilities.structured_output_modes.includes("json_schema")
   )
-    return "记忆模型需要 json_schema 能力";
+    return "总结模型需要 json_schema 能力";
   return undefined;
 }

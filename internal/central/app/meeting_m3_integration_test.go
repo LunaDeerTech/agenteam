@@ -359,10 +359,10 @@ func TestMeetingM3AppSummarySnapshotLifecycle(t *testing.T) {
 	}()
 	agentModel := meetingM3ConfigureModel(t, v, "https://fixture.test:8443/case/"+scenario)
 	agents := meetingM3CreateAgents(t, v, agentModel)
-	var originalSelection mc.MeetingSummarySelection
-	meetingM3SystemCall(t, v, http.MethodGet, "model-selection/meeting-summary", nil, &originalSelection)
-	if originalSelection.Model == nil || *originalSelection.Model == agentModel {
-		t.Fatal("Summary did not start with its separate text-only selection")
+	var originalSelection knowledgeM3AutomaticSelection
+	meetingM3SystemCall(t, v, http.MethodGet, "model-selection", nil, &originalSelection)
+	if originalSelection.Configured == nil || originalSelection.Configured.Summary == agentModel {
+		t.Fatal("Summary did not start with its shared summary selection")
 	}
 	// Changing selection must stay inside the supported Summary profile. The
 	// Agent model has tool_calls=true and is intentionally outside that profile.
@@ -371,8 +371,8 @@ func TestMeetingM3AppSummarySnapshotLifecycle(t *testing.T) {
 		ProviderID mc.ProviderID   `json:"provider_id"`
 		Input      json.RawMessage `json:"input"`
 	}
-	meetingM3SystemCall(t, v, http.MethodGet, "models/"+originalSelection.Model.String(), nil, &originalModel)
-	if originalModel.ID != *originalSelection.Model || originalModel.ProviderID.Validate() != nil {
+	meetingM3SystemCall(t, v, http.MethodGet, "models/"+originalSelection.Configured.Summary.String(), nil, &originalModel)
+	if originalModel.ID != originalSelection.Configured.Summary || originalModel.ProviderID.Validate() != nil {
 		t.Fatal("original Summary fixture profile differs")
 	}
 	replacementRequest := meetingM3ReplacementModelRequest(t, originalModel.ProviderID, originalModel.Input)
@@ -394,7 +394,7 @@ func TestMeetingM3AppSummarySnapshotLifecycle(t *testing.T) {
 		t.Fatal("invalid Summary published a fallback or ended the Turn")
 	}
 	var selected mc.CommandReceipt
-	meetingM3SystemCall(t, v, http.MethodPut, "model-selection/meeting-summary", map[string]any{"id": originalSelection.ID, "expected_version": originalSelection.Version, "model": replacementModel}, &selected)
+	meetingM3SystemCall(t, v, http.MethodPut, "model-selection", map[string]any{"id": originalSelection.ID, "expected_version": originalSelection.Version, "embedding": originalSelection.Configured.Embedding, "summary": replacementModel, "reranker": originalSelection.Configured.Reranker, "image": originalSelection.Configured.Image}, &selected)
 	retry := mt.ControlRequest{ProjectID: v.a, MeetingID: first.MeetingID, TurnID: first.TurnID, ExpectedVersion: detail.Session.Version, Action: "retry-summary", Meta: executionSchedulerAppMeta(t, nil)}
 	_, err = v.runtime.meetings.Control(v.ctx, v.actor, retry)
 	workAppCheck(t, "summary-explicit-retry", err)
@@ -880,21 +880,41 @@ func meetingM3ConfigureModel(t *testing.T, v *executionSchedulerApp, endpoint st
 	workAppCheck(t, "meeting-provider-id", err)
 	models := make([]mc.ModelID, 2)
 	for n := range models {
-		// Summary deliberately uses a text-only model. Agent tool capability is
-		// a separate captured model configuration, even on the same owned peer.
+		// Summary supports text and structured Memory output. Agent tool capability
+		// is a separate captured model configuration on the same owned peer.
+		structured := []string{}
+		if n == 1 {
+			structured = []string{"json_schema"}
+		}
 		meetingM3SystemCall(t, v, http.MethodPost, "models", map[string]any{"provider_id": provider, "input": map[string]any{
 			"name": fmt.Sprintf("Meeting fixture Model %d", n), "provider_model_id": "meeting-collaboration", "type": mc.ChatModel, "enabled": true,
 			"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
 			"capabilities": map[string]any{"tool_calls": n == 0, "parallel_tool_calls": false, "streaming": true, "reasoning": false,
 				"input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{},
-				"structured_output_modes": []string{}, "context_length": nil, "max_output": mc.TokenCount(2048)},
+				"structured_output_modes": structured, "context_length": nil, "max_output": mc.TokenCount(2048)},
 		}}, &receipt)
 		models[n], err = f.ParseID[mc.Model](receipt.ResourceID)
 		workAppCheck(t, "meeting-model-id", err)
 	}
-	var selection mc.MeetingSummarySelection
-	meetingM3SystemCall(t, v, http.MethodGet, "model-selection/meeting-summary", nil, &selection)
-	meetingM3SystemCall(t, v, http.MethodPut, "model-selection/meeting-summary", map[string]any{"id": selection.ID, "expected_version": selection.Version, "model": models[1]}, &receipt)
+	// The shared platform selection requires an embedding model as well.
+	meetingM3SystemCall(t, v, http.MethodPost, "model-providers", map[string]any{"input": map[string]any{
+		"name": "Meeting fixture embedding Provider", "protocol": mc.OpenAIEmbeddings, "base_url": endpoint, "enabled": true,
+		"credential_ref": credential.Metadata.CredentialRef.Details().ID, "options": map[string]any{},
+	}}, &receipt)
+	embeddingProvider, err := f.ParseID[mc.Provider](receipt.ResourceID)
+	workAppCheck(t, "meeting-embedding-provider-id", err)
+	meetingM3SystemCall(t, v, http.MethodPost, "models", map[string]any{"provider_id": embeddingProvider, "input": map[string]any{
+		"name": "Meeting fixture embedding Model", "provider_model_id": "meeting-embedding", "type": mc.EmbeddingModel, "enabled": true,
+		"parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{},
+		"capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false,
+			"input_modalities": []string{"text"}, "output_modalities": []string{"vector"}, "reasoning_efforts": []string{},
+			"structured_output_modes": []string{}, "context_length": nil, "max_output": nil},
+	}}, &receipt)
+	embedding, err := f.ParseID[mc.Model](receipt.ResourceID)
+	workAppCheck(t, "meeting-embedding-model-id", err)
+	var selection knowledgeM3AutomaticSelection
+	meetingM3SystemCall(t, v, http.MethodGet, "model-selection", nil, &selection)
+	meetingM3SystemCall(t, v, http.MethodPut, "model-selection", map[string]any{"id": selection.ID, "expected_version": selection.Version, "embedding": embedding, "summary": models[1], "reranker": nil, "image": nil}, &receipt)
 	return models[0]
 }
 

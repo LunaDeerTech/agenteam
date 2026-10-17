@@ -71,7 +71,7 @@ func TestRequiredReferencesCannotBeSilentlyCleared(t *testing.T) {
 
 func TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure(t *testing.T) {
 	x := setup(t)
-	r := ReferenceChange{Actor: x.actor, Owner: ReferenceOwner{Kind: "platform_selector", ID: fresh[struct{}](t).String(), Role: "meeting_summary"}, ExpectedOwnerVersion: 1, After: ptr(fresh[Model](t))}
+	r := ReferenceChange{Actor: x.actor, Owner: ReferenceOwner{Kind: "platform_selector", ID: fresh[struct{}](t).String(), Role: "summary"}, ExpectedOwnerVersion: 1, After: ptr(fresh[Model](t))}
 	must(t, r.Validate()) // Shape only: this does not grant the Agent actor authority.
 	r.Before = ptr(x.snapshot.Identity.ModelID)
 	must(t, r.Validate())
@@ -84,7 +84,7 @@ func TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure(t *testing.T) {
 		{"project-on-platform", func(r *ReferenceChange) { r.Owner.ProjectID = ptr(x.c.ProjectID) }},
 		{"agent-role", func(r *ReferenceChange) { r.Owner.Kind = "agent"; r.Owner.ProjectID = ptr(x.c.ProjectID) }},
 		{"legacy-without-project", func(r *ReferenceChange) { r.Owner.Kind = "project_summary" }},
-		{"unknown-role", func(r *ReferenceChange) { r.Owner.Role = "summary" }},
+		{"unknown-role", func(r *ReferenceChange) { r.Owner.Role = "meeting_summary" }},
 		{"unknown-kind", func(r *ReferenceChange) { r.Owner.Kind = "meeting_summary" }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -93,7 +93,7 @@ func TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure(t *testing.T) {
 			reject(t, changed.Validate())
 		})
 	}
-	for _, role := range []string{"embedding", "memory", "reranker", "image"} {
+	for _, role := range []string{"embedding", "summary", "reranker", "image"} {
 		t.Run("legacy-"+role, func(t *testing.T) {
 			changed := r.Clone()
 			changed.Owner.Role = role
@@ -113,7 +113,7 @@ func TestMeetingSummaryReferenceRequiredRoleAndOwnerClosure(t *testing.T) {
 }
 
 func TestMeetingSummaryReferenceBindingAndPlans(t *testing.T) {
-	r := ReferenceChange{Actor: setup(t).actor, Owner: ReferenceOwner{Kind: "platform_selector", ID: fresh[struct{}](t).String(), Role: "meeting_summary"}, ExpectedOwnerVersion: 7, Before: ptr(fresh[Model](t)), After: ptr(fresh[Model](t))}
+	r := ReferenceChange{Actor: setup(t).actor, Owner: ReferenceOwner{Kind: "platform_selector", ID: fresh[struct{}](t).String(), Role: "summary"}, ExpectedOwnerVersion: 7, Before: ptr(fresh[Model](t)), After: ptr(fresh[Model](t))}
 	b, err := ReferenceBinding(r)
 	must(t, err)
 	for _, tc := range []struct {
@@ -121,7 +121,7 @@ func TestMeetingSummaryReferenceBindingAndPlans(t *testing.T) {
 		edit func(*ReferenceChange)
 	}{
 		{"owner", func(r *ReferenceChange) { r.Owner.ID = fresh[struct{}](t).String() }},
-		{"role", func(r *ReferenceChange) { r.Owner.Role = "memory" }},
+		{"role", func(r *ReferenceChange) { r.Owner.Role = "embedding" }},
 		{"version", func(r *ReferenceChange) { r.ExpectedOwnerVersion++ }},
 		{"before", func(r *ReferenceChange) { r.Before = ptr(fresh[Model](t)) }},
 		{"after", func(r *ReferenceChange) { r.After = ptr(fresh[Model](t)) }},
@@ -148,7 +148,7 @@ func TestMeetingSummaryReferenceBindingAndPlans(t *testing.T) {
 	must(t, err)
 	before := *r.After
 	*r.After = fresh[Model](t)
-	if got := replacement.Details(); *got.Replacement != before || *got.Items[0].Change.After != before || got.Items[0].Change.Owner.Role != "meeting_summary" {
+	if got := replacement.Details(); *got.Replacement != before || *got.Items[0].Change.After != before || got.Items[0].Change.Owner.Role != "summary" {
 		t.Fatal("replacement did not freeze summary reference")
 	}
 	changed := replacement.Details()
@@ -157,7 +157,7 @@ func TestMeetingSummaryReferenceBindingAndPlans(t *testing.T) {
 	_, err = NewReplacementPlan(i, changed)
 	reject(t, err)
 	changed = replacement.Details()
-	changed.Items[0].Change.Owner.Role = "memory"
+	changed.Items[0].Change.Owner.Role = "embedding"
 	_, err = NewReplacementPlan(i, changed)
 	reject(t, err)
 }

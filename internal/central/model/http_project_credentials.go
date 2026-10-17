@@ -246,7 +246,7 @@ func (h *projectCredentialHTTP) ServeHTTP(writer http.ResponseWriter, request *h
 	if budget.start() != nil {
 		panic(http.ErrAbortHandler)
 	}
-	w := meetingSummaryAbortWriter{ResponseWriter: writer}
+	w := modelAbortWriter{ResponseWriter: writer}
 	body, err := h.execute(w, r)
 	credentialCheckBudget(ctx)
 	if budget.closeBody() != nil {

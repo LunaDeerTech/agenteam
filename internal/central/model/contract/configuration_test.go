@@ -90,7 +90,7 @@ func TestEndpointPortAndFragmentStructure(t *testing.T) {
 
 func meetingSelectionRequest(t *testing.T, purpose Purpose) SelectionRequest {
 	t.Helper()
-	return SelectionRequest{Consumer: Consumer{Kind: MeetingConsumer, ProjectID: fresh[id.Project](t), MeetingID: fresh[struct{}](t).String(), OperationID: fresh[struct{}](t).String(), Purpose: purpose}, Selection: SelectionRef{Kind: "platform", Selector: MeetingSummarySelector}}
+	return SelectionRequest{Consumer: Consumer{Kind: MeetingConsumer, ProjectID: fresh[id.Project](t), MeetingID: fresh[struct{}](t).String(), OperationID: fresh[struct{}](t).String(), Purpose: purpose}, Selection: SelectionRef{Kind: "platform", Selector: SummarySelector}}
 }
 
 func TestMeetingSummaryPlatformSelectionClosedAndRequired(t *testing.T) {
@@ -110,7 +110,7 @@ func TestMeetingSummaryPlatformSelectionClosedAndRequired(t *testing.T) {
 				v.ModelRef = ptr(fresh[Model](t))
 			},
 			"model-ref":     func(v *SelectionRequest) { v.ModelRef = ptr(fresh[Model](t)) },
-			"memory":        func(v *SelectionRequest) { v.Selection.Selector = MemorySelector },
+			"old-memory":    func(v *SelectionRequest) { v.Selection.Selector = SelectorKind("memory") },
 			"agent":         func(v *SelectionRequest) { v.Consumer.AgentID = ptr(fresh[id.Agent](t)) },
 			"execution":     func(v *SelectionRequest) { v.Consumer.ExecutionID = ptr(fresh[id.Execution](t)) },
 			"no-meeting":    func(v *SelectionRequest) { v.Consumer.MeetingID = "" },

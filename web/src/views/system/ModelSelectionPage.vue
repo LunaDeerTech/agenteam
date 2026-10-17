@@ -8,6 +8,7 @@ import { useLeaveProtection } from "../../account/leave";
 import { AccountError, accountEnabled } from "../../account/transport";
 import {
   catalogError,
+  modelDisplayName,
   getModel,
   getProvider,
   listModels,
@@ -17,12 +18,10 @@ import {
   type Provider,
 } from "../../system/model-catalog";
 import {
-  getMeetingSummarySelection,
   getModelSelection,
   modelPurposeIssue,
   platformPurposes,
   purposeLabels,
-  saveMeetingSummarySelection,
   saveModelSelection,
   type ModelPurpose,
 } from "../../system/model-selection";
@@ -93,13 +92,16 @@ function referenceLabel(id: string) {
   if (!id) return "未选择";
   const value = references.value[id];
   return value?.model
-    ? `${value.model.input.name}${value.provider ? ` · ${value.provider.input.name}` : ""}`
+    ? value.provider
+      ? modelDisplayName(
+          value.provider.input.name,
+          value.model.input.provider_model_id,
+        )
+      : value.model.input.provider_model_id
     : id;
 }
-function createGroup(summary: boolean) {
-  const purposes: ModelPurpose[] = summary
-    ? ["meeting_summary"]
-    : [...platformPurposes];
+function createSelection() {
+  const purposes = platformPurposes;
   const baseline = shallowRef<Snapshot>();
   const latest = shallowRef<Snapshot>();
   const draft = ref<Partial<Record<ModelPurpose, string>>>({});
@@ -161,27 +163,17 @@ function createGroup(summary: boolean) {
     reading.value = true;
     readError.value = undefined;
     try {
-      let value: Snapshot;
-      if (summary) {
-        const result = await getMeetingSummarySelection(current);
-        value = {
-          id: result.id,
-          version: result.version,
-          values: { meeting_summary: result.model || "" },
-        };
-      } else {
-        const result = await getModelSelection(current);
-        value = {
-          id: result.id,
-          version: result.version,
-          values: {
-            embedding: result.configured?.embedding || "",
-            memory: result.configured?.memory || "",
-            reranker: result.configured?.reranker || "",
-            image: result.configured?.image || "",
-          },
-        };
-      }
+      const result = await getModelSelection(current);
+      const value: Snapshot = {
+        id: result.id,
+        version: result.version,
+        values: {
+          embedding: result.configured?.embedding || "",
+          summary: result.configured?.summary || "",
+          reranker: result.configured?.reranker || "",
+          image: result.configured?.image || "",
+        },
+      };
       if (!current()) return;
       if (baseline.value && (dirty.value || conflict.value))
         latest.value = value;
@@ -210,20 +202,14 @@ function createGroup(summary: boolean) {
     saved.value = false;
     await command.submit(
       () =>
-        summary
-          ? saveMeetingSummarySelection({
-              id: captured.id,
-              expected_version: captured.version,
-              model: captured.values.meeting_summary!,
-            })
-          : saveModelSelection({
-              id: captured.id,
-              expected_version: captured.version,
-              embedding: captured.values.embedding!,
-              memory: captured.values.memory!,
-              reranker: captured.values.reranker || null,
-              image: captured.values.image || null,
-            }),
+        saveModelSelection({
+          id: captured.id,
+          expected_version: captured.version,
+          embedding: captured.values.embedding!,
+          summary: captured.values.summary!,
+          reranker: captured.values.reranker || null,
+          image: captured.values.image || null,
+        }),
       (receipt) => {
         baseline.value = { ...captured, version: receipt.version };
         draft.value = { ...captured.values };
@@ -243,7 +229,6 @@ function createGroup(summary: boolean) {
     command.clear();
   }
   return {
-    summary,
     purposes,
     baseline,
     latest,
@@ -273,90 +258,31 @@ function createGroup(summary: boolean) {
     },
   };
 }
-const platform = createGroup(false);
-const summary = createGroup(true);
-const groups = [platform, summary];
-const rows = groups.flatMap((group) =>
-  group.purposes.map((purpose) => ({ purpose, group })),
-);
-const saving = ref(false);
-const saveStatus = ref<"complete" | "partial">();
-let saveRevision = 0;
-const dirty = computed(() => groups.some((group) => group.dirty.value));
+const selection = createSelection();
+const dirty = selection.dirty;
 const editingLocked = computed(
   () =>
     !available.value ||
-    saving.value ||
-    groups.some(
-      (group) =>
-        group.reading.value ||
-        group.command.busy.value ||
-        group.command.observing.value ||
-        group.command.uncertain.value,
-    ),
+    selection.reading.value ||
+    selection.command.busy.value ||
+    selection.command.observing.value ||
+    selection.command.uncertain.value,
 );
 const canSave = computed(
   () =>
     !editingLocked.value &&
-    groups.every((group) => !!group.baseline.value) &&
+    !!selection.baseline.value &&
     dirty.value &&
-    groups.every(
-      (group) =>
-        !group.dirty.value || (!group.invalid.value && !group.conflict.value),
-    ),
+    !selection.invalid.value &&
+    !selection.conflict.value,
 );
-const hasLatest = computed(() => groups.some((group) => !!group.latest.value));
-async function saveAll() {
-  if (!canSave.value) return;
-  const owner = ++saveRevision;
-  const generation = access.generation.value;
-  const current = () =>
-    alive && owner === saveRevision && generation === access.generation.value;
-  const changed = groups.filter((group) => group.dirty.value);
-  saving.value = true;
-  saveStatus.value = undefined;
-  groups.forEach((group) => (group.saved.value = false));
-  try {
-    for (const group of changed) {
-      await group.save();
-      if (!current()) return;
-      if (!group.saved.value) {
-        if (changed.some((item) => item.saved.value))
-          saveStatus.value = "partial";
-        return;
-      }
-    }
-    saveStatus.value = "complete";
-  } finally {
-    if (owner === saveRevision) saving.value = false;
-  }
-}
-async function confirmOriginal(group: (typeof groups)[number]) {
-  const owner = saveRevision;
-  await group.command.retry();
-  if (alive && owner === saveRevision && group.saved.value)
-    saveStatus.value = dirty.value ? "partial" : "complete";
-}
 function readAll() {
-  if (editingLocked.value) return;
-  groups.forEach((group) => void group.read());
-}
-function adoptLatest() {
-  if (editingLocked.value) return;
-  groups.forEach((group) => group.adoptLatest());
-  saveStatus.value = undefined;
-}
-function discardAll() {
-  if (editingLocked.value) return;
-  groups.forEach((group) => group.discard());
-  saveStatus.value = undefined;
+  if (!editingLocked.value) void selection.read();
 }
 function clearPurpose(purpose: ModelPurpose) {
-  const group = purpose === "meeting_summary" ? summary : platform;
-  if (editingLocked.value || group.locked.value) return;
-  group.draft.value[purpose] = "";
-  group.saved.value = false;
-  saveStatus.value = undefined;
+  if (editingLocked.value || selection.locked.value) return;
+  selection.draft.value[purpose] = "";
+  selection.saved.value = false;
 }
 const picking = ref<ModelPurpose>();
 const provider = shallowRef<Provider>();
@@ -375,8 +301,7 @@ const models = useCursorList(
   { enabled: () => !!picking.value && !!provider.value },
 );
 function openPicker(purpose: ModelPurpose) {
-  const group = purpose === "meeting_summary" ? summary : platform;
-  if (editingLocked.value || group.locked.value) return;
+  if (editingLocked.value || selection.locked.value) return;
   provider.value = undefined;
   providers.reset();
   models.reset();
@@ -394,51 +319,42 @@ function selectModel(model: CatalogModel) {
     modelPurposeIssue(purpose, model, provider.value)
   )
     return;
-  const group = purpose === "meeting_summary" ? summary : platform;
-  if (editingLocked.value || group.locked.value) return;
+  if (editingLocked.value || selection.locked.value) return;
   references.value[model.id] = { model, provider: provider.value };
-  group.draft.value[purpose] = model.id;
-  group.saved.value = false;
-  saveStatus.value = undefined;
+  selection.draft.value[purpose] = model.id;
+  selection.saved.value = false;
   picking.value = undefined;
 }
 watch(
   access.generation,
   () => {
-    saveRevision++;
-    saving.value = false;
-    saveStatus.value = undefined;
     referenceGeneration++;
     referenceOwners.clear();
     references.value = {};
     picking.value = undefined;
     provider.value = undefined;
-    groups.forEach((group) => group.clear());
+    selection.clear();
   },
   { flush: "sync" },
 );
 watch(
   available,
   (value) => {
-    if (value) groups.forEach((group) => void group.read());
+    if (value) void selection.read();
   },
   { immediate: true },
 );
 useLeaveProtection(
   () =>
-    saving.value ||
-    groups.some(
-      (group) =>
-        group.dirty.value ||
-        group.command.uncertain.value ||
-        group.command.busy.value,
-    ),
+    selection.dirty.value ||
+    selection.command.uncertain.value ||
+    selection.command.busy.value,
 );
 onBeforeUnmount(() => {
   alive = false;
   referenceGeneration++;
   references.value = {};
-  groups.forEach((group) => group.clear());
+  selection.clear();
 });
 </script>
 
@@ -457,7 +373,7 @@ onBeforeUnmount(() => {
       </SettingsPageActions>
       <section class="selection-section" aria-label="平台模型用途">
         <div
-          v-for="{ purpose, group } in rows"
+          v-for="purpose in platformPurposes"
           :key="purpose"
           class="purpose-row"
         >
@@ -470,29 +386,31 @@ onBeforeUnmount(() => {
                 >可选</span
               >
             </h3>
-            <p v-if="group.baseline.value" class="selected-name">
-              {{ referenceLabel(group.draft.value[purpose] || "") }}
+            <p v-if="selection.baseline.value" class="selected-name">
+              {{ referenceLabel(selection.draft.value[purpose] || "") }}
             </p>
             <p v-else class="form-note" role="status">
-              {{ group.reading.value ? "正在读取配置…" : "配置尚未读取。" }}
+              {{ selection.reading.value ? "正在读取配置…" : "配置尚未读取。" }}
             </p>
             <p
               v-if="
-                group.draft.value[purpose] &&
-                referenceIssue(purpose, group.draft.value[purpose] || '')
+                selection.draft.value[purpose] &&
+                referenceIssue(purpose, selection.draft.value[purpose] || '')
               "
               class="reference-issue"
               role="status"
             >
-              {{ referenceIssue(purpose, group.draft.value[purpose] || "") }}
+              {{
+                referenceIssue(purpose, selection.draft.value[purpose] || "")
+              }}
             </p>
-            <p v-if="purpose === 'memory'" class="form-note">
+            <p v-if="purpose === 'summary'" class="form-note">
               需要支持 json_schema 的对话模型。
             </p>
           </div>
           <div class="purpose-actions">
             <UiButton
-              :disabled="editingLocked || group.locked.value"
+              :disabled="editingLocked || selection.locked.value"
               :aria-label="`选择${purposeLabels[purpose]}`"
               @click="openPicker(purpose)"
               >选择模型</UiButton
@@ -500,51 +418,37 @@ onBeforeUnmount(() => {
             <UiButton
               v-if="
                 (purpose === 'reranker' || purpose === 'image') &&
-                group.draft.value[purpose]
+                selection.draft.value[purpose]
               "
-              :disabled="editingLocked || group.locked.value"
+              :disabled="editingLocked || selection.locked.value"
               :aria-label="`清除${purposeLabels[purpose]}`"
               @click="clearPurpose(purpose)"
               >清除</UiButton
             >
           </div>
         </div>
-        <template v-for="group in groups" :key="String(group.summary)">
-          <p v-if="group.readError.value" class="form-feedback" role="alert">
-            {{ group.summary ? "会议摘要模型" : "其他模型用途" }}读取失败。{{
-              catalogError(group.readError.value)
-            }}
-          </p>
-          <div
-            v-if="group.command.error.value || group.command.uncertain.value"
-          >
-            <p class="form-note">
-              {{ group.summary ? "会议摘要模型" : "其他模型用途" }}：
-            </p>
-            <CatalogCommandFeedback
-              :error="group.command.error.value"
-              :uncertain="group.command.uncertain.value"
-              :replayable="group.command.replayable.value"
-              :busy="group.command.busy.value"
-              :observing="group.command.observing.value"
-              :observation="group.command.observation.value"
-              :observation-error="group.command.observationError.value"
-              @observe="group.command.observe"
-              @retry="confirmOriginal(group)"
-            />
-          </div>
-        </template>
-        <div v-if="hasLatest" class="form-feedback" role="status">
+        <p v-if="selection.readError.value" class="form-feedback" role="alert">
+          读取失败。{{ catalogError(selection.readError.value) }}
+        </p>
+        <CatalogCommandFeedback
+          :error="selection.command.error.value"
+          :uncertain="selection.command.uncertain.value"
+          :replayable="selection.command.replayable.value"
+          :busy="selection.command.busy.value"
+          :observing="selection.command.observing.value"
+          :observation="selection.command.observation.value"
+          :observation-error="selection.command.observationError.value"
+          @observe="selection.command.observe"
+          @retry="selection.command.retry"
+        />
+        <div v-if="selection.latest.value" class="form-feedback" role="status">
           <p>已读取最新配置，当前草稿仍保留。采用最新版本后可重新保存。</p>
-          <UiButton :disabled="editingLocked" @click="adoptLatest"
+          <UiButton :disabled="editingLocked" @click="selection.adoptLatest"
             >采用最新版本并保留草稿</UiButton
           >
         </div>
-        <p v-if="saveStatus === 'partial'" class="form-note" role="status">
-          部分用途已保存，剩余修改尚未保存。
-        </p>
         <p
-          v-else-if="saveStatus === 'complete' && !dirty"
+          v-if="selection.saved.value && !dirty"
           class="form-note"
           role="status"
         >
@@ -553,12 +457,14 @@ onBeforeUnmount(() => {
         <div class="form-actions section-actions">
           <UiButton
             variant="primary"
-            :loading="saving"
+            :loading="selection.command.busy.value"
             :disabled="!canSave"
-            @click="saveAll"
+            @click="selection.save"
             >保存</UiButton
           >
-          <UiButton :disabled="editingLocked || !dirty" @click="discardAll"
+          <UiButton
+            :disabled="editingLocked || !dirty"
+            @click="selection.discard"
             >放弃修改</UiButton
           >
         </div>
@@ -607,11 +513,17 @@ onBeforeUnmount(() => {
             :disabled="!available"
           >
             <template #item="{ item }"
-              ><span>{{ item.input.name }}</span
-              ><span class="form-note">{{
-                modelPurposeIssue(picking, item, provider) ||
-                item.input.provider_model_id
-              }}</span></template
+              ><span>{{
+                modelDisplayName(
+                  provider.input.name,
+                  item.input.provider_model_id,
+                )
+              }}</span
+              ><span
+                v-if="modelPurposeIssue(picking, item, provider)"
+                class="form-note"
+                >{{ modelPurposeIssue(picking, item, provider) }}</span
+              ></template
             >
             <template #actions="{ item }"
               ><UiButton

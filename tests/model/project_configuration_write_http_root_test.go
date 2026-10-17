@@ -25,10 +25,10 @@ func TestModelProjectConfigurationWriteHTTPDefaultRoot(t *testing.T) {
 	v := newConfigurationWriteFixture(t)
 	// Public app.Run(nil hooks) must fail before listening if its original
 	// required initialization table is absent; no fake Store/handler is injected.
-	v.sql(t, `ALTER TABLE agenteam_model.meeting_summary_selection RENAME TO unavailable_configuration_write_summary`)
+	v.sql(t, `ALTER TABLE agenteam_model.platform_selection RENAME TO unavailable_configuration_write_summary`)
 	restored := false
 	restore := func() {
-		v.sql(t, `ALTER TABLE agenteam_model.unavailable_configuration_write_summary RENAME TO meeting_summary_selection`)
+		v.sql(t, `ALTER TABLE agenteam_model.unavailable_configuration_write_summary RENAME TO platform_selection`)
 	}
 	t.Cleanup(func() {
 		if !restored {
@@ -58,7 +58,7 @@ func TestModelProjectConfigurationWriteHTTPDefaultRoot(t *testing.T) {
 	}
 	root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-providers", nil).want(t, 200)
 	summary := root.request(t, v.adminBrowser, "GET", meetingSummarySettingsPath, nil).want(t, 200)
-	if summary.object(t)["model"] != nil || summary.object(t)["version"] != "1" {
+	if summary.object(t)["configured"] != nil || summary.object(t)["version"] != "1" {
 		t.Fatal("Summary root initialization drift")
 	}
 	desc := "configuration-root-owner-compat"

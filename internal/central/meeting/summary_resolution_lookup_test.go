@@ -9,7 +9,7 @@ import (
 
 func TestSummaryResolutionLookupRequiresOriginalPrivateRequest(t *testing.T) {
 	_, owner, _, original := summaryOwnerFixture(t)
-	resolve := mc.ResolveRequest{Actor: original.Actor, Consumer: original.Consumer, Purpose: original.Consumer.Purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}, LeaseOwner: original.LeaseOwner}
+	resolve := mc.ResolveRequest{Actor: original.Actor, Consumer: original.Consumer, Purpose: original.Consumer.Purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}, LeaseOwner: original.LeaseOwner}
 	call := &summaryModelCall{owner: owner, resolve: &resolve, resolutionUnknown: true}
 	request := original.Clone()
 	request.Action, request.Resolve = mc.ResolveConsumer, &resolve

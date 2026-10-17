@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -114,29 +113,21 @@ func startMeetingSummarySettingsRoot(t *testing.T, v *systemHTTPFixture, failure
 func TestModelMeetingSummarySettingsRoot(t *testing.T) {
 	meetingSummarySettingsBudget(t)
 	t.Run("default_init_restart_and_old_routes", func(t *testing.T) {
-		v := newMeetingSummaryFixture(t, false)
+		v := newMeetingSummaryFixture(t)
 		// The formal fixture prepared Account/Secret only for authenticated access.
-		// Remove its nullable old technical selector, so the root must initialize
-		// both selectors in order. Never insert or explicitly initialize Summary.
+		// Remove the nullable shared selector so the root must initialize it.
 		if _, e := v.raw.Exec(testContext(t), `DELETE FROM agenteam_model.platform_selection`); e != nil {
 			t.Fatal(e)
-		}
-		var count int
-		if e := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_model.meeting_summary_selection`).Scan(&count); e != nil || count != 0 {
-			t.Fatal("Summary precondition", e)
 		}
 		root := startMeetingSummarySettingsRoot(t, v.systemHTTPFixture, false)
 		initial := root.request(t, v.adminBrowser, "GET", meetingSummarySettingsPath, nil).want(t, 200)
 		first := initial.object(t)
-		if len(first) != 3 || first["version"] != "1" || first["model"] != nil {
+		if len(first) != 3 || first["version"] != "1" || first["configured"] != nil {
 			t.Fatal("root invented model or omitted Summary")
 		}
-		old := root.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", nil).want(t, 200).object(t)
-		if old["id"] == first["id"] || old["configured"] != nil {
-			t.Fatal("root collapsed singleton identities")
-		}
-		model := v.chat(t, false)
-		body := map[string]any{"id": first["id"], "expected_version": "1", "model": model.String()}
+		model := v.chat(t, true)
+		command := v.choice(t, model)
+		body := meetingSummarySettingsBody(command)
 		accepted := root.request(t, v.adminBrowser, "PUT", meetingSummarySettingsPath, body).want(t, 200).object(t)
 		if accepted["resource_id"] != first["id"] || accepted["version"] != "2" || accepted["affected_references"] != "0" {
 			t.Fatal("root PUT receipt")
@@ -184,62 +175,11 @@ func TestModelMeetingSummarySettingsRoot(t *testing.T) {
 			}
 		}
 	})
-	for _, mode := range []string{"missing_table", "corrupt_fact", "held_summary_lock"} {
-		t.Run(mode, func(t *testing.T) {
-			v := newMeetingSummaryFixture(t, false)
-			switch mode {
-			case "missing_table":
-				if _, e := v.raw.Exec(testContext(t), `ALTER TABLE agenteam_model.meeting_summary_selection RENAME TO unavailable_summary_selection`); e != nil {
-					t.Fatal(e)
-				}
-			case "corrupt_fact":
-				// Root failure probe only: a canonical pointer with no matching reference is
-				// corrupt storage, never a way to establish a successful selected Model.
-				m := v.chat(t, false)
-				if _, e := v.raw.Exec(testContext(t), `INSERT INTO agenteam_model.meeting_summary_selection(id,singleton,version,model_id,updated_at) VALUES($1,true,2,$2,clock_timestamp())`, newID[struct{}](t).String(), m.String()); e != nil {
-					t.Fatal(e)
-				}
-			case "held_summary_lock":
-				held, release, done := make(chan struct{}), make(chan struct{}), make(chan f.CommitResult, 1)
-				var once sync.Once
-				unlock := func() { once.Do(func() { close(release) }) }
-				defer unlock()
-				holder := openStore(t, v.db.Config(t, nil))
-				key, e := f.SystemConfigLock("model-meeting-summary-selection")
-				if e != nil {
-					t.Fatal(e)
-				}
-				var joined sync.Once
-				joinHolder := func() {
-					joined.Do(func() {
-						unlock()
-						if result := <-done; result.State() != f.Committed {
-							t.Error("holder actual wait", result.Fault())
-						}
-					})
-				}
-				t.Cleanup(joinHolder)
-				go func() {
-					done <- holder.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
-						if e := holder.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}}); e != nil {
-							return e
-						}
-						close(held)
-						<-release
-						return nil
-					})
-				}()
-				select {
-				case <-held:
-				case result := <-done:
-					joined.Do(func() {})
-					t.Fatal("lock holder failed", result.Fault())
-				}
-				startMeetingSummarySettingsRoot(t, v.systemHTTPFixture, true)
-				joinHolder()
-				return
-			}
-			startMeetingSummarySettingsRoot(t, v.systemHTTPFixture, true)
-		})
-	}
+	t.Run("missing_table", func(t *testing.T) {
+		v := newMeetingSummaryFixture(t)
+		if _, e := v.raw.Exec(testContext(t), `ALTER TABLE agenteam_model.platform_selection RENAME TO unavailable_platform_selection`); e != nil {
+			t.Fatal(e)
+		}
+		startMeetingSummarySettingsRoot(t, v.systemHTTPFixture, true)
+	})
 }

@@ -15,10 +15,10 @@ import (
 )
 
 func TestModelMeetingSummaryExistingHTTP(t *testing.T) {
-	v := newMeetingSummaryFixture(t, true)
-	old, next := v.chat(t, false), v.chat(t, false)
+	v := newMeetingSummaryFixture(t)
+	old, next := v.chat(t, true), v.chat(t, true)
 	request := v.choice(t, old)
-	receipt, e := v.service.UpdateMeetingSummarySelection(testContext(t), request)
+	receipt, e := v.service.UpdatePlatformSelection(testContext(t), request)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -30,7 +30,7 @@ func TestModelMeetingSummaryExistingHTTP(t *testing.T) {
 		t.Fatal("incorrect Summary deletion projection")
 	}
 	group := groups[0].(map[string]any)
-	if len(group) != 3 || group["owner_kind"] != "platform_selector" || group["role"] != "meeting_summary" || group["count"] != "1" {
+	if len(group) != 3 || group["owner_kind"] != "platform_selector" || group["role"] != "summary" || group["count"] != "1" {
 		t.Fatal("Summary hidden or mislabeled")
 	}
 	head := v.request(t, v.adminBrowser, http.MethodHead, path, "", nil).want(t, 200)
@@ -71,25 +71,24 @@ func TestModelMeetingSummaryExistingHTTP(t *testing.T) {
 	if otherLookup["found"] != false || otherLookup["receipt"] != nil {
 		t.Fatal("cross-admin receipt leak")
 	}
-	legacy := v.request(t, v.adminBrowser, "GET", "/api/v1/system/model-selection", "", nil).want(t, 200).object(t)
-	if len(legacy) != 3 || legacy["configured"] != nil || legacy["id"] == request.SelectionID {
-		t.Fatal("old four-purpose response changed")
-	}
-	// S2 now owns this exact child route. Retain all S1 compatibility assertions
-	// above/below; only its former absence checks change to the new contract.
 	current := meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "GET", meetingSummarySettingsPath, "", nil).want(t, 200).object(t)
-	if len(current) != 3 || current["id"] != request.SelectionID || current["model"] != old.String() {
-		t.Fatal("new independent Summary projection")
+	if len(current) != 3 || current["id"] != request.Selection.ID || current["configured"].(map[string]any)["summary"] != old.String() {
+		t.Fatal("shared Summary projection")
 	}
-	meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, "PUT", meetingSummarySettingsPath, newID[struct{}](t).String(), nil).problem(t, 400, f.InvalidArgument)
-	v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-selection", newID[struct{}](t).String(), map[string]any{"id": legacy["id"], "expected_version": "1", "meeting_summary": old.String()}).problem(t, 400, f.InvalidArgument)
+	for _, method := range []string{"GET", "PUT"} {
+		meetingSummarySettingsRequest(t, v.systemHTTPFixture, v.adminBrowser, method, meetingSummarySettingsPath+"/meeting-summary", newID[struct{}](t).String(), nil).problem(t, 404, f.NotFound)
+	}
+	legacyBody := meetingSummarySettingsBody(request)
+	delete(legacyBody, "summary")
+	legacyBody["memory"] = old.String()
+	v.request(t, v.adminBrowser, "PUT", meetingSummarySettingsPath, newID[struct{}](t).String(), legacyBody).problem(t, 400, f.InvalidArgument)
 	v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/models/"+old.String(), newID[struct{}](t).String(), map[string]any{"expected_version": "1", "replacement": nil}).problem(t, 409, f.InvalidState)
 	deleted := v.request(t, v.adminBrowser, "DELETE", "/api/v1/system/models/"+old.String(), newID[struct{}](t).String(), map[string]any{"expected_version": "1", "replacement": next.String()}).want(t, 200).object(t)
 	if deleted["affected_references"] != "1" {
 		t.Fatal("HTTP delete omitted Summary reference")
 	}
 	s := v.summary(t)
-	if s.Model == nil || *s.Model != next {
+	if s.Configured == nil || s.Configured.Summary != next {
 		t.Fatal("old HTTP did not replace Summary canonical")
 	}
 }

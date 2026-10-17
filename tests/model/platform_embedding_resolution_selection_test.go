@@ -92,7 +92,7 @@ func TestModelPlatformEmbeddingResolutionSelection(t *testing.T) {
 			t.Fatal(e)
 		}
 		next := state.Configured.Clone()
-		next.Memory = chat.ID
+		next.Summary = chat.ID
 		receipt, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: next})
 		if e != nil || receipt.Version != state.Version+1 {
 			t.Fatal("four-purpose version", e)
@@ -112,25 +112,7 @@ func TestModelPlatformEmbeddingResolutionSelection(t *testing.T) {
 				t.Fatal("new unit ignored shared singleton version")
 			}
 		}
-		if e = v.service.InitializeMeetingSummarySelection(testContext(t)); e != nil {
-			t.Fatal(e)
-		}
-		summary, e := v.service.GetMeetingSummarySelection(testContext(t), v.admin)
-		if e != nil {
-			t.Fatal(e)
-		}
-		if _, e = v.service.UpdateMeetingSummarySelection(testContext(t), mc.UpdateMeetingSummarySelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), SelectionID: summary.ID, ExpectedVersion: summary.Version, Model: chat.ID}); e != nil {
-			t.Fatal(e)
-		}
-		for _, purpose := range []mc.Purpose{mc.KnowledgeEmbedding, mc.MemoryEmbedding} {
-			r := v.request(t, purpose)
-			version := receipt.Version
-			r.Selection.Version = &version
-			out, e := v.resolving.SelectModel(testContext(t), v.owner, selectionRequest(r))
-			if e != nil || out.SelectionVersion == nil || *out.SelectionVersion != version {
-				t.Fatal("independent Summary version gated embedding", e)
-			}
-		}
+
 	})
 	t.Run("disabled-and-valid-but-unsupported-have-no-fallback", func(t *testing.T) {
 		provider, target := v.embeddingConfig(t, false)

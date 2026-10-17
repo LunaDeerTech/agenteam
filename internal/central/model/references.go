@@ -20,7 +20,7 @@ func selectionReferences(s *selectionRecord) []referenceRecord {
 	if s == nil || !s.Configured {
 		return out
 	}
-	for _, v := range []struct{ role, id string }{{"embedding", s.Embedding}, {"image", s.Image}, {"memory", s.Memory}, {"reranker", s.Reranker}} {
+	for _, v := range []struct{ role, id string }{{"embedding", s.Embedding}, {"image", s.Image}, {"reranker", s.Reranker}, {"summary", s.Summary}} {
 		if v.id != "" {
 			out = append(out, referenceRecord{Kind: "platform_selector", Owner: s.ID, Role: v.role, Model: v.id, Version: s.Version})
 		}
@@ -108,47 +108,14 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
 	if !sameValue(all, selectionReferences(old)) {
 		return unavailable(nil)
 	}
-	var summary *meetingSummaryRecord
-	for _, ref := range refs {
-		if ref.Owner != old.ID || ref.Role == "meeting_summary" {
-			summary, e = loadMeetingSummaryState(ctx, x)
-			if e != nil {
-				return e
-			}
-			if summary == nil {
-				return unavailable(nil)
-			}
-			break
-		}
-	}
 	current := *old
 	oldChanged := false
 	for _, ref := range refs {
-		if ref.Owner != old.ID {
-			if summary == nil || !sameValue([]referenceRecord{ref}, meetingSummaryReferences(summary)) {
-				return unavailable(nil)
-			}
-			if next == nil {
-				return fault(f.InvalidState)
-			}
-			if e = selectionCompatible("meeting_summary", next.Input, ref.Effort); e != nil {
-				return e
-			}
-			if e = modelPolicy(next.Input, plan.Providers[len(plan.Providers)-1].Input.Protocol); e != nil {
-				return e
-			}
-			version, e := nextVersion(summary.Version)
-			if e != nil {
-				return e
-			}
-			plan.BeforeMeetingSummary = summary
-			plan.AfterMeetingSummary = &meetingSummaryRecord{ID: summary.ID, Version: version, Model: replacement, UpdatedAt: plan.At}
-			continue
-		}
-		if ref.Version != old.Version || ref.Project != "" || ref.Effort != "" {
+
+		if ref.Owner != old.ID || ref.Version != old.Version || ref.Project != "" || ref.Effort != "" {
 			return fault(f.ResourceBusy)
 		}
-		if next == nil && (ref.Role == "embedding" || ref.Role == "memory") {
+		if next == nil && (ref.Role == "embedding" || ref.Role == "summary") {
 			return fault(f.InvalidState)
 		}
 		if next != nil {
@@ -162,11 +129,11 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
 				return fault(f.ResourceBusy)
 			}
 			current.Embedding = replacement
-		case "memory":
-			if current.Memory != plan.Resource {
+		case "summary":
+			if current.Summary != plan.Resource {
 				return fault(f.ResourceBusy)
 			}
-			current.Memory = replacement
+			current.Summary = replacement
 		case "reranker":
 			if current.Reranker != plan.Resource {
 				return fault(f.ResourceBusy)
@@ -193,16 +160,14 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
 	return nil
 }
 func selectionCompatible(role string, m mc.ModelInput, effort string) error {
-	want := map[string]mc.ModelType{"embedding": mc.EmbeddingModel, "memory": mc.ChatModel, "meeting_summary": mc.ChatModel, "reranker": mc.RerankerModel, "image": mc.ImageModel}[role]
+	want := map[string]mc.ModelType{"embedding": mc.EmbeddingModel, "summary": mc.ChatModel, "reranker": mc.RerankerModel, "image": mc.ImageModel}[role]
 	if want == "" || m.Type != want || !m.Enabled {
 		return fault(f.InvalidArgument)
 	}
-	if role == "memory" && !slices.Contains(m.Capabilities.StructuredOutputModes, "json_schema") {
+	if role == "summary" && !slices.Contains(m.Capabilities.StructuredOutputModes, "json_schema") {
 		return fault(f.CapabilityUnsupported)
 	}
-	if role == "meeting_summary" && effort != "" {
-		return fault(f.InvalidArgument)
-	}
+
 	if effort != "" && (!m.Capabilities.Reasoning || !slices.Contains(m.Capabilities.ReasoningEfforts, effort)) {
 		return fault(f.CapabilityUnsupported)
 	}

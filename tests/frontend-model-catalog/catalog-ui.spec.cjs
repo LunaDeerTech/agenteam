@@ -85,7 +85,7 @@ test("one real supplier configures credentials and mixed models, discovers, impo
   await dialog.getByRole("button", { name: "保存", exact: true }).click();
   await expect(dialog.getByText("模型已保存。", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "完成", exact: true }).click();
-  await menu(page, "Owned rejected", "编辑");
+  await menu(page, `${name}/owned-rejected`, "编辑");
   dialog = page.getByRole("dialog", { name: "编辑模型", exact: true });
   await dialog
     .getByLabel("模型名称", { exact: true })
@@ -99,10 +99,10 @@ test("one real supplier configures credentials and mixed models, discovers, impo
   dialog = page.getByRole("dialog", { name: "发现并导入模型", exact: true });
   await dialog.getByRole("button", { name: "开始发现", exact: true }).click();
   await dialog
-    .getByRole("checkbox", { name: "owned-chat", exact: true })
+    .getByRole("checkbox", { name: `${name}/owned-chat`, exact: true })
     .check();
   await dialog
-    .getByRole("checkbox", { name: "owned-embedding", exact: true })
+    .getByRole("checkbox", { name: `${name}/owned-embedding`, exact: true })
     .check();
   await dialog
     .getByRole("button", { name: "配置所选模型", exact: true })
@@ -206,9 +206,9 @@ test("one real supplier configures credentials and mixed models, discovers, impo
   expect((await providerStats(page, owned)).discovery).toBe(
     before.discovery + 1,
   );
-  await testModel(page, "owned-chat", "本次测试成功。");
-  await testModel(page, "owned-embedding", "本次测试成功。");
-  await testModel(page, "Owned rejected renamed", "供应商拒绝了请求。");
+  await testModel(page, `${name}/owned-chat`, "本次测试成功。");
+  await testModel(page, `${name}/owned-embedding`, "本次测试成功。");
+  await testModel(page, `${name}/owned-rejected`, "供应商拒绝了请求。");
   let observed = await providerStats(page, owned);
   expect(
     observed.chat === before.chat + 2 &&
@@ -230,7 +230,7 @@ test("one real supplier configures credentials and mixed models, discovers, impo
       throw new Error("OWNED_UI_ACCEPTED_RESPONSE_LOSS_FAILED");
     }
   });
-  await menu(page, "owned-chat", "测试");
+  await menu(page, `${name}/owned-chat`, "测试");
   dialog = page.getByRole("dialog", { name: "测试模型", exact: true });
   await dialog.getByRole("button", { name: "开始测试", exact: true }).click();
   await expect(

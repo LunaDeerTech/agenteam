@@ -35,7 +35,7 @@ func summaryResolveRequest(actor i.Actor, row summaryCallRecord, source summaryR
 	if request.Validate() != nil {
 		return mc.ResolveRequest{}, fault(f.ConfirmationStale)
 	}
-	if source.Source == mc.CurrentSelectionSource && (source.Selection.Kind != "platform" || source.Selection.Selector != mc.MeetingSummarySelector) || source.Source == mc.ServingSnapshotSource && source.Generation != row.input.GenerationID.String() {
+	if source.Source == mc.CurrentSelectionSource && (source.Selection.Kind != "platform" || source.Selection.Selector != mc.SummarySelector) || source.Source == mc.ServingSnapshotSource && source.Generation != row.input.GenerationID.String() {
 		return mc.ResolveRequest{}, fault(f.ConfirmationStale)
 	}
 	return request.Clone(), nil
@@ -74,7 +74,7 @@ func (m *SummaryModel) captureSummaryResolve(ctx context.Context, x postgres.SQL
 	if released || snapshot == nil && row.attempt != 1 {
 		return fault(f.DependencyUnavailable)
 	}
-	source := summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}}
+	source := summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}}
 	if snapshot != nil {
 		id, err := f.ParseID[mc.Snapshot](*snapshot)
 		if err != nil {

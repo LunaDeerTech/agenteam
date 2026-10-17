@@ -170,7 +170,7 @@ func httpModelDTO(v mc.ModelView) any {
 
 type httpConfiguredSelection struct {
 	Embedding mc.ModelID  `json:"embedding"`
-	Memory    mc.ModelID  `json:"memory"`
+	Summary   mc.ModelID  `json:"summary"`
 	Reranker  *mc.ModelID `json:"reranker"`
 	Image     *mc.ModelID `json:"image"`
 }
@@ -178,7 +178,7 @@ type httpConfiguredSelection struct {
 func httpSelectionDTO(v PlatformSelectionState) any {
 	var configured *httpConfiguredSelection
 	if c := v.Configured; c != nil {
-		configured = &httpConfiguredSelection{c.Embedding, c.Memory, c.Reranker, c.Image}
+		configured = &httpConfiguredSelection{c.Embedding, c.Summary, c.Reranker, c.Image}
 	}
 	return struct {
 		ID         string                   `json:"id"`

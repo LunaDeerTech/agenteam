@@ -40,7 +40,7 @@ type meetingResolutionFixture struct {
 	strict   *meetingResolutionConsumer
 }
 
-func newMeetingResolutionFixture(t *testing.T, initialize bool) *meetingResolutionFixture {
+func newMeetingResolutionFixture(t *testing.T) *meetingResolutionFixture {
 	t.Helper()
 	base, identity := meetingResolutionIdentity(t)
 	_, e := base.raw.Exec(testContext(t), `CREATE SCHEMA meeting_resolution_fixture;
@@ -51,11 +51,7 @@ func newMeetingResolutionFixture(t *testing.T, initialize bool) *meetingResoluti
 		t.Fatal(e)
 	}
 	v := bindMeetingResolution(t, base, identity)
-	if initialize {
-		if e = v.service.InitializeMeetingSummarySelection(testContext(t)); e != nil {
-			t.Fatal(e)
-		}
-	}
+
 	return v
 }
 func meetingResolutionIdentity(t *testing.T) (*projectConfigurationFixture, *projectUsageHTTPFixture) {
@@ -306,7 +302,7 @@ func (c *meetingResolutionConsumer) ValidateInTx(ctx context.Context, tx f.Tx, r
 }
 func (v *meetingResolutionFixture) request(t *testing.T, purpose mc.Purpose) mc.ResolveRequest {
 	t.Helper()
-	r := mc.ResolveRequest{Actor: v.owner, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: v.project.ID, MeetingID: newID[struct{}](t).String(), OperationID: newID[struct{}](t).String(), Purpose: purpose}, Purpose: purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}, LeaseOwner: resolutionCallOwner(t)}
+	r := mc.ResolveRequest{Actor: v.owner, Consumer: mc.Consumer{Kind: mc.MeetingConsumer, ProjectID: v.project.ID, MeetingID: newID[struct{}](t).String(), OperationID: newID[struct{}](t).String(), Purpose: purpose}, Purpose: purpose, Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}, LeaseOwner: resolutionCallOwner(t)}
 	v.bindFacts(t, r)
 	return r
 }
@@ -324,9 +320,9 @@ func (v *meetingResolutionFixture) bindFacts(t *testing.T, r mc.ResolveRequest) 
 		t.Fatal(e)
 	}
 }
-func (v *meetingResolutionFixture) summary(t *testing.T) mc.MeetingSummarySelection {
+func (v *meetingResolutionFixture) summary(t *testing.T) model.PlatformSelectionState {
 	t.Helper()
-	s, e := v.service.GetMeetingSummarySelection(testContext(t), v.admin)
+	s, e := v.service.GetPlatformSelection(testContext(t), v.admin)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -335,7 +331,14 @@ func (v *meetingResolutionFixture) summary(t *testing.T) mc.MeetingSummarySelect
 func (v *meetingResolutionFixture) choose(t *testing.T, m mc.ModelID) mc.CommandReceipt {
 	t.Helper()
 	s := v.summary(t)
-	out, e := v.service.UpdateMeetingSummarySelection(testContext(t), mc.UpdateMeetingSummarySelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), SelectionID: s.ID, ExpectedVersion: s.Version, Model: m})
+	selection := mc.PlatformSelection{ID: s.ID, Version: s.Version, Summary: m}
+	if s.Configured != nil {
+		selection = s.Configured.Clone()
+		selection.Summary = m
+	} else {
+		selection.Embedding = v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel).ID
+	}
+	out, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: s.Version, Selection: selection})
 	if e != nil {
 		t.Fatal(e)
 	}

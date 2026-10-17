@@ -10,19 +10,13 @@ import (
 )
 
 func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
-	v := newMeetingResolutionFixture(t, false)
+	v := newMeetingResolutionFixture(t)
 	r := v.request(t, mc.MeetingSummaryInitial)
 	selectRequest := func(r mc.ResolveRequest) mc.SelectionRequest {
 		return mc.SelectionRequest{Consumer: r.Consumer, Selection: *r.Selection}
 	}
 	t.Run("missing-null-and-current-authority-before-state", func(t *testing.T) {
 		p, e := v.resolving.DiscoverResolve(testContext(t), r)
-		resolutionZeroPlan(t, p, e)
-		requireCode(t, e, f.DependencyUnbound)
-		if e = v.service.InitializeMeetingSummarySelection(testContext(t)); e != nil {
-			t.Fatal(e)
-		}
-		p, e = v.resolving.DiscoverResolve(testContext(t), r)
 		resolutionZeroPlan(t, p, e)
 		requireCode(t, e, f.InvalidState)
 		changed := r.Clone()
@@ -32,14 +26,6 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		requireCode(t, e, f.NotFound)
 	})
 	_, m, _ := v.config(t, false, false)
-	plain := m.Input.Clone()
-	plain.Capabilities.StructuredOutputModes = nil
-	receipt, e := v.service.UpdateModel(testContext(t), mc.UpdateModelRequest{CommandMeta: v.meta(t, "plain-text"), ID: m.ID, ExpectedVersion: m.Version, Input: plain})
-	if e != nil {
-		t.Fatal(e)
-	}
-	m.Input = plain
-	m.Version = receipt.Version
 	chosen := v.choose(t, m.ID)
 	t.Run("safe-select-is-not-generation-authority", func(t *testing.T) {
 		q := selectRequest(r)
@@ -63,18 +49,18 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		}
 		requireCode(t, e, f.NotFound)
 	})
-	t.Run("both-purposes-plain-text-independent-of-old-selector", func(t *testing.T) {
+	t.Run("both-purposes-share-summary-selection", func(t *testing.T) {
 		var configured bool
-		if e := v.raw.QueryRow(testContext(t), `SELECT configured FROM agenteam_model.platform_selection`).Scan(&configured); e != nil || configured {
-			t.Fatal("old four configured prerequisite", e)
+		if e := v.raw.QueryRow(testContext(t), `SELECT configured FROM agenteam_model.platform_selection`).Scan(&configured); e != nil || !configured {
+			t.Fatal("shared configured prerequisite", e)
 		}
 		for _, purpose := range []mc.Purpose{mc.MeetingSummaryInitial, mc.MeetingSummaryUpdate} {
 			request := v.request(t, purpose)
 			version := chosen.Version
 			request.Selection.Version = &version
 			out := v.resolve(t, request)
-			if out.Snapshot.Identity.AdapterRevision != adapter.OpenAIChatTextRevision || *out.Snapshot.SelectionVersion != chosen.Version || len(out.Snapshot.Capabilities.StructuredOutputModes) != 0 || out.CredentialLease != nil {
-				t.Fatal("plain Summary snapshot")
+			if out.Snapshot.Identity.AdapterRevision != adapter.OpenAIChatStructuredRevision || *out.Snapshot.SelectionVersion != chosen.Version || len(out.Snapshot.Capabilities.StructuredOutputModes) == 0 || out.CredentialLease != nil {
+				t.Fatal("structured Summary snapshot")
 			}
 		}
 		bad := r.Clone()
@@ -86,7 +72,7 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		_, e = v.resolving.SelectModel(testContext(t), v.owner, selectRequest(bad))
 		requireCode(t, e, f.ResourceBusy)
 	})
-	t.Run("structured-capability-retained-and-memory-unmodified", func(t *testing.T) {
+	t.Run("structured-capability-and-memory-share-version", func(t *testing.T) {
 		_, structured, _ := v.config(t, false, false)
 		if len(structured.Input.Capabilities.StructuredOutputModes) == 0 {
 			t.Fatal("fixture lacks real schema capability")
@@ -100,11 +86,11 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		}
 		oldVersion := v.selectMemory(t, structured)
 		request := v.request(t, mc.MeetingSummaryUpdate)
-		version := current.Version
+		version := oldVersion
 		request.Selection.Version = &version
 		selected, e := v.resolving.SelectModel(testContext(t), v.owner, selectRequest(request))
 		if e != nil || *selected.SelectionVersion != version {
-			t.Fatal("old selector version gated Summary", oldVersion, e)
+			t.Fatal("shared selector version missing", oldVersion, e)
 		}
 	})
 	t.Run("disabled-and-unsupported-remain-explicit", func(t *testing.T) {
@@ -167,16 +153,18 @@ func TestModelMeetingSummaryResolutionSelection(t *testing.T) {
 		requireCode(t, e, f.DependencyUnbound)
 		_, projectModel, _ := v.config(t, true, false)
 		state := v.summary(t)
-		_, e = v.service.UpdateMeetingSummarySelection(testContext(t), mc.UpdateMeetingSummarySelectionRequest{CommandMeta: v.meta(t, "project-not-system"), SelectionID: state.ID, ExpectedVersion: state.Version, Model: projectModel.ID})
+		selection := state.Configured.Clone()
+		selection.Summary = projectModel.ID
+		_, e = v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "project-not-system"), ExpectedVersion: state.Version, Selection: selection})
 		if e == nil {
 			t.Fatal("Project model selected as system")
 		}
 		// Controlled corrupt storage proves no Project fallback inside Resolution.
-		v.sql(t, `UPDATE agenteam_model.meeting_summary_selection SET model_id=$1`, projectModel.ID.String())
-		v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2`, projectModel.ID.String(), state.ID)
+		v.sql(t, `UPDATE agenteam_model.platform_selection SET summary_id=$1`, projectModel.ID.String())
+		v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2 AND role='summary'`, projectModel.ID.String(), state.ID)
 		defer func() {
-			v.sql(t, `UPDATE agenteam_model.meeting_summary_selection SET model_id=$1`, state.Model.String())
-			v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2`, state.Model.String(), state.ID)
+			v.sql(t, `UPDATE agenteam_model.platform_selection SET summary_id=$1`, state.Configured.Summary.String())
+			v.sql(t, `UPDATE agenteam_model.references SET model_id=$1 WHERE owner_id=$2 AND role='summary'`, state.Configured.Summary.String(), state.ID)
 		}()
 		p, e = v.resolving.DiscoverResolve(testContext(t), v.request(t, mc.MeetingSummaryInitial))
 		resolutionZeroPlan(t, p, e)

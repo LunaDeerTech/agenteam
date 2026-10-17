@@ -44,7 +44,7 @@ func (w *meetingSummaryCommitStore) WithinTx(ctx context.Context, cause f.Transa
 			return e
 		}
 		var final bool
-		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands c JOIN agenteam_model.meeting_summary_selection s ON s.id=c.resource_id JOIN agenteam_model.references r ON r.owner_kind='platform_selector' AND r.owner_id=s.id AND r.role='meeting_summary' AND r.model_id=s.model_id AND r.owner_version=s.version WHERE c.command_identity=$1 AND c.phase='committed' AND c.safe_receipt IS NOT NULL AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.producer='model' AND a.action='model.selection.update' AND a.resource_id=s.id) AND EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.producer='model'))`, w.target).Scan(&final)
+		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands c JOIN agenteam_model.platform_selection s ON s.id=c.resource_id JOIN agenteam_model.references r ON r.owner_kind='platform_selector' AND r.owner_id=s.id AND r.role='summary' AND r.model_id=s.summary_id AND r.owner_version=s.version WHERE c.command_identity=$1 AND c.phase='committed' AND c.safe_receipt IS NOT NULL AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.producer='model' AND a.action='model.selection.update' AND a.resource_id=s.id) AND EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.producer='model'))`, w.target).Scan(&final)
 		if e != nil {
 			return e
 		}
@@ -68,8 +68,8 @@ func (w *meetingSummaryCommitStore) WithinTx(ctx context.Context, cause f.Transa
 func TestModelMeetingSummaryUnknown(t *testing.T) {
 	for _, mode := range []string{"committed", "rollback", "pending", "different-after-rollback"} {
 		t.Run(mode, func(t *testing.T) {
-			base := newMeetingSummaryFixture(t, true)
-			target, other := base.chat(t, false), base.chat(t, false)
+			base := newMeetingSummaryFixture(t)
+			target, other := base.chat(t, true), base.chat(t, true)
 			request := base.choice(t, target)
 			identity, e := f.NewCommandIdentity("model.system", []string{base.admin.Details().UserID}, "model.selection.update", request.Key)
 			if e != nil {
@@ -129,7 +129,7 @@ func TestModelMeetingSummaryUnknown(t *testing.T) {
 				err     error
 			}
 			done := make(chan response, 1)
-			go func() { r, e := candidate.service.UpdateMeetingSummarySelection(ctx, request); done <- response{r, e} }()
+			go func() { r, e := candidate.service.UpdatePlatformSelection(ctx, request); done <- response{r, e} }()
 			if trace != nil {
 				waitSignal(t, trace.ackDropped)
 			} else {
@@ -151,8 +151,8 @@ func TestModelMeetingSummaryUnknown(t *testing.T) {
 			var otherReceipt mc.CommandReceipt
 			if mode == "different-after-rollback" {
 				different := request
-				different.Model = other
-				otherReceipt, e = base.service.UpdateMeetingSummarySelection(testContext(t), different)
+				different.Selection.Summary = other
+				otherReceipt, e = base.service.UpdatePlatformSelection(testContext(t), different)
 				if e != nil {
 					t.Fatal("different request after confirmed rollback", e)
 				}
@@ -172,7 +172,7 @@ func TestModelMeetingSummaryUnknown(t *testing.T) {
 			}
 			switch mode {
 			case "committed":
-				if got.err != nil || got.receipt.ResourceID != request.SelectionID {
+				if got.err != nil || got.receipt.ResourceID != request.Selection.ID {
 					t.Fatal("actual COMMIT not confirmed", got.err)
 				}
 				if !strings.Contains(strings.Join(trace.snapshot(), " "), "commit-idle-ack-dropped") {
@@ -181,14 +181,14 @@ func TestModelMeetingSummaryUnknown(t *testing.T) {
 				// Advancing state must not turn replay into a fresh write or duplicate effects.
 				base.selectModel(t, other)
 				before := base.summaryFacts(t)
-				again, e := base.service.UpdateMeetingSummarySelection(testContext(t), request)
+				again, e := base.service.UpdatePlatformSelection(testContext(t), request)
 				if e != nil || again != got.receipt {
 					t.Fatal("original accepted replay changed", e)
 				}
 				httpSameFacts(t, before, base.summaryFacts(t))
 			case "different-after-rollback":
 				requireCode(t, got.err, f.IdempotencyKeyReused)
-				if got.receipt != (mc.CommandReceipt{}) || otherReceipt.ResourceID != request.SelectionID {
+				if got.receipt != (mc.CommandReceipt{}) || otherReceipt.ResourceID != request.Selection.ID {
 					t.Fatal("adopted different semantic")
 				}
 			default:
@@ -207,7 +207,7 @@ func TestModelMeetingSummaryUnknown(t *testing.T) {
 				if e != nil || lookup.Found || lookup.Receipt != nil {
 					t.Fatal("rollback became receipt", e)
 				}
-				if base.summary(t).Model != nil {
+				if base.summary(t).Configured != nil {
 					t.Fatal("rollback left canonical")
 				}
 			}

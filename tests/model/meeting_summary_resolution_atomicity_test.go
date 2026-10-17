@@ -52,7 +52,7 @@ func (v *meetingResolutionFixture) hold(t *testing.T, lock f.LockRequest) func()
 	return finish
 }
 func TestModelMeetingSummaryResolutionAtomicity(t *testing.T) {
-	v := newMeetingResolutionFixture(t, true)
+	v := newMeetingResolutionFixture(t)
 	_, m, _ := v.config(t, false, true)
 	v.choose(t, m.ID)
 	t.Run("simulated-input-snapshot-binding-lease-commit-or-rollback", func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestModelMeetingSummaryResolutionAtomicity(t *testing.T) {
 		var locks []f.LockRequest
 		removed := false
 		for _, l := range p.RequiredLocks() {
-			if strings.Contains(l.Key.Canonical(), "model-meeting-summary-selection") {
+			if strings.Contains(l.Key.Canonical(), "model-platform-selection") {
 				removed = true
 				continue
 			}
@@ -111,8 +111,8 @@ func TestModelMeetingSummaryResolutionAtomicity(t *testing.T) {
 		}
 		v.atomicFacts(t, r, p, 0)
 	})
-	t.Run("only-new-selector-ex-blocks-select-and-resolve", func(t *testing.T) {
-		key, e := f.SystemConfigLock("model-meeting-summary-selection")
+	t.Run("shared-selector-ex-blocks-select-and-resolve", func(t *testing.T) {
+		key, e := f.SystemConfigLock("model-platform-selection")
 		if e != nil {
 			t.Fatal(e)
 		}
@@ -142,15 +142,14 @@ func TestModelMeetingSummaryResolutionAtomicity(t *testing.T) {
 		}
 		v.atomicFacts(t, r, p, 0)
 		v.choose(t, m.ID)
-		v.selectMemory(t, m)
 		r = v.request(t, mc.MeetingSummaryInitial)
 		p = v.discover(t, r)
-		key, e := f.SystemConfigLock("model-meeting-summary-selection")
+		key, e := f.SystemConfigLock("model-platform-selection")
 		if e != nil {
 			t.Fatal(e)
 		}
 		release := v.hold(t, f.LockRequest{Key: key, Mode: f.Shared})
-		request := mc.DeleteModelRequest{CommandMeta: v.meta(t, "both-owner-delete"), ID: m.ID, ExpectedVersion: m.Version, Replacement: &next.ID}
+		request := mc.DeleteModelRequest{CommandMeta: v.meta(t, "shared-owner-delete"), ID: m.ID, ExpectedVersion: m.Version, Replacement: &next.ID}
 		ctx, cancel := context.WithTimeout(testContext(t), 150*time.Millisecond)
 		_, e = v.service.DeleteModel(ctx, request)
 		cancel()
@@ -159,8 +158,8 @@ func TestModelMeetingSummaryResolutionAtomicity(t *testing.T) {
 		}
 		release()
 		receipt, e := v.service.DeleteModel(testContext(t), request)
-		if e != nil || receipt.AffectedReferences != 2 {
-			t.Fatal("cross-provider double owner replacement", e)
+		if e != nil || receipt.AffectedReferences != 1 {
+			t.Fatal("cross-provider shared owner replacement", e)
 		}
 		_, result = v.final(t, r, p, true, false)
 		if result.State() != f.NotCommitted {

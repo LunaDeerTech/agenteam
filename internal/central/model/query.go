@@ -116,7 +116,7 @@ func selectionView(r *selectionRecord) (PlatformSelectionState, error) {
 	}
 	out := PlatformSelectionState{ID: r.ID, Version: r.Version}
 	if !r.Configured {
-		if r.Embedding != "" || r.Memory != "" || r.Reranker != "" || r.Image != "" {
+		if r.Embedding != "" || r.Summary != "" || r.Reranker != "" || r.Image != "" {
 			return out, unavailable(nil)
 		}
 		return out, nil
@@ -127,7 +127,7 @@ func selectionView(r *selectionRecord) (PlatformSelectionState, error) {
 	if e != nil {
 		return out, unavailable(e)
 	}
-	selection.Memory, e = f.ParseID[mc.Model](r.Memory)
+	selection.Summary, e = f.ParseID[mc.Model](r.Summary)
 	if e != nil {
 		return out, unavailable(e)
 	}

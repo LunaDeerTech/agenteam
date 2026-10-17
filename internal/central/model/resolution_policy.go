@@ -21,7 +21,7 @@ func resolutionVariant(r mc.ResolveRequest) error {
 	if r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind == "project_summary" {
 		return fault(f.DependencyUnbound)
 	}
-	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.MemorySelector && r.Selection.Selector != mc.MeetingSummarySelector && r.Selection.Selector != mc.EmbeddingSelector) {
+	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.SummarySelector && r.Selection.Selector != mc.EmbeddingSelector) {
 		return fault(f.CapabilityUnsupported)
 	}
 	if r.ReasoningEffort != "" {
@@ -46,7 +46,7 @@ func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selection
 	if slices.Contains(c.StructuredOutputModes, "json_schema") {
 		return adapter.OpenAIChatStructuredRevision, nil
 	}
-	if selection.Kind == "platform" && selection.Selector != mc.MeetingSummarySelector {
+	if selection.Kind == "platform" {
 		return "", fault(f.CapabilityUnsupported)
 	}
 	if len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
@@ -72,23 +72,6 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 	key := ""
 	if r.Selection.Kind == "direct" {
 		key = r.ModelRef.String()
-	} else if r.Selection.Selector == mc.MeetingSummarySelector {
-		selection, e := loadMeetingSummaryState(ctx, x)
-		if e != nil {
-			return d, e
-		}
-		if selection == nil {
-			return d, fault(f.DependencyUnbound)
-		}
-		v := selection.Version
-		d.Snapshot.SelectionVersion = &v
-		if selection.Model == "" {
-			return d, fault(f.InvalidState)
-		}
-		if r.Selection.Version != nil && *r.Selection.Version != v {
-			return d, fault(f.ResourceBusy)
-		}
-		key = selection.Model
 	} else {
 		selection, e := loadSelection(ctx, x)
 		if e != nil {
@@ -96,7 +79,7 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 		}
 		v := selection.Version
 		d.Snapshot.SelectionVersion = &v
-		key = selection.Memory
+		key = selection.Summary
 		if r.Selection.Selector == mc.EmbeddingSelector {
 			key = selection.Embedding
 		}

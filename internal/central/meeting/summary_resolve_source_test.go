@@ -35,7 +35,7 @@ func summarySourceFixture(t *testing.T, source summaryResolveSource) (*SummaryAu
 
 func TestSummaryOriginalResolvePreservesNilAndExactSelectionVersion(t *testing.T) {
 	for _, version := range []*f.Version{nil, new(f.Version(7))} {
-		_, _, row, request := summarySourceFixture(t, summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector, Version: version}})
+		_, _, row, request := summarySourceFixture(t, summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector, Version: version}})
 		decoded, err := decodeSummaryResolve(request.Resolve.Actor, row)
 		if err != nil || (decoded.Selection.Version == nil) != (version == nil) || version != nil && *decoded.Selection.Version != *version {
 			t.Fatal("original selector version changed", err)
@@ -53,7 +53,7 @@ func TestSummaryOriginalResolvePreservesNilAndExactSelectionVersion(t *testing.T
 }
 
 func TestSummaryOriginalResolveRequiresDurableBindingAndPrivateStoppedOwner(t *testing.T) {
-	a, owner, row, request := summarySourceFixture(t, summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}})
+	a, owner, row, request := summarySourceFixture(t, summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}})
 	w := &summaryStoppedResolutionOwner{owner: owner, request: request}
 	ctx := context.WithValue(context.Background(), summaryStoppedResolutionKey{}, w)
 	if _, err := a.stoppedResolutionOwner(ctx, request); err != nil {
@@ -87,7 +87,7 @@ func TestSummaryOriginalResolveRequiresDurableBindingAndPrivateStoppedOwner(t *t
 	if _, err := decodeSummaryResolve(request.Resolve.Actor, legacy); !isUnknown(err) {
 		t.Fatal("legacy missing source was reconstructed", err)
 	}
-	row.resolveSource = []byte(`{"source":"current_selection","selection":{"kind":"platform","selector":"meeting_summary"},"unexpected":true}`)
+	row.resolveSource = []byte(`{"source":"current_selection","selection":{"kind":"platform","selector":"summary"},"unexpected":true}`)
 	if _, err := decodeSummaryResolve(request.Resolve.Actor, row); err == nil {
 		t.Fatal("foreign source shape accepted")
 	}
@@ -98,7 +98,7 @@ func TestSummaryOriginalResolveRequiresDurableBindingAndPrivateStoppedOwner(t *t
 }
 
 func TestSummaryOriginalServingSourceKeepsGenerationAndSnapshot(t *testing.T) {
-	a, owner, row, request := summarySourceFixture(t, summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}})
+	a, owner, row, request := summarySourceFixture(t, summaryResolveSource{Source: mc.CurrentSelectionSource, Selection: &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}})
 	_ = a
 	_ = owner
 	snapshot := summaryTestID[mc.Snapshot](t)

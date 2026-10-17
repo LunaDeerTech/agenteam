@@ -83,8 +83,8 @@ func TestKnowledgeM3AppAutomaticIndex(t *testing.T) {
 	workAppCheck(t, "knowledge-auto-replacement-model", err)
 	var selection knowledgeM3AutomaticSelection
 	knowledgeM3SystemCall(t, v, "GET", "model-selection", nil, &selection)
-	if selection.Configured == nil || selection.Configured.Memory.Validate() != nil {
-		t.Fatal("configured platform selector missing memory model")
+	if selection.Configured == nil || selection.Configured.Summary.Validate() != nil {
+		t.Fatal("configured platform selector missing summary model")
 	}
 	knowledgeM3SystemCall(t, v, "PUT", "model-selection", selection.replaceEmbedding(replacement), &receipt)
 	second := knowledgeM3AwaitAutomatic(t, v, doc, first, updatedText)
@@ -149,36 +149,36 @@ type knowledgeM3AutomaticSelection struct {
 	Version    f.Version `json:"version"`
 	Configured *struct {
 		Embedding mc.ModelID  `json:"embedding"`
-		Memory    mc.ModelID  `json:"memory"`
+		Summary   mc.ModelID  `json:"summary"`
 		Reranker  *mc.ModelID `json:"reranker"`
 		Image     *mc.ModelID `json:"image"`
 	} `json:"configured"`
 }
 
 func (s knowledgeM3AutomaticSelection) replaceEmbedding(model mc.ModelID) map[string]any {
-	return map[string]any{"id": s.ID, "expected_version": s.Version, "embedding": model, "memory": s.Configured.Memory, "reranker": s.Configured.Reranker, "image": s.Configured.Image}
+	return map[string]any{"id": s.ID, "expected_version": s.Version, "embedding": model, "summary": s.Configured.Summary, "reranker": s.Configured.Reranker, "image": s.Configured.Image}
 }
 
 func TestKnowledgeM3AutomaticSelectionWire(t *testing.T) {
 	id, old, memory, next := guardID[struct{}](t).String(), guardID[mc.Model](t), guardID[mc.Model](t), guardID[mc.Model](t)
 	// The actual GET response schema in model/http_dto.go is nested, while
 	// contract.PlatformSelection is the flat command-domain representation.
-	raw := workAppJSON(t, map[string]any{"id": id, "version": f.Version(3), "configured": map[string]any{"embedding": old, "memory": memory, "reranker": nil, "image": nil}})
+	raw := workAppJSON(t, map[string]any{"id": id, "version": f.Version(3), "configured": map[string]any{"embedding": old, "summary": memory, "reranker": nil, "image": nil}})
 	var selection knowledgeM3AutomaticSelection
 	workAppCheck(t, "knowledge-selector-wire", json.Unmarshal(raw, &selection))
-	if selection.Configured == nil || selection.Configured.Memory != memory {
+	if selection.Configured == nil || selection.Configured.Summary != memory {
 		t.Fatal("actual nested selector configuration was lost")
 	}
 	var body struct {
 		ID       string      `json:"id"`
 		Version  f.Version   `json:"expected_version"`
-		Memory   mc.ModelID  `json:"memory"`
+		Summary  mc.ModelID  `json:"summary"`
 		Embed    mc.ModelID  `json:"embedding"`
 		Reranker *mc.ModelID `json:"reranker"`
 		Image    *mc.ModelID `json:"image"`
 	}
 	workAppCheck(t, "knowledge-selector-update-wire", json.Unmarshal(workAppJSON(t, selection.replaceEmbedding(next)), &body))
-	if body.ID != id || body.Version != 3 || body.Memory != memory || body.Embed != next || body.Reranker != nil || body.Image != nil {
+	if body.ID != id || body.Version != 3 || body.Summary != memory || body.Embed != next || body.Reranker != nil || body.Image != nil {
 		t.Fatal("selector update lost current version or unchanged selectors")
 	}
 }

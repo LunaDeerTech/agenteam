@@ -30,7 +30,7 @@ func (o ReferenceOwner) Validate() error {
 			return bad()
 		}
 	case "platform_selector":
-		if o.ProjectID != nil || !one(o.Role, "embedding", "memory", "reranker", "image", "meeting_summary") {
+		if o.ProjectID != nil || !one(o.Role, "embedding", "summary", "reranker", "image") {
 			return bad()
 		}
 	default:
@@ -56,7 +56,7 @@ func (r ReferenceChange) Validate() error {
 	if r.After == nil && !one(r.Owner.Role, "reranker", "image") {
 		return bad()
 	}
-	if r.ReasoningEffort != "" && !one(r.Owner.Role, "agent_model", "approval_model", "memory") {
+	if r.ReasoningEffort != "" && !one(r.Owner.Role, "agent_model", "approval_model") {
 		return bad()
 	}
 	return nil

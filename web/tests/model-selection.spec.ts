@@ -79,26 +79,19 @@ const selection = (version = "4") => ({
   version,
   configured: {
     embedding: id(10),
-    memory: id(11),
+    summary: id(11),
     reranker: null,
     image: null,
   },
 });
-const summary = (version = "8") => ({ id: id(2), version, model: id(11) });
-const platformPath = "/system/model-selection";
-const summaryPath = `${platformPath}/meeting-summary`;
-const platformInput = (version = "4") => ({
+const selectionPath = "/system/model-selection";
+const selectionInput = (version = "4") => ({
   id: id(1),
   expected_version: version,
   embedding: id(12),
-  memory: id(11),
+  summary: id(11),
   reranker: null,
   image: null,
-});
-const summaryInput = (version = "8") => ({
-  id: id(2),
-  expected_version: version,
-  model: id(13),
 });
 const receipt = (resource = id(1), version = "5") => ({
   kind: "model.selection.update",
@@ -132,8 +125,7 @@ beforeEach(async () => {
   localStorage.clear();
   stopTheme = (await import("../src/composables/useTheme")).initTheme();
   writes = [];
-  puts = (path) =>
-    json(path.endsWith("meeting-summary") ? receipt(id(2), "9") : receipt());
+  puts = () => json(receipt());
   gets = () => undefined;
   lookup = () => json({ found: true, receipt: receipt() });
   fetcher = vi.fn(
@@ -154,8 +146,6 @@ beforeEach(async () => {
       const response = gets(path);
       if (response) return response;
       if (path === "/system/model-selection") return json(selection());
-      if (path === "/system/model-selection/meeting-summary")
-        return json(summary());
       if (path === "/system/model-providers")
         return json({
           items: [provider(true), provider()],
@@ -235,225 +225,208 @@ async function pick(purpose: string, embedding = false) {
   expect(row).toBeTruthy();
   await row!.get("button").trigger("click");
   await flushPromises();
+  expect(wrapper!.get('[role="dialog"]').text()).toMatch(
+    embedding
+      ? /Vector Provider\s*\/\s*upstream-12/
+      : /Chat Provider\s*\/\s*upstream-13/,
+  );
   await click("使用此模型");
 }
+function selectionReads() {
+  return fetcher.mock.calls.filter(
+    ([input, options]) =>
+      String(input).includes("/model-selection") && options?.method !== "PUT",
+  );
+}
 describe("platform model selections", () => {
-  it("rejects malformed reads without replacing a failed group with defaults", async () => {
+  it("reads one configuration with four purposes and provider/model identifiers", async () => {
+    const view = await page();
+    expect(
+      view
+        .findAll('button[aria-label^="选择"]')
+        .map((item) => item.attributes("aria-label")),
+    ).toEqual(["选择向量模型", "选择总结模型", "选择重排模型", "选择图像模型"]);
+    expect(view.text()).toMatch(/Vector Provider\s*\/\s*upstream-10/);
+    expect(view.text()).toMatch(/Chat Provider\s*\/\s*upstream-11/);
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    expect(selectionReads()).toHaveLength(1);
+    expect(String(selectionReads()[0]![0])).toBe(`/api/v1${selectionPath}`);
+    expect(writes).toHaveLength(0);
+  });
+  it("rejects the removed memory field without making any purpose editable", async () => {
     gets = (path) =>
-      path === "/system/model-selection"
-        ? json({ id: id(1), version: "4", configured: {} })
+      path === selectionPath
+        ? json({
+            ...selection(),
+            configured: {
+              embedding: id(10),
+              memory: id(11),
+              reranker: null,
+              image: null,
+            },
+          })
         : undefined;
     const view = await page();
     expect(view.text()).toContain("读取失败");
-    expect(
-      view.get('[aria-label="选择向量模型"]').attributes("disabled"),
-    ).toBeDefined();
-    expect(
-      view.get('[aria-label="选择会议摘要模型"]').attributes("disabled"),
-    ).toBeUndefined();
+    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像模型"])
+      expect(
+        view.get(`[aria-label="选择${purpose}"]`).attributes("disabled"),
+      ).toBeDefined();
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    expect(selectionReads()).toHaveLength(1);
   });
-  it.each(["platform", "summary"] as const)(
-    "saves only the changed %s resource even when the other resource is unconfigured",
-    async (resource) => {
-      gets = (path) => {
-        if (resource === "summary" && path === platformPath)
-          return json({ ...selection(), configured: null });
-        if (resource === "platform" && path === summaryPath)
-          return json({ ...summary(), model: null });
-      };
-      await page();
-      expect(button("保存").attributes("disabled")).toBeDefined();
-      await pick(
-        resource === "summary" ? "会议摘要模型" : "向量模型",
-        resource === "platform",
-      );
-      await click("保存");
-      expect(writes).toHaveLength(1);
-      expect(writes[0]!.path).toBe(
-        resource === "summary" ? summaryPath : platformPath,
-      );
-      expect(JSON.parse(writes[0]!.body)).toEqual(
-        resource === "summary" ? summaryInput() : platformInput(),
-      );
-      expect(wrapper!.text()).toContain("已保存。");
-      expect(button("保存").attributes("disabled")).toBeDefined();
-    },
-  );
-  it("saves both changed resources from one action in order with independent versions and keys", async () => {
+  it("requires embedding and summary when configuring the resource for the first time", async () => {
+    gets = (path) =>
+      path === selectionPath
+        ? json({ ...selection(), configured: null })
+        : undefined;
     await page();
+    expect(button("保存").attributes("disabled")).toBeDefined();
     await pick("向量模型", true);
-    await pick("会议摘要模型");
-    let finishPlatform!: (value: Response) => void;
-    puts = (path) =>
-      path === platformPath
-        ? new Promise<Response>((resolve) => {
-            finishPlatform = resolve;
-          })
-        : json(receipt(id(2), "9"));
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    await pick("总结模型");
     await click("保存");
     expect(writes).toHaveLength(1);
-    expect(writes[0]!.path).toBe(platformPath);
-    expect(button("保存").attributes("disabled")).toBeDefined();
-    finishPlatform(json(receipt()));
-    await flushPromises();
-    expect(writes.map((write) => write.path)).toEqual([
-      platformPath,
-      summaryPath,
-    ]);
-    expect(writes.map((write) => JSON.parse(write.body))).toEqual([
-      platformInput(),
-      summaryInput(),
-    ]);
-    expect(writes[0]!.key).toBeTruthy();
-    expect(writes[1]!.key).toBeTruthy();
-    expect(writes[1]!.key).not.toBe(writes[0]!.key);
+    expect(writes[0]!.path).toBe(selectionPath);
+    expect(JSON.parse(writes[0]!.body)).toEqual({
+      ...selectionInput(),
+      summary: id(13),
+    });
     expect(wrapper!.text()).toContain("已保存。");
     expect(button("保存").attributes("disabled")).toBeDefined();
-    expect(
-      fetcher.mock.calls.filter(
-        (call) =>
-          String(call[0]).includes("model-selection") &&
-          call[1]?.method !== "PUT",
-      ),
-    ).toHaveLength(2);
+  });
+  it("saves all changed purposes in one pending request and never repeats it after receipt or read", async () => {
+    await page();
+    await pick("向量模型", true);
+    await pick("总结模型");
+    let finish!: (value: Response) => void;
+    puts = () =>
+      new Promise<Response>((resolve) => {
+        finish = resolve;
+      });
+    await click("保存");
+    expect(writes).toHaveLength(1);
+    expect(writes[0]!.path).toBe(selectionPath);
+    expect(JSON.parse(writes[0]!.body)).toEqual({
+      ...selectionInput(),
+      summary: id(13),
+    });
+    expect(writes[0]!.key).toBeTruthy();
+    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像模型"])
+      expect(
+        wrapper!.get(`[aria-label="选择${purpose}"]`).attributes("disabled"),
+      ).toBeDefined();
+    for (const action of ["保存", "重新获取", "放弃修改"])
+      expect(button(action).attributes("disabled")).toBeDefined();
+    finish(json(receipt()));
+    await flushPromises();
+    expect(wrapper!.text()).toContain("已保存。");
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    expect(writes).toHaveLength(1);
+    expect(selectionReads()).toHaveLength(1);
+    gets = (path) =>
+      path === selectionPath
+        ? json({
+            ...selection("5"),
+            configured: {
+              embedding: id(12),
+              summary: id(13),
+              reranker: null,
+              image: null,
+            },
+          })
+        : undefined;
+    await click("重新获取");
+    expect(selectionReads()).toHaveLength(2);
+    expect(writes).toHaveLength(1);
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    expect(wrapper!.text()).toMatch(/Vector Provider\s*\/\s*upstream-12/);
+    expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
   });
   it.each([
-    { resource: "platform", code: "INVALID_ARGUMENT", status: 400 },
-    { resource: "platform", code: "VERSION_CONFLICT", status: 409 },
-    { resource: "summary", code: "INVALID_ARGUMENT", status: 400 },
-    { resource: "summary", code: "VERSION_CONFLICT", status: 409 },
+    { code: "INVALID_ARGUMENT", status: 400 },
+    { code: "VERSION_CONFLICT", status: 409 },
   ])(
-    "preserves unfinished drafts after $resource returns $code and never repeats a successful write",
-    async ({ resource, code, status }) => {
+    "preserves the whole draft after $code and adopts a fresh version only explicitly",
+    async ({ code, status }) => {
       await page();
       await pick("向量模型", true);
-      await pick("会议摘要模型");
-      const failedPath = resource === "platform" ? platformPath : summaryPath;
-      puts = (path) =>
-        path === failedPath
-          ? json({ code, commit_state: "not_started" }, status)
-          : json(receipt());
+      await pick("总结模型");
+      puts = () => json({ code, commit_state: "not_started" }, status);
       await click("保存");
-      const initialCount = resource === "platform" ? 1 : 2;
-      expect(writes.map((write) => write.path)).toEqual(
-        resource === "platform" ? [platformPath] : [platformPath, summaryPath],
-      );
-      expect(wrapper!.text()).toContain("Model 12");
-      expect(wrapper!.text()).toContain("Model 13");
+      expect(writes).toHaveLength(1);
+      expect(wrapper!.text()).toMatch(/Vector Provider\s*\/\s*upstream-12/);
+      expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
       expect(wrapper!.find('[role="alert"]').exists()).toBe(true);
       expect(wrapper!.text()).not.toContain("已保存。");
-      if (resource === "summary")
-        expect(wrapper!.text()).toContain("部分用途已保存，剩余修改尚未保存。");
       if (status === 409) {
-        gets = (path) => {
-          if (path === platformPath)
-            return json(
-              resource === "platform"
-                ? selection("7")
-                : {
-                    ...selection("5"),
-                    configured: {
-                      ...selection().configured,
-                      embedding: id(12),
-                    },
-                  },
-            );
-          if (path === summaryPath)
-            return json(summary(resource === "summary" ? "11" : "8"));
-        };
+        gets = (path) =>
+          path === selectionPath ? json(selection("7")) : undefined;
         expect(button("保存").attributes("disabled")).toBeDefined();
         await click("重新获取");
-        expect(writes).toHaveLength(initialCount);
-        expect(wrapper!.text()).toContain("Model 12");
-        expect(wrapper!.text()).toContain("Model 13");
+        expect(writes).toHaveLength(1);
+        expect(wrapper!.text()).toMatch(/Vector Provider\s*\/\s*upstream-12/);
+        expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
         expect(button("保存").attributes("disabled")).toBeDefined();
         await click("采用最新版本并保留草稿");
       }
-      const platformVersion =
-        status === 409 && resource === "platform" ? "7" : "4";
-      const summaryVersion =
-        status === 409 && resource === "summary" ? "11" : "8";
-      puts = (path) =>
-        json(
-          path === platformPath
-            ? receipt(id(1), String(Number(platformVersion) + 1))
-            : receipt(id(2), String(Number(summaryVersion) + 1)),
-        );
+      const version = status === 409 ? "7" : "4";
+      puts = () => json(receipt(id(1), String(Number(version) + 1)));
       await click("保存");
-      const resumed = writes.slice(initialCount);
-      expect(resumed.map((write) => write.path)).toEqual(
-        resource === "platform" ? [platformPath, summaryPath] : [summaryPath],
-      );
-      expect(resumed.map((write) => JSON.parse(write.body))).toEqual(
-        resource === "platform"
-          ? [platformInput(platformVersion), summaryInput(summaryVersion)]
-          : [summaryInput(summaryVersion)],
-      );
-      expect(resumed[0]!.key).not.toBe(writes[initialCount - 1]!.key);
-      expect(wrapper!.text()).toContain("已保存。");
-      expect(button("保存").attributes("disabled")).toBeDefined();
-    },
-  );
-  it.each(["platform", "summary"] as const)(
-    "keeps an unknown %s request frozen through lookup and resumes only unfinished drafts after exact replay",
-    async (resource) => {
-      await page();
-      await pick("向量模型", true);
-      await pick("会议摘要模型");
-      const failedPath = resource === "platform" ? platformPath : summaryPath;
-      puts = (path) => {
-        if (path === failedPath)
-          throw new TypeError("Synthetic interrupted response");
-        return json(receipt());
-      };
-      await click("保存");
-      const originalCount = resource === "platform" ? 1 : 2;
-      expect(writes).toHaveLength(originalCount);
-      const original = writes[originalCount - 1]!;
-      expect(original.path).toBe(failedPath);
-      expect(original.key).toBeTruthy();
-      expect(wrapper!.text()).toContain("原操作结果尚未确认");
-      expect(wrapper!.text()).toContain("Model 13");
-      expect(button("保存").attributes("disabled")).toBeDefined();
-      const confirmed =
-        resource === "platform" ? receipt() : receipt(id(2), "9");
-      lookup = () => json({ found: true, receipt: confirmed });
-      await click("查询原操作");
-      expect(writes).toHaveLength(originalCount);
-      expect(wrapper!.text()).toContain("已找到历史回执");
-      expect(wrapper!.text()).not.toContain("已保存。");
-      expect(button("保存").attributes("disabled")).toBeDefined();
-      const observations = fetcher.mock.calls.filter(([input]) =>
-        String(input).includes("/model-commands/lookup"),
-      );
-      expect(observations).toHaveLength(1);
-      expect(
-        new Headers(observations[0]![1]!.headers).get("Idempotency-Key"),
-      ).toBe(original.key);
-      expect(JSON.parse(String(observations[0]![1]!.body))).toEqual({
-        command: "model.selection.update",
+      expect(writes).toHaveLength(2);
+      expect(writes[1]!.path).toBe(selectionPath);
+      expect(JSON.parse(writes[1]!.body)).toEqual({
+        ...selectionInput(version),
+        summary: id(13),
       });
-      puts = (path) =>
-        json(path === platformPath ? receipt() : receipt(id(2), "9"));
-      await click("确认原请求");
-      expect(writes).toHaveLength(originalCount + 1);
-      expect(writes[originalCount]).toEqual(original);
-      if (resource === "platform") {
-        expect(wrapper!.text()).not.toContain("已保存。");
-        expect(wrapper!.text()).toContain("Model 13");
-        await click("保存");
-      }
-      expect(writes).toHaveLength(3);
-      expect(writes.map((write) => write.path)).toEqual(
-        resource === "platform"
-          ? [platformPath, platformPath, summaryPath]
-          : [platformPath, summaryPath, summaryPath],
-      );
-      expect(JSON.parse(writes[2]!.body)).toEqual(summaryInput());
+      expect(writes[1]!.key).not.toBe(writes[0]!.key);
       expect(wrapper!.text()).toContain("已保存。");
       expect(button("保存").attributes("disabled")).toBeDefined();
     },
   );
+  it("keeps an unknown request frozen after lookup and accepts only its original body and key", async () => {
+    await page();
+    await pick("向量模型", true);
+    await pick("总结模型");
+    puts = () => {
+      throw new TypeError("Synthetic interrupted response");
+    };
+    await click("保存");
+    expect(writes).toHaveLength(1);
+    const original = writes[0]!;
+    expect(original.path).toBe(selectionPath);
+    expect(original.key).toBeTruthy();
+    expect(wrapper!.text()).toContain("原操作结果尚未确认");
+    expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
+    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像模型"])
+      expect(
+        wrapper!.get(`[aria-label="选择${purpose}"]`).attributes("disabled"),
+      ).toBeDefined();
+    for (const action of ["保存", "重新获取", "放弃修改"])
+      expect(button(action).attributes("disabled")).toBeDefined();
+    await click("查询原操作");
+    expect(writes).toHaveLength(1);
+    expect(wrapper!.text()).toContain("已找到历史回执");
+    expect(wrapper!.text()).not.toContain("已保存。");
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    const observations = fetcher.mock.calls.filter(([input]) =>
+      String(input).includes("/model-commands/lookup"),
+    );
+    expect(observations).toHaveLength(1);
+    expect(
+      new Headers(observations[0]![1]!.headers).get("Idempotency-Key"),
+    ).toBe(original.key);
+    expect(JSON.parse(String(observations[0]![1]!.body))).toEqual({
+      command: "model.selection.update",
+    });
+    puts = () => json(receipt());
+    await click("确认原请求");
+    expect(writes).toHaveLength(2);
+    expect(writes[1]).toEqual(original);
+    expect(wrapper!.text()).toContain("已保存。");
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    expect(selectionReads()).toHaveLength(1);
+  });
   it("shows missing references and clears drafts on permission loss without logging out", async () => {
     gets = (path) =>
       path === `/system/models/${id(10)}`
@@ -465,27 +438,23 @@ describe("platform model selections", () => {
     puts = () => json({ code: "FORBIDDEN", commit_state: "not_started" }, 403);
     await click("保存");
     expect(wrapper!.text()).toContain("页面数据已清除");
-    expect(wrapper!.text()).not.toContain("Model 12");
+    expect(wrapper!.text()).not.toContain("upstream-12");
     expect(wrapper!.text()).not.toContain("确认原请求");
     expect(
       (await import("../src/account/session")).useSession().user.value,
     ).not.toBeNull();
   });
-  it("binds Summary receipts to its own ID, successor version, kind and zero references", async () => {
-    const { saveMeetingSummarySelection } =
+  it("binds the selection receipt to its ID, successor version, kind and zero references", async () => {
+    const { saveModelSelection } =
       await import("../src/system/model-selection");
     for (const wrong of [
-      receipt(id(1), "9"),
-      receipt(id(2), "8"),
-      { ...receipt(id(2), "9"), kind: "model.update" },
-      { ...receipt(id(2), "9"), affected_references: "1" },
+      receipt(id(2)),
+      receipt(id(1), "4"),
+      { ...receipt(), kind: "model.update" },
+      { ...receipt(), affected_references: "1" },
     ]) {
       puts = () => json(wrong);
-      const operation = saveMeetingSummarySelection({
-        id: id(2),
-        expected_version: "8",
-        model: id(11),
-      });
+      const operation = saveModelSelection(selectionInput());
       await expect(operation.command.run()).rejects.toMatchObject({
         code: "INVALID_RESPONSE",
       });
@@ -493,20 +462,20 @@ describe("platform model selections", () => {
       operation.command.release();
     }
   });
-  it("requires declared memory capabilities and reports disabled references", async () => {
+  it("requires chat with json_schema for summary and reports disabled references", async () => {
     const { modelPurposeIssue } = await import("../src/system/model-selection");
     const chat = model(11);
+    expect(modelPurposeIssue("summary", chat, provider())).toBeUndefined();
     chat.input.capabilities.structured_output_modes = [];
-    expect(modelPurposeIssue("memory", chat, provider())).toContain(
+    expect(modelPurposeIssue("summary", chat, provider())).toContain(
       "json_schema",
     );
-    expect(
-      modelPurposeIssue("meeting_summary", chat, provider()),
-    ).toBeUndefined();
+    chat.input.capabilities.structured_output_modes = ["json_schema"];
     chat.input.enabled = false;
-    expect(modelPurposeIssue("meeting_summary", chat, provider())).toContain(
-      "停用",
-    );
+    expect(modelPurposeIssue("summary", chat, provider())).toContain("停用");
+    expect(
+      modelPurposeIssue("summary", model(10, true), provider(true)),
+    ).toContain("类型");
   });
   it("keeps legacy image references unchanged while rejecting them as new choices", async () => {
     const imageProvider = provider();
@@ -522,7 +491,7 @@ describe("platform model selections", () => {
       "不能新增选择",
     );
     gets = (path) =>
-      path === "/system/model-selection"
+      path === selectionPath
         ? json({
             ...selection(),
             configured: { ...selection().configured, image: id(14) },

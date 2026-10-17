@@ -46,7 +46,6 @@ func TestAgentToolInputRejectsForgedSourcesAndUndeclaredCommands(t *testing.T) {
 // does not replace the separate private Builtin/Execution authority tests.
 type agentNotificationStore struct {
 	Store
-	postgres.SQLExecutor
 	t                              *testing.T
 	call                           c.AgentToolCall
 	input                          []byte

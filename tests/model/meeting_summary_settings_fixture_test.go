@@ -17,7 +17,7 @@ import (
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 )
 
-const meetingSummarySettingsPath = "/api/v1/system/model-selection/meeting-summary"
+const meetingSummarySettingsPath = "/api/v1/system/model-selection"
 
 func meetingSummarySettingsBudget(t *testing.T) {
 	t.Helper()
@@ -91,10 +91,10 @@ func meetingSummarySettingsRequest(t *testing.T, v *systemHTTPFixture, b systemH
 	}
 	return r
 }
-func meetingSummarySettingsBody(r mc.UpdateMeetingSummarySelectionRequest) map[string]any {
-	return map[string]any{"id": r.SelectionID, "expected_version": r.ExpectedVersion.String(), "model": r.Model.String()}
+func meetingSummarySettingsBody(r mc.UpdatePlatformSelectionRequest) map[string]any {
+	return map[string]any{"id": r.Selection.ID, "expected_version": r.ExpectedVersion.String(), "embedding": r.Selection.Embedding.String(), "summary": r.Selection.Summary.String(), "reranker": r.Selection.Reranker, "image": r.Selection.Image}
 }
-func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemHTTPResponse, captured ...mc.UpdateMeetingSummarySelectionRequest) {
+func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemHTTPResponse, captured ...mc.UpdatePlatformSelectionRequest) {
 	t.Helper()
 	dir := os.Getenv("AGENTEAM_MEETING_SUMMARY_SETTINGS_EVIDENCE_DIR")
 	if dir == "" {
@@ -118,7 +118,7 @@ func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemH
 		metadata["response_headers"] = map[string]string{"X-Request-ID": requestID}
 	}
 	if len(captured) == 1 {
-		// Only the three original public command fields are exported; CommandMeta
+		// Only the original public command fields are exported; CommandMeta
 		// (including the idempotency key and actor) never enters the evidence.
 		metadata["captured_command"] = meetingSummarySettingsBody(captured[0])
 	}
@@ -130,10 +130,10 @@ func meetingSummarySettingsSafeBody(t *testing.T, name, target string, r systemH
 	}
 	t.Logf("safe body %s sha256=%x", name, sum)
 }
-func meetingSummarySettingsReceipt(t *testing.T, r systemHTTPResponse, request mc.UpdateMeetingSummarySelectionRequest) {
+func meetingSummarySettingsReceipt(t *testing.T, r systemHTTPResponse, request mc.UpdatePlatformSelectionRequest) {
 	t.Helper()
 	fields := r.want(t, 200).object(t)
-	if len(fields) != 4 || fields["kind"] != "model.selection.update" || fields["resource_id"] != request.SelectionID || fields["version"] != (request.ExpectedVersion+1).String() || fields["affected_references"] != "0" {
+	if len(fields) != 4 || fields["kind"] != "model.selection.update" || fields["resource_id"] != request.Selection.ID || fields["version"] != (request.ExpectedVersion+1).String() || fields["affected_references"] != "0" {
 		t.Fatal("receipt not bound to original Summary command")
 	}
 }

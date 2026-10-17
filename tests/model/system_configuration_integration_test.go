@@ -425,7 +425,7 @@ func TestModelB01PlatformSelectionAndAtomicReplacement(t *testing.T) {
 	embed := v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel)
 	memory := v.model(t, v.provider(t, mc.OpenAIChat, nil), mc.ChatModel)
 	rerank := v.model(t, v.provider(t, mc.JinaRerank, nil), mc.RerankerModel)
-	selection := mc.PlatformSelection{ID: empty.ID, Version: 1, Embedding: embed.ID, Memory: memory.ID, Reranker: &rerank.ID}
+	selection := mc.PlatformSelection{ID: empty.ID, Version: 1, Embedding: embed.ID, Summary: memory.ID, Reranker: &rerank.ID}
 	receipt, e := v.service.UpdatePlatformSelection(ctx, mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "select"), ExpectedVersion: 1, Selection: selection})
 	if e != nil || receipt.Version != 2 {
 		t.Fatal(e)
@@ -1093,7 +1093,7 @@ func TestModelB01PreparedReferencesAndCurrentAdminAreRechecked(t *testing.T) {
 				request := mc.DeleteModelRequest{CommandMeta: v.meta(t, "delete-racing-selector"), ID: old.ID, ExpectedVersion: 1, Replacement: &next.ID}
 				run = func(s *model.Service) error { _, e := s.DeleteModel(ctx, request); return e }
 				intervene = func() {
-					_, e := v.service.UpdatePlatformSelection(ctx, mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "new-selector"), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: old.ID, Memory: memory.ID}})
+					_, e := v.service.UpdatePlatformSelection(ctx, mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, "new-selector"), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: old.ID, Summary: memory.ID}})
 					if e != nil {
 						t.Fatal(e)
 					}

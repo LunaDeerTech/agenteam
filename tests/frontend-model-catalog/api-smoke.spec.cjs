@@ -50,7 +50,7 @@ test("owned production catalog CRUD, credential and selection wire", async ({
   ).toBe(true);
   const input = {
     name: `Owned provider ${suffix}`,
-    protocol: "openai-chat-completions",
+    protocol: "openai-compatible",
     base_url: owned.provider_base_url,
     enabled: true,
     credential_ref: credential.value.credential_id,
@@ -110,7 +110,7 @@ test("owned production catalog CRUD, credential and selection wire", async ({
     input: {
       ...input,
       name: `Owned embedding ${suffix}`,
-      protocol: "openai-embeddings",
+      protocol: "openai-compatible",
     },
   });
   expect(second.status).toBe(200);
@@ -141,23 +141,86 @@ test("owned production catalog CRUD, credential and selection wire", async ({
   }
   const selection = await api(page, "/system/model-selection");
   expect(selection.status).toBe(200);
-  expect(
-    (
-      await api(page, "/system/model-selection", "PUT", {
-        id: selection.value.id,
-        expected_version: selection.value.version,
-        memory: models[0],
-        embedding: models[2],
-        reranker: null,
-        image: null,
-      })
-    ).status,
-  ).toBe(200);
+  const selectionInput = {
+    id: selection.value.id,
+    expected_version: selection.value.version,
+    summary: models[0],
+    embedding: models[2],
+    reranker: null,
+    image: null,
+  };
+  const selectionKey = randomUUID();
+  const saved = await api(
+    page,
+    "/system/model-selection",
+    "PUT",
+    selectionInput,
+    {
+      key: selectionKey,
+    },
+  );
+  expect(saved.status).toBe(200);
+  expect(saved.value).toEqual({
+    kind: "model.selection.update",
+    resource_id: selection.value.id,
+    version: String(BigInt(selection.value.version) + 1n),
+    affected_references: "0",
+  });
+  const selectionReplay = await api(
+    page,
+    "/system/model-selection",
+    "PUT",
+    selectionInput,
+    {
+      key: selectionKey,
+    },
+  );
+  expect(selectionReplay.status).toBe(200);
+  expect(selectionReplay.value).toEqual(saved.value);
+  const currentSelection = await api(page, "/system/model-selection");
+  expect(currentSelection.status).toBe(200);
+  expect(currentSelection.value).toEqual({
+    id: selection.value.id,
+    version: saved.value.version,
+    configured: {
+      embedding: models[2],
+      summary: models[0],
+      reranker: null,
+      image: null,
+    },
+  });
+  // The previous field and independent endpoint must not remain write aliases.
+  const { summary: previousSummary, ...oldSelection } = selectionInput;
+  const oldField = await api(page, "/system/model-selection", "PUT", {
+    ...oldSelection,
+    expected_version: saved.value.version,
+    memory: previousSummary,
+  });
+  expect(oldField.status).toBe(400);
+  for (const method of ["GET", "PUT"]) {
+    const removed = await api(
+      page,
+      "/system/model-selection/meeting-summary",
+      method,
+      method === "PUT"
+        ? {
+            id: selection.value.id,
+            expected_version: saved.value.version,
+            model: models[0],
+          }
+        : undefined,
+    );
+    expect(removed.status).toBe(404);
+  }
+  expect((await api(page, "/system/model-selection")).value).toEqual(
+    currentSelection.value,
+  );
   const impact = await api(page, `/system/models/${models[0]}/deletion-impact`);
   expect(impact.status).toBe(200);
   expect(
     impact.value.replacement_requirement === "required" &&
-      impact.value.delete_blocker === null,
+      impact.value.delete_blocker === null &&
+      impact.value.reference_count === "1",
   ).toBe(true);
   expect(
     (
@@ -173,7 +236,7 @@ test("owned production catalog CRUD, credential and selection wire", async ({
   });
   expect(deleted.status).toBe(200);
   expect(
-    (await api(page, "/system/model-selection")).value.configured.memory ===
+    (await api(page, "/system/model-selection")).value.configured.summary ===
       models[1],
   ).toBe(true);
 
@@ -207,7 +270,7 @@ test("owned model APIs enforce current role and CSRF without changing state", as
     {
       input: {
         name: "Rejected CSRF",
-        protocol: "openai-chat-completions",
+        protocol: "openai-compatible",
         base_url: owned.provider_base_url,
         enabled: true,
         credential_ref: null,

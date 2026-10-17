@@ -102,15 +102,19 @@ func TestModelMeetingSummaryConfigurationEvents(t *testing.T) {
 	}
 	for _, deleting := range []bool{false, true} {
 		plan := summaryPlanFixture(t)
+		before := *plan.AfterSelection
+		before.Version = 1
+		before.Summary = mustID[mc.Model](t).String()
+		plan.BeforeSelection = &before
 		if deleting {
 			plan.Kind = "model.delete"
 			plan.Resource = mustID[mc.Model](t).String()
 			plan.Receipt = mc.CommandReceipt{Kind: "model.delete", ResourceID: plan.Resource, Version: 2}
 			plan.Changed = []string{"deleted", "replacement"}
-			before := &selectionRecord{ID: mustID[struct{}](t).String(), Version: 2, Configured: true, Embedding: mustID[mc.Model](t).String(), Memory: plan.Resource}
+			before := &selectionRecord{ID: mustID[struct{}](t).String(), Version: 2, Configured: true, Embedding: mustID[mc.Model](t).String(), Summary: plan.Resource}
 			after := *before
 			after.Version++
-			after.Memory = plan.AfterMeetingSummary.Model
+			after.Summary = plan.AfterSelection.Summary
 			plan.BeforeSelection = before
 			plan.AfterSelection = &after
 		}
@@ -120,7 +124,7 @@ func TestModelMeetingSummaryConfigurationEvents(t *testing.T) {
 		}
 		want := 1
 		if deleting {
-			want = 3
+			want = 2
 		}
 		if len(prepared.plan.Events) != want || len(prepared.events) != want {
 			t.Fatal("configuration events omitted an owner")
@@ -131,7 +135,7 @@ func TestModelMeetingSummaryConfigurationEvents(t *testing.T) {
 			}
 		}
 		last := prepared.plan.Events[want-1]
-		if last.Header.AggregateID.String() != plan.AfterMeetingSummary.ID || *last.Header.AggregateVersion != plan.AfterMeetingSummary.Version {
+		if last.Header.AggregateID.String() != plan.AfterSelection.ID || *last.Header.AggregateVersion != plan.AfterSelection.Version {
 			t.Fatal("Summary event uses another owner's identity/version")
 		}
 	}

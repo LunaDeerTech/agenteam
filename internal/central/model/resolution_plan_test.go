@@ -192,7 +192,7 @@ func TestModelMeetingSummaryResolutionUnitMappingAndLocks(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	for _, name := range []string{"model-meeting-summary-selection", "model-platform-selection", "model-references"} {
+	for _, name := range []string{"model-platform-selection", "model-references"} {
 		want := systemLock(name, f.Shared)
 		found := false
 		for _, lock := range locks {
@@ -236,7 +236,7 @@ func TestModelMeetingSummaryPreservesLegacyResolutionBytes(t *testing.T) {
 	prefix := `{"format_version":1,"Actor":{"Kind":"human","UserID":"` + key + `","SessionID":"","ProjectID":"","AgentID":"","ExecutionID":"","ServiceName":"","CauseRef":""},"Consumer":`
 	suffix := `,"ReasoningEffort":"","Owner":{"kind":"model_call","id":"` + key + `"}}`
 	direct := prefix + `{"kind":"agent","project_id":"` + key + `","purpose":"agent_generation","agent_id":"` + key + `","execution_id":"` + key + `"},"Purpose":"agent_generation","Source":"current_selection","ModelRef":"` + key + `","Selection":{"kind":"direct"}` + suffix
-	memory := prefix + `{"kind":"memory","project_id":"` + key + `","purpose":"memory_extraction","agent_id":"` + key + `","operation_id":"` + key + `"},"Purpose":"memory_extraction","Source":"current_selection","ModelRef":null,"Selection":{"kind":"platform","selector":"memory"}` + suffix
+	memory := prefix + `{"kind":"memory","project_id":"` + key + `","purpose":"memory_extraction","agent_id":"` + key + `","operation_id":"` + key + `"},"Purpose":"memory_extraction","Source":"current_selection","ModelRef":null,"Selection":{"kind":"platform","selector":"summary"}` + suffix
 	for _, want := range []string{direct, memory} {
 		if e := r.Validate(); e != nil {
 			t.Fatal(e)
@@ -251,6 +251,6 @@ func TestModelMeetingSummaryPreservesLegacyResolutionBytes(t *testing.T) {
 		r.Consumer.OperationID = key
 		r.Purpose = mc.MemoryExtraction
 		r.ModelRef = nil
-		r.Selection = &mc.SelectionRef{Kind: "platform", Selector: mc.MemorySelector}
+		r.Selection = &mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}
 	}
 }

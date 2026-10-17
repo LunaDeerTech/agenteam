@@ -13,7 +13,7 @@ func TestModelCurrentResolutionProfileClosedMatrix(t *testing.T) {
 	p := providerRecord{Input: providerInput{Protocol: mc.OpenAIChat, Enabled: true, Options: json.RawMessage(`{}`)}}
 	m := modelRecord{Input: mc.ModelInput{Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}}}}
 	direct := mc.SelectionRef{Kind: "direct"}
-	memory := mc.SelectionRef{Kind: "platform", Selector: mc.MemorySelector}
+	memory := mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}
 	rev, e := resolutionProfile(&p, &m, direct)
 	if e != nil || rev != adapter.OpenAIChatTextRevision {
 		t.Fatal("text profile", e)
@@ -46,14 +46,15 @@ func TestModelCurrentResolutionProfileClosedMatrix(t *testing.T) {
 func TestModelMeetingSummaryResolutionProfileMatrix(t *testing.T) {
 	p := providerRecord{Input: providerInput{Protocol: mc.OpenAIChat, Enabled: true, Options: json.RawMessage(`{}`)}}
 	m := modelRecord{Input: mc.ModelInput{Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, Streaming: true}}}
-	s := mc.SelectionRef{Kind: "platform", Selector: mc.MeetingSummarySelector}
+	s := mc.SelectionRef{Kind: "platform", Selector: mc.SummarySelector}
 	for _, modes := range [][]string{nil, {"text"}, {"json_schema"}, {"text", "json_schema"}} {
 		m.Input.Capabilities.StructuredOutputModes = modes
 		before, _ := json.Marshal(m.Input)
 		revision, e := resolutionProfile(&p, &m, s)
-		want := adapter.OpenAIChatTextRevision
-		if len(modes) > 0 && modes[len(modes)-1] == "json_schema" {
-			want = adapter.OpenAIChatStructuredRevision
+		want := adapter.OpenAIChatStructuredRevision
+		if len(modes) == 0 || modes[len(modes)-1] != "json_schema" {
+			requireCode(t, e, f.CapabilityUnsupported)
+			continue
 		}
 		if e != nil || revision != want {
 			t.Fatal("Summary profile", modes, revision, e)

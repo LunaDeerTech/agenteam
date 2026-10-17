@@ -3,7 +3,7 @@
   "info": {
     "title": "agenteam System Model configuration HTTP",
     "version": "0.3.0",
-    "description": "System configuration is bound in the default Central root; A System openai-compatible provider shares endpoint/credential across chat and embedding models; discovery and model management tests select the existing two concrete adapters; Project runtime binding remains independent. Current Credential metadata and bounded Model deletion-impact reads are available. Canonical Host/Origin/Fetch-Metadata checked before route/auth/body; ambiguous paths rejected without redirects, no X-Forwarded trust or CORS. Current real Account Session/admin required. System scope and Purpose=Model are server-owned. Secret writes and later Provider binding are independent commands. Required embedding/memory cannot be cleared. All integers above int32 use canonical decimal strings; UUIDs canonical v7. All success is 200; unknown path404, unsupported method405 with exact Allow. Authentication errors do not clear browser Session cookies."
+    "description": "System configuration is bound in the default Central root; A System openai-compatible provider shares endpoint/credential across chat and embedding models; discovery and model management tests select the existing two concrete adapters; Project runtime binding remains independent. Current Credential metadata and bounded Model deletion-impact reads are available. Canonical Host/Origin/Fetch-Metadata checked before route/auth/body; ambiguous paths rejected without redirects, no X-Forwarded trust or CORS. Current real Account Session/admin required. System scope and Purpose=Model are server-owned. Secret writes and later Provider binding are independent commands. Required embedding/summary cannot be cleared. All integers above int32 use canonical decimal strings; UUIDs canonical v7. All success is 200; unknown path404, unsupported method405 with exact Allow. Authentication errors do not clear browser Session cookies."
   },
   "paths": {
     "/api/v1/system/model-providers": {
@@ -2263,224 +2263,6 @@
         }
       }
     },
-    "/api/v1/system/model-selection/meeting-summary": {
-      "get": {
-        "operationId": "get_system_model_selection_meeting_summary",
-        "security": [
-          {
-            "Session": []
-          },
-          {
-            "LocalSession": []
-          }
-        ],
-        "description": "Current System administrator; original Account boundary and transaction recheck. No query or body for GET/HEAD. GET/HEAD has a 3-second total budget and PUT 30 seconds, clipped to any earlier parent, starting before authorization and ending after actual body, service, output Flush and callback completion. HEAD flushes the same headers without a body. Allow: GET, HEAD, PUT. Independent initialized selection; model:null means never configured, not missing/corrupt storage or absence of authorization.",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Confirmed domain result. No extra canonical GET after write.",
-            "headers": {
-              "Cache-Control": {
-                "schema": {
-                  "const": "no-store"
-                }
-              },
-              "X-Content-Type-Options": {
-                "schema": {
-                  "const": "nosniff"
-                }
-              },
-              "Referrer-Policy": {
-                "schema": {
-                  "const": "no-referrer"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MeetingSummarySelection"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material. 429 rate limit. Expired or partial transport aborts without inventing a not-started outcome. HEAD has no Problem body.",
-            "headers": {
-              "Cache-Control": {
-                "schema": {
-                  "const": "no-store"
-                }
-              },
-              "X-Content-Type-Options": {
-                "schema": {
-                  "const": "nosniff"
-                }
-              },
-              "Referrer-Policy": {
-                "schema": {
-                  "const": "no-referrer"
-                }
-              }
-            },
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "./common.json#/components/schemas/Problem"
-                }
-              }
-            }
-          }
-        }
-      },
-      "head": {
-        "operationId": "head_system_model_selection_meeting_summary",
-        "security": [
-          {
-            "Session": []
-          },
-          {
-            "LocalSession": []
-          }
-        ],
-        "description": "Current System administrator; original Account boundary and transaction recheck. No query or body for GET/HEAD. GET/HEAD has a 3-second total budget and PUT 30 seconds, clipped to any earlier parent, starting before authorization and ending after actual body, service, output Flush and callback completion. HEAD flushes the same headers without a body. Allow: GET, HEAD, PUT. Independent initialized selection; model:null means never configured, not missing/corrupt storage or absence of authorization.",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Confirmed domain result. No extra canonical GET after write.",
-            "headers": {
-              "Cache-Control": {
-                "schema": {
-                  "const": "no-store"
-                }
-              },
-              "X-Content-Type-Options": {
-                "schema": {
-                  "const": "nosniff"
-                }
-              },
-              "Referrer-Policy": {
-                "schema": {
-                  "const": "no-referrer"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material. 429 rate limit. Expired or partial transport aborts without inventing a not-started outcome. HEAD has no Problem body.",
-            "headers": {
-              "Cache-Control": {
-                "schema": {
-                  "const": "no-store"
-                }
-              },
-              "X-Content-Type-Options": {
-                "schema": {
-                  "const": "nosniff"
-                }
-              },
-              "Referrer-Policy": {
-                "schema": {
-                  "const": "no-referrer"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "operationId": "put_system_model_selection_meeting_summary",
-        "security": [
-          {
-            "Session": [],
-            "CSRF": []
-          },
-          {
-            "LocalSession": [],
-            "CSRF": []
-          }
-        ],
-        "description": "Current System administrator; original Account boundary and transaction recheck. No query or body for GET/HEAD. GET/HEAD has a 3-second total budget and PUT 30 seconds, clipped to any earlier parent, starting before authorization and ending after actual body, service, output Flush and callback completion. HEAD flushes the same headers without a body. Allow: GET, HEAD, PUT. PUT selects a non-null enabled System chat Model for initial/update Summary including the first title. Same original command namespace/key and historical receipt; no automatic retry or current GET overwriting the receipt.",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Idempotency-Key",
-            "required": true,
-            "schema": {
-              "$ref": "./common.json#/components/schemas/IdempotencyKey"
-            },
-            "description": "Original command key, including POST lookup; never a new query command."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Original historical model.selection.update receipt: captured Summary ID, expected_version+1, affected_references \"0\". May be older than the current selection. Original generic lookup observes only this command identity and does not authorize or verify the replay body.",
-            "headers": {
-              "Cache-Control": {
-                "schema": {
-                  "const": "no-store"
-                }
-              },
-              "X-Content-Type-Options": {
-                "schema": {
-                  "const": "nosniff"
-                }
-              },
-              "Referrer-Policy": {
-                "schema": {
-                  "const": "no-referrer"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Receipt"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material. 429 rate limit. Expired or partial transport aborts without inventing a not-started outcome. HEAD has no Problem body.",
-            "headers": {
-              "Cache-Control": {
-                "schema": {
-                  "const": "no-store"
-                }
-              },
-              "X-Content-Type-Options": {
-                "schema": {
-                  "const": "nosniff"
-                }
-              },
-              "Referrer-Policy": {
-                "schema": {
-                  "const": "no-referrer"
-                }
-              }
-            },
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "./common.json#/components/schemas/Problem"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "description": "Strict JSON object, maximum 16 KiB. Exactly id, expected_version, model; all required and non-null. Reject unknown/duplicate/case-alias keys, trailing JSON, non-UTF-8, wrong media/encoding, invalid UUIDs and numeric/noncanonical versions. expected_version must have a valid int64 successor.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MeetingSummarySelectionInput"
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/system/model-capabilities": {
       "get": {
         "operationId": "get_system_model_capabilities",
@@ -3157,15 +2939,12 @@
                 "additionalProperties": false,
                 "required": [
                   "embedding",
-                  "memory",
+                  "summary",
                   "reranker",
                   "image"
                 ],
                 "properties": {
                   "embedding": {
-                    "$ref": "./common.json#/components/schemas/ID"
-                  },
-                  "memory": {
                     "$ref": "./common.json#/components/schemas/ID"
                   },
                   "reranker": {
@@ -3187,6 +2966,9 @@
                         "type": "null"
                       }
                     ]
+                  },
+                  "summary": {
+                    "$ref": "./common.json#/components/schemas/ID"
                   }
                 }
               },
@@ -3204,7 +2986,7 @@
           "id",
           "expected_version",
           "embedding",
-          "memory",
+          "summary",
           "reranker",
           "image"
         ],
@@ -3216,9 +2998,6 @@
             "$ref": "./common.json#/components/schemas/Version"
           },
           "embedding": {
-            "$ref": "./common.json#/components/schemas/ID"
-          },
-          "memory": {
             "$ref": "./common.json#/components/schemas/ID"
           },
           "reranker": {
@@ -3240,6 +3019,9 @@
                 "type": "null"
               }
             ]
+          },
+          "summary": {
+            "$ref": "./common.json#/components/schemas/ID"
           }
         }
       },
@@ -3608,9 +3390,8 @@
               "approval_model",
               "embedding",
               "image",
-              "memory",
-              "reranker",
-              "meeting_summary"
+              "summary",
+              "reranker"
             ]
           },
           "count": {
@@ -3641,8 +3422,7 @@
                 "enum": [
                   "embedding",
                   "image",
-                  "meeting_summary",
-                  "memory",
+                  "summary",
                   "reranker"
                 ]
               }
@@ -3706,63 +3486,7 @@
             "description": "Null only means absence of this known adapter blocker; it does not mean deletion is allowed."
           }
         },
-        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding, meeting_summary or memory requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
-      },
-      "MeetingSummarySelection": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "version",
-          "model"
-        ],
-        "properties": {
-          "id": {
-            "$ref": "./common.json#/components/schemas/ID"
-          },
-          "version": {
-            "$ref": "./common.json#/components/schemas/Version"
-          },
-          "model": {
-            "oneOf": [
-              {
-                "$ref": "./common.json#/components/schemas/ID"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        }
-      },
-      "MeetingSummarySelectionInput": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "expected_version",
-          "model"
-        ],
-        "properties": {
-          "id": {
-            "$ref": "./common.json#/components/schemas/ID"
-          },
-          "expected_version": {
-            "allOf": [
-              {
-                "$ref": "./common.json#/components/schemas/Version"
-              },
-              {
-                "not": {
-                  "const": "9223372036854775807"
-                }
-              }
-            ]
-          },
-          "model": {
-            "$ref": "./common.json#/components/schemas/ID"
-          }
-        }
+        "description": "Zero references implies none and null blocker. Any agent, project_summary, platform embedding or summary requires replacement. Otherwise nonempty platform image/reranker is optional. Any agent/project_summary group sets reference_adapter_unbound."
       },
       "ManagementCapabilities": {
         "type": "object",
