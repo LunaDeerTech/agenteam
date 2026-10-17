@@ -184,7 +184,9 @@ async function run(browser, width, theme) {
     });
     const trigger = page.getByRole("button", { name: /^选择总结模型/ });
     await expect(trigger).toContainText("合成 OpenAI 服务/sample-chat");
-    await expect(page.getByText("图像生成模型", { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /^图像生成模型/ }),
+    ).toBeVisible();
     await page.screenshot({
       path: path.join(output, `page-${width}-${theme}.png`),
     });

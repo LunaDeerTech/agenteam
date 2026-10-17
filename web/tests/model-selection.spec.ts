@@ -306,59 +306,68 @@ describe("platform model selections", () => {
     expect(button("保存").attributes("disabled")).toBeUndefined();
     expect(writes).toHaveLength(0);
   });
-  it("uses server search and cursor pages while retaining the selected label and resetting pagination for a new query", async () => {
-    gets = (path, url) => {
-      if (path !== "/system/models") return undefined;
-      return json({
-        items: [
-          modelOption(
-            url.searchParams.has("q")
-              ? 16
-              : url.searchParams.has("cursor")
-                ? 15
-                : 13,
-          ),
-        ],
-        next_cursor:
-          url.searchParams.has("q") || url.searchParams.has("cursor")
-            ? null
-            : "model-next",
-      });
-    };
-    const view = await page();
-    await view.get('[aria-label^="选择总结模型"]').trigger("click");
-    await flushPromises();
-    await click("下一页");
-    expect(candidateReads()).toHaveLength(2);
-    expect(candidateReads()[1]!.searchParams.get("cursor")).toBe("model-next");
-    expect(view.get('[role="option"]').text()).toContain(
-      "Chat Provider/upstream-15",
-    );
-    expect(view.get('[role="dialog"]').text()).toContain("第 2 页");
-    expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
-      "Chat Provider/upstream-11",
-    );
-    vi.useFakeTimers();
-    await view.get('input[role="combobox"]').setValue("  Needle  ");
-    expect(view.get('[role="dialog"]').text()).toContain("正在读取模型");
-    expect(view.get('[role="dialog"]').text()).not.toContain("没有匹配的模型");
-    await vi.advanceTimersByTimeAsync(250);
-    await flushPromises();
-    expect(candidateReads()).toHaveLength(3);
-    const request = candidateReads()[2]!;
-    expect(request.searchParams.get("q")).toBe("needle");
-    expect(request.searchParams.has("cursor")).toBe(false);
-    expect(request.searchParams.has("provider_id")).toBe(false);
-    expect(view.get('[role="dialog"]').text()).toContain("第 1 页");
-    expect(view.get('[role="option"]').text()).toContain(
-      "Chat Provider/upstream-16",
-    );
-    expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
-      "Chat Provider/upstream-11",
-    );
-    expect(button("上一页").attributes("disabled")).toBeDefined();
-    expect(button("下一页").attributes("disabled")).toBeDefined();
-    expect(writes).toHaveLength(0);
+  describe("model candidate search", () => {
+    let view: VueWrapper;
+    beforeEach(async () => {
+      gets = (path, url) => {
+        if (path !== "/system/models") return undefined;
+        return json({
+          items: [
+            modelOption(
+              url.searchParams.has("q")
+                ? 16
+                : url.searchParams.has("cursor")
+                  ? 15
+                  : 13,
+            ),
+          ],
+          next_cursor:
+            url.searchParams.has("q") || url.searchParams.has("cursor")
+              ? null
+              : "model-next",
+        });
+      };
+      view = await page();
+    });
+    it("uses server search and cursor pages while retaining the selected label and resetting pagination for a new query", async () => {
+      await view.get('[aria-label^="选择总结模型"]').trigger("click");
+      await flushPromises();
+      await click("下一页");
+      expect(candidateReads()).toHaveLength(2);
+      expect(candidateReads()[1]!.searchParams.get("cursor")).toBe(
+        "model-next",
+      );
+      expect(view.get('[role="option"]').text()).toContain(
+        "Chat Provider/upstream-15",
+      );
+      expect(view.get('[role="dialog"]').text()).toContain("第 2 页");
+      expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
+        "Chat Provider/upstream-11",
+      );
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+      await view.get('input[role="combobox"]').setValue("  Needle  ");
+      expect(view.get('[role="dialog"]').text()).toContain("正在读取模型");
+      expect(view.get('[role="dialog"]').text()).not.toContain(
+        "没有匹配的模型",
+      );
+      await vi.advanceTimersByTimeAsync(250);
+      await flushPromises();
+      expect(candidateReads()).toHaveLength(3);
+      const request = candidateReads()[2]!;
+      expect(request.searchParams.get("q")).toBe("needle");
+      expect(request.searchParams.has("cursor")).toBe(false);
+      expect(request.searchParams.has("provider_id")).toBe(false);
+      expect(view.get('[role="dialog"]').text()).toContain("第 1 页");
+      expect(view.get('[role="option"]').text()).toContain(
+        "Chat Provider/upstream-16",
+      );
+      expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
+        "Chat Provider/upstream-11",
+      );
+      expect(button("上一页").attributes("disabled")).toBeDefined();
+      expect(button("下一页").attributes("disabled")).toBeDefined();
+      expect(writes).toHaveLength(0);
+    });
   });
   it("rejects the removed memory field without making any purpose editable", async () => {
     gets = (path) =>

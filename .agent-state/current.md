@@ -2,7 +2,11 @@
 
 2026-10-17，起点`857d94a3`。用户已确认ModelPicker改为触发选框下方的可复用锚定浮层，一层跨供应商模型列表与搜索、当前勾选和不可选原因；空选框“点击选择模型”，已选“供应商名称/模型ID”始终可见，hover只改样式。四用途各有短描述，image显示“图像生成模型”，重排/图像生成明确尚未绑定。后台提供真实全局查询，禁止前端拼供应商各页；单summary保存、草稿与Unknown不改。
 
-account_backend在`/workspace/agenteam-model-picker-backend`（`ai/model-picker-backend-20261017`），proxy_copy在`/workspace/agenteam-model-picker-vue`（`ai/model-picker-vue-20261017`），runtime在`/workspace/agenteam-model-picker-tests`（`ai/model-picker-tests-20261017`）；root负责集成/Git，组件规范由Vue owner维护。已锁GET/HEAD `/system/models`可省provider_id跨供应商查询，q按名称/模型ID字面子串检索，列表项带provider安全投影；实现及适用验证尚待，不称已完成。合同沿[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)，不新增卡；本轮仍只交图床匿名校验后的截图，不部署公网、不动现用户数据或外部SMTP。
+account_backend在`/workspace/agenteam-model-picker-backend`（`ai/model-picker-backend-20261017`），proxy_copy在`/workspace/agenteam-model-picker-vue`（`ai/model-picker-vue-20261017`），runtime在`/workspace/agenteam-model-picker-tests`（`ai/model-picker-tests-20261017`）；root负责集成/Git，组件规范由Vue owner维护。主树`82ff92d6`已集成backend生产`d95`与Vue生产`2516`，后续测试输入`626c8f50`，产品冻结。GET/HEAD `/system/models`的全局查询与安全provider投影已落地；合同沿[模型接入工作项](../docs/development/work-items/frontend-model-catalog.md)。本轮仍只交图床匿名校验后的截图，不部署公网、不动现用户数据或外部SMTP。
+
+已过范围：后端定向unit、OpenAPI route与真实PG跨供应商搜索，含字面%/_、游标绑定/水位、安全投影、System权限和Project隔离；原compile适配失败及首次helper漏Go环境未RUN保留，后续通过且专属资源清理。Vue共享控件、页面、搜索及原共享/q回归分轮通过，最终type/build通过；搜索测试准备移入限定beforeEach，业务仍5秒，但不称原总计时边界未变或已证fakeTimer死锁。作者两尺寸受控浏览器通过搜索/选中/Escape/disabled/单PUT，初次带副标heading定位失败仅修harness。
+
+尚待独立视觉最终复验与截图、owned真实API权限分页及UI跨供应商选择/保存/替换复用。runtime App编译已通过，隔离启动与消费在途；当前测试服务保留供owner使用，未收到退出/清理前不称清退。旧总结模型结果仅保留原输入边界。
 
 ## 前轮统一总结模型结果
 
@@ -170,7 +174,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-下一步完成已锁wire的全局查询、锚定组件与页面接线，再由owned真实接口/受控视觉验证搜索、选择与焦点及未变保存边界。旧总结模型fixture已退出，不能复用其端口或runtime；由本轮owner提供隔离环境。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
+下一步收齐独立视觉、owned真实API/UI及资源清退终态，再由root保存最终记录和截图。当前编译、作者单测/PG及受控页面结果不替代尚待门。旧总结模型fixture已退出，不能复用其端口或runtime。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮不更新公网。
 
 账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
 

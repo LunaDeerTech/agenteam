@@ -78,7 +78,12 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 account_backend唯一维护后端/API/schema及00147、00148、本轮00149；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-ModelPicker增量交互与全局查询wire已确定，实现与适用验证仍在推进。独立工作树为`/workspace/agenteam-model-picker-backend`、`/workspace/agenteam-model-picker-vue`、`/workspace/agenteam-model-picker-tests`；组件规范由Vue owner同步。尚未取得本轮新截图或验收结果，不复用下面的居中选择器画面证明新浮层完成。
+ModelPicker增量已集成主树`82ff92d6`（backend生产`d95`、Vue生产`2516`），产品冻结；后续受影响测试输入`626c8f50`。独立工作树为`/workspace/agenteam-model-picker-backend`、`/workspace/agenteam-model-picker-vue`、`/workspace/agenteam-model-picker-tests`；组件规范由Vue owner同步，当前仍待最终动态接受：
+
+- 后端定向unit、HTTP/OpenAPI route通过；唯一真实PG搜索检查通过跨供应商三字段、字面%/_、游标过滤/水位、安全provider五字段、System权限及Project隔离，实际Wait/helper退出0并完成专属清理。两轮位置struct字面量编译失配及首helper缺AGENTEAM_GO、尚未RUN的失败保留，具名字段和环境限定修正后通过。
+- Vue新共享7项、页面13项、独立搜索1项及原共享/q14项分轮通过，最终type/build通过。搜索case曾多次超时；实际阶段材料显示页面动态加载4415ms、5秒预算内尚未进入fakeTimers。后将fixture准备移入限定beforeEach hook，业务预算仍5秒，断言保持；不称原整体计时边界未变，也不把原失败归为已证fakeTimer死锁。
+- 作者两尺寸受控浏览器通过搜索、选中、Escape、不可选原因和单PUT，四图已实看；首次带可选副标的heading定位失败仅修harness。独立审查已检查嵌套删除选择器与原生200%/reduced-motion，查询命中数及滚动方向的初始测试假设修正正在定向复验，最终截图尚待。
+- runtime真实App编译通过，隔离启动在途；只读API权限/分页与真实UI跨供应商选择草稿、单PUT、替换复用两case尚待。测试服务仍供消费，不能预写退出或清理。以上不代表整包接受，不复用旧居中选择器截图证明新浮层完成。
 
 ### 已完成的统一总结模型验证
 
