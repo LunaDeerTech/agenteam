@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { UiButton, UiDialog } from "../ui";
-import SystemList from "./SystemList.vue";
+import ModelSelect from "./ModelSelect.vue";
 import CatalogCommandFeedback from "./CatalogCommandFeedback.vue";
 import { useCatalogCommand } from "../../system/useCatalogCommand";
 import { useSystemAccess } from "../../system/requests";
-import { useCursorList } from "../../system/useCursorList";
 import { useLeaveProtection } from "../../account/leave";
 import {
   getDeletionImpact,
@@ -19,10 +18,9 @@ import {
   getCredential,
   getProvider,
   getModel,
-  listProviders,
-  listModels,
   type Provider,
   type CatalogModel,
+  type CatalogModelOption,
   type CatalogReceipt,
   type CredentialMetadata,
   type CredentialReceipt,
@@ -43,20 +41,9 @@ const secret = shallowRef<CredentialMetadata>();
 const reading = ref(false);
 const error = shallowRef<unknown>();
 const saved = ref(false);
-const replacement = shallowRef<CatalogModel>();
-const replacementProvider = shallowRef<Provider>();
-const picking = ref(false);
-const selectedProvider = shallowRef<Provider>();
+const replacement = shallowRef<CatalogModelOption>();
 let alive = true;
 let revision = 0;
-const providers = useCursorList(listProviders, {
-  enabled: () => props.open && picking.value && !selectedProvider.value,
-});
-const models = useCursorList(
-  (cursor, current, limit) =>
-    listModels(selectedProvider.value!.id, cursor, current, limit),
-  { enabled: () => props.open && picking.value && !!selectedProvider.value },
-);
 const locked = computed(
   () =>
     reading.value ||
@@ -75,23 +62,20 @@ const blocked = computed(
           !replacement.value))),
 );
 const title = computed(() =>
-  picking.value
-    ? "选择替代模型"
-    : props.credential
-      ? "删除凭据"
-      : props.model
-        ? "删除模型"
-        : "删除供应商",
+  props.credential ? "删除凭据" : props.model ? "删除模型" : "删除供应商",
 );
-function eligible(item: CatalogModel) {
-  return (
-    item.id !== props.model?.id &&
-    item.input.type === props.model?.input.type &&
-    item.input.enabled &&
-    selectedProvider.value?.input.enabled &&
-    (!impact.value?.reference_groups.some((g) => g.role === "summary") ||
-      item.input.capabilities.structured_output_modes.includes("json_schema"))
-  );
+function replacementIssue(item: CatalogModelOption) {
+  if (item.id === props.model?.id) return "不能替换为当前模型";
+  if (item.input.type !== props.model?.input.type)
+    return "模型类型不适用于此替换";
+  if (!item.provider.enabled) return "供应商已停用";
+  if (!item.input.enabled) return "模型已停用";
+  if (
+    impact.value?.reference_groups.some((g) => g.role === "summary") &&
+    !item.input.capabilities.structured_output_modes.includes("json_schema")
+  )
+    return "总结模型需要 json_schema 能力";
+  return undefined;
 }
 function clear() {
   revision++;
@@ -104,11 +88,6 @@ function clear() {
   saved.value = false;
   reading.value = false;
   replacement.value = undefined;
-  replacementProvider.value = undefined;
-  picking.value = false;
-  selectedProvider.value = undefined;
-  providers.reset();
-  models.reset();
 }
 function close() {
   if (locked.value) return;
@@ -172,10 +151,6 @@ async function remove() {
     },
   );
 }
-function chooseProvider(provider: Provider) {
-  models.reset();
-  selectedProvider.value = provider;
-}
 watch(
   () => props.open,
   (open) => {
@@ -205,52 +180,7 @@ useLeaveProtection(() => props.open && locked.value);
     :close-on-outside="!locked"
     @update:open="close"
   >
-    <div v-if="picking" class="account-form">
-      <UiButton
-        @click="
-          selectedProvider ? (selectedProvider = undefined) : (picking = false)
-        "
-        >返回</UiButton
-      ><SystemList
-        v-if="!selectedProvider"
-        :list="providers"
-        :row-key="(item) => item.id"
-        label="替代模型供应商"
-        empty-text="没有供应商。"
-        ><template #item="{ item }">{{ item.input.name }}</template
-        ><template #actions="{ item }"
-          ><UiButton
-            :disabled="!item.input.enabled"
-            @click="chooseProvider(item)"
-            >查看模型</UiButton
-          ></template
-        ></SystemList
-      ><SystemList
-        v-else
-        :list="models"
-        :row-key="(item) => item.id"
-        label="替代模型"
-        empty-text="没有可选模型。"
-        ><template #item="{ item }">{{
-          modelDisplayName(
-            selectedProvider.input.name,
-            item.input.provider_model_id,
-          )
-        }}</template
-        ><template #actions="{ item }"
-          ><UiButton
-            :disabled="!eligible(item)"
-            @click="
-              replacement = item;
-              replacementProvider = selectedProvider;
-              picking = false;
-            "
-            >选择</UiButton
-          ></template
-        ></SystemList
-      >
-    </div>
-    <div v-else-if="saved" class="account-form">
+    <div v-if="saved" class="account-form">
       <p role="status">删除已完成。</p>
       <UiButton @click="close">完成</UiButton>
     </div>
@@ -289,16 +219,22 @@ useLeaveProtection(() => props.open && locked.value);
                 : "可选择替代模型；不选则清空这些用途。"
             }}
           </p>
-          <p v-if="replacement && replacementProvider" class="model-reference">
-            {{
-              modelDisplayName(
-                replacementProvider.input.name,
-                replacement.input.provider_model_id,
-              )
-            }}
-          </p>
-          <UiButton @click="picking = true">选择替代模型</UiButton
-          ><UiButton
+          <ModelSelect
+            label="选择替代模型"
+            :model-value="replacement?.id"
+            :selected-label="
+              replacement
+                ? modelDisplayName(
+                    replacement.provider.name,
+                    replacement.input.provider_model_id,
+                  )
+                : undefined
+            "
+            :disabled="locked"
+            :issue="replacementIssue"
+            @select="replacement = $event"
+          />
+          <UiButton
             v-if="replacement && impact.replacement_requirement === 'optional'"
             @click="replacement = undefined"
             >清空替代模型</UiButton

@@ -59,3 +59,15 @@ Menu 与 Select 使用内部 `useAnchoredLayer`，依据触发位置和 viewport
 - `updateItem(matches, update)`只更新当前已加载的匹配项，用于已确认的安全投影；不能冒充命令回执、全量刷新或总数。
 
 基础控件、token 和主题独立于页面，不导入业务、归档或测试展示内容。SystemList位于系统域并遵循[系统账号设置合同](../work-items/frontend-system-account-settings.md)的权限与恢复规则。页面级修改遵循文件唯一写者规则；实际尺寸与颜色以新源码和已确认设计为准，不把本页的描述作为视觉接受结论。
+
+
+## 可搜索的锚定选择
+
+`UiSearchSelect` 是不访问业务 API 的共享控件，使用 `useAnchoredLayer` 锚定触发框，必要时翻到上方并限制在可视 viewport 内。支持浏览器原生 popover 时进入顶层以避免父容器裁切；模态内仍归属原 dialog，不创建第二个居中模态或全页焦点锁。
+
+- Props：必填 `label`、`options: SearchSelectOption[]`；可选 `modelValue`、`selectedLabel`、`query`、`loading`、`error`、`pageIndex`、`hasPrevious`、`hasNext`、`disabled`、`placeholder`、`searchPlaceholder`、`emptyText`。选项为 `{value,label,description?,disabledReason?}`；当前文字由 `selectedLabel` 提供，不要求当前项在已加载页中。空态默认“点击选择模型”。
+- Emits：`update:modelValue(value)`、`update:query(value)`、`open-change(open)`、`previous`、`next`、`retry`。外层提供真实分页与搜索；控件不扫描当前页充当全局搜索，不自行保存业务配置。
+- Trigger 为具可访问名称的 button，公开 expanded/controls/dialog 关系。浮层包含搜索 combobox 和 listbox；方向键跳过禁用项，Enter 选择，Escape 关闭并回触发框；Tab 可到分页/重试并离开浮层，外部点击关闭而不抢走目标焦点。选项常显禁用原因和当前选择标记；hover 不替换已选文字。
+- 浮层宽度最多400px、最高420px并受viewport约束，结果区域独立滚动，搜索/分页保持可达；复用共享overlay动效与 reduced-motion规则。`useAnchoredLayer` 新增的width/maxHeight/topLayer仅为此控件选择启用，原Menu/Select默认合同不变。
+
+系统域 `components/system/ModelSelect.vue` 组合该控件与真实 `/system/models` 查询：无provider过滤的一层列表、250ms搜索、每页10条，读取使用系统权限/身份与游标owner。列表项的provider安全投影供“供应商/模型ID”及资格说明使用；`issue(model)`由调用方提供，最终保存/删除仍由服务端重验。用途页和删除替换入口共用该组件；选择只发出 `select(model)`，取消不改草稿。

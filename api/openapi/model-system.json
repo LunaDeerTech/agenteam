@@ -633,7 +633,7 @@
             "LocalSession": []
           }
         ],
-        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters. Global or provider-filtered System catalog. Rows include only safe provider display metadata, not endpoint/options/credentials. Disabled models/providers remain visible. Order is created_at DESC,id DESC with the original upper watermark; cursor binds current user, provider filter and normalized search. This is not a cross-page snapshot or a selection authorization.",
         "parameters": [
           {
             "in": "query",
@@ -657,10 +657,21 @@
           {
             "in": "query",
             "name": "provider_id",
-            "required": true,
+            "required": false,
             "schema": {
               "$ref": "./common.json#/components/schemas/ID"
-            }
+            },
+            "description": "Optional System provider filter. Omit to search the entire System catalog; an explicit empty value is invalid."
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "description": "Optional UTF-8 search, at most 128 bytes before/after Unicode lowercase and whitespace trim; controls and an empty normalized value rejected. Literal substring of provider name, model name or provider_model_id; % and _ are not wildcards. Omit for no search."
           }
         ],
         "responses": {
@@ -686,7 +697,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModelPage"
+                  "$ref": "#/components/schemas/SystemModelPage"
                 }
               }
             }
@@ -730,7 +741,7 @@
             "LocalSession": []
           }
         ],
-        "description": "Same current permission and query as GET; no response body.",
+        "description": "Same current permission and query as GET; no response body. Global or provider-filtered System catalog. Rows include only safe provider display metadata, not endpoint/options/credentials. Disabled models/providers remain visible. Order is created_at DESC,id DESC with the original upper watermark; cursor binds current user, provider filter and normalized search. This is not a cross-page snapshot or a selection authorization.",
         "parameters": [
           {
             "in": "query",
@@ -754,10 +765,21 @@
           {
             "in": "query",
             "name": "provider_id",
-            "required": true,
+            "required": false,
             "schema": {
               "$ref": "./common.json#/components/schemas/ID"
-            }
+            },
+            "description": "Optional System provider filter. Omit to search the entire System catalog; an explicit empty value is invalid."
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "description": "Optional UTF-8 search, at most 128 bytes before/after Unicode lowercase and whitespace trim; controls and an empty normalized value rejected. Literal substring of provider name, model name or provider_model_id; % and _ are not wildcards. Omit for no search."
           }
         ],
         "responses": {
@@ -3696,6 +3718,107 @@
           },
           "model_version": {
             "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "ModelProviderSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "protocol",
+          "enabled",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "openai-compatible",
+              "openai-chat-completions",
+              "anthropic-messages",
+              "openai-embeddings",
+              "jina-rerank",
+              "openai-images-generations"
+            ],
+            "description": "New catalog providers use openai-compatible: one endpoint and credential shared by chat and embedding models. Existing endpoint-specific enum records remain readable; this does not add a third wire adapter."
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "SystemModelListItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "provider_id",
+          "input",
+          "version",
+          "created_at",
+          "updated_at",
+          "provider"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "provider_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ModelInput"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/ModelProviderSummary"
+          }
+        }
+      },
+      "SystemModelPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemModelListItem"
+            }
+          },
+          "next_cursor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       }

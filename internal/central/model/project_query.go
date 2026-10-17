@@ -115,7 +115,7 @@ func (s *Service) ListProjectProviders(ctx context.Context, actor id.Actor, proj
 		if err != nil {
 			return err
 		}
-		position, err := s.pagePosition(SystemQuery{q.Cursor, q.Limit}, binding)
+		position, err := s.pagePosition(SystemQuery{Cursor: q.Cursor, Limit: q.Limit}, binding)
 		if err != nil {
 			return err
 		}
@@ -168,7 +168,7 @@ func (s *Service) ListProjectModels(ctx context.Context, actor id.Actor, project
 		if err != nil {
 			return err
 		}
-		position, err := s.pagePosition(SystemQuery{q.Cursor, q.Limit}, binding)
+		position, err := s.pagePosition(SystemQuery{Cursor: q.Cursor, Limit: q.Limit}, binding)
 		if err != nil {
 			return err
 		}
@@ -221,7 +221,7 @@ func (s *Service) ListAvailableChatModels(ctx context.Context, actor id.Actor, p
 		if err != nil {
 			return err
 		}
-		position, err := s.pagePosition(SystemQuery{q.Cursor, q.Limit}, binding)
+		position, err := s.pagePosition(SystemQuery{Cursor: q.Cursor, Limit: q.Limit}, binding)
 		if err != nil {
 			return err
 		}

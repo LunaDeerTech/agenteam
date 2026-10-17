@@ -101,7 +101,10 @@ func (h *systemHTTP) listModels(_ http.ResponseWriter, r *http.Request, m mc.Com
 	}
 	out := httpPage{Items: make([]any, 0, len(page.Items)), NextCursor: httpNextCursor(page.NextCursor)}
 	for _, v := range page.Items {
-		out.Items = append(out.Items, httpModelDTO(v))
+		out.Items = append(out.Items, struct {
+			httpModelView
+			Provider ModelProviderSummary `json:"provider"`
+		}{httpModelDTO(v.ModelView), v.Provider})
 	}
 	return out, nil
 }

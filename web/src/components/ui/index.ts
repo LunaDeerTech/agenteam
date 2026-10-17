@@ -9,3 +9,6 @@ export { default as UiTabs } from "./UiTabs.vue";
 export type { MenuItem } from "./UiMenu.vue";
 export type { SelectOption } from "./UiSelect.vue";
 export type { TabItem } from "./UiTabs.vue";
+
+export { default as UiSearchSelect } from "./UiSearchSelect.vue";
+export type { SearchSelectOption } from "./UiSearchSelect.vue";

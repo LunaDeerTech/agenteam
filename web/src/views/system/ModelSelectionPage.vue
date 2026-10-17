@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
-import { UiButton, UiDialog } from "../../components/ui";
+import { UiButton } from "../../components/ui";
 import CatalogCommandFeedback from "../../components/system/CatalogCommandFeedback.vue";
-import SystemList from "../../components/system/SystemList.vue";
+import ModelSelect from "../../components/system/ModelSelect.vue";
 import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
 import { useLeaveProtection } from "../../account/leave";
 import { AccountError, accountEnabled } from "../../account/transport";
@@ -11,23 +11,23 @@ import {
   modelDisplayName,
   getModel,
   getProvider,
-  listModels,
-  listProviders,
   type CatalogModel,
   type CatalogReceipt,
   type Provider,
+  type ModelProviderSummary,
+  type CatalogModelOption,
 } from "../../system/model-catalog";
 import {
   getModelSelection,
   modelPurposeIssue,
   platformPurposes,
   purposeLabels,
+  purposeDescriptions,
   saveModelSelection,
   type ModelPurpose,
 } from "../../system/model-selection";
 import { useSystemAccess } from "../../system/requests";
 import { useCatalogCommand } from "../../system/useCatalogCommand";
-import { useCursorList } from "../../system/useCursorList";
 
 interface Snapshot {
   id: string;
@@ -36,7 +36,7 @@ interface Snapshot {
 }
 interface Reference {
   model?: CatalogModel;
-  provider?: Provider;
+  provider?: Provider | ModelProviderSummary;
   error?: unknown;
   loading?: boolean;
 }
@@ -94,7 +94,9 @@ function referenceLabel(id: string) {
   return value?.model
     ? value.provider
       ? modelDisplayName(
-          value.provider.input.name,
+          "input" in value.provider
+            ? value.provider.input.name
+            : value.provider.name,
           value.model.input.provider_model_id,
         )
       : value.model.input.provider_model_id
@@ -284,46 +286,16 @@ function clearPurpose(purpose: ModelPurpose) {
   selection.draft.value[purpose] = "";
   selection.saved.value = false;
 }
-const picking = ref<ModelPurpose>();
-const provider = shallowRef<Provider>();
-const pickerOpen = computed({
-  get: () => !!picking.value,
-  set: (value) => {
-    if (!value) picking.value = undefined;
-  },
-});
-const providers = useCursorList(listProviders, {
-  enabled: () => !!picking.value && !provider.value,
-});
-const models = useCursorList(
-  (cursor, current, limit) =>
-    listModels(provider.value?.id, cursor, current, limit),
-  { enabled: () => !!picking.value && !!provider.value },
-);
-function openPicker(purpose: ModelPurpose) {
-  if (editingLocked.value || selection.locked.value) return;
-  provider.value = undefined;
-  providers.reset();
-  models.reset();
-  picking.value = purpose;
-}
-function pickProvider(value: Provider) {
-  models.reset();
-  provider.value = value;
-}
-function selectModel(model: CatalogModel) {
-  const purpose = picking.value;
+function selectModel(purpose: ModelPurpose, model: CatalogModelOption) {
   if (
-    !purpose ||
-    !provider.value ||
-    modelPurposeIssue(purpose, model, provider.value)
+    editingLocked.value ||
+    selection.locked.value ||
+    modelPurposeIssue(purpose, model, model.provider)
   )
     return;
-  if (editingLocked.value || selection.locked.value) return;
-  references.value[model.id] = { model, provider: provider.value };
+  references.value[model.id] = { model, provider: model.provider };
   selection.draft.value[purpose] = model.id;
   selection.saved.value = false;
-  picking.value = undefined;
 }
 watch(
   access.generation,
@@ -331,8 +303,6 @@ watch(
     referenceGeneration++;
     referenceOwners.clear();
     references.value = {};
-    picking.value = undefined;
-    provider.value = undefined;
     selection.clear();
   },
   { flush: "sync" },
@@ -386,11 +356,8 @@ onBeforeUnmount(() => {
                 >可选</span
               >
             </h3>
-            <p v-if="selection.baseline.value" class="selected-name">
-              {{ referenceLabel(selection.draft.value[purpose] || "") }}
-            </p>
-            <p v-else class="form-note" role="status">
-              {{ selection.reading.value ? "正在读取配置…" : "配置尚未读取。" }}
+            <p class="purpose-description">
+              {{ purposeDescriptions[purpose] }}
             </p>
             <p
               v-if="
@@ -404,17 +371,26 @@ onBeforeUnmount(() => {
                 referenceIssue(purpose, selection.draft.value[purpose] || "")
               }}
             </p>
-            <p v-if="purpose === 'summary'" class="form-note">
-              需要支持 json_schema 的对话模型。
-            </p>
           </div>
           <div class="purpose-actions">
-            <UiButton
+            <ModelSelect
+              :label="`选择${purposeLabels[purpose]}`"
+              :model-value="selection.draft.value[purpose] || ''"
+              :selected-label="
+                selection.baseline.value
+                  ? selection.draft.value[purpose]
+                    ? referenceLabel(selection.draft.value[purpose]!)
+                    : undefined
+                  : selection.reading.value
+                    ? '正在读取配置…'
+                    : '配置尚未读取。'
+              "
               :disabled="editingLocked || selection.locked.value"
-              :aria-label="`选择${purposeLabels[purpose]}`"
-              @click="openPicker(purpose)"
-              >选择模型</UiButton
-            >
+              :issue="
+                (model) => modelPurposeIssue(purpose, model, model.provider)
+              "
+              @select="selectModel(purpose, $event)"
+            />
             <UiButton
               v-if="
                 (purpose === 'reranker' || purpose === 'image') &&
@@ -470,72 +446,6 @@ onBeforeUnmount(() => {
         </div>
       </section>
     </template>
-    <UiDialog
-      v-model:open="pickerOpen"
-      :title="picking ? `选择${purposeLabels[picking]}` : '选择模型'"
-    >
-      <template v-if="picking">
-        <template v-if="!provider">
-          <p class="form-note">先选择供应商。</p>
-          <SystemList
-            :list="providers"
-            :row-key="(item) => item.id"
-            label="供应商"
-            empty-text="尚未添加供应商。"
-            :disabled="!available"
-          >
-            <template #item="{ item }"
-              ><span>{{ item.input.name }}</span
-              ><span class="form-note"
-                >{{ item.input.protocol
-                }}{{ item.input.enabled ? "" : " · 已停用" }}</span
-              ></template
-            >
-            <template #actions="{ item }"
-              ><UiButton
-                :disabled="!item.input.enabled"
-                @click="pickProvider(item)"
-                >选择供应商</UiButton
-              ></template
-            >
-          </SystemList>
-        </template>
-        <template v-else>
-          <div class="section-heading">
-            <h3>{{ provider.input.name }}</h3>
-            <UiButton @click="provider = undefined">更换供应商</UiButton>
-          </div>
-          <SystemList
-            :list="models"
-            :row-key="(item) => item.id"
-            label="模型"
-            empty-text="此供应商尚未添加模型。"
-            :disabled="!available"
-          >
-            <template #item="{ item }"
-              ><span>{{
-                modelDisplayName(
-                  provider.input.name,
-                  item.input.provider_model_id,
-                )
-              }}</span
-              ><span
-                v-if="modelPurposeIssue(picking, item, provider)"
-                class="form-note"
-                >{{ modelPurposeIssue(picking, item, provider) }}</span
-              ></template
-            >
-            <template #actions="{ item }"
-              ><UiButton
-                :disabled="!!modelPurposeIssue(picking, item, provider)"
-                @click="selectModel(item)"
-                >使用此模型</UiButton
-              ></template
-            >
-          </SystemList>
-        </template>
-      </template>
-    </UiDialog>
   </div>
 </template>
 
@@ -543,13 +453,7 @@ onBeforeUnmount(() => {
 .selection-page {
   max-width: 760px;
 }
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 10px;
-}
+
 h3 {
   margin: 0;
   color: var(--text-primary);
@@ -571,8 +475,10 @@ h3 {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+  width: 300px;
+  align-items: center;
 }
-.selected-name {
+.purpose-description {
   margin: 7px 0 0;
   color: var(--text-secondary);
   font-size: 13px;
@@ -599,7 +505,8 @@ h3 {
     gap: 12px;
   }
   .purpose-actions {
-    align-self: flex-end;
+    align-self: stretch;
+    width: 100%;
   }
 }
 </style>

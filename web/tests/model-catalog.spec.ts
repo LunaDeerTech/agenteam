@@ -346,3 +346,27 @@ it("accepts the unified platform summary reference while rejecting removed platf
     delete_blocker: "reference_adapter_unbound",
   });
 });
+
+it("confines global model search to the model list and rejects oversized or control-bearing queries", async () => {
+  const fetcher = vi.fn(async (_url: string) => json({ accepted: true }));
+  vi.stubGlobal("fetch", fetcher);
+  const { accountRequest } = await import("../src/account/transport");
+  await accountRequest("/system/models", {
+    query: { q: "literal%_needle", limit: 10 },
+  });
+  const requested = new URL(
+    fetcher.mock.calls[0]![0] as string,
+    "http://localhost",
+  );
+  expect(requested.pathname).toBe("/api/v1/system/models");
+  expect(requested.searchParams.get("q")).toBe("literal%_needle");
+  for (const path of ["/me", "/system/model-providers"])
+    await expect(
+      accountRequest(path, { query: { q: "needle" } }),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+  for (const q of ["界".repeat(43), "bad\nquery"])
+    await expect(
+      accountRequest("/system/models", { query: { q } }),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+  expect(fetcher).toHaveBeenCalledTimes(1);
+});

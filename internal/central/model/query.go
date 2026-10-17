@@ -14,6 +14,7 @@ import (
 type SystemQuery struct {
 	Cursor string
 	Limit  int
+	Search string
 }
 type ProviderPage struct {
 	Items      []mc.ProviderView `json:"items"`
@@ -297,66 +298,6 @@ func (s *Service) ListProviders(ctx context.Context, actor id.Actor, q SystemQue
 	})
 	if e != nil {
 		return ProviderPage{}, e
-	}
-	return out, nil
-}
-func (s *Service) ListModels(ctx context.Context, actor id.Actor, provider mc.ProviderID, q SystemQuery) (ModelPage, error) {
-	out := ModelPage{Items: []mc.ModelView{}}
-	if provider.Validate() != nil {
-		return ModelPage{}, fault(f.InvalidArgument)
-	}
-	e := s.read(ctx, actor, []f.LockRequest{aggregateLock(f.ProviderAggregate, provider.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
-		current, e := loadProvider(ctx, x, provider.String())
-		if e != nil {
-			return e
-		}
-		if current == nil {
-			return fault(f.NotFound)
-		}
-		binding, e := listBinding(actor, "models", provider.String())
-		if e != nil {
-			return e
-		}
-		position, e := s.pagePosition(q, binding)
-		if e != nil {
-			return e
-		}
-		query := `SELECT ` + modelColumns + ` FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='system' AND m.provider_id=$1`
-		args := []any{provider.String(), q.Limit + 1}
-		if position.Present {
-			query += ` AND (m.created_at,m.id)<=($3,$4::uuid) AND (m.created_at,m.id)<($5,$6::uuid)`
-			args = append(args, position.WaterAt.Time(), position.WaterID, position.AfterAt.Time(), position.AfterID)
-		}
-		query += ` ORDER BY m.created_at DESC,m.id DESC LIMIT $2`
-		rows, e := x.Query(ctx, query, args...)
-		if e != nil {
-			return unavailable(e)
-		}
-		defer rows.Close()
-		for rows.Next() {
-			r, e := scanModel(rows)
-			if e != nil {
-				return e
-			}
-			v, e := r.view()
-			if e != nil {
-				return e
-			}
-			out.Items = append(out.Items, v)
-		}
-		if e = rows.Err(); e != nil {
-			return unavailable(e)
-		}
-		if len(out.Items) > q.Limit {
-			out.Items = out.Items[:q.Limit]
-			first, last := out.Items[0], out.Items[len(out.Items)-1]
-			out.NextCursor, e = s.signPage(binding, position, first.CreatedAt, first.ID.String(), last.CreatedAt, last.ID.String())
-			return e
-		}
-		return nil
-	})
-	if e != nil {
-		return ModelPage{}, e
 	}
 	return out, nil
 }

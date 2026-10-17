@@ -90,8 +90,8 @@ func TestSystemHTTPListQueryCanonicalAndProjection(t *testing.T) {
 	if err != nil || q.Limit != 50 {
 		t.Fatal("default", err)
 	}
-	if _, _, err = httpListQuery(r, true); err == nil {
-		t.Fatal("missing provider")
+	if _, provider, err := httpListQuery(r, true); err != nil || provider != (mc.ProviderID{}) {
+		t.Fatal("global catalog query", err)
 	}
 	var dto httpModelInput
 	_ = decodeHTTP(t, httpValidModel, &dto)

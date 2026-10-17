@@ -10,6 +10,7 @@ import {
   type CatalogOperation,
   type CatalogReceipt,
   type Provider,
+  type ModelProviderSummary,
 } from "./model-catalog";
 
 export const platformPurposes = [
@@ -24,7 +25,13 @@ export const purposeLabels: Record<ModelPurpose, string> = {
   embedding: "向量模型",
   summary: "总结模型",
   reranker: "重排模型",
-  image: "图像模型",
+  image: "图像生成模型",
+};
+export const purposeDescriptions: Record<ModelPurpose, string> = {
+  embedding: "将知识库和记忆文本转换为向量，用于语义检索；需文本向量模型。",
+  summary: "提取整理记忆并生成会议摘要与标题；需支持 JSON Schema 的对话模型。",
+  reranker: "预留知识与记忆检索结果的相关性重排；需重排模型，当前尚未接入。",
+  image: "预留文本生成图像能力；需图像生成模型，当前尚未接入业务调用。",
 };
 export interface SelectionValues {
   embedding: string;
@@ -109,11 +116,12 @@ export const saveModelSelection = (input: SelectionInput) =>
 export function modelPurposeIssue(
   purpose: ModelPurpose,
   model: CatalogModel,
-  provider: Provider,
+  provider: Provider | ModelProviderSummary,
   retainExisting = false,
 ): string | undefined {
+  const providerInput = "input" in provider ? provider.input : provider;
   if (model.provider_id !== provider.id) return "供应商不匹配";
-  if (!provider.input.enabled) return "供应商已停用";
+  if (!providerInput.enabled) return "供应商已停用";
   if (!model.input.enabled) return "模型已停用";
   const wanted = {
     embedding: "embedding",
@@ -124,9 +132,8 @@ export function modelPurposeIssue(
   if (model.input.type !== wanted[purpose]) return "模型类型不适用于此用途";
   const supported =
     purpose === "embedding"
-      ? provider.input.protocol === "openai-compatible"
-      : purpose === "summary" &&
-        provider.input.protocol === "openai-compatible";
+      ? providerInput.protocol === "openai-compatible"
+      : purpose === "summary" && providerInput.protocol === "openai-compatible";
   if (!supported && !retainExisting)
     return "当前协议仅支持查看现有用途，不能新增选择";
   if (

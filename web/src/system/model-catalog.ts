@@ -338,12 +338,55 @@ export const listProviders = (
   current?: () => boolean,
   limit = 10,
 ) => list("/system/model-providers", isProvider, cursor, current, limit);
+export interface ModelProviderSummary {
+  id: string;
+  name: string;
+  protocol: Protocol;
+  enabled: boolean;
+  version: string;
+}
+export interface CatalogModelOption extends CatalogModel {
+  provider: ModelProviderSummary;
+}
+export function isCatalogModelOption(v: unknown): v is CatalogModelOption {
+  if (!isRecord(v)) return false;
+  const { provider, ...model } = v;
+  return (
+    isCatalogModel(model) &&
+    isRecord(provider) &&
+    onlyKeys(provider, ["id", "name", "protocol", "enabled", "version"]) &&
+    provider.id === model.provider_id &&
+    text(provider.name, 128) &&
+    protocols.includes(provider.protocol as Protocol) &&
+    typeof provider.enabled === "boolean" &&
+    isVersion(provider.version)
+  );
+}
 export const listModels = (
   provider: string | undefined,
   cursor?: string,
   current?: () => boolean,
   limit = 10,
-) => list("/system/models", isCatalogModel, cursor, current, limit, provider);
+  query?: string,
+) => {
+  const q = query?.trim().toLowerCase();
+  return systemRequest(
+    "/system/models",
+    {
+      current,
+      query: {
+        cursor,
+        limit,
+        ...(provider ? { provider_id: provider } : {}),
+        ...(q ? { q } : {}),
+      },
+    },
+    pageOf(isCatalogModelOption, limit),
+  ).then((value) => ({
+    items: value.items,
+    ...(value.next_cursor ? { next_cursor: value.next_cursor } : {}),
+  }));
+};
 export function getProvider(id: string, current?: () => boolean) {
   if (!isId(id)) throw new AccountError("NOT_FOUND", 404);
   return systemRequest(

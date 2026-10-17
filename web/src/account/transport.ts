@@ -36,6 +36,7 @@ export interface AccountRequest {
     cursor?: string;
     limit?: string | number;
     provider_id?: string;
+    q?: string;
   }>;
 }
 
@@ -94,11 +95,15 @@ async function sendAccount<T>(
     if (value === undefined) continue;
     if (
       method !== "GET" ||
-      !["cursor", "limit", "provider_id"].includes(name) ||
+      !["cursor", "limit", "provider_id", "q"].includes(name) ||
       !String(value) ||
       new TextEncoder().encode(String(value)).length > 8192 ||
       (name === "limit" &&
         (!/^[1-9]\d{0,2}$/.test(String(value)) || Number(value) > 100)) ||
+      (name === "q" &&
+        (path !== "/system/models" ||
+          new TextEncoder().encode(String(value)).length > 128 ||
+          /[\u0000-\u001f\u007f-\u009f]/u.test(String(value)))) ||
       (name === "provider_id" &&
         (path !== "/system/models" ||
           !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(

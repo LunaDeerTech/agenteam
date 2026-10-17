@@ -8,7 +8,13 @@ import {
 } from "vue";
 
 export function useAnchoredLayer(
-  options: { align?: () => "start" | "end"; matchWidth?: boolean } = {},
+  options: {
+    align?: () => "start" | "end";
+    matchWidth?: boolean;
+    width?: number;
+    maxHeight?: number;
+    topLayer?: boolean;
+  } = {},
 ) {
   const trigger = ref<HTMLButtonElement | null>(null);
   const panel = ref<HTMLElement | null>(null);
@@ -30,7 +36,7 @@ export function useAnchoredLayer(
     const width = Math.max(
       0,
       Math.min(
-        options.matchWidth ? anchor.width : 208,
+        options.width ?? (options.matchWidth ? anchor.width : 208),
         viewportWidth - edge * 2,
       ),
     );
@@ -38,7 +44,10 @@ export function useAnchoredLayer(
     const above = anchor.top - offsetTop - gap - edge;
     const flip =
       below < Math.min(panel.value.scrollHeight, 240) && above > below;
-    const maxHeight = Math.max(0, flip ? above : below);
+    const maxHeight = Math.max(
+      0,
+      Math.min(flip ? above : below, options.maxHeight ?? Infinity),
+    );
     const height = Math.min(panel.value.scrollHeight, maxHeight);
     const idealLeft =
       options.align?.() === "start" ? anchor.left : anchor.right - width;
@@ -57,11 +66,20 @@ export function useAnchoredLayer(
     position.value = { visibility: "hidden" };
     open.value = true;
     await nextTick();
-    if (open.value) updatePosition();
+    if (open.value) {
+      if (options.topLayer) panel.value?.showPopover?.();
+      updatePosition();
+    }
   }
 
   function close(restoreFocus = true) {
     if (!open.value) return;
+    if (
+      options.topLayer &&
+      panel.value?.hidePopover &&
+      panel.value.matches(":popover-open")
+    )
+      panel.value.hidePopover();
     open.value = false;
     if (restoreFocus && trigger.value?.isConnected)
       trigger.value.focus({ preventScroll: true });

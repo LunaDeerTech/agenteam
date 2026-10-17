@@ -151,21 +151,23 @@ func httpProviderDTO(v mc.ProviderView) any {
 	}{v.ID, httpProviderInput{&p.Name, &p.Protocol, &p.BaseURL, &p.Enabled, httpRawNullable(credential), p.Options}, v.Version, v.CreatedAt, v.UpdatedAt}
 }
 
-func httpModelDTO(v mc.ModelView) any {
+type httpModelView struct {
+	ID         mc.ModelID     `json:"id"`
+	ProviderID mc.ProviderID  `json:"provider_id"`
+	Input      httpModelInput `json:"input"`
+	Version    f.Version      `json:"version"`
+	CreatedAt  f.Instant      `json:"created_at"`
+	UpdatedAt  f.Instant      `json:"updated_at"`
+}
+
+func httpModelDTO(v mc.ModelView) httpModelView {
 	p, c := v.Input, v.Input.Capabilities
 	caps := &httpCapabilities{&c.ToolCalls, &c.ParallelToolCalls, &c.Streaming, &c.Reasoning, append([]string{}, c.InputModalities...), append([]string{}, c.OutputModalities...), append([]string{}, c.ReasoningEfforts...), append([]string{}, c.StructuredOutputModes...), httpRawNullable(c.ContextLength), httpRawNullable(c.MaxOutput)}
 	headers := p.HeaderOverwrite
 	if headers == nil {
 		headers = map[string]string{}
 	}
-	return struct {
-		ID         mc.ModelID     `json:"id"`
-		ProviderID mc.ProviderID  `json:"provider_id"`
-		Input      httpModelInput `json:"input"`
-		Version    f.Version      `json:"version"`
-		CreatedAt  f.Instant      `json:"created_at"`
-		UpdatedAt  f.Instant      `json:"updated_at"`
-	}{v.ID, v.ProviderID, httpModelInput{&p.Name, &p.ProviderModelID, &p.Type, &p.Enabled, p.Parameters, p.RequestOverwrite, headers, caps}, v.Version, v.CreatedAt, v.UpdatedAt}
+	return httpModelView{v.ID, v.ProviderID, httpModelInput{&p.Name, &p.ProviderModelID, &p.Type, &p.Enabled, p.Parameters, p.RequestOverwrite, headers, caps}, v.Version, v.CreatedAt, v.UpdatedAt}
 }
 
 type httpConfiguredSelection struct {
@@ -221,7 +223,7 @@ func httpListQuery(r *http.Request, models bool) (SystemQuery, mc.ProviderID, er
 		return SystemQuery{}, zero, fault(f.InvalidArgument)
 	}
 	for key, values := range q {
-		if key != "cursor" && key != "limit" && !(models && key == "provider_id") || len(values) != 1 || values[0] == "" {
+		if key != "cursor" && key != "limit" && !(models && (key == "provider_id" || key == "q")) || len(values) != 1 || values[0] == "" {
 			return SystemQuery{}, zero, fault(f.InvalidArgument)
 		}
 	}
@@ -240,10 +242,16 @@ func httpListQuery(r *http.Request, models bool) (SystemQuery, mc.ProviderID, er
 			return SystemQuery{}, zero, fault(f.InvalidArgument)
 		}
 	}
-	if models {
+	if models && q.Has("provider_id") {
 		zero, err = f.ParseID[mc.Provider](q.Get("provider_id"))
 		if err != nil {
 			return SystemQuery{}, mc.ProviderID{}, fault(f.InvalidArgument)
+		}
+	}
+	if models && q.Has("q") {
+		out.Search, err = normalizeModelSearch(q.Get("q"))
+		if err != nil || out.Search == "" {
+			return SystemQuery{}, zero, fault(f.InvalidArgument)
 		}
 	}
 	return out, zero, nil

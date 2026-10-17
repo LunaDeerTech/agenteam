@@ -74,6 +74,19 @@ const model = (n: number, embedding = false): CatalogModel => ({
     },
   },
 });
+const modelOption = (n: number, embedding = false) => {
+  const source = provider(embedding);
+  return {
+    ...model(n, embedding),
+    provider: {
+      id: source.id,
+      name: source.input.name,
+      protocol: source.input.protocol,
+      enabled: source.input.enabled,
+      version: source.version,
+    },
+  };
+};
 const selection = (version = "4") => ({
   id: id(1),
   version,
@@ -103,7 +116,7 @@ let wrapper: VueWrapper | undefined;
 let stopTheme: (() => void) | undefined;
 let writes: Array<{ path: string; body: string; key: string | null }>;
 let puts: (path: string, body: string) => Response | Promise<Response>;
-let gets: (path: string) => Response | Promise<Response> | undefined;
+let gets: (path: string, url: URL) => Response | Promise<Response> | undefined;
 let lookup: () => Response;
 let fetcher: ReturnType<typeof vi.fn>;
 beforeEach(async () => {
@@ -143,7 +156,7 @@ beforeEach(async () => {
         });
         return puts(path, body);
       }
-      const response = gets(path);
+      const response = gets(path, url);
       if (response) return response;
       if (path === "/system/model-selection") return json(selection());
       if (path === "/system/model-providers")
@@ -152,10 +165,8 @@ beforeEach(async () => {
           next_cursor: "provider-next",
         });
       if (path === "/system/models") {
-        const embedding =
-          url.searchParams.get("provider_id") === provider(true).id;
         return json({
-          items: [model(embedding ? 12 : 13, embedding)],
+          items: [modelOption(12, true), modelOption(13)],
           next_cursor: null,
         });
       }
@@ -175,22 +186,21 @@ afterEach(() => {
   wrapper?.unmount();
   wrapper = undefined;
   stopTheme?.();
+  vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
+  document.body.replaceChildren();
 });
 async function page() {
   const Page = (await import("../src/views/system/ModelSelectionPage.vue"))
     .default;
   wrapper = mount(Page, {
+    attachTo: document.body,
     global: {
       stubs: {
         SettingsPageActions: { template: "<div><slot /></div>" },
-        UiDialog: {
-          props: ["open", "title"],
-          template:
-            '<section v-if="open" role="dialog" :aria-label="title"><slot /></section>',
-        },
+        Teleport: true,
       },
     },
   });
@@ -214,23 +224,21 @@ async function click(text: string) {
   await flushPromises();
 }
 async function pick(purpose: string, embedding = false) {
-  await wrapper!.get(`[aria-label="选择${purpose}"]`).trigger("click");
+  await wrapper!.get(`[aria-label^="选择${purpose}"]`).trigger("click");
   await flushPromises();
-  const row = wrapper!
-    .get('[role="dialog"]')
-    .findAll("li")
-    .find((item) =>
-      item.text().includes(embedding ? "Vector Provider" : "Chat Provider"),
-    );
-  expect(row).toBeTruthy();
-  await row!.get("button").trigger("click");
+  const label = embedding
+    ? "Vector Provider/upstream-12"
+    : "Chat Provider/upstream-13";
+  const option = wrapper!
+    .get('[role="listbox"]')
+    .findAll('[role="option"]')
+    .find((item) => item.text().includes(label));
+  expect(option).toBeTruthy();
+  expect(option!.attributes("aria-disabled")).toBeUndefined();
+  await option!.trigger("click");
   await flushPromises();
-  expect(wrapper!.get('[role="dialog"]').text()).toMatch(
-    embedding
-      ? /Vector Provider\s*\/\s*upstream-12/
-      : /Chat Provider\s*\/\s*upstream-13/,
-  );
-  await click("使用此模型");
+  expect(wrapper!.find('[role="dialog"]').exists()).toBe(false);
+  expect(wrapper!.get(`[aria-label^="选择${purpose}"]`).text()).toBe(label);
 }
 function selectionReads() {
   return fetcher.mock.calls.filter(
@@ -238,19 +246,118 @@ function selectionReads() {
       String(input).includes("/model-selection") && options?.method !== "PUT",
   );
 }
+function candidateReads() {
+  return fetcher.mock.calls
+    .map(([input]) => new URL(String(input), "https://fixture.test"))
+    .filter((url) => url.pathname === "/api/v1/system/models");
+}
 describe("platform model selections", () => {
   it("reads one configuration with four purposes and provider/model identifiers", async () => {
     const view = await page();
     expect(
       view
         .findAll('button[aria-label^="选择"]')
-        .map((item) => item.attributes("aria-label")),
-    ).toEqual(["选择向量模型", "选择总结模型", "选择重排模型", "选择图像模型"]);
+        .map((item) => item.attributes("aria-label")?.split("，")[0]),
+    ).toEqual([
+      "选择向量模型",
+      "选择总结模型",
+      "选择重排模型",
+      "选择图像生成模型",
+    ]);
     expect(view.text()).toMatch(/Vector Provider\s*\/\s*upstream-10/);
     expect(view.text()).toMatch(/Chat Provider\s*\/\s*upstream-11/);
     expect(button("保存").attributes("disabled")).toBeDefined();
     expect(selectionReads()).toHaveLength(1);
     expect(String(selectionReads()[0]![0])).toBe(`/api/v1${selectionPath}`);
+    expect(writes).toHaveLength(0);
+  });
+  it("offers cross-provider models in one list and explains choices that do not match the purpose", async () => {
+    const view = await page();
+    expect(candidateReads()).toHaveLength(0);
+    await view.get('[aria-label^="选择向量模型"]').trigger("click");
+    await flushPromises();
+    const choices = view.findAll('[role="option"]');
+    expect(choices).toHaveLength(2);
+    expect(choices[0]!.text()).toContain("Vector Provider/upstream-12");
+    expect(choices[1]!.text()).toContain("Chat Provider/upstream-13");
+    expect(choices[1]!.attributes("aria-disabled")).toBe("true");
+    expect(choices[1]!.text()).toContain("模型类型不适用于此用途");
+    await choices[1]!.trigger("click");
+    expect(view.get('[aria-label^="选择向量模型"]').text()).toBe(
+      "Vector Provider/upstream-10",
+    );
+    expect(button("保存").attributes("disabled")).toBeDefined();
+    expect(candidateReads()).toHaveLength(1);
+    expect(candidateReads()[0]!.searchParams.has("provider_id")).toBe(false);
+    expect(candidateReads()[0]!.searchParams.get("limit")).toBe("10");
+    expect(
+      fetcher.mock.calls.some(
+        ([input]) =>
+          new URL(String(input), "https://fixture.test").pathname ===
+          "/api/v1/system/model-providers",
+      ),
+    ).toBe(false);
+    await choices[0]!.trigger("click");
+    await flushPromises();
+    expect(view.find('[role="dialog"]').exists()).toBe(false);
+    expect(view.get('[aria-label^="选择向量模型"]').text()).toBe(
+      "Vector Provider/upstream-12",
+    );
+    expect(button("保存").attributes("disabled")).toBeUndefined();
+    expect(writes).toHaveLength(0);
+  });
+  it("uses server search and cursor pages while retaining the selected label and resetting pagination for a new query", async () => {
+    gets = (path, url) => {
+      if (path !== "/system/models") return undefined;
+      return json({
+        items: [
+          modelOption(
+            url.searchParams.has("q")
+              ? 16
+              : url.searchParams.has("cursor")
+                ? 15
+                : 13,
+          ),
+        ],
+        next_cursor:
+          url.searchParams.has("q") || url.searchParams.has("cursor")
+            ? null
+            : "model-next",
+      });
+    };
+    const view = await page();
+    await view.get('[aria-label^="选择总结模型"]').trigger("click");
+    await flushPromises();
+    await click("下一页");
+    expect(candidateReads()).toHaveLength(2);
+    expect(candidateReads()[1]!.searchParams.get("cursor")).toBe("model-next");
+    expect(view.get('[role="option"]').text()).toContain(
+      "Chat Provider/upstream-15",
+    );
+    expect(view.get('[role="dialog"]').text()).toContain("第 2 页");
+    expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
+      "Chat Provider/upstream-11",
+    );
+    vi.useFakeTimers();
+    await view.get('input[role="combobox"]').setValue("  Needle  ");
+    expect(view.get('[role="dialog"]').text()).toContain("正在读取模型");
+    expect(view.get('[role="dialog"]').text()).not.toContain("没有匹配的模型");
+    await vi.advanceTimersByTimeAsync(250);
+    await flushPromises();
+    expect(candidateReads()).toHaveLength(3);
+    const request = candidateReads()[2]!;
+    expect(request.searchParams.get("q")).toBe("needle");
+    expect(request.searchParams.has("cursor")).toBe(false);
+    expect(request.searchParams.has("provider_id")).toBe(false);
+    expect(view.get('[role="dialog"]').text()).toContain("第 1 页");
+    expect(view.get('[role="option"]').text()).toContain(
+      "Chat Provider/upstream-16",
+    );
+    expect(view.get('[aria-label^="选择总结模型"]').text()).toBe(
+      "Chat Provider/upstream-11",
+    );
+    expect(button("上一页").attributes("disabled")).toBeDefined();
+    expect(button("下一页").attributes("disabled")).toBeDefined();
     expect(writes).toHaveLength(0);
   });
   it("rejects the removed memory field without making any purpose editable", async () => {
@@ -268,9 +375,9 @@ describe("platform model selections", () => {
         : undefined;
     const view = await page();
     expect(view.text()).toContain("读取失败");
-    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像模型"])
+    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
       expect(
-        view.get(`[aria-label="选择${purpose}"]`).attributes("disabled"),
+        view.get(`[aria-label^="选择${purpose}"]`).attributes("disabled"),
       ).toBeDefined();
     expect(button("保存").attributes("disabled")).toBeDefined();
     expect(selectionReads()).toHaveLength(1);
@@ -312,9 +419,9 @@ describe("platform model selections", () => {
       summary: id(13),
     });
     expect(writes[0]!.key).toBeTruthy();
-    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像模型"])
+    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
       expect(
-        wrapper!.get(`[aria-label="选择${purpose}"]`).attributes("disabled"),
+        wrapper!.get(`[aria-label^="选择${purpose}"]`).attributes("disabled"),
       ).toBeDefined();
     for (const action of ["保存", "重新获取", "放弃修改"])
       expect(button(action).attributes("disabled")).toBeDefined();
@@ -398,9 +505,9 @@ describe("platform model selections", () => {
     expect(original.key).toBeTruthy();
     expect(wrapper!.text()).toContain("原操作结果尚未确认");
     expect(wrapper!.text()).toMatch(/Chat Provider\s*\/\s*upstream-13/);
-    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像模型"])
+    for (const purpose of ["向量模型", "总结模型", "重排模型", "图像生成模型"])
       expect(
-        wrapper!.get(`[aria-label="选择${purpose}"]`).attributes("disabled"),
+        wrapper!.get(`[aria-label^="选择${purpose}"]`).attributes("disabled"),
       ).toBeDefined();
     for (const action of ["保存", "重新获取", "放弃修改"])
       expect(button(action).attributes("disabled")).toBeDefined();
@@ -507,7 +614,7 @@ describe("platform model selections", () => {
     await click("保存");
     expect(writes).toHaveLength(1);
     expect(JSON.parse(writes[0]!.body).image).toBe(id(14));
-    await wrapper!.get('[aria-label="清除图像模型"]').trigger("click");
+    await wrapper!.get('[aria-label="清除图像生成模型"]').trigger("click");
     puts = () => json(receipt(id(1), "6"));
     await click("保存");
     expect(JSON.parse(writes[1]!.body)).toMatchObject({

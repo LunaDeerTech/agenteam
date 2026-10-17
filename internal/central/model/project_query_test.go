@@ -31,7 +31,7 @@ func TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession(t *testing.T
 	renewed, _ := id.NewHuman(user, mustID[id.Session](t))
 	same, _ := projectListBinding(renewed, scope, "available-chat")
 	for _, limit := range []int{1, 100} {
-		if _, err = s.pagePosition(SystemQuery{token, limit}, same); err != nil {
+		if _, err = s.pagePosition(SystemQuery{Cursor: token, Limit: limit}, same); err != nil {
 			t.Fatal("limit/Session changed cursor", err)
 		}
 	}
@@ -42,7 +42,7 @@ func TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession(t *testing.T
 		kind  string
 	}{{actor, other, "available-chat"}, {testActor(t), scope, "available-chat"}, {actor, scope, "models"}, {actor, scope, "providers"}} {
 		b, _ := projectListBinding(tc.actor, tc.scope, tc.kind)
-		if _, err = s.pagePosition(SystemQuery{token, 1}, b); err == nil {
+		if _, err = s.pagePosition(SystemQuery{Cursor: token, Limit: 1}, b); err == nil {
 			t.Fatal("cross boundary cursor accepted")
 		}
 	}
