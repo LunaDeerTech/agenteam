@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import UiIcon from "./UiIcon.vue";
+
 export interface CheckboxOption {
   value: string;
   label: string;
+  icon?: string;
 }
 defineProps<{
   label: string;
@@ -22,6 +25,7 @@ const model = defineModel<string[]>({ default: () => [] });
         :class="{ 'is-selected': model.includes(option.value) }"
       >
         <input v-model="model" type="checkbox" :value="option.value" />
+        <UiIcon v-if="option.icon" :name="option.icon" :size="14" />
         <span>{{ option.label }}</span>
       </label>
     </div>
@@ -68,6 +72,9 @@ const model = defineModel<string[]>({ default: () => [] });
   flex: 0 0 auto;
   margin: 0;
   accent-color: var(--accent);
+}
+.ui-checkbox-option .ui-icon {
+  flex: 0 0 auto;
 }
 .ui-checkbox-option:has(input:disabled) {
   opacity: 0.5;

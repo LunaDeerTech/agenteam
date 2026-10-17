@@ -31,6 +31,9 @@ const paths: Record<string, string[]> = {
   key: ["M7 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M10 10l10 10M16 16l3-3M18 18l3-3"],
   lock: ["M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"],
   file: ["M14 2H5v20h14V7zM14 2v6h5M8 13h8M8 17h5"],
+  text: ["M4 5h16M12 5v14M8 19h8"],
+  image: ["M3 3h18v18H3z", "m3 16 5-5 4 4 3-3 6 6M8 7h.01"],
+  vector: ["M4 4v16h16", "M4 20 18 6M11 6h7v7"],
   link: [
     "m10 13 4-4M8 16l-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0M16 8l1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0",
   ],

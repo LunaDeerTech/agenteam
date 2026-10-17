@@ -9,10 +9,10 @@ const props = defineProps<{
   bulk?: boolean;
 }>();
 const modalityOptions = [
-  { value: "text", label: "文本" },
-  { value: "image", label: "图像" },
-  { value: "file", label: "文件" },
-  { value: "vector", label: "向量" },
+  { value: "text", label: "文本", icon: "text" },
+  { value: "image", label: "图像", icon: "image" },
+  { value: "file", label: "文件", icon: "file" },
+  { value: "vector", label: "向量", icon: "vector" },
 ];
 function modalities(field: "inputModalities" | "outputModalities") {
   return computed({
