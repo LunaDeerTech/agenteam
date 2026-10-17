@@ -59,7 +59,7 @@ func (p ProviderView) Validate() error {
 func (p ProviderView) Clone() ProviderView { p.Input = p.Input.Clone(); return p }
 
 type ModelInput struct {
-	Name             string            `json:"name"`
+	Notes            string            `json:"notes"`
 	ProviderModelID  string            `json:"provider_model_id"`
 	Type             ModelType         `json:"type"`
 	Enabled          bool              `json:"enabled"`
@@ -70,7 +70,7 @@ type ModelInput struct {
 }
 
 func (m ModelInput) Validate() error {
-	if !name(m.Name, 128) || !text(m.ProviderModelID, 256) || !m.Type.Valid() || objectJSON(m.Parameters, 64<<10) != nil || overwrite(m.RequestOverwrite, m.HeaderOverwrite) != nil || m.Capabilities.Validate() != nil {
+	if !validNotes(m.Notes) || !text(m.ProviderModelID, 256) || !m.Type.Valid() || objectJSON(m.Parameters, 64<<10) != nil || overwrite(m.RequestOverwrite, m.HeaderOverwrite) != nil || m.Capabilities.Validate() != nil {
 		return bad()
 	}
 	return nil
@@ -223,16 +223,16 @@ func (s SelectionResult) Clone() SelectionResult {
 }
 
 type PlatformSelection struct {
-	ID        string    `json:"id"`
-	Version   f.Version `json:"version"`
-	Embedding ModelID   `json:"embedding"`
-	Summary   ModelID   `json:"summary"`
-	Reranker  *ModelID  `json:"reranker"`
-	Image     *ModelID  `json:"image"`
+	ID        string       `json:"id"`
+	Version   f.Version    `json:"version"`
+	Embedding ModelChoice  `json:"embedding"`
+	Summary   ModelChoice  `json:"summary"`
+	Reranker  *ModelChoice `json:"reranker"`
+	Image     *ModelChoice `json:"image"`
 }
 
 func (s PlatformSelection) Validate() error {
-	if !uuid(s.ID) || s.Version.Validate() != nil || s.Embedding.Validate() != nil || s.Summary.Validate() != nil || s.Reranker != nil && s.Reranker.Validate() != nil || s.Image != nil && s.Image.Validate() != nil {
+	if s.Embedding.Reasoning.Mode != "default" || s.Reranker != nil && s.Reranker.Reasoning.Mode != "default" || s.Image != nil && s.Image.Reasoning.Mode != "default" || !uuid(s.ID) || s.Version.Validate() != nil || s.Embedding.Validate() != nil || s.Summary.Validate() != nil || s.Reranker != nil && s.Reranker.Validate() != nil || s.Image != nil && s.Image.Validate() != nil {
 		return bad()
 	}
 	return nil

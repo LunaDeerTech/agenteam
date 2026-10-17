@@ -123,12 +123,14 @@ func selectionView(r *selectionRecord) (PlatformSelectionState, error) {
 		return out, nil
 	}
 	selection := mc.PlatformSelection{ID: r.ID, Version: r.Version}
+	selection.Embedding.Reasoning = mc.ReasoningChoice{Mode: "default"}
+	selection.Summary.Reasoning = r.SummaryReasoning
 	var e error
-	selection.Embedding, e = f.ParseID[mc.Model](r.Embedding)
+	selection.Embedding.ModelID, e = f.ParseID[mc.Model](r.Embedding)
 	if e != nil {
 		return out, unavailable(e)
 	}
-	selection.Summary, e = f.ParseID[mc.Model](r.Summary)
+	selection.Summary.ModelID, e = f.ParseID[mc.Model](r.Summary)
 	if e != nil {
 		return out, unavailable(e)
 	}
@@ -137,14 +139,16 @@ func selectionView(r *selectionRecord) (PlatformSelectionState, error) {
 		if e != nil {
 			return out, unavailable(e)
 		}
-		selection.Reranker = &v
+		choice := mc.DefaultModelChoice(v)
+		selection.Reranker = &choice
 	}
 	if r.Image != "" {
 		v, e := f.ParseID[mc.Model](r.Image)
 		if e != nil {
 			return out, unavailable(e)
 		}
-		selection.Image = &v
+		choice := mc.DefaultModelChoice(v)
+		selection.Image = &choice
 	}
 	if e = selection.Validate(); e != nil {
 		return out, unavailable(e)

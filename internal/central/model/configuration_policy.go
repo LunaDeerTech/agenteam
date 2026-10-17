@@ -48,7 +48,7 @@ func modelPolicy(v mc.ModelInput, protocol mc.Protocol) error {
 	if e := v.Validate(); e != nil {
 		return e
 	}
-	if !protocol.Supports(v.Type) {
+	if !protocol.Supports(v.Type) || v.Capabilities.ReasoningToggleMode != nil && protocol.EffectiveProtocol(v.Type) != mc.OpenAIChat {
 		return fault(f.InvalidArgument)
 	}
 	if !emptyObject(v.Parameters) || !emptyObject(v.RequestOverwrite) || len(v.HeaderOverwrite) != 0 {
@@ -115,8 +115,8 @@ func providerChanges(a, b providerInput) []string {
 }
 func modelChanges(a, b mc.ModelInput) []string {
 	out := []string{}
-	if a.Name != b.Name {
-		out = append(out, "name")
+	if a.Notes != b.Notes {
+		out = append(out, "notes")
 	}
 	if a.Enabled != b.Enabled {
 		out = append(out, "enabled")

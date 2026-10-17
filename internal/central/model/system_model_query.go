@@ -101,7 +101,7 @@ func (s *Service) ListModels(ctx context.Context, actor id.Actor, provider mc.Pr
 		if err != nil {
 			return err
 		}
-		query := `SELECT ` + modelColumns + `,p.name,p.protocol,p.enabled,p.version FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='system' AND ($1::uuid IS NULL OR m.provider_id=$1::uuid) AND ($3::text='' OR strpos(lower(p.name),$3)>0 OR strpos(lower(m.name),$3)>0 OR strpos(lower(m.provider_model_id),$3)>0)`
+		query := `SELECT ` + modelColumns + `,p.name,p.protocol,p.enabled,p.version FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='system' AND ($1::uuid IS NULL OR m.provider_id=$1::uuid) AND ($3::text='' OR strpos(lower(p.name),$3)>0 OR strpos(lower(m.notes),$3)>0 OR strpos(lower(m.provider_model_id),$3)>0)`
 		args := []any{null(providerKey), q.Limit + 1, search}
 		if position.Present {
 			query += ` AND (m.created_at,m.id)<=($4,$5::uuid) AND (m.created_at,m.id)<($6,$7::uuid)`

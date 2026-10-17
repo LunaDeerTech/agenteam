@@ -192,19 +192,19 @@ func (h *systemHTTP) updateSelection(w http.ResponseWriter, r *http.Request, m m
 	var dto struct {
 		ID        f.ID[struct{}]  `json:"id"`
 		Expected  f.Version       `json:"expected_version"`
-		Embedding mc.ModelID      `json:"embedding"`
-		Summary   mc.ModelID      `json:"summary"`
+		Embedding mc.ModelChoice  `json:"embedding"`
+		Summary   mc.ModelChoice  `json:"summary"`
 		Reranker  json.RawMessage `json:"reranker"`
 		Image     json.RawMessage `json:"image"`
 	}
 	if err := httpapi.DecodeJSON(w, r, &dto, 0); err != nil {
 		return nil, err
 	}
-	reranker, err := httpNullableID[mc.Model](dto.Reranker)
+	reranker, err := httpNullableModelChoice(dto.Reranker)
 	if err != nil {
 		return nil, err
 	}
-	image, err := httpNullableID[mc.Model](dto.Image)
+	image, err := httpNullableModelChoice(dto.Image)
 	if err != nil {
 		return nil, err
 	}

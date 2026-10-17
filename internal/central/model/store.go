@@ -227,7 +227,7 @@ func (r modelRecord) view() (mc.ModelView, error) {
 	return v, nil
 }
 
-const modelColumns = `m.id::text,m.provider_id::text,m.name,m.provider_model_id,m.type,m.enabled,m.parameters,m.request_overwrite,m.header_overwrite,m.capabilities,m.version,m.created_at,m.updated_at`
+const modelColumns = `m.id::text,m.provider_id::text,m.notes,m.provider_model_id,m.type,m.enabled,m.parameters,m.request_overwrite,m.header_overwrite,m.capabilities,m.version,m.created_at,m.updated_at`
 
 func scanModel(row scanner) (*modelRecord, error) {
 	return scanModelScope(row, id.SystemScope())
@@ -236,7 +236,7 @@ func scanModelScope(row scanner, scope id.Scope) (*modelRecord, error) {
 	r := modelRecord{Project: scope.Details().ProjectID}
 	var headers, caps []byte
 	var created, updated time.Time
-	e := row.Scan(&r.ID, &r.ProviderID, &r.Input.Name, &r.Input.ProviderModelID, &r.Input.Type, &r.Input.Enabled, &r.Input.Parameters, &r.Input.RequestOverwrite, &headers, &caps, &r.Version, &created, &updated)
+	e := row.Scan(&r.ID, &r.ProviderID, &r.Input.Notes, &r.Input.ProviderModelID, &r.Input.Type, &r.Input.Enabled, &r.Input.Parameters, &r.Input.RequestOverwrite, &headers, &caps, &r.Version, &created, &updated)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -262,17 +262,22 @@ type selectionRecord struct {
 	Version                             f.Version
 	Configured                          bool
 	Embedding, Summary, Reranker, Image string
+	SummaryReasoning                    mc.ReasoningChoice
 }
 
 func loadSelection(ctx context.Context, x postgres.SQLExecutor) (*selectionRecord, error) {
 	var r selectionRecord
 	var ids [4]*string
-	e := x.QueryRow(ctx, `SELECT id::text,version,configured,embedding_id::text,summary_id::text,reranker_id::text,image_id::text FROM agenteam_model.platform_selection WHERE singleton`).Scan(&r.ID, &r.Version, &r.Configured, &ids[0], &ids[1], &ids[2], &ids[3])
+	var reasoning []byte
+	e := x.QueryRow(ctx, `SELECT id::text,version,configured,embedding_id::text,summary_id::text,reranker_id::text,image_id::text,summary_reasoning FROM agenteam_model.platform_selection WHERE singleton`).Scan(&r.ID, &r.Version, &r.Configured, &ids[0], &ids[1], &ids[2], &ids[3], &reasoning)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return nil, fault(f.InvalidState)
 	}
 	if e != nil {
 		return nil, unavailable(e)
+	}
+	if json.Unmarshal(reasoning, &r.SummaryReasoning) != nil || r.SummaryReasoning.Validate() != nil {
+		return nil, unavailable(nil)
 	}
 	dest := []*string{&r.Embedding, &r.Summary, &r.Reranker, &r.Image}
 	for i, v := range ids {

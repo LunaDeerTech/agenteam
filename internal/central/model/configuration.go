@@ -136,6 +136,16 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			}
 			v := *old
 			v.Input = normalizedModel(*r.ModelInput)
+			refs, err := loadModelReferences(ctx, x, old.ID)
+			if err != nil {
+				return nil, err
+			}
+			for _, ref := range refs {
+				if err = compatibleReferencedReasoning(ref, old.Input, v.Input); err != nil {
+					return nil, err
+				}
+			}
+			plan.References = refs
 			v.Version = version
 			v.UpdatedAt = at
 			plan.AfterModel = &v
@@ -166,12 +176,12 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 		if e != nil {
 			return nil, e
 		}
-		v := selectionRecord{ID: old.ID, Version: version, Configured: true, Embedding: r.Selection.Embedding.String(), Summary: r.Selection.Summary.String()}
+		v := selectionRecord{ID: old.ID, Version: version, Configured: true, Embedding: r.Selection.Embedding.ModelID.String(), Summary: r.Selection.Summary.ModelID.String(), SummaryReasoning: r.Selection.Summary.Reasoning}
 		if r.Selection.Reranker != nil {
-			v.Reranker = r.Selection.Reranker.String()
+			v.Reranker = r.Selection.Reranker.ModelID.String()
 		}
 		if r.Selection.Image != nil {
-			v.Image = r.Selection.Image.String()
+			v.Image = r.Selection.Image.ModelID.String()
 		}
 		plan.AfterSelection = &v
 		plan.Changed = []string{"selection"}
@@ -293,7 +303,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
 			return fault(f.ResourceBusy)
 		}
 	}
-	if v.Kind == "model.delete" {
+	if v.Kind == "model.delete" || v.Kind == "model.update" {
 		refs, e := loadModelReferences(ctx, x, v.Resource)
 		if e != nil {
 			return e
@@ -341,19 +351,20 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
 		headers, _ := json.Marshal(r.Input.HeaderOverwrite)
 		caps, _ := json.Marshal(r.Input.Capabilities)
 		if v.BeforeModel == nil {
-			_, e := x.Exec(ctx, `INSERT INTO agenteam_model.models(id,provider_id,type,name,provider_model_id,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, r.ID, r.ProviderID, string(r.Input.Type), r.Input.Name, r.Input.ProviderModelID, r.Input.Enabled, []byte(r.Input.Parameters), []byte(r.Input.RequestOverwrite), headers, caps, int64(r.Version), r.CreatedAt.Time(), r.UpdatedAt.Time())
+			_, e := x.Exec(ctx, `INSERT INTO agenteam_model.models(id,provider_id,type,notes,provider_model_id,enabled,parameters,request_overwrite,header_overwrite,capabilities,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, r.ID, r.ProviderID, string(r.Input.Type), r.Input.Notes, r.Input.ProviderModelID, r.Input.Enabled, []byte(r.Input.Parameters), []byte(r.Input.RequestOverwrite), headers, caps, int64(r.Version), r.CreatedAt.Time(), r.UpdatedAt.Time())
 			if e != nil {
 				return unavailable(e)
 			}
 		} else {
-			_, e := x.Exec(ctx, `UPDATE agenteam_model.models SET name=$2,provider_model_id=$3,enabled=$4,parameters=$5,request_overwrite=$6,header_overwrite=$7,capabilities=$8,version=$9,updated_at=$10 WHERE id=$1`, r.ID, r.Input.Name, r.Input.ProviderModelID, r.Input.Enabled, []byte(r.Input.Parameters), []byte(r.Input.RequestOverwrite), headers, caps, int64(r.Version), r.UpdatedAt.Time())
+			_, e := x.Exec(ctx, `UPDATE agenteam_model.models SET notes=$2,provider_model_id=$3,enabled=$4,parameters=$5,request_overwrite=$6,header_overwrite=$7,capabilities=$8,version=$9,updated_at=$10 WHERE id=$1`, r.ID, r.Input.Notes, r.Input.ProviderModelID, r.Input.Enabled, []byte(r.Input.Parameters), []byte(r.Input.RequestOverwrite), headers, caps, int64(r.Version), r.UpdatedAt.Time())
 			if e != nil {
 				return unavailable(e)
 			}
 		}
 	}
 	if r := v.AfterSelection; r != nil {
-		_, e := x.Exec(ctx, `UPDATE agenteam_model.platform_selection SET version=$2,configured=$3,embedding_id=$4,summary_id=$5,reranker_id=$6,image_id=$7,updated_at=$8 WHERE id=$1`, r.ID, int64(r.Version), r.Configured, null(r.Embedding), null(r.Summary), null(r.Reranker), null(r.Image), v.At.Time())
+		reasoning, _ := json.Marshal(r.SummaryReasoning)
+		_, e := x.Exec(ctx, `UPDATE agenteam_model.platform_selection SET version=$2,configured=$3,embedding_id=$4,summary_id=$5,reranker_id=$6,image_id=$7,updated_at=$8,summary_reasoning=$9 WHERE id=$1`, r.ID, int64(r.Version), r.Configured, null(r.Embedding), null(r.Summary), null(r.Reranker), null(r.Image), v.At.Time(), reasoning)
 		if e != nil {
 			return unavailable(e)
 		}
@@ -361,7 +372,7 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
 			return unavailable(e)
 		}
 		for _, ref := range selectionReferences(r) {
-			if _, e = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,model_id,owner_version) VALUES('platform_selector',$1,$2,$3,$4)`, ref.Owner, ref.Role, ref.Model, int64(ref.Version)); e != nil {
+			if _, e = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,model_id,owner_version,reasoning_effort,reasoning_mode) VALUES('platform_selector',$1,$2,$3,$4,$5,$6)`, ref.Owner, ref.Role, ref.Model, int64(ref.Version), ref.Effort, ref.ReasoningMode); e != nil {
 				return unavailable(e)
 			}
 		}

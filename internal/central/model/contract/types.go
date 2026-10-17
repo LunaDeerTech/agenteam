@@ -318,6 +318,7 @@ type Capabilities struct {
 	ParallelToolCalls     bool              `json:"parallel_tool_calls"`
 	Streaming             bool              `json:"streaming"`
 	Reasoning             bool              `json:"reasoning"`
+	ReasoningToggleMode   *string           `json:"reasoning_toggle_mode"`
 	InputModalities       []string          `json:"input_modalities"`
 	OutputModalities      []string          `json:"output_modalities"`
 	ReasoningEfforts      []ReasoningEffort `json:"reasoning_efforts"`
@@ -327,7 +328,7 @@ type Capabilities struct {
 }
 
 func (c Capabilities) Validate() error {
-	if c.ParallelToolCalls && !c.ToolCalls || !c.Reasoning && len(c.ReasoningEfforts) > 0 || !unique(c.InputModalities, "text", "image", "file", "vector") || !unique(c.OutputModalities, "text", "image", "file", "vector") || !unique(c.StructuredOutputModes, "text", "json_schema") || !validReasoningEfforts(c.ReasoningEfforts) {
+	if c.ReasoningToggleMode != nil && (!c.Reasoning || len(c.ReasoningEfforts) != 0 || !one(*c.ReasoningToggleMode, "enable_thinking", "thinking_type")) || c.ParallelToolCalls && !c.ToolCalls || !c.Reasoning && len(c.ReasoningEfforts) > 0 || !unique(c.InputModalities, "text", "image", "file", "vector") || !unique(c.OutputModalities, "text", "image", "file", "vector") || !unique(c.StructuredOutputModes, "text", "json_schema") || !validReasoningEfforts(c.ReasoningEfforts) {
 		return bad()
 	}
 	for _, n := range []*TokenCount{c.ContextLength, c.MaxOutput} {
@@ -389,6 +390,7 @@ func (c Capabilities) Clone() Capabilities {
 	c.StructuredOutputModes = append([]string(nil), c.StructuredOutputModes...)
 	c.ContextLength = copyPtr(c.ContextLength)
 	c.MaxOutput = copyPtr(c.MaxOutput)
+	c.ReasoningToggleMode = copyPtr(c.ReasoningToggleMode)
 	return c
 }
 
@@ -405,7 +407,7 @@ type ModelIdentity struct {
 }
 
 func (m ModelIdentity) Validate() error {
-	if m.ProviderID.Validate() != nil || m.ModelID.Validate() != nil || !name(m.ProviderName, 128) || !name(m.ModelName, 128) || !text(m.ProviderModelID, 256) || !m.Protocol.Supports(m.ModelType) || m.Protocol == OpenAICompatible || m.Profile != m.Protocol.Profile() || !safeToken(m.AdapterRevision, 128) {
+	if m.ProviderID.Validate() != nil || m.ModelID.Validate() != nil || !name(m.ProviderName, 128) || !text(m.ModelName, 256) || !text(m.ProviderModelID, 256) || !m.Protocol.Supports(m.ModelType) || m.Protocol == OpenAICompatible || m.Profile != m.Protocol.Profile() || !safeToken(m.AdapterRevision, 128) {
 		return bad()
 	}
 	return nil
@@ -420,12 +422,13 @@ type ConfigSnapshot struct {
 	HeaderOverwrite  map[string]string `json:"header_overwrite"`
 	Capabilities     Capabilities      `json:"capabilities"`
 	ReasoningEffort  string            `json:"reasoning_effort,omitempty"`
+	ReasoningEnabled *bool             `json:"reasoning_enabled,omitempty"`
 	CredentialRef    *sc.CredentialRef `json:"credential_ref,omitempty"`
 	SelectionVersion *f.Version        `json:"selection_version,omitempty"`
 }
 
 func (s ConfigSnapshot) Validate() error {
-	if s.ID.Validate() != nil || s.Identity.Validate() != nil || !endpoint(s.Endpoint) || objectJSON(s.Parameters, 64<<10) != nil || overwrite(s.RequestOverwrite, s.HeaderOverwrite) != nil || s.Capabilities.Validate() != nil || s.ReasoningEffort != "" && (s.Identity.ModelType != ChatModel || !s.Capabilities.SupportsReasoningEffort(s.ReasoningEffort)) || s.CredentialRef != nil && s.CredentialRef.Validate() != nil || s.SelectionVersion != nil && s.SelectionVersion.Validate() != nil {
+	if s.ReasoningEnabled != nil && (s.ReasoningEffort != "" || s.Identity.ModelType != ChatModel || !s.Capabilities.Reasoning || s.Capabilities.ReasoningToggleMode == nil || len(s.Capabilities.ReasoningEfforts) != 0) || s.ID.Validate() != nil || s.Identity.Validate() != nil || !endpoint(s.Endpoint) || objectJSON(s.Parameters, 64<<10) != nil || overwrite(s.RequestOverwrite, s.HeaderOverwrite) != nil || s.Capabilities.Validate() != nil || s.ReasoningEffort != "" && (s.Identity.ModelType != ChatModel || !s.Capabilities.SupportsReasoningEffort(s.ReasoningEffort)) || s.CredentialRef != nil && s.CredentialRef.Validate() != nil || s.SelectionVersion != nil && s.SelectionVersion.Validate() != nil {
 		return bad()
 	}
 	return nil
@@ -437,6 +440,7 @@ func (s ConfigSnapshot) Clone() ConfigSnapshot {
 	s.Capabilities = s.Capabilities.Clone()
 	s.CredentialRef = copyPtr(s.CredentialRef)
 	s.SelectionVersion = copyPtr(s.SelectionVersion)
+	s.ReasoningEnabled = copyPtr(s.ReasoningEnabled)
 	return s
 }
 

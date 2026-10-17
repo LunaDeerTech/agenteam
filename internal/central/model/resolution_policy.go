@@ -21,6 +21,9 @@ func resolutionVariant(r mc.ResolveRequest) error {
 	if r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind == "project_summary" {
 		return fault(f.DependencyUnbound)
 	}
+	if r.Selection.Kind == "platform" && r.ReasoningEffort != "" {
+		return fault(f.InvalidArgument)
+	}
 	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.SummarySelector && r.Selection.Selector != mc.EmbeddingSelector) {
 		return fault(f.CapabilityUnsupported)
 	}
@@ -70,6 +73,7 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 		return servingResolutionDraft(ctx, x, r)
 	}
 	key := ""
+	var summaryReasoning *mc.ReasoningChoice
 	if r.Selection.Kind == "direct" {
 		key = r.ModelRef.String()
 	} else {
@@ -82,6 +86,9 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 		key = selection.Summary
 		if r.Selection.Selector == mc.EmbeddingSelector {
 			key = selection.Embedding
+		} else {
+			choice := selection.SummaryReasoning
+			summaryReasoning = &choice
 		}
 		if !selection.Configured || key == "" {
 			return d, fault(f.InvalidState)
@@ -119,10 +126,20 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 	d.Snapshot.RequestOverwrite = normalizedObject(m.Input.RequestOverwrite)
 	d.Snapshot.HeaderOverwrite = m.Input.Clone().HeaderOverwrite
 	d.Snapshot.Capabilities = m.Input.Capabilities.Clone()
-	if r.ReasoningEffort != "" && (m.Input.Type != mc.ChatModel || !m.Input.Capabilities.SupportsReasoningEffort(r.ReasoningEffort)) {
-		return d, fault(f.CapabilityUnsupported)
+	if summaryReasoning != nil {
+		if summaryReasoning.ValidateFor(m.Input) != nil {
+			return d, fault(f.CapabilityUnsupported)
+		}
+		if summaryReasoning.Mode == "effort" {
+			d.Snapshot.ReasoningEffort = summaryReasoning.Value
+		}
+		d.Snapshot.ReasoningEnabled = summaryReasoning.Enabled()
+	} else {
+		if r.ReasoningEffort != "" && (m.Input.Type != mc.ChatModel || !m.Input.Capabilities.SupportsReasoningEffort(r.ReasoningEffort)) {
+			return d, fault(f.CapabilityUnsupported)
+		}
+		d.Snapshot.ReasoningEffort = r.ReasoningEffort
 	}
-	d.Snapshot.ReasoningEffort = r.ReasoningEffort
 	d.Snapshot.CredentialID = p.Input.CredentialID
 	if p.Input.CredentialID != "" {
 		d.Snapshot.CredentialProject = p.Project
@@ -150,5 +167,5 @@ func modelWireIdentity(p *providerRecord, m *modelRecord) mc.ModelIdentity {
 	mid, _ := f.ParseID[mc.Model](m.ID)
 	pid, _ := f.ParseID[mc.Provider](p.ID)
 	protocol := p.Input.Protocol.EffectiveProtocol(m.Input.Type)
-	return mc.ModelIdentity{ProviderID: pid, ModelID: mid, ProviderName: p.Input.Name, ModelName: m.Input.Name, ProviderModelID: m.Input.ProviderModelID, Protocol: protocol, Profile: protocol.Profile(), ModelType: m.Input.Type}
+	return mc.ModelIdentity{ProviderID: pid, ModelID: mid, ProviderName: p.Input.Name, ModelName: m.Input.ProviderModelID, ProviderModelID: m.Input.ProviderModelID, Protocol: protocol, Profile: protocol.Profile(), ModelType: m.Input.Type}
 }
