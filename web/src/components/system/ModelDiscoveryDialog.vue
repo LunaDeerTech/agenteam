@@ -46,7 +46,7 @@ const drafts = reactive<Record<string, ModelDraft>>(Object.create(null));
 const configuring = ref(false);
 function configure() {
   for (const id of selected.value)
-    drafts[id] ??= modelDraft(props.provider.input.protocol);
+    drafts[id] ??= reactive(modelDraft(props.provider.input.protocol));
   configuring.value = true;
 }
 interface ImportItem {
