@@ -287,7 +287,9 @@ func TestMCPM3MediaCanonicalSupported(t *testing.T) {
 			if !v.runtime.Joined() || !v.assembly.Joined() || !v.root.owned.producersJoined() {
 				t.Fatal("mcp-stage=media-supported-join original owners not joined")
 			}
-			mcpM3CheckMediaCanonicalResult(t, v, execution, media, true, true)
+			// No readOriginal observer is installed: production acquires a source
+			// lease, not the observer's additional ordinary reader lease.
+			mcpM3CheckMediaCanonicalResult(t, v, execution, media, false, true)
 			mcpM3CheckSupportedMediaWire(t, v, network, scenario, execution, media)
 			t.Log("MCP_MEDIA supported=true actual_sdk=true canonical_object=true production_model_source=true successor_wire_bytes=true original_owners_joined=true")
 		})
@@ -552,7 +554,7 @@ func mcpM3CheckMediaCanonical(t *testing.T, v *executionSchedulerApp, execution 
 	mcpM3CheckMediaCanonicalResult(t, v, execution, media, readSource, false)
 }
 
-func mcpM3CheckMediaCanonicalResult(t *testing.T, v *executionSchedulerApp, execution id.ExecutionID, media mcpM3MediaCase, readSource, supported bool) {
+func mcpM3CheckMediaCanonicalResult(t *testing.T, v *executionSchedulerApp, execution id.ExecutionID, media mcpM3MediaCase, observerReadSource, supported bool) {
 	t.Helper()
 	var raw, transcript []byte
 	var reason, status string
@@ -612,7 +614,7 @@ func mcpM3CheckMediaCanonicalResult(t *testing.T, v *executionSchedulerApp, exec
 	mcpM3QueryCheck(t, "mcp-media-runtime-leases", v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(bool_and(retired),false) FROM agenteam_mcp.runtime_leases WHERE execution_id=$1`, execution.String()).Scan(&runtimeLeases, &retired))
 	mcpM3QueryCheck(t, "mcp-media-secret-leases", v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(bool_and(released),false) FROM agenteam_secret.secret_leases WHERE owner_kind='execution' AND owner_id=$1::uuid AND consumer='mcp'`, execution.String()).Scan(&secretLeases, &released))
 	wantReaders := 0
-	if readSource {
+	if observerReadSource {
 		wantReaders = 1
 	}
 	if operations != 1 || !success || references != 1 || writers != 1 || readers != wantReaders || active != 0 || runtimeLeases != 1 || !retired || secretLeases != 1 || !released {
@@ -620,9 +622,10 @@ func mcpM3CheckMediaCanonicalResult(t *testing.T, v *executionSchedulerApp, exec
 	}
 	if supported {
 		var sources int
-		mcpM3QueryCheck(t, "mcp-media-source-release", v.admin.QueryRow(v.ctx, `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source' AND state='released'`, object).Scan(&sources))
-		if sources != 1 {
-			t.Fatalf("mcp-stage=media-source-release released=%d", sources)
+		var originalSourceReleased bool
+		mcpM3QueryCheck(t, "mcp-media-source-release", v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(bool_and(state='released' AND released_at IS NOT NULL AND process_id=$2::uuid AND owner_id=id),false) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source'`, object, v.objects.process.String()).Scan(&sources, &originalSourceReleased))
+		if sources != 1 || !originalSourceReleased {
+			t.Fatalf("mcp-stage=media-source-release sources=%d original_released=%t", sources, originalSourceReleased)
 		}
 	}
 }

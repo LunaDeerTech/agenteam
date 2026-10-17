@@ -237,13 +237,18 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 		h.mu.Unlock()
 		return nil, unavailable(work.Err())
 	}
+	if !state.projectOwned() && h.originalValues == nil {
+		// Keep the admitted Open's outer values, never a transaction callback.
+		// A later stop may supply a different context while closing this reader.
+		h.originalValues = ctx
+	}
 	h.started = true
 	h.mu.Unlock()
 	// From this point the handle can never issue another GET, including after a
 	// transport failure. A new attempt requires a newly authorized lease.
 	release := func() error {
 		if !state.projectOwned() {
-			cleanup, cleanupDone := s.cleanupContext()
+			cleanup, cleanupDone := s.cleanupContextWithValues(ctx)
 			defer cleanupDone()
 			err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
 			cancel()
@@ -453,7 +458,11 @@ func (r *SourceReads) cancelLegacySourceLease(ctx context.Context, lease oc.Sour
 		// Register before the goroutine can race Drain's zero-work decision.
 		// Existing leases may converge after StopAdmission. After final Drain
 		// the cancelled context fences any new DB I/O, keeping the checkpoint.
-		cleanup, finished := s.cleanupContext()
+		original := h.originalValues
+		if original == nil { // No Open admitted: use this cancellation's outer values.
+			original = ctx
+		}
+		cleanup, finished := s.cleanupContextWithValues(original)
 		if cleanup.Err() != nil {
 			finished()
 			h.mu.Unlock()

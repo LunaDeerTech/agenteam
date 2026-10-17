@@ -8,9 +8,11 @@
 
 Lifecycle原case现已PASS 42.20s、App原Wait实际0，覆盖active Task附件省略保持/[]清空、冻结后继source、取消后无后续HTTP及最终reader/Model/Secret/App join。json_schema支持能力被误当实际schema请求、active Task合法更新被HTTP投影误拒的两处产品问题均已修复并验证；此前一次Task创建本地HTTP错误未复现且根因未明，保留原失败。
 
-最后验证仍未收齐：MCP supported已通过put/discover/acquire/consume与首model/tool，successor已授权但无provider第二次命中，权限/lease边界仍在诊断，原Wait/资源清理尚待。nullable DTO遗漏的先前fixture失败保留。真实App环境模型PNG+DOCX测试未启动。此前三次直接外部协议探针仅PNG成功，原生PDF两次400原因未知；不把这些探针或受控App结果写成外部供应商全格式支持。
+MCP supported仍未验收：原case耗尽5m17s Go预算、actual exit2，清理栈等待ProcessGuard Flock。SourceReads保留原私有执行context并使用独立清理预算的窄修已过5项定向单元和独立静审；修后Runtime/App正常join、无Forbidden或guard挂起，但旧observer reader计数断言与正式source路径不符，helper Fatal/Wait1，后置source==1与PNG wire尚未执行，不能称PASS。fixture已改为核对精确source数量、释放时间及process/owner，待唯一编译后原case复验。nullable DTO等旧fixture失败仍保留。
 
-已完成App批次均按owner清退；PG清理曾超过15秒失败，实际补清owned空网络后资源归零，原失败保留。Vue全部浏览器已关闭，自有5281核验后TERM，原launcher实际143、无进程/子进程/监听；仅删除无消费者的独占 `/tmp` 生产产物，私人浏览器profile无残留。共享依赖、正式harness、截图和失败证据保留；MCP在途App仍由独立owner管理，未宣称其已清退。12:51:57 UTC只读终核的严格本机TLS/release/livez200、nonce与hash通过，公开服务仍为b9d且原用户数据保持；单次18443公网请求curl60/HTTP000、未取得nonce，多模态未部署。
+真实App环境模型PNG+DOCX测试尚未启动，App环境模型操作为零、ledger无。此前三次直接外部协议探针仅PNG成功，原生PDF两次400原因未知；不把这些探针或受控App结果写成外部供应商全格式支持。
+
+已完成App批次按owner清退；保留PG清理15秒失败与MCP超时遗漏清理的事实，后续按精确nonce/id补清，4个nonce的容器、网络、owned临时目录和进程归零，6个部署/基础设施/外来基线资源未动。修后失败批次自动清退并独核归零。Vue全部浏览器已关闭，自有5281核验后TERM，原launcher实际143、无进程/子进程/监听；仅删除无消费者的独占 `/tmp` 生产产物，私人浏览器profile无残留。共享依赖、正式harness、截图和失败证据保留，下一次真实验证由独立owner管理。12:51:57 UTC只读终核的严格本机TLS/release/livez200、nonce与hash通过，公开服务仍为b9d且原用户数据保持；单次18443公网请求curl60/HTTP000、未取得nonce，多模态未部署。
 
 [桌面回答](https://img.lunadeer.cn/i/2026/10/17/6ad361ade9674.png)、[窄屏附件](https://img.lunadeer.cn/i/2026/10/17/6ad361ce9fdec.png)、[未知结果恢复](https://img.lunadeer.cn/i/2026/10/17/6ad361cdaa16d.png)均为合成数据，作者和独审已实看，图床匿名下载 HTTP 200 且字节一致。
 
