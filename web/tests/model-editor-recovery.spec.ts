@@ -203,7 +203,7 @@ afterEach(() => {
 });
 
 describe("confirmed model editor recovery", () => {
-  let editor: VueWrapper;
+  let editor: Pick<VueWrapper, "emitted">;
   beforeEach(async () => {
     const Editor = (
       await import("../src/components/system/ModelEditorDialog.vue")
