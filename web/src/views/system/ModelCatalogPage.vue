@@ -14,13 +14,17 @@ import {
 import { useCursorList } from "../../system/useCursorList";
 import { useSystemAccess } from "../../system/requests";
 const access = useSystemAccess();
+const page = ref<HTMLElement>();
+const scrollContainer = () =>
+  page.value?.closest<HTMLElement>(".settings-main");
 const returned = consumeCatalog();
 const list = useCursorList(listProviders, { immediate: !returned });
 onMounted(async () => {
   if (!returned) return;
   await list.restore(returned.position);
   await nextTick();
-  window.scrollTo({ top: returned.scroll });
+  const container = scrollContainer();
+  if (container) container.scrollTop = returned.scroll;
   document
     .getElementById(`provider-${returned.focusId}`)
     ?.focus({ preventScroll: true });
@@ -28,11 +32,11 @@ onMounted(async () => {
 const listView = ref<{ refresh: () => Promise<void> }>();
 const adding = ref(false);
 function remember(id: string) {
-  rememberCatalog(list.position(), id, window.scrollY);
+  rememberCatalog(list.position(), id, scrollContainer()?.scrollTop ?? 0);
 }
 </script>
 <template>
-  <div>
+  <div ref="page">
     <SettingsPageActions
       ><UiButton
         :disabled="!accountEnabled || !access.allowed.value"

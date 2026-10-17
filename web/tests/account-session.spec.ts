@@ -216,6 +216,34 @@ describe("confirmed account commands", () => {
 });
 
 describe("account command ownership and recovery", () => {
+  it("captures the validity callback without consulting the caller options again", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(json(identity()));
+    vi.stubGlobal("fetch", fetcher);
+    const { refreshSession, sessionCommand } =
+      await import("../src/account/session");
+    await refreshSession();
+    let ownerAlive = true;
+    const options = {
+      method: "PUT" as const,
+      body: JSON.stringify({ version: "7", theme: "light" }),
+      current: () => ownerAlive,
+    };
+    const command = sessionCommand("/me/preferences", options, accepted);
+    Object.defineProperty(options, "current", {
+      get() {
+        throw new Error("caller options must no longer be consulted");
+      },
+    });
+    expect(command.active).toBe(true);
+    ownerAlive = false;
+    expect(command.active).toBe(false);
+    await expect(command.run()).rejects.toMatchObject({
+      code: "STALE_REQUEST",
+    });
+    expect(fetcher).toHaveBeenCalledOnce();
+    command.release();
+  });
+
   it("keeps the original key, body, version and CSRF for an explicit unknown-result retry", async () => {
     const fetcher = vi
       .fn()

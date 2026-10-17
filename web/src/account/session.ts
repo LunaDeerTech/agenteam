@@ -292,8 +292,9 @@ export function sessionCommand<T>(
 ): AccountCommand<T> {
   const context = authenticatedContext();
   const identityCurrent = context.current;
+  const requestedCurrent = options.current;
   context.current = () =>
-    identityCurrent() && (!options.current || options.current());
+    identityCurrent() && (!requestedCurrent || requestedCurrent());
   return command(
     path,
     options,

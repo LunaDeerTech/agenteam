@@ -34,6 +34,7 @@ const baseUrl = ref("");
 const enabled = ref(true);
 const options = ref("{}");
 const credential = ref("");
+const credentialNeedsReentry = ref(false);
 const detachCredential = ref(false);
 const credentialSaved = shallowRef<CredentialReceipt>();
 const credentialMetadata = shallowRef<CredentialMetadata>();
@@ -81,9 +82,17 @@ const conflict = computed(
 );
 const secretConflict = computed(
   () =>
+    !secretWrite.uncertain.value &&
     secretWrite.error.value instanceof AccountError &&
-    secretWrite.error.value.code === "VERSION_CONFLICT",
+    secretWrite.error.value.code === "VERSION_CONFLICT" &&
+    ["not_started", "not_committed"].includes(
+      secretWrite.error.value.commitState,
+    ),
 );
+watch([secretConflict, secretWrite.uncertain], ([conflicted, uncertain]) => {
+  if (conflicted || uncertain) credential.value = "";
+  if (conflicted) credentialNeedsReentry.value = true;
+});
 async function readLatestCredential() {
   if (locked.value || !baseline.value?.input.credential_ref) return;
   const token = revision;
@@ -107,6 +116,7 @@ async function readLatestCredential() {
 function clear() {
   revision++;
   credential.value = "";
+  credentialNeedsReentry.value = false;
   detachCredential.value = false;
   credentialSaved.value = undefined;
   credentialMetadata.value = undefined;
@@ -364,11 +374,15 @@ onBeforeUnmount(() => {
           label="API 凭据（可选）"
           type="password"
           autocomplete="new-password"
-          :disabled="!!credentialSaved || detachCredential"
+          :disabled="!!credentialSaved || detachCredential || secretConflict"
           :hint="
-            baseline?.input.credential_ref
-              ? '留空保留已保存凭据。'
-              : '凭据仅写入，不回显。'
+            secretConflict
+              ? '凭据未更新。读取最新版本后，请重新填写。'
+              : credentialNeedsReentry
+                ? '请重新填写要替换的凭据；留空保留已保存凭据。'
+                : baseline?.input.credential_ref
+                  ? '留空保留已保存凭据。'
+                  : '凭据仅写入，不回显。'
           "
         />
         <label

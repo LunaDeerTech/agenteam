@@ -131,38 +131,127 @@ it("does not create a confirmed credential again when provider association confl
   expect(wrapper.text()).toContain("供应商已保存");
 });
 
-it("requires an explicit metadata refresh after a credential version conflict", async () => {
-  let metadataReads = 0;
-  const secretVersions: string[] = [];
+it.each(["not_started", "not_committed"])(
+  "requires an explicit metadata refresh after a %s credential version conflict",
+  async (commitState) => {
+    let metadataReads = 0;
+    const secretVersions: string[] = [];
+    let providerWrites = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit) => {
+        if (url.endsWith("/session")) return json(identity);
+        if (
+          url.endsWith(`/model-credentials/${id(3)}`) &&
+          init.method === "GET"
+        ) {
+          metadataReads++;
+          return json({
+            credential_id: id(3),
+            purpose: "model",
+            version: metadataReads === 1 ? "2" : "3",
+          });
+        }
+        if (url.endsWith(`/model-credentials/${id(3)}`)) {
+          secretVersions.push(JSON.parse(String(init.body)).expected_version);
+          if (secretVersions.length === 1)
+            return json(
+              { code: "VERSION_CONFLICT", commit_state: commitState },
+              409,
+            );
+          return json({
+            credential_id: id(3),
+            purpose: "model",
+            version: "4",
+            deleted: false,
+          });
+        }
+        if (init.method === "PUT") {
+          providerWrites++;
+          return json({
+            kind: "provider.update",
+            resource_id: id(2),
+            version: "3",
+            affected_references: "0",
+          });
+        }
+        return json({ ...provider, version: "3" });
+      }),
+    );
+    await (await import("../src/account/session")).useSession().refresh();
+    const Dialog = (
+      await import("../src/components/system/ProviderEditorDialog.vue")
+    ).default;
+    const Input = (await import("../src/components/ui/UiInput.vue")).default;
+    const wrapper = mount(Dialog, {
+      props: { open: true, provider },
+      global: { stubs: { UiDialog: { template: "<div><slot /></div>" } } },
+    });
+    dispose = () => wrapper.unmount();
+    const secretInput = wrapper
+      .findAllComponents(Input)
+      .find((c) => c.props("label") === "API 凭据（可选）")!
+      .get("input");
+    const nameInput = wrapper
+      .findAllComponents(Input)
+      .find((c) => c.props("label") === "供应商名称")!
+      .get("input");
+    await nameInput.setValue("Preserved non-secret draft");
+    await secretInput.setValue("synthetic-not-a-real-secret");
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+    expect(secretVersions).toEqual(["2"]);
+    expect(providerWrites).toBe(0);
+    expect(secretInput.element.value).toBe("");
+    expect(secretInput.element.disabled).toBe(true);
+    expect(nameInput.element.value).toBe("Preserved non-secret draft");
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+    expect(secretVersions).toEqual(["2"]);
+    expect(metadataReads).toBe(1);
+    const refresh = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "读取凭据最新版本");
+    expect(refresh).toBeDefined();
+    await refresh!.trigger("click");
+    await flushPromises();
+    expect(metadataReads).toBe(2);
+    expect(secretInput.element.value).toBe("");
+    expect(secretInput.element.disabled).toBe(false);
+    await secretInput.setValue("synthetic-reentered-secret");
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+    expect(secretVersions).toEqual(["2", "3"]);
+    expect(providerWrites).toBe(1);
+    expect(metadataReads).toBe(2);
+  },
+);
+
+it("clears the secret field while an unknown write retains its original body for explicit recovery", async () => {
+  const writes: { body: unknown; key: string | null }[] = [];
   let providerWrites = 0;
+  const receipt = {
+    credential_id: id(3),
+    purpose: "model",
+    version: "3",
+    deleted: false,
+  };
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init: RequestInit) => {
       if (url.endsWith("/session")) return json(identity);
-      if (
-        url.endsWith(`/model-credentials/${id(3)}`) &&
-        init.method === "GET"
-      ) {
-        metadataReads++;
-        return json({
-          credential_id: id(3),
-          purpose: "model",
-          version: metadataReads === 1 ? "2" : "3",
-        });
-      }
+      if (url.endsWith("/model-credential-commands/lookup"))
+        return json({ observed: true, result: receipt });
       if (url.endsWith(`/model-credentials/${id(3)}`)) {
-        secretVersions.push(JSON.parse(String(init.body)).expected_version);
-        if (secretVersions.length === 1)
-          return json(
-            { code: "VERSION_CONFLICT", commit_state: "not_committed" },
-            409,
-          );
-        return json({
-          credential_id: id(3),
-          purpose: "model",
-          version: "4",
-          deleted: false,
+        if (init.method === "GET")
+          return json({ credential_id: id(3), purpose: "model", version: "2" });
+        writes.push({
+          body: init.body,
+          key: new Headers(init.headers).get("Idempotency-Key"),
         });
+        if (writes.length === 1)
+          throw new TypeError("controlled lost response");
+        return json(receipt);
       }
       if (init.method === "PUT") {
         providerWrites++;
@@ -186,29 +275,34 @@ it("requires an explicit metadata refresh after a credential version conflict", 
     global: { stubs: { UiDialog: { template: "<div><slot /></div>" } } },
   });
   dispose = () => wrapper.unmount();
-  await wrapper
+  const secretInput = wrapper
     .findAllComponents(Input)
     .find((c) => c.props("label") === "API 凭据（可选）")!
-    .get("input")
-    .setValue("synthetic-not-a-real-secret");
+    .get("input");
+  await secretInput.setValue("synthetic-original-secret");
   await wrapper.get("form").trigger("submit");
   await flushPromises();
-  expect(secretVersions).toEqual(["2"]);
-  expect(providerWrites).toBe(0);
-  await wrapper.get("form").trigger("submit");
-  await flushPromises();
-  expect(secretVersions).toEqual(["2"]);
-  expect(metadataReads).toBe(1);
-  const refresh = wrapper
+  expect(secretInput.element.value).toBe("");
+  expect(wrapper.text()).toContain("原操作结果尚未确认");
+  await wrapper
     .findAll("button")
-    .find((b) => b.text() === "读取凭据最新版本");
-  expect(refresh).toBeDefined();
-  await refresh!.trigger("click");
+    .find((b) => b.text() === "查询原操作")!
+    .trigger("click");
   await flushPromises();
-  expect(metadataReads).toBe(2);
-  await wrapper.get("form").trigger("submit");
+  expect(wrapper.text()).toContain("已找到历史回执");
+  expect(writes).toHaveLength(1);
+  expect(providerWrites).toBe(0);
+  await wrapper
+    .findAll("button")
+    .find((b) => b.text() === "确认原请求")!
+    .trigger("click");
   await flushPromises();
-  expect(secretVersions).toEqual(["2", "3"]);
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toEqual(writes[0]);
+  expect(JSON.parse(String(writes[1]!.body))).toEqual({
+    expected_version: "2",
+    value: "synthetic-original-secret",
+  });
   expect(providerWrites).toBe(1);
-  expect(metadataReads).toBe(2);
+  expect(wrapper.text()).toContain("供应商已保存");
 });
