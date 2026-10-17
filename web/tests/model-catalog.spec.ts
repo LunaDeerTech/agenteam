@@ -1,7 +1,8 @@
 import { Blob as NodeBlob } from "node:buffer";
 import { mount } from "@vue/test-utils";
 import { h } from "vue";
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { CatalogModel, Provider } from "../src/system/model-catalog";
 const id = "019a2222-2222-7222-8222-222222222222";
 const session = {
   user: {
@@ -263,6 +264,266 @@ it("aborts only the bounded model operation and replays its original identity wi
   ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
   expect(requests).toHaveLength(2);
 });
+
+describe("model operation budgets", () => {
+  const modelId = "019a4444-4444-7444-8444-444444444444";
+  const createdAt = "2026-10-17T01:00:00.000000Z";
+  const provider: Provider = {
+    id,
+    version: "2",
+    input: {
+      name: "Budget Provider",
+      protocol: "openai-compatible",
+      base_url: "https://owned.invalid/v1",
+      enabled: true,
+      credential_ref: null,
+      options: {},
+    },
+    created_at: createdAt,
+    updated_at: createdAt,
+  };
+  const model = (type: "chat" | "image_generation"): CatalogModel => ({
+    id: modelId,
+    provider_id: id,
+    version: "3",
+    input: {
+      name: "Budget Model",
+      provider_model_id: "budget-model",
+      type,
+      enabled: true,
+      parameters: {},
+      request_overwrite: {},
+      header_overwrite: {},
+      capabilities: {
+        input_modalities: ["text"],
+        output_modalities: [type === "chat" ? "text" : "image"],
+        tool_calls: false,
+        parallel_tool_calls: false,
+        streaming: false,
+        reasoning: false,
+        reasoning_efforts: [],
+        structured_output_modes: type === "chat" ? ["text"] : [],
+        context_length: null,
+        max_output: null,
+      },
+    },
+    created_at: createdAt,
+    updated_at: createdAt,
+  });
+  const result = (duration_ms: number) => ({
+    operation_id: "019a3333-3333-7333-8333-333333333333",
+    provider_id: id,
+    provider_version: "2",
+    outcome: "succeeded" as const,
+    reason: null,
+    duration_ms,
+    created_at: createdAt,
+  });
+  const testResult = (duration: number) => ({
+    ...result(duration),
+    model_id: modelId,
+    model_version: "3",
+  });
+  type Request = {
+    path: string;
+    key: string | null;
+    body: RequestInit["body"];
+    signal: AbortSignal;
+  };
+  let requests: Request[];
+  let respond: (request: Request) => Promise<Response>;
+  let started: (() => void) | undefined;
+  const nextRequest = () =>
+    new Promise<void>((resolve) => {
+      started = resolve;
+    });
+  let operations: typeof import("../src/system/model-operations");
+  let accountRequest: (typeof import("../src/account/transport"))["accountRequest"];
+  let owners: { release: () => void }[];
+
+  beforeEach(async () => {
+    requests = [];
+    owners = [];
+    started = undefined;
+    respond = (request) =>
+      new Promise<Response>((_resolve, reject) => {
+        request.signal.addEventListener(
+          "abort",
+          () => reject(new DOMException("Aborted", "AbortError")),
+          { once: true },
+        );
+      });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit = {}) => {
+        if (url.endsWith("/session")) return json(session);
+        const request = {
+          path: url,
+          key: new Headers(init.headers).get("Idempotency-Key"),
+          body: init.body,
+          signal: init.signal!,
+        };
+        requests.push(request);
+        started?.();
+        started = undefined;
+        return respond(request);
+      }),
+    );
+    await (await import("../src/account/session")).useSession().refresh();
+    operations = await import("../src/system/model-operations");
+    accountRequest = (await import("../src/account/transport")).accountRequest;
+  });
+  afterEach(() => {
+    for (const owner of owners) owner.release();
+    vi.useRealTimers();
+  });
+
+  it("waits 130 seconds for image tests and recovers with the same body and key after an unknown timeout", async () => {
+    const command = operations.modelTestCommand(
+      provider,
+      model("image_generation"),
+    );
+    owners.push(command);
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    const requestStarted = nextRequest();
+    let settled = false;
+    const first = command.run().then(
+      (value) => {
+        settled = true;
+        return value;
+      },
+      (error: unknown) => {
+        settled = true;
+        return error;
+      },
+    );
+    await requestStarted;
+    for (const elapsed of [30000, 95000, 4999]) {
+      await vi.advanceTimersByTimeAsync(elapsed);
+      expect(settled).toBe(false);
+      expect(requests).toHaveLength(1);
+      expect(requests[0]!.signal.aborted).toBe(false);
+    }
+    await vi.advanceTimersByTimeAsync(1);
+    expect(await first).toMatchObject({
+      code: "NETWORK_ERROR",
+      commitState: "unknown",
+    });
+    expect(command.confirmed).toBe(false);
+    expect(command.active).toBe(true);
+    expect(requests[0]!.signal.aborted).toBe(true);
+
+    respond = async () => json(testResult(120000));
+    await expect(command.run()).resolves.toMatchObject({
+      outcome: "succeeded",
+      duration_ms: 120000,
+    });
+    expect(command.confirmed).toBe(true);
+    expect(requests).toHaveLength(2);
+    expect(requests[1]!.path).toBe(`/api/v1/system/models/${modelId}/test`);
+    expect(requests[1]!.key).toBe(requests[0]!.key);
+    expect(requests[1]!.body).toBe(requests[0]!.body);
+    expect(JSON.parse(String(requests[1]!.body))).toEqual({
+      expected_version: "3",
+      provider_version: "2",
+    });
+    expect(requests[1]!.signal).not.toBe(requests[0]!.signal);
+    expect(requests[1]!.signal.aborted).toBe(false);
+  });
+
+  it("keeps non-image tests and discovery at 30 seconds and ordinary reads at 20 seconds", async () => {
+    const test = operations.modelTestCommand(provider, model("chat"));
+    const discovery = operations.discoveryCommand(provider);
+    owners.push(test, discovery);
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    for (const request of [
+      { run: () => test.run(), budget: 30000, commitState: "unknown" },
+      { run: () => discovery.run(), budget: 30000, commitState: "unknown" },
+      {
+        run: () => accountRequest("/me"),
+        budget: 20000,
+        commitState: "not_committed",
+      },
+    ]) {
+      const requestStarted = nextRequest();
+      let settled = false;
+      const pending = request.run().then(
+        (value) => {
+          settled = true;
+          return value;
+        },
+        (error: unknown) => {
+          settled = true;
+          return error;
+        },
+      );
+      await requestStarted;
+      await vi.advanceTimersByTimeAsync(request.budget - 1);
+      expect(settled).toBe(false);
+      expect(requests.at(-1)!.signal.aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(await pending).toMatchObject({
+        code: "NETWORK_ERROR",
+        commitState: request.commitState,
+      });
+      expect(requests.at(-1)!.signal.aborted).toBe(true);
+    }
+    expect(requests).toHaveLength(3);
+  });
+
+  it("bounds discovery receipts at 20 seconds and test receipts by their model type", async () => {
+    expect(operations.isDiscoveryResult({ ...result(20000), items: [] })).toBe(
+      true,
+    );
+    expect(operations.isDiscoveryResult({ ...result(20001), items: [] })).toBe(
+      false,
+    );
+    expect(operations.isTestResult(testResult(120000))).toBe(true);
+    expect(operations.isTestResult(testResult(120001))).toBe(false);
+    respond = async () => json(testResult(20001));
+    const command = operations.modelTestCommand(provider, model("chat"));
+    owners.push(command);
+    await expect(command.run()).rejects.toMatchObject({
+      code: "INVALID_RESPONSE",
+      commitState: "unknown",
+    });
+    expect(command.confirmed).toBe(false);
+    respond = async () => json(testResult(20000));
+    await expect(command.run()).resolves.toMatchObject({ duration_ms: 20000 });
+    expect(requests[1]!.key).toBe(requests[0]!.key);
+  });
+
+  it("rejects an extended budget outside the exact POST model test with a cancellation owner", async () => {
+    const options = {
+      method: "POST" as const,
+      modelOperationSignal: () => new AbortController().signal,
+      modelOperationTimeoutMs: 130000 as const,
+    };
+    for (const path of [
+      "/me",
+      `/system/model-providers/${id}/discovery`,
+      "/system/models/not-a-uuid/test",
+      `/system/models/${modelId}/test/extra`,
+    ])
+      await expect(accountRequest(path, options)).rejects.toMatchObject({
+        code: "INVALID_REQUEST",
+      });
+    await expect(
+      accountRequest(`/system/models/${modelId}/test`, {
+        ...options,
+        method: "GET",
+      }),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+    await expect(
+      accountRequest(`/system/models/${modelId}/test`, {
+        method: "POST",
+        modelOperationTimeoutMs: 130000,
+      }),
+    ).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+    expect(requests).toHaveLength(0);
+  });
+});
+
 it("adds only mandatory chat text capabilities and rejects inconsistent explicit capabilities", async () => {
   const { modelDraft, modelDraftInput } =
     await import("../src/system/model-draft");
