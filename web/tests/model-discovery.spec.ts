@@ -137,7 +137,7 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
     await flushPromises();
     await type.trigger("keydown", { key: "Enter" });
     await flushPromises();
-    expect(type.text()).toBe("对话");
+    expect(type.text()).toBe("对话（Chat）");
     const input = field
       .findAll("fieldset")
       .find((group) => group.find("legend").text() === "输入模态")!;

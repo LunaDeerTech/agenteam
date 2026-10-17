@@ -261,7 +261,7 @@ describe("platform model selections", () => {
     ).toEqual([
       "选择嵌入模型（Embedding）",
       "选择总结模型（Chat）",
-      "选择重排模型（Rerank）",
+      "选择重排模型（ReRank）",
       "选择图像生成模型（Image Generation）",
     ]);
     expect(view.text()).toMatch(/Vector Provider\s*\/\s*upstream-10/);

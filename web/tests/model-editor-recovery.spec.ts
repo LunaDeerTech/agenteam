@@ -237,7 +237,7 @@ describe("confirmed model editor recovery", () => {
     expect(document.querySelector('[role="listbox"]')).toBeNull();
     const label = wrapper!
       .findAll("label")
-      .find((item) => item.text() === "模型名称")!;
+      .find((item) => item.text() === "备注")!;
     await wrapper!
       .get(`input[id="${label.attributes("for")}"]`)
       .setValue("Saved Model");

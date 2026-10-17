@@ -83,8 +83,8 @@ async function fillChatSettings() {
   await field("等级名称 1").setValue("深入");
   await field("等级值 1").setValue("high");
   await wrapper!.get("summary").trigger("click");
-  await field("上下文长度（可选）").setValue("128000");
-  await field("最大输出（可选）").setValue("4096");
+  await field("上下文窗口（tokens，可选）").setValue("128000");
+  await field("最大输出（tokens，可选）").setValue("4096");
 }
 const serialize = () => modelDraftInput(draft, "openai-compatible");
 
@@ -202,7 +202,7 @@ it("adds and removes explicit reasoning levels, restores saved input, and never 
 
 it("switches new models to fixed embedding capabilities without leaking chat settings", async () => {
   await fillChatSettings();
-  await selectType("嵌入");
+  await selectType("嵌入（Embedding）");
   for (const text of [
     "图像",
     "文件",
@@ -211,7 +211,7 @@ it("switches new models to fixed embedding capabilities without leaking chat set
     "流式输出",
     "支持思考",
     "支持结构化输出（JSON Schema）",
-    "最大输出（可选）",
+    "最大输出（tokens，可选）",
   ])
     expect(wrapper!.findAll("label").some((item) => item.text() === text)).toBe(
       false,
@@ -238,14 +238,14 @@ it("switches new models to fixed embedding capabilities without leaking chat set
 it.each([
   {
     type: "reranker",
-    label: "重排",
+    label: "重排（ReRank）",
     inputLabel: "查询与文档",
     outputLabel: "排序结果",
     output: [],
   },
   {
     type: "image_generation",
-    label: "图像生成",
+    label: "图像生成（Image Generation）",
     inputLabel: "文本",
     outputLabel: "图像",
     output: ["image"],
@@ -263,8 +263,8 @@ it.each([
       "流式输出",
       "支持思考",
       "支持结构化输出（JSON Schema）",
-      "上下文长度（可选）",
-      "最大输出（可选）",
+      "上下文窗口（tokens，可选）",
+      "最大输出（tokens，可选）",
     ])
       expect(
         wrapper!.findAll("label").some((item) => item.text() === text),
