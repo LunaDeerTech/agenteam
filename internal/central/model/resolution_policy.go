@@ -24,9 +24,6 @@ func resolutionVariant(r mc.ResolveRequest) error {
 	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.SummarySelector && r.Selection.Selector != mc.EmbeddingSelector) {
 		return fault(f.CapabilityUnsupported)
 	}
-	if r.ReasoningEffort != "" {
-		return fault(f.CapabilityUnsupported)
-	}
 	return nil
 }
 func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.SelectionRef) (string, error) {
@@ -34,13 +31,16 @@ func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selection
 		return "", fault(f.InvalidState)
 	}
 	c := m.Input.Capabilities
+	if c.Validate() != nil {
+		return "", fault(f.CapabilityUnsupported)
+	}
 	if selection.Kind == "platform" && selection.Selector == mc.EmbeddingSelector {
 		if p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIEmbeddings || m.Input.Type != mc.EmbeddingModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"vector"}) {
 			return "", fault(f.CapabilityUnsupported)
 		}
 		return adapter.OpenAIEmbeddingsFloatUsageRevision, nil
 	}
-	if p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"text"}) {
+	if p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !slices.Equal(c.OutputModalities, []string{"text"}) {
 		return "", fault(f.CapabilityUnsupported)
 	}
 	if slices.Contains(c.StructuredOutputModes, "json_schema") {
@@ -119,6 +119,10 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 	d.Snapshot.RequestOverwrite = normalizedObject(m.Input.RequestOverwrite)
 	d.Snapshot.HeaderOverwrite = m.Input.Clone().HeaderOverwrite
 	d.Snapshot.Capabilities = m.Input.Capabilities.Clone()
+	if r.ReasoningEffort != "" && (m.Input.Type != mc.ChatModel || !m.Input.Capabilities.SupportsReasoningEffort(r.ReasoningEffort)) {
+		return d, fault(f.CapabilityUnsupported)
+	}
+	d.Snapshot.ReasoningEffort = r.ReasoningEffort
 	d.Snapshot.CredentialID = p.Input.CredentialID
 	if p.Input.CredentialID != "" {
 		d.Snapshot.CredentialProject = p.Project

@@ -16,7 +16,7 @@ func prepareRuntimeToolInput(ctx context.Context, request mc.ModelRequest, mode 
 		return mc.ModelRequest{}, fault(f.InvalidArgument)
 	}
 	s, c := request.Model.Snapshot, request.Model.Snapshot.Capabilities
-	if mode != wire.JSONResponse || !runtimeSupportedOwner(request) || request.RetryClass != mc.AgentRetry || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !runtimeOnlyText(c.InputModalities) || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || s.CredentialRef == nil || request.Model.CredentialLease == nil {
+	if mode != wire.JSONResponse || !runtimeSupportedOwner(request) || request.RetryClass != mc.AgentRetry || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || s.CredentialRef == nil || request.Model.CredentialLease == nil {
 		return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
 	}
 	// This profile consumes text tool results. Preserve canonical media parts

@@ -194,7 +194,7 @@ func TestDirectTextRequestProjectsCapturedSources(t *testing.T) {
 }
 
 func TestDirectTextRequestRejectsUnsupportedProfiles(t *testing.T) {
-	for _, mode := range []string{"tools", "effort", "tool-capability", "reasoning", "parameters", "request-overwrite", "header-overwrite", "image-input", "structured-output", "adapter", "no-credential"} {
+	for _, mode := range []string{"tools", "effort", "tool-capability", "parameters", "request-overwrite", "header-overwrite", "image-input", "structured-output", "adapter", "no-credential"} {
 		fields := requestFields(t, "task/work")
 		s := &fields.Model.Snapshot
 		switch mode {
@@ -214,9 +214,6 @@ func TestDirectTextRequestRejectsUnsupportedProfiles(t *testing.T) {
 			requestOK(t, err)
 		case "tool-capability":
 			s.Capabilities.ToolCalls = true
-		case "reasoning":
-			s.Capabilities.Reasoning = true
-			s.Capabilities.ReasoningEfforts = []string{"high"}
 		case "parameters":
 			s.Parameters = json.RawMessage(`{"temperature":1}`)
 		case "request-overwrite":
@@ -224,7 +221,7 @@ func TestDirectTextRequestRejectsUnsupportedProfiles(t *testing.T) {
 		case "header-overwrite":
 			s.HeaderOverwrite = map[string]string{"X-Custom": "value"}
 		case "image-input":
-			s.Capabilities.InputModalities = []string{"text", "image"}
+			s.Capabilities.InputModalities = []string{"image"}
 		case "structured-output":
 			s.Capabilities.StructuredOutputModes = []string{"json_schema"}
 		case "adapter":
@@ -239,6 +236,34 @@ func TestDirectTextRequestRejectsUnsupportedProfiles(t *testing.T) {
 		var fault *f.Fault
 		if !errors.As(err, &fault) || fault.Code != f.CapabilityUnsupported || out.Validate() == nil {
 			t.Fatal("unsupported input was adapted silently", mode, err)
+		}
+	}
+}
+
+func TestDirectTextRequestRetainsReasoningChoiceAndAcceptsDeclaredMedia(t *testing.T) {
+	for _, selected := range []string{"", "vendor:deep"} {
+		fields := requestFields(t, "task/work")
+		fields.Model.Snapshot.Capabilities.InputModalities = []string{"text", "image", "file"}
+		fields.Model.Snapshot.Capabilities.Reasoning = true
+		fields.Model.Snapshot.Capabilities.ReasoningEfforts = []mc.ReasoningEffort{{Name: "Careful", Value: "vendor:deep"}}
+		fields.Model.Snapshot.ReasoningEffort = selected
+		if selected != "" {
+			agent := fields.Agent.Fields()
+			agent.Core.ReasoningEffort = &selected
+			var err error
+			fields.Agent, err = ac.NewAgentConfig(agent)
+			requestOK(t, err)
+		}
+		request := requestCandidate(t, requestContext(t, fields)).Request()
+		if request.Model.Snapshot.ReasoningEffort != selected {
+			t.Fatal("captured Agent choice changed")
+		}
+		for _, message := range request.Messages {
+			for _, part := range message.Parts {
+				if part.Text == nil {
+					t.Fatal("capability declaration synthesized media")
+				}
+			}
 		}
 	}
 }

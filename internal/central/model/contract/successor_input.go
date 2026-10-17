@@ -281,6 +281,7 @@ type successorModelSnapshotWire struct {
 	RequestOverwrite json.RawMessage             `json:"request_overwrite"`
 	HeaderOverwrite  map[string]string           `json:"header_overwrite"`
 	Capabilities     Capabilities                `json:"capabilities"`
+	ReasoningEffort  string                      `json:"reasoning_effort,omitempty"`
 	CredentialRef    *successorCredentialRefWire `json:"credential_ref"`
 	SelectionVersion *f.Version                  `json:"selection_version"`
 }
@@ -293,7 +294,7 @@ type successorResolvedModelWire struct {
 
 func successorModelWire(m ResolvedModel) successorResolvedModelWire {
 	s := m.Snapshot
-	w := successorResolvedModelWire{Snapshot: successorModelSnapshotWire{ID: s.ID, Identity: s.Identity, Endpoint: s.Endpoint, Parameters: s.Parameters, RequestOverwrite: s.RequestOverwrite, HeaderOverwrite: s.HeaderOverwrite, Capabilities: s.Capabilities, SelectionVersion: s.SelectionVersion}, Consumer: m.Consumer, LeaseOwner: m.LeaseOwner.Details()}
+	w := successorResolvedModelWire{Snapshot: successorModelSnapshotWire{ID: s.ID, Identity: s.Identity, Endpoint: s.Endpoint, Parameters: s.Parameters, RequestOverwrite: s.RequestOverwrite, HeaderOverwrite: s.HeaderOverwrite, Capabilities: s.Capabilities, ReasoningEffort: s.ReasoningEffort, SelectionVersion: s.SelectionVersion}, Consumer: m.Consumer, LeaseOwner: m.LeaseOwner.Details()}
 	if s.CredentialRef != nil {
 		r := successorRefWire(*s.CredentialRef)
 		w.Snapshot.CredentialRef = &r
@@ -309,7 +310,7 @@ func (w successorResolvedModelWire) model() (ResolvedModel, error) {
 	if e != nil {
 		return ResolvedModel{}, bad()
 	}
-	m := ResolvedModel{Snapshot: ConfigSnapshot{ID: s.ID, Identity: s.Identity, Endpoint: s.Endpoint, Parameters: s.Parameters, RequestOverwrite: s.RequestOverwrite, HeaderOverwrite: s.HeaderOverwrite, Capabilities: s.Capabilities, SelectionVersion: s.SelectionVersion}, Consumer: w.Consumer, LeaseOwner: o}
+	m := ResolvedModel{Snapshot: ConfigSnapshot{ID: s.ID, Identity: s.Identity, Endpoint: s.Endpoint, Parameters: s.Parameters, RequestOverwrite: s.RequestOverwrite, HeaderOverwrite: s.HeaderOverwrite, Capabilities: s.Capabilities, ReasoningEffort: s.ReasoningEffort, SelectionVersion: s.SelectionVersion}, Consumer: w.Consumer, LeaseOwner: o}
 	if s.CredentialRef != nil {
 		r, e := s.CredentialRef.ref()
 		if e != nil {

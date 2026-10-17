@@ -124,13 +124,20 @@ func directTextProfile(v ec.PreparationInputFields) bool {
 	a := v.Agent.Fields()
 	// Tools have already been selected by their real capture provider and the
 	// original policy. Never silently drop one to fit this no-tools profile.
-	return v.Tools != nil && len(v.Tools) == 0 && a.Core.ReasoningEffort == nil && !a.Core.InjectAgentsMD &&
+	return v.Tools != nil && len(v.Tools) == 0 && capturedReasoningMatches(v) && !a.Core.InjectAgentsMD &&
 		v.Mounts.Validate() == nil && len(v.Request.Launch.Policy.AllowedResourceConstraints) == 0 &&
 		s.Identity.Profile == mc.OpenAIChatV1 && s.Identity.Protocol == mc.OpenAIChat && s.Identity.ModelType == mc.ChatModel && s.Identity.AdapterRevision == adapter.OpenAIChatTextRevision &&
 		emptyObject(s.Parameters) && emptyObject(s.RequestOverwrite) && len(s.HeaderOverwrite) == 0 &&
-		!c.ToolCalls && !c.ParallelToolCalls && !c.Reasoning && len(c.ReasoningEfforts) == 0 && onlyText(c.InputModalities) && onlyText(c.OutputModalities) &&
+		!c.ToolCalls && !c.ParallelToolCalls && c.SupportsTextInput() && onlyText(c.OutputModalities) &&
 		(len(c.StructuredOutputModes) == 0 || onlyText(c.StructuredOutputModes)) &&
 		s.CredentialRef != nil && v.Model.CredentialLease != nil && v.Model.LeaseOwner.Details().Kind == sc.ExecutionOwner
+}
+func capturedReasoningMatches(v ec.PreparationInputFields) bool {
+	selected := ""
+	if value := v.Agent.Fields().Core.ReasoningEffort; value != nil {
+		selected = *value
+	}
+	return v.Model.Snapshot.ReasoningEffort == selected
 }
 func emptyObject(raw json.RawMessage) bool {
 	var value map[string]json.RawMessage

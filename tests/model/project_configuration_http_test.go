@@ -165,9 +165,9 @@ func TestModelProjectConfigurationHTTPBoundedRepresentation(t *testing.T) {
 	// claim that the preexisting DB/library allocations fit the HTTP DTO budget.
 	caps := m.Input.Capabilities.Clone()
 	caps.Reasoning = true
-	caps.ReasoningEfforts = make([]string, 1<<18)
+	caps.ReasoningEfforts = make([]mc.ReasoningEffort, 1<<18)
 	for i := range caps.ReasoningEfforts {
-		caps.ReasoningEfforts[i] = fmt.Sprintf("r%031x", i)
+		caps.ReasoningEfforts[i] = mc.ReasoningEffort{Name: fmt.Sprintf("r%031x", i), Value: fmt.Sprintf("r%031x", i)}
 	}
 	if e := caps.Validate(); e != nil {
 		t.Fatal("large legal counterexample", e)

@@ -202,7 +202,7 @@ func (p *ExecutionCapture) ResolveExecutionModelInTx(ctx context.Context, tx f.T
 	if err = ctx.Err(); err != nil {
 		return zero, err
 	}
-	if out.Validate() != nil || !out.Consumer.Equal(selected.resolve.Consumer) || !out.LeaseOwner.Equal(selected.resolve.LeaseOwner) || out.Snapshot.ID != selected.resolution.Details().SnapshotID || out.Snapshot.Identity.ModelID != selected.source.Selection.ModelID {
+	if out.Validate() != nil || !out.Consumer.Equal(selected.resolve.Consumer) || !out.LeaseOwner.Equal(selected.resolve.LeaseOwner) || out.Snapshot.ID != selected.resolution.Details().SnapshotID || out.Snapshot.Identity.ModelID != selected.source.Selection.ModelID || out.Snapshot.ReasoningEffort != selected.resolve.ReasoningEffort {
 		return zero, unavailable(nil)
 	}
 	return out.Clone(), nil

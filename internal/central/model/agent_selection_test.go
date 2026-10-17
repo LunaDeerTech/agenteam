@@ -238,14 +238,12 @@ func TestAgentConfigurationSelectionRoleAndEffort(t *testing.T) {
 				x.request.Purpose = mc.ApprovalModelConfiguration
 			}
 			if name == "primary-choice" || name == "primary-missing" || name == "primary-unsupported" || name == "approval-reasoning-model" {
-				x.caps.Reasoning, x.caps.ReasoningEfforts = true, []string{"medium"}
+				x.caps.Reasoning, x.caps.ReasoningEfforts = true, []mc.ReasoningEffort{{Name: "Medium", Value: "medium"}}
 			}
 			choice := "medium"
 			switch name {
 			case "primary-choice":
 				x.request.ReasoningEffort = &choice
-			case "primary-missing":
-				want = f.CapabilityUnsupported
 			case "primary-unsupported":
 				choice = "high"
 				x.request.ReasoningEffort, want = &choice, f.CapabilityUnsupported

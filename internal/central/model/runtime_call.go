@@ -106,7 +106,7 @@ func prepareRuntimeInput(ctx context.Context, request mc.ModelRequest, mode wire
 			}
 		}
 	}
-	if !runtimeSupportedOwner(request) || len(request.Tools) != 0 || request.ToolChoice.Kind != "none" || !formatSupported || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || s.Identity.AdapterRevision != wire.OpenAIChatTextRevision && !structured || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !runtimeOnlyText(c.InputModalities) || !runtimeOnlyText(c.OutputModalities) || !modesSupported || mode == wire.SSEResponse && !c.Streaming || s.CredentialRef == nil || request.Model.CredentialLease == nil {
+	if !runtimeSupportedOwner(request) || len(request.Tools) != 0 || request.ToolChoice.Kind != "none" || !formatSupported || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || s.Identity.AdapterRevision != wire.OpenAIChatTextRevision && !structured || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !runtimeOnlyText(c.OutputModalities) || !modesSupported || mode == wire.SSEResponse && !c.Streaming || s.CredentialRef == nil || request.Model.CredentialLease == nil {
 		return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
 	}
 	if request.Input.SchemaVersion != 1 {

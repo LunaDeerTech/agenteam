@@ -13,6 +13,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -289,21 +290,37 @@ func (c Consumer) Equal(b Consumer) bool {
 	return c.Validate() == nil && b.Validate() == nil && e == nil && e2 == nil && bytes.Equal(x, y)
 }
 
+// ReasoningEffort separates a display name from the exact protocol value.
+// Values are model-declared; the platform does not invent a universal scale.
+type ReasoningEffort struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+func ValidReasoningEffortValue(value string) bool { return safeToken(value, 32) }
+
+func (e ReasoningEffort) Validate() error {
+	if !name(e.Name, 64) || strings.TrimSpace(e.Name) != e.Name || strings.IndexFunc(e.Name, unicode.IsControl) >= 0 || !safeToken(e.Value, 32) {
+		return bad()
+	}
+	return nil
+}
+
 type Capabilities struct {
-	ToolCalls             bool        `json:"tool_calls"`
-	ParallelToolCalls     bool        `json:"parallel_tool_calls"`
-	Streaming             bool        `json:"streaming"`
-	Reasoning             bool        `json:"reasoning"`
-	InputModalities       []string    `json:"input_modalities"`
-	OutputModalities      []string    `json:"output_modalities"`
-	ReasoningEfforts      []string    `json:"reasoning_efforts"`
-	StructuredOutputModes []string    `json:"structured_output_modes"`
-	ContextLength         *TokenCount `json:"context_length,omitempty"`
-	MaxOutput             *TokenCount `json:"max_output,omitempty"`
+	ToolCalls             bool              `json:"tool_calls"`
+	ParallelToolCalls     bool              `json:"parallel_tool_calls"`
+	Streaming             bool              `json:"streaming"`
+	Reasoning             bool              `json:"reasoning"`
+	InputModalities       []string          `json:"input_modalities"`
+	OutputModalities      []string          `json:"output_modalities"`
+	ReasoningEfforts      []ReasoningEffort `json:"reasoning_efforts"`
+	StructuredOutputModes []string          `json:"structured_output_modes"`
+	ContextLength         *TokenCount       `json:"context_length,omitempty"`
+	MaxOutput             *TokenCount       `json:"max_output,omitempty"`
 }
 
 func (c Capabilities) Validate() error {
-	if c.ParallelToolCalls && !c.ToolCalls || !c.Reasoning && len(c.ReasoningEfforts) > 0 || !unique(c.InputModalities, "text", "image", "file", "vector") || !unique(c.OutputModalities, "text", "image", "file", "vector") || !unique(c.StructuredOutputModes, "text", "json_schema") || !uniqueTokens(c.ReasoningEfforts, 32) {
+	if c.ParallelToolCalls && !c.ToolCalls || !c.Reasoning && len(c.ReasoningEfforts) > 0 || !unique(c.InputModalities, "text", "image", "file", "vector") || !unique(c.OutputModalities, "text", "image", "file", "vector") || !unique(c.StructuredOutputModes, "text", "json_schema") || !validReasoningEfforts(c.ReasoningEfforts) {
 		return bad()
 	}
 	for _, n := range []*TokenCount{c.ContextLength, c.MaxOutput} {
@@ -316,10 +333,52 @@ func (c Capabilities) Validate() error {
 	}
 	return nil
 }
+func validReasoningEfforts(values []ReasoningEffort) bool {
+	if len(values) > 32 {
+		return false
+	}
+	names, tokens := map[string]bool{}, map[string]bool{}
+	for _, value := range values {
+		if value.Validate() != nil || names[value.Name] || tokens[value.Value] {
+			return false
+		}
+		names[value.Name], tokens[value.Value] = true, true
+	}
+	return true
+}
+
+// SupportsTextInput admits a pure-text request independently of additional
+// declared modalities. Actual message parts are still checked by the runtime.
+func (c Capabilities) SupportsTextInput() bool {
+	if !unique(c.InputModalities, "text", "image", "file") {
+		return false
+	}
+	for _, modality := range c.InputModalities {
+		if modality == "text" {
+			return true
+		}
+	}
+	return false
+}
+
+// SupportsReasoningEffort checks an explicit choice. An absent choice is not an
+// effort: callers omit the wire field and leave the provider default unchanged.
+func (c Capabilities) SupportsReasoningEffort(value string) bool {
+	if !c.Reasoning || value == "" {
+		return false
+	}
+	for _, effort := range c.ReasoningEfforts {
+		if effort.Value == value {
+			return true
+		}
+	}
+	return false
+}
+
 func (c Capabilities) Clone() Capabilities {
 	c.InputModalities = append([]string(nil), c.InputModalities...)
 	c.OutputModalities = append([]string(nil), c.OutputModalities...)
-	c.ReasoningEfforts = append([]string(nil), c.ReasoningEfforts...)
+	c.ReasoningEfforts = append([]ReasoningEffort(nil), c.ReasoningEfforts...)
 	c.StructuredOutputModes = append([]string(nil), c.StructuredOutputModes...)
 	c.ContextLength = copyPtr(c.ContextLength)
 	c.MaxOutput = copyPtr(c.MaxOutput)
@@ -353,12 +412,13 @@ type ConfigSnapshot struct {
 	RequestOverwrite json.RawMessage   `json:"request_overwrite"`
 	HeaderOverwrite  map[string]string `json:"header_overwrite"`
 	Capabilities     Capabilities      `json:"capabilities"`
+	ReasoningEffort  string            `json:"reasoning_effort,omitempty"`
 	CredentialRef    *sc.CredentialRef `json:"credential_ref,omitempty"`
 	SelectionVersion *f.Version        `json:"selection_version,omitempty"`
 }
 
 func (s ConfigSnapshot) Validate() error {
-	if s.ID.Validate() != nil || s.Identity.Validate() != nil || !endpoint(s.Endpoint) || objectJSON(s.Parameters, 64<<10) != nil || overwrite(s.RequestOverwrite, s.HeaderOverwrite) != nil || s.Capabilities.Validate() != nil || s.CredentialRef != nil && s.CredentialRef.Validate() != nil || s.SelectionVersion != nil && s.SelectionVersion.Validate() != nil {
+	if s.ID.Validate() != nil || s.Identity.Validate() != nil || !endpoint(s.Endpoint) || objectJSON(s.Parameters, 64<<10) != nil || overwrite(s.RequestOverwrite, s.HeaderOverwrite) != nil || s.Capabilities.Validate() != nil || s.ReasoningEffort != "" && (s.Identity.ModelType != ChatModel || !s.Capabilities.SupportsReasoningEffort(s.ReasoningEffort)) || s.CredentialRef != nil && s.CredentialRef.Validate() != nil || s.SelectionVersion != nil && s.SelectionVersion.Validate() != nil {
 		return bad()
 	}
 	return nil

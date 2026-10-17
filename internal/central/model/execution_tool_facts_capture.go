@@ -39,7 +39,7 @@ func (p resolutionCaptureProfile) requireRequest(r mc.ResolveRequest) error {
 	case defaultResolutionCapture:
 		return nil
 	case toolFactsResolutionCapture, toolCallingResolutionCapture:
-		if r.Actor.Details().Kind != id.AgentRun || r.Consumer.Kind != mc.AgentConsumer || r.Purpose != mc.AgentGeneration || r.Consumer.ExecutionID == nil || r.Consumer.OperationID != "" || r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind != "direct" || r.ReasoningEffort != "" {
+		if r.Actor.Details().Kind != id.AgentRun || r.Consumer.Kind != mc.AgentConsumer || r.Purpose != mc.AgentGeneration || r.Consumer.ExecutionID == nil || r.Consumer.OperationID != "" || r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind != "direct" {
 			return fault(f.CapabilityUnsupported)
 		}
 		return nil
@@ -57,7 +57,7 @@ func toolResolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selec
 		return "", fault(f.InvalidState)
 	}
 	c := m.Input.Capabilities
-	if selection.Kind != "direct" || p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !executable && c.Streaming || c.Reasoning || len(c.ReasoningEfforts) != 0 || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"text"}) || len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
+	if selection.Kind != "direct" || p.Input.Protocol.EffectiveProtocol(m.Input.Type) != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !executable && c.Streaming || !c.SupportsTextInput() || !slices.Equal(c.OutputModalities, []string{"text"}) || len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
 		return "", fault(f.CapabilityUnsupported)
 	}
 	if executable {
@@ -74,6 +74,9 @@ func (p resolutionCaptureProfile) requireDraft(r mc.ResolveRequest, d resolution
 		return err
 	}
 	s := d.Snapshot
+	if r.Source == mc.CurrentSelectionSource && s.ReasoningEffort != r.ReasoningEffort {
+		return fault(f.InvalidArgument)
+	}
 	if p == defaultResolutionCapture {
 		if s.Identity.AdapterRevision == toolFactsCaptureRevision || s.Identity.AdapterRevision == wire.OpenAIChatToolsRevision || s.Capabilities.ToolCalls || s.Capabilities.ParallelToolCalls {
 			return fault(f.CapabilityUnsupported)

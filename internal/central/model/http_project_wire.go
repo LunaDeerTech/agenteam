@@ -80,16 +80,16 @@ type projectHTTPScope struct {
 	ProjectID string `json:"project_id,omitempty"`
 }
 type projectHTTPCapabilities struct {
-	ToolCalls             bool           `json:"tool_calls"`
-	ParallelToolCalls     bool           `json:"parallel_tool_calls"`
-	Streaming             bool           `json:"streaming"`
-	Reasoning             bool           `json:"reasoning"`
-	InputModalities       []string       `json:"input_modalities"`
-	OutputModalities      []string       `json:"output_modalities"`
-	ReasoningEfforts      []string       `json:"reasoning_efforts"`
-	StructuredOutputModes []string       `json:"structured_output_modes"`
-	ContextLength         *mc.TokenCount `json:"context_length"`
-	MaxOutput             *mc.TokenCount `json:"max_output"`
+	ToolCalls             bool                 `json:"tool_calls"`
+	ParallelToolCalls     bool                 `json:"parallel_tool_calls"`
+	Streaming             bool                 `json:"streaming"`
+	Reasoning             bool                 `json:"reasoning"`
+	InputModalities       []string             `json:"input_modalities"`
+	OutputModalities      []string             `json:"output_modalities"`
+	ReasoningEfforts      []mc.ReasoningEffort `json:"reasoning_efforts"`
+	StructuredOutputModes []string             `json:"structured_output_modes"`
+	ContextLength         *mc.TokenCount       `json:"context_length"`
+	MaxOutput             *mc.TokenCount       `json:"max_output"`
 }
 type projectHTTPProviderInput struct {
 	Name          string           `json:"name"`
@@ -270,11 +270,22 @@ func (b *projectHTTPBound) raw(value json.RawMessage) bool {
 	}
 	return true
 }
+func (b *projectHTTPBound) reasoningEfforts(values []mc.ReasoningEffort) bool {
+	if len(values) > 32 || !b.add(2+len(values)) {
+		return b.fail()
+	}
+	for _, value := range values {
+		if !b.add(24) || !b.text(value.Name, 256) || !b.text(value.Value, 32) {
+			return false
+		}
+	}
+	return true
+}
 func (b *projectHTTPBound) capabilities(c mc.Capabilities) bool {
 	// All ten field names, punctuation, four booleans, and two nullable quoted
 	// int64s fit below 384 bytes. Array elements are counted separately.
 	return b.add(384) && b.strings(c.InputModalities, 6) && b.strings(c.OutputModalities, 6) &&
-		b.strings(c.StructuredOutputModes, 11) && b.strings(c.ReasoningEfforts, 32)
+		b.strings(c.StructuredOutputModes, 11) && b.reasoningEfforts(c.ReasoningEfforts)
 }
 func (b *projectHTTPBound) provider(v mc.ProviderView) bool {
 	// 512 covers fixed keys, ID/scope/ref IDs, version, both instants, bool and
@@ -337,7 +348,7 @@ func projectHTTPCaps(c mc.Capabilities) projectHTTPCapabilities {
 		copy.OutputModalities = []string{}
 	}
 	if copy.ReasoningEfforts == nil {
-		copy.ReasoningEfforts = []string{}
+		copy.ReasoningEfforts = []mc.ReasoningEffort{}
 	}
 	if copy.StructuredOutputModes == nil {
 		copy.StructuredOutputModes = []string{}
