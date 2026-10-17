@@ -124,7 +124,7 @@ SMTP 独立直连已完成关键 owned 隔离验证，并保数据切换至 `e20
 
 ### 既有持久实例的stage与恢复
 
-既有实例升级保留原数据库、对象数据、账号/Session、用户已保存SMTP、代理与规则配置、五用途keyring、TLS材料、spool与恢复日志。SMTP拆分当时未新增迁移；此次Passkey升级应用00146，不能继续按schema145恢复旧二进制。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
+既有实例升级保留原数据库、对象数据、账号/Session、用户已保存SMTP、代理与规则配置、五用途keyring、TLS材料、spool与恢复日志。当前模型配置升级已应用00151；不能按schema146或更早版本恢复旧二进制。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
 
 管理器新增 `stage`：
 
@@ -139,22 +139,22 @@ python3 scripts/manage-persistent-central.py stage \
 
 切换顺序由运行owner执行：先核真实PID/start_ticks/executable及精确容器/nonce归属、无未终结或未join邮件任务；用当前manifest执行 `stop`并确认实际退出和端口释放。保留数据库/对象/TLS代理/frp，停止应用写入后对原数据库做私有custom-format备份并验证归档可读，记录原配置/密钥和数据身份摘要；备份、stderr及归档清单只存0700目录/0600文件，不打印凭据。随后只用stage返回的manifest执行 `start`，再核实际进程/exe SHA、迁移记录、同端口服务、原账号/SMTP安全投影与数据/密钥保持。
 
-`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。当前Passkey预览已应用schema146，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧e203/schema145及更早二进制不能在当前schema146数据库上回退启动；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
+`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。当前预览已应用schema151，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧329/schema146及更早二进制不能在当前schema151数据库上回退启动；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
 
 保留原immutable nginx配置、TLS与nonce，`/__instance__/identity.source_revision`继续表示基础设施首次准备版本；它不证明新候选代码版本。新Central用活动manifest、实际PID/start_ticks/executable SHA证明，前端用实际构建/源组合单独核验。旧 `runtime-recovery-probe.cjs` 和 `diagnose-persistent-smtp.py`的identity.source等于runtime.source假设不适用于staged manifest，本轮升级用独立组合核验，不修改nginx来伪造候选身份。严格本机验证、公开入口响应归属和真实邮件结果分别记录；SMTP实测暂停，升级操作不触发测试发送。
 
 ### 固定已核验的前端快照
 
-2026-10-17既有预览已保数据升级至329591cc Central/schema146，同步使用仓库外快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc/`，101份源码与该候选逐项一致。node_modules符号链接复用旧 `frontend-stable-c09d69b7/node_modules`，package-lock逐字一致，新快照.vite缓存独立；恢复须保留旧快照的该依赖目录，旧源码不再提供页面。前端快照与当前后端共同核验；不要以主树任意版本的npm/dev命令启动此入口，也不要用旧c09d快照恢复新组合。
+2026-10-17既有预览已保数据升级至b9d9357d Central/schema151，同步使用仓库外快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-b9d9357d/`。138份冻结源与候选逐项一致；以 `VITE_ACCOUNT_ENABLED=true` 完成类型检查和生产构建，运行固定dist。node_modules符号链接复用 `/workspace/agenteam/web/node_modules` 的同锁依赖；恢复须先核包锁匹配。不要从主树任意版本重建此入口，也不要使用旧329快照恢复新组合。
 
-快照内 `preview-record.json` 保存绝对node命令、工作目录及required_environment/recovery_environment中的 `VITE_ACCOUNT_ENABLED=true`，私有run-state的frontend_preview登记实际进程；恢复前须核PID/start_ticks和端口归属。此环境变量是必需项，遗漏会将账号入口禁用。恢复命令在该快照目录运行：
+快照内 `preview-record.json` 保存绝对node命令、cwd、实际PID/start_ticks、源hash及发布标记；私有run-state的frontend_preview登记相同输入。恢复前先核进程和5245端口归属，再在该快照目录运行记录中的生产预览命令：
 
 ```sh
-cd /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc
-VITE_ACCOUNT_ENABLED=true /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-329591cc/node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5245 --strictPort
+cd /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-b9d9357d
+/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-b9d9357d/node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 5245 --strictPort
 ```
 
-恢复按现有运行owner流程脱离临时工具进程组并写私有日志，记录新实际进程身份后再核严格本机TLS/nonce、快照源码与实际accountEnabled。此前c09d快照曾遗漏flag并已修正，不能把源码hash或HTTP200代替账号能力验证；当前329591cc环境与变换模块均已确认true。当前准确PID、后端manifest及最终只读浏览器结果见[当前状态](../../../.agent-state/current.md)。IP Origin明确禁用Passkey而保持密码路径；本机检查不代表公网身份验证，本次未注册Passkey或发送外部邮件。
+由运行owner脱离临时工具进程组启动并写私有日志，记录新实际身份，再核严格本机TLS/nonce、`/__instance__/release.json` 的版本/后端SHA及密码登录。账号能力已在构建时启用；若确需重建，必须使用冻结源和 `VITE_ACCOUNT_ENABLED=true`。当前准确PID、后端manifest与只读浏览器结果见[当前状态](../../../.agent-state/current.md)。IP Origin保持密码路径并禁用Passkey；本机检查不代公网身份验证，本次未注册Passkey或发送外部邮件。
 
 ## 新 Vue 账号联调
 

@@ -1,4 +1,25 @@
-# 当前状态：模型备注与选择思考配置已完成适用验证
+# 当前状态：b9d9357d 已保数据部署，多模态开始开发
+
+## 当前部署与恢复入口
+
+2026-10-17，按用户“先部署既有后端，再开发多模态”的授权，Central与Vue已同步切至冻结版本 `b9d9357d26a2e3127fa089191810c5c3687666d7`；主树恢复分支仍为 `ai/frontend-vue-rebuild-20261016`。Go1.27.1生产构建、配置检查及Vue类型/生产构建均实际exit0。数据库已从146升级至151，Goose与migration journal全部applied；升级前实核模型相关数据为空，149只重建两个未配置的技术单例。账号/原Session/SMTP/Secret/规则/代理/对象等53组启动前后HMAC一致，18个immutable配置/密钥、数据目录及三基础容器身份保持。私有备份 `/workspace/scratch/model-deploy-b9d9357d/backup/database.dump` 为1593454字节，pg_dump和pg_restore --list均exit0，未执行还原。首次备份比较查询超过PG函数参数上限，分块修正后从停写状态完成备份，无数据重置。
+
+活动manifest：`/workspace/scratch/agenteam-central-persistent-r1/runtime-staged-b9d9357d26a2e3127fa089191810c5c3687666d7.json`；管理仍用 `python3 scripts/manage-persistent-central.py <status|stop|start> --runtime <活动manifest>`。Central实际exe SHA256为 `483c16fa82cb4f658d9812719cce2891aad5a0b8330e2a9331d276dc38b3386a`。11:35 UTC终核Central PID481698/start_ticks4093294、Vue PID481776/start_ticks4094183、FRP helper16216/start_ticks144734及frpc16223/start_ticks144750均S，5245/5256/5257监听。前端固定于 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-b9d9357d/` 的生产dist，138份冻结源与候选一致；恢复只用其 `preview-record.json` 的命令、cwd与同锁依赖，见[固定快照说明](../docs/development/backend/account.md#固定已核验的前端快照)。原329/schema146及更早manifest不能重新启动当前数据库。私有run-state已更新；进程不会随环境快照保留，恢复须重新实核。
+
+严格本机TLS/leaf/SPKI、基础设施nonce及新增 `/__instance__/release.json` 的b9d/后端SHA匹配通过；live200、匿名受保护API401，ready503仍为既有DEPENDENCY_UNBOUND。真实浏览器登录200、模型接入空态、添加供应商打开/取消、平台模型用途及模型选择器打开/取消、五个系统GET200通过；无配置写入、模型调用或SMTP发送。logout204→session401，CLI/Chromium实际exit0，临时relay关闭且socket0。原映射仍是18443→TLS5256→Central5257/Vue5245，服务保留；本轮公网匿名校验经继承代理及域名CONNECT均curl60（证书主名openai.com与目标IP不匹配），独立直连curl7，均未取得公网nonce。`https://154.12.86.233:18443` 是原目标入口，当前不能称公网验证成功；FRP存活和旧login/start日志不代公网归属证明。
+
+## 当前多模态工作索引
+
+以下四树从b9d开始，已获正式写入权，尚未验收；公开冻结快照不随开发更新，root负责全部Git和最终集成。当前Chat图片/文件发送仍为待实现能力，不能把模型能力勾选当已接通。
+
+| 工作树 / 分支                                                                             | Owner                                     |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `/workspace/agenteam-chat-multimodal-backend` / `ai/chat-multimodal-backend-20261017`     | `/root/account_backend`                   |
+| `/workspace/agenteam-chat-multimodal-consumers` / `ai/chat-multimodal-consumers-20261017` | `/root/account_backend/summary_consumers` |
+| `/workspace/agenteam-chat-multimodal-vue` / `ai/chat-multimodal-vue-20261017`             | `/root/proxy_copy`                        |
+| `/workspace/agenteam-chat-multimodal-tests` / `ai/chat-multimodal-tests-20261017`         | `/root/reasoning_validation`              |
+
+## 前轮模型备注与选择思考配置
 
 用户已授权长度字段显式标注tokens、四类型中英文名称、模型ID优先/备注次要，以及共享模型选择器的更多菜单与思考选择。恢复入口仍为`ai/frontend-vue-rebuild-20261016`，本包在独立Vue树`/workspace/agenteam-model-capabilities-vue`以4107e01b为基础开发，root负责Git。
 
@@ -171,7 +192,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 - manager `bbc6236e` 曾独立复现Popen后record发布失败留下存活未登记candidate；修正 `f01ca6ee` 后同.next故障实际关闭：原错误/未知.next保留，新child已wait且无PID/端口占用，status/stop与实际停止一致，selected仍为候选且旧版fallback拒绝，修复本fixture的.next后同版可恢复，合成data/keys/env未变。CLI退出0、子进程全回收；该fixture不代证production迁移/升级或公网。保留immutable nginx的nonce/基础设施source，候选后端另核active-release、实际进程/exe SHA与前端组合；旧probe强制identity.source等于runtime.source的假设不适用于staged manifest，未宣称复用通过。
 - 此前正式binary来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1`（含7aa修复），生产bootstrap/PG/MinIO真实就绪。严格本机CA/IP/SPKI、nonce/source、匿名401无Set-Cookie、登录/读取通过；仅Central停启后原Cookie/user/session/SMTP投影保持，PG/MinIO/web及持久keys未换，logout204→401，probe退出0。初次PG父目录权限失败未建账号，专属失败资源清理后修PGDATA挂载成功；恢复管理器端口检查修正后验证通过。
 - 此前12:14:30 UTC的Central PID424642/state S/start_ticks3218571，source `a5d12bf0f24afe10e80a142c79d05fdc0ce07e81`，exe SHA256 `777768c55735d7de70ba66ec678156351e1d11f3a4b2150ddd790ae6a94ee26c`与active-release相符；schema144已应用，代理初值direct/null且receipt/operation均0。停前后users/sessions/完整SMTP/SMTP凭据/原出站规则/account keyregistry的HMAC一致，18个immutable文件、4目录身份及PG/MinIO/web容器均保持，未终结mail/openattempt始终0，未发送SMTP。私有一致备份经PG17.8 pg_restore --list通过；首轮验证的buffered FD offset问题已修正，同原dump成功，原失败保留。严格本机CA/IP/leaf与nonce匹配，live/login200、规则/代理匿名401；ready503为D05 DEPENDENCY_UNBOUND，首轮断言失配未存详情，不倒推原因，限定复核符合原契约。
-- 当前入口为18443→TLS5256→Central5257，Vue仍为5245。私有数据、五组keys、环境与TLS材料位于 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）；活动manifest为该目录 `runtime-staged-329591cc41d1a3c2bc2c38ac9d85ded997d717b1.json`。Central PID15487/start_ticks140793/state S，source `329591cc41d1a3c2bc2c38ac9d85ded997d717b1`，实际exe SHA256 `bdedc437375eb7647796acbcefc04d239cb0a790fd87c6ae5c0ee68f85907e6b`与活动manifest相符；FRP helper16216/start_ticks144734、frpc16223/start_ticks144750均S。管理命令为 `python3 /workspace/agenteam/scripts/manage-persistent-central.py <action> --runtime <活动manifest完整路径>`（action为status、stop或start）。必须使用当前staged输入，不能用旧e203/schema145或更早binary启动schema146；不自动回旧dump。按[stage与恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)保留原数据/密钥，前端只用上方329591cc快照与其preview-record。
+- 当时入口为18443→TLS5256→Central5257，Vue为5245；此处329实例已被本页顶部b9d部署替换。私有数据、五组keys、环境与TLS材料位于 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）；活动manifest为该目录 `runtime-staged-329591cc41d1a3c2bc2c38ac9d85ded997d717b1.json`。Central PID15487/start_ticks140793/state S，source `329591cc41d1a3c2bc2c38ac9d85ded997d717b1`，实际exe SHA256 `bdedc437375eb7647796acbcefc04d239cb0a790fd87c6ae5c0ee68f85907e6b`与活动manifest相符；FRP helper16216/start_ticks144734、frpc16223/start_ticks144750均S。管理命令为 `python3 /workspace/agenteam/scripts/manage-persistent-central.py <action> --runtime <活动manifest完整路径>`（action为status、stop或start）。必须使用当前staged输入，不能用旧e203/schema145或更早binary启动schema146；不自动回旧dump。按[stage与恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)保留原数据/密钥，前端只用上方329591cc快照与其preview-record。
 - 此前13a预览只读浏览器实际通过：本机CONNECT→5256保持18443 origin，严格CA/IP/leaf/nonce及浏览器实际SPKI匹配；真实登录200、新Vue module200、规则GET200及内容显示、代理GET200及直连显示。未执行规则/代理写入或SMTP，logout204→session401，CLI/Chromium退出0、relay关闭且socket0。当时终核manager running、13a Central与原frp helper/frpc身份匹配且非僵尸，5245/5256/5257仍监听。此结果仅证明当时本机组合，不代本轮e203浏览器或公网验证。
 - 此前唯一公网匿名尝试使用专用CA和SPKI：CONNECT200，curl60/TLS_TRUST_REJECTED、HTTP0、instanceMatched=false；未发送凭据或取得实例标记，也未观察实际leaf issuer，不能将旧代理背景或frp登录当作本次公网证明。
 - 此前用户恢复后正式SMTP安全投影为configured/credential_present、version2，`smtp.exmail.qq.com:465/tls`，retry3/60未改。只读确认已有test任务目标与授权收件人相等；终态failed/attempts4/version9、attempt_channel=smtp、attempt_result=failed、reason=network_failed。未新POST或人工retry，诊断Session退出204，observer退出0；未证明SMTP接受或邮箱收到。
@@ -229,11 +250,11 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 旧45分钟public-r1已正常退出并完成原App/依赖清理，旧manifest/凭据已撤，不能再交给用户。本轮独立5250的App与外链均actual wait0，专属4容器/4网络逐ID确认不存在，7子进程已消失；launcher192442为exit0待reap的Z，非运行服务。作者Playwright均已退出；兼容preview5242已closed、exit143且无监听。backend清理时只读确认public-r2 App、恢复frp及5254/5245/5241仍在，未重新TLS探测或操作它们；旧r2在新production就绪前保留，之后按本轮授权顺序交接，dev保持。
 
-## 保存与下一步
+## 此前保存与下一步（历史）
 
 当前功能、适用工程/视觉检查、两张截图与自有Vite清退已收口，由root统一保存源码、测试和本轮记录。检查仅覆盖本轮受影响范围，不新增真实后端接受结论。原公开预览的恢复入口、IP下Passkey限制和外部邮件暂停保持，本轮未更新公网。
 
-账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复用上方329591cc活动manifest，前端从同版私有快照及preview-record恢复。公网两次TLS拒绝与域名SNI对照的上游503均未取得nonce，不能以本机验证或FRP连接成功代证公网响应归属。
+账号、原Session、SMTP配置/凭据、keys、proxy、规则与对象数据按既有约定保留；恢复采用本页顶部b9d活动manifest及同版生产dist快照。上述历史公网失败保留原边界，本轮限制见顶部部署记录，不能以本机验证或FRP连接成功代证公网响应归属。
 
 ## 保留的既有恢复入口
 
