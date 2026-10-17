@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import { UiButton, UiDialog } from "../ui";
 import CatalogCommandFeedback from "./CatalogCommandFeedback.vue";
 import { AccountError } from "../../account/transport";
@@ -25,6 +32,7 @@ const emit = defineEmits<{
   closed: [deleted: boolean];
 }>();
 const access = useSystemAccess();
+const triggerContainer = ref<HTMLElement>();
 const open = ref(false);
 const target = ref<string>();
 const baseline = shallowRef<Provider>();
@@ -133,18 +141,33 @@ async function begin() {
   open.value = true;
   if (!pending.value) await load();
 }
-function close() {
+async function close() {
   if (locked.value || (deleted.value && error.value)) return;
   const completed = deleted.value;
   open.value = false;
   abandon.value = false;
   if (!pending.value) clear();
+  await nextTick();
+  // UiDialog closes after its own nextTick watcher; restore only once it is no longer modal.
+  await nextTick();
   emit("closed", completed);
+  if (
+    alive &&
+    available.value &&
+    (!document.activeElement ||
+      document.activeElement === document.body ||
+      !!document.activeElement.closest("dialog:not([open])"))
+  )
+    triggerContainer.value
+      ?.querySelector<HTMLButtonElement>("button")
+      ?.focus({ preventScroll: true });
 }
-function abandonDelete() {
+async function abandonDelete() {
   if (locked.value || !pending.value) return;
   open.value = false;
   clear();
+  await nextTick();
+  await nextTick();
   emit("closed", false);
 }
 async function removeSecret() {
@@ -213,7 +236,7 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="credential-delete">
+  <div ref="triggerContainer" class="credential-delete">
     <UiButton :disabled="!available || locked" @click="begin"
       >删除凭据</UiButton
     >

@@ -132,6 +132,40 @@ const stubs = {
 
 beforeEach(async () => {
   vi.resetModules();
+
+  const originalShowModal = Object.getOwnPropertyDescriptor(
+    HTMLDialogElement.prototype,
+    "showModal",
+  );
+  const originalClose = Object.getOwnPropertyDescriptor(
+    HTMLDialogElement.prototype,
+    "close",
+  );
+  // Model the native open property for jsdom; modal behavior is browser-tested.
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.open = true;
+      },
+    },
+    close: {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.open = false;
+      },
+    },
+  });
+  restoreDialog = () => {
+    for (const [name, descriptor] of [
+      ["showModal", originalShowModal],
+      ["close", originalClose],
+    ] as const) {
+      if (descriptor)
+        Object.defineProperty(HTMLDialogElement.prototype, name, descriptor);
+      else Reflect.deleteProperty(HTMLDialogElement.prototype, name);
+    }
+  };
   vi.stubEnv("VITE_ACCOUNT_ENABLED", "true");
   vi.stubGlobal("Blob", NodeBlob);
   vi.stubGlobal("matchMedia", () => ({
@@ -198,39 +232,6 @@ afterEach(() => {
 
 describe("provider status in the catalog", () => {
   beforeEach(async () => {
-    const originalShowModal = Object.getOwnPropertyDescriptor(
-      HTMLDialogElement.prototype,
-      "showModal",
-    );
-    const originalClose = Object.getOwnPropertyDescriptor(
-      HTMLDialogElement.prototype,
-      "close",
-    );
-    // Model the native open property for jsdom; modal behavior is browser-tested.
-    Object.defineProperties(HTMLDialogElement.prototype, {
-      showModal: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.open = true;
-        },
-      },
-      close: {
-        configurable: true,
-        value(this: HTMLDialogElement) {
-          this.open = false;
-        },
-      },
-    });
-    restoreDialog = () => {
-      for (const [name, descriptor] of [
-        ["showModal", originalShowModal],
-        ["close", originalClose],
-      ] as const) {
-        if (descriptor)
-          Object.defineProperty(HTMLDialogElement.prototype, name, descriptor);
-        else Reflect.deleteProperty(HTMLDialogElement.prototype, name);
-      }
-    };
     const Page = (await import("../src/views/system/ModelCatalogPage.vue"))
       .default;
     const { createMemoryHistory, createRouter } = await import("vue-router");
