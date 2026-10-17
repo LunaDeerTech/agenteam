@@ -18,9 +18,13 @@
 
 模型启用开关沿完整input和expected_version保存，仅改变enabled；确认回执后采用读回模型，读回失败只重读。等待、冲突及Unknown时保留行owner并禁用换页、切Tab和其它行操作，显式读取最新版本后才能采用保留的启停意图。被引用模型允许停用但不解除用途引用。仅本供应商列表省略供应商前缀，跨供应商选择器和用途页仍显示“供应商/模型ID”。编辑弹窗在干净且无未决命令时提供次要“删除模型”入口，复用既有引用/替换确认，取消返回编辑，完成返回列表。列表“测试”只打开既有测试弹窗；明确开始才按当前模型与供应商版本发请求，并遵守双启用、协议、权限及真实测试能力门，不因无凭据拒绝合法匿名配置。
 
-模型定义按类型显示：Chat固定文本输入/输出，可额外声明图像和文件（当前实际调用仅支持文本）；Embedding固定文本→向量。JSON Schema复选项映射原structured_output_modes，思考开关及可空{name,value}等级列表分别声明能力与可选调节值，不自动要求每次调用传档位；名称用于显示，值沿已实现协议映射。新建/导入可选类型，已有模型编辑时类型不可改；切换类型不会把隐藏的Chat字段写入Embedding。高级选项只保留上下文长度及Chat最大输出，三个未实现JSON输入移除并继续发送空对象。新建、编辑与导入共用ModelFormFields，既有版本、草稿、Unknown及确认后只读恢复机制保持。
+模型定义按类型显示，现compatible供应商family可配置对话（Chat）、嵌入（Embedding）、重排（Rerank）及图像生成（Image Generation）。Chat固定文本基础与文本输出，可额外声明图像/文件（当前调用仍仅支持文本），保JSON Schema及思考能力；嵌入固定text→vector、可填context，max_output始终null；重排为查询与文档→排序结果，wire input=[text]/output=[]；图像生成为text→image。两新类四项Chat布尔能力全false、等级/结构化数组空、context/max皆null，不显示无效高级项。新建/导入可选类型，编辑已有类型不可改；切换类型不泄漏隐藏草稿。各类启停/用途选择/显式管理测试沿真实服务端资格与能力门，不等于重排检索或图像Artifact业务consumer已接通。
 
-本轮类型感知模型定义已完成13项定向组件/DTO/恢复用例、最终type、生产构建及限定格式检查；发现导入的合法`__proto__`模型ID草稿经显式逐项代理与浅容器修复，真实键盘操作及部分导入恢复已通过。独审1440×1000深色、390×844浅色及reduced-motion已覆盖Chat普通/Schema/思考空等级和name-value等级、重复值零写、等待禁用、类型锁定、新建类型切换、Embedding保存、取消回焦及全部保留高级项。保留首setup超时、Discovery首次修复不足与两个Embedding首列表5秒等待失败记录；后两次等待原因未定，新增观察器后原输入/预算通过，不追认产品修复。
+思考等级采用紧凑名称/值/叉号行，窄屏不拆成上下两行；可见编号去掉，原编号label仅视觉隐藏，保留可访问名称、错误反馈与新增/删除焦点。下方“添加思考等级”不创建默认值，原name/value及空等级语义不变。新建、编辑和导入仍共用ModelFormFields，版本/Unknown/确认后只读恢复不改。
+
+四类型与紧凑行本轮已接线，适用工程/定向单元、独立浏览器及真实API验证仍在执行。下述两类型轮结果与旧截图保留原输入边界，不替代本轮四类型验收。
+
+前轮两类型模型定义已完成13项定向组件/DTO/恢复用例、最终type、生产构建及限定格式检查；发现导入的合法`__proto__`模型ID草稿经显式逐项代理与浅容器修复，真实键盘操作及部分导入恢复已通过。独审1440×1000深色、390×844浅色及reduced-motion已覆盖Chat普通/Schema/思考空等级和name-value等级、重复值零写、等待禁用、类型锁定、新建类型切换、Embedding保存、取消回焦及全部保留高级项。保留首setup超时、Discovery首次修复不足与两个Embedding首列表5秒等待失败记录；后两次等待原因未定，新增观察器后原输入/预算通过，不追认产品修复。
 
 独立Go验证已通过真实PG、持久snapshot及受控TLS调用：选中value传递、冻结快照重放、未选及空等级不发参数、多模态能力声明下纯文本可调用、实际媒体消息拒绝且无额外请求；不把此范围扩大为完整Agent装配。独立App API与Vue链亦已通过：真实创建保存trim后的name/value及JSON Schema、GET与刷新编辑读回保持，关闭思考后一次PUT推进版本并清空等级；全程无外部模型调用。首UI遗漏类型选择已作为测试夹具修正，不改产品。截图均为合成数据，未使用真实供应商凭据或调用外部模型，未部署公网；当前公网前端保持原私有冻结快照。全部测试会话/浏览器已退出，独立App/PG资源已清退；自有Vite核身份后TERM，原launcher实际143、进程与5281监听清零，仅删除本树自建依赖链接，保留共享目标。
 
@@ -38,7 +42,7 @@
 | 新建Embedding：固定模态与上下文容量             | [完整](https://img.lunadeer.cn/i/2026/10/17/6ad3236d89447.png)                                                                                                                           |
 | 390浅色Chat：图像/文件声明、等级与全部高级项    | [上](https://img.lunadeer.cn/i/2026/10/17/6ad32370654e4.png)、[中](https://img.lunadeer.cn/i/2026/10/17/6ad32372448ba.png)、[下](https://img.lunadeer.cn/i/2026/10/17/6ad32372ed147.png) |
 
-本轮可配置类型仅为已实现family的Chat和Embedding；重排/图像生成未因此增加可编辑协议或运行能力，既有只读范围不扩大。
+上列旧截图仅对应前轮Chat/Embedding；本轮四类型最终截图会在适用验证完成后替换该索引。
 
 ### 可复用模型选择浮层
 
@@ -53,7 +57,7 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 | 资源                                 | 方法与正文 / 返回                                                                                                                                                                                                                                                                                                          |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/system/model-providers`、`/{id}`   | GET列表或对象；POST `{input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version}`。对象为`{id,input,version,created_at,updated_at}`。                                                                                                                                                                     |
-| Provider input                       | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat和embedding模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。                             |
+| Provider input                       | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat、embedding、reranker和image_generation模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。 |
 | `/system/models`、`/{id}`            | GET/HEAD列表可选`provider_id`、`q`、`cursor`、`limit`，省略provider为跨System供应商；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。模型对象为`{id,provider_id,input,version,created_at,updated_at}`，列表项另含下述provider安全投影，详情DTO不变。 |
 | Model input                          | `{name,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；新family按每个模型的type选择既有chat或embedding adapter，能力必须通过真实校验，不能由模型名字猜推理、工具、上下文或价格。capabilities各字段严格沿schema，未知容量保持null。                               |
 | `/system/model-credentials`、`/{id}` | POST `{value}`；GET对象只读`{credential_id,purpose:'model',version}`；PUT `{expected_version,value}`；DELETE `{expected_version}`。写结果`{credential_id,purpose,version,deleted}`，材料从不回显。                                                                                                                         |

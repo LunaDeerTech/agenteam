@@ -1,7 +1,7 @@
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { reactive } from "vue";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import type { ModelInput } from "../src/system/model-catalog";
+import { isModelInput, type ModelInput } from "../src/system/model-catalog";
 import {
   modelDraft,
   modelDraftInput,
@@ -43,13 +43,48 @@ const checkbox = (text: string) => label(text).get('input[type="checkbox"]');
 function field(text: string) {
   return wrapper!.get(`input[id="${label(text).attributes("for")}"]`);
 }
-async function click(text: string) {
+function button(text: string) {
   const buttons = wrapper!
     .findAll("button")
     .filter((item) => (item.attributes("aria-label") ?? item.text()) === text);
   expect(buttons, `Exactly one button ${text}`).toHaveLength(1);
-  expect(buttons[0]!.attributes("disabled")).toBeUndefined();
-  await buttons[0]!.trigger("click");
+  return buttons[0]!;
+}
+async function click(text: string) {
+  const target = button(text);
+  expect(target.attributes("disabled")).toBeUndefined();
+  (target.element as HTMLButtonElement).focus();
+  await target.trigger("click");
+}
+async function selectType(text: string) {
+  const type = wrapper!.get('[role="combobox"]');
+  expect(type.attributes("disabled")).toBeUndefined();
+  await type.trigger("keydown", { key: "ArrowDown" });
+  await flushPromises();
+  expect(type.attributes("aria-expanded")).toBe("true");
+  const listbox = document.getElementById(type.attributes("aria-controls")!);
+  expect(listbox?.getAttribute("role")).toBe("listbox");
+  const option = [
+    ...listbox!.querySelectorAll<HTMLElement>('[role="option"]'),
+  ].find((item) => item.textContent?.trim() === text);
+  expect(option, `Available model type ${text}`).toBeTruthy();
+  option!.click();
+  await flushPromises();
+  expect(type.text()).toBe(text);
+}
+async function fillChatSettings() {
+  await checkbox("图像").setValue(true);
+  await checkbox("工具调用").setValue(true);
+  await checkbox("并行工具调用").setValue(true);
+  await checkbox("流式输出").setValue(true);
+  await checkbox("支持思考").setValue(true);
+  await checkbox("支持结构化输出（JSON Schema）").setValue(true);
+  await click("添加思考等级");
+  await field("等级名称 1").setValue("深入");
+  await field("等级值 1").setValue("high");
+  await wrapper!.get("summary").trigger("click");
+  await field("上下文长度（可选）").setValue("128000");
+  await field("最大输出（可选）").setValue("4096");
 }
 const serialize = () => modelDraftInput(draft, "openai-compatible");
 
@@ -113,13 +148,18 @@ it("adds and removes explicit reasoning levels, restores saved input, and never 
     reasoning: true,
     reasoning_efforts: [],
   });
-  await click("添加等级");
+  await click("添加思考等级");
+  expect(document.activeElement).toBe(field("等级名称 1").element);
+  expect(field("等级名称 1").attributes("placeholder")).toBe("名称");
+  expect(field("等级值 1").attributes("placeholder")).toBe("值");
   await field("等级名称 1").setValue("快速");
   await field("等级值 1").setValue("low");
-  await click("添加等级");
+  await click("添加思考等级");
+  expect(document.activeElement).toBe(field("等级名称 2").element);
   await field("等级名称 2").setValue("深入");
   await field("等级值 2").setValue("vendor.high:2");
   await click("删除等级 1");
+  expect(document.activeElement).toBe(field("等级名称 1").element);
   expect((field("等级名称 1").element as HTMLInputElement).value).toBe("深入");
   await checkbox("支持结构化输出（JSON Schema）").setValue(true);
   const savedInput = serialize();
@@ -138,8 +178,14 @@ it("adds and removes explicit reasoning levels, restores saved input, and never 
     "vendor.high:2",
   );
   expect(serialize()).toEqual(savedInput);
+  await click("删除等级 1");
+  expect(serialize().capabilities.reasoning_efforts).toEqual([]);
+  expect(document.activeElement).toBe(button("添加思考等级").element);
+  await click("添加思考等级");
+  await field("等级名称 1").setValue("深入");
+  await field("等级值 1").setValue("vendor.high:2");
   await checkbox("支持思考").setValue(false);
-  expect(wrapper!.text()).not.toContain("添加等级");
+  expect(wrapper!.text()).not.toContain("添加思考等级");
   const disabledInput = serialize();
   expect(disabledInput.capabilities).toMatchObject({
     reasoning: false,
@@ -155,25 +201,8 @@ it("adds and removes explicit reasoning levels, restores saved input, and never 
 });
 
 it("switches new models to fixed embedding capabilities without leaking chat settings", async () => {
-  await checkbox("图像").setValue(true);
-  await checkbox("工具调用").setValue(true);
-  await checkbox("并行工具调用").setValue(true);
-  await checkbox("流式输出").setValue(true);
-  await checkbox("支持思考").setValue(true);
-  await checkbox("支持结构化输出（JSON Schema）").setValue(true);
-  await click("添加等级");
-  await field("等级名称 1").setValue("深入");
-  await field("等级值 1").setValue("high");
-  await wrapper!.get("summary").trigger("click");
-  await field("上下文长度（可选）").setValue("128000");
-  await field("最大输出（可选）").setValue("4096");
-  const type = wrapper!.get('[role="combobox"]');
-  expect(type.attributes("disabled")).toBeUndefined();
-  await type.trigger("keydown", { key: "End" });
-  await flushPromises();
-  await type.trigger("keydown", { key: "Enter" });
-  await flushPromises();
-  expect(type.text()).toBe("向量");
+  await fillChatSettings();
+  await selectType("嵌入");
   for (const text of [
     "图像",
     "文件",
@@ -205,6 +234,69 @@ it("switches new models to fixed embedding capabilities without leaking chat set
   mountFields(input);
   expect(serialize()).toEqual(input);
 });
+
+it.each([
+  {
+    type: "reranker",
+    label: "重排",
+    inputLabel: "查询与文档",
+    outputLabel: "排序结果",
+    output: [],
+  },
+  {
+    type: "image_generation",
+    label: "图像生成",
+    inputLabel: "文本",
+    outputLabel: "图像",
+    output: ["image"],
+  },
+])(
+  "switches a configured chat draft to $type and restores only that type's capabilities",
+  async ({ type, label: typeLabel, inputLabel, outputLabel, output }) => {
+    await fillChatSettings();
+    await selectType(typeLabel);
+    for (const text of [
+      "图像",
+      "文件",
+      "工具调用",
+      "并行工具调用",
+      "流式输出",
+      "支持思考",
+      "支持结构化输出（JSON Schema）",
+      "上下文长度（可选）",
+      "最大输出（可选）",
+    ])
+      expect(
+        wrapper!.findAll("label").some((item) => item.text() === text),
+      ).toBe(false);
+    expect(wrapper!.find("details").exists()).toBe(false);
+    expect(wrapper!.text()).toContain(inputLabel);
+    expect(wrapper!.text()).toContain(outputLabel);
+
+    const input = serialize();
+    expect(input.type).toBe(type);
+    expect(input.capabilities).toEqual({
+      input_modalities: ["text"],
+      output_modalities: output,
+      tool_calls: false,
+      parallel_tool_calls: false,
+      streaming: false,
+      reasoning: false,
+      reasoning_efforts: [],
+      structured_output_modes: [],
+      context_length: null,
+      max_output: null,
+    });
+    expect(isModelInput(input)).toBe(true);
+    wrapper!.unmount();
+    mountFields(input);
+    expect(wrapper!.get('[role="combobox"]').text()).toBe(typeLabel);
+    expect(wrapper!.text()).toContain(inputLabel);
+    expect(wrapper!.text()).toContain(outputLabel);
+    expect(wrapper!.find("details").exists()).toBe(false);
+    expect(serialize()).toEqual(input);
+  },
+);
 
 it("uses a native disabled fieldset and does not duplicate selected values on repeated changes", async () => {
   wrapper!.unmount();

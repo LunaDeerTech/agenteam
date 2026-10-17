@@ -32,6 +32,7 @@ export interface AccountRequest {
   binary?: boolean;
   status?: number;
   modelOperationSignal?: () => AbortSignal;
+  modelOperationTimeoutMs?: 130000;
   query?: Readonly<{
     cursor?: string;
     limit?: string | number;
@@ -90,6 +91,14 @@ async function sendAccount<T>(
     );
   if (options.modelOperationSignal && !modelOperation)
     throw new AccountError("INVALID_REQUEST");
+  if (
+    options.modelOperationTimeoutMs !== undefined &&
+    (options.modelOperationTimeoutMs !== 130000 ||
+      !modelOperation ||
+      !path.startsWith("/system/models/") ||
+      !options.modelOperationSignal)
+  )
+    throw new AccountError("INVALID_REQUEST");
   const query = new URLSearchParams();
   for (const [name, value] of Object.entries(options.query ?? {})) {
     if (value === undefined) continue;
@@ -145,7 +154,10 @@ async function sendAccount<T>(
   const abort = () => controller.abort();
   externalSignal?.addEventListener("abort", abort, { once: true });
   if (externalSignal?.aborted) controller.abort();
-  const timeout = window.setTimeout(abort, modelOperation ? 30000 : 20000);
+  const timeout = window.setTimeout(
+    abort,
+    options.modelOperationTimeoutMs ?? (modelOperation ? 30000 : 20000),
+  );
   try {
     const response = await fetch(`${apiBase}${path}${suffix}`, {
       method,

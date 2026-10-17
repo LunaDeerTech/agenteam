@@ -22,13 +22,13 @@ export const platformPurposes = [
 export type PlatformPurpose = (typeof platformPurposes)[number];
 export type ModelPurpose = PlatformPurpose;
 export const purposeLabels: Record<ModelPurpose, string> = {
-  embedding: "向量模型（Embedding）",
+  embedding: "嵌入模型（Embedding）",
   summary: "总结模型（Chat）",
   reranker: "重排模型（Rerank）",
   image: "图像生成模型（Image Generation）",
 };
 export const purposeDescriptions: Record<ModelPurpose, string> = {
-  embedding: "将知识库和记忆文本转换为向量，用于语义检索；需文本向量模型。",
+  embedding: "将知识库和记忆文本转换为向量，用于语义检索；需文本嵌入模型。",
   summary: "提取整理记忆并生成会议摘要与标题；需支持 JSON Schema 的对话模型。",
   reranker: "预留知识与记忆检索结果的相关性重排；需重排模型，当前尚未接入。",
   image: "预留文本生成图像能力；需图像生成模型，当前尚未接入业务调用。",
@@ -130,10 +130,7 @@ export function modelPurposeIssue(
     image: "image_generation",
   };
   if (model.input.type !== wanted[purpose]) return "模型类型不适用于此用途";
-  const supported =
-    purpose === "embedding"
-      ? providerInput.protocol === "openai-compatible"
-      : purpose === "summary" && providerInput.protocol === "openai-compatible";
+  const supported = providerInput.protocol === "openai-compatible";
   if (!supported && !retainExisting)
     return "当前协议仅支持查看现有用途，不能新增选择";
   if (
@@ -143,11 +140,34 @@ export function modelPurposeIssue(
       model.input.capabilities.output_modalities.length !== 1 ||
       model.input.capabilities.output_modalities[0] !== "vector")
   )
-    return "向量模型需要 text 输入与 vector 输出能力";
+    return "嵌入模型需要 text 输入与 vector 输出能力";
   if (
     purpose === "summary" &&
     !model.input.capabilities.structured_output_modes.includes("json_schema")
   )
     return "总结模型需要 json_schema 能力";
+  if (purpose === "reranker" || purpose === "image") {
+    const c = model.input.capabilities;
+    const expectedOutput = purpose === "image" ? ["image"] : [];
+    if (
+      c.input_modalities.length !== 1 ||
+      c.input_modalities[0] !== "text" ||
+      c.output_modalities.length !== expectedOutput.length ||
+      c.output_modalities.some(
+        (value, index) => value !== expectedOutput[index],
+      ) ||
+      c.tool_calls ||
+      c.parallel_tool_calls ||
+      c.streaming ||
+      c.reasoning ||
+      c.reasoning_efforts.length ||
+      c.structured_output_modes.length ||
+      c.context_length !== null ||
+      c.max_output !== null
+    )
+      return purpose === "reranker"
+        ? "重排模型需要查询与文档排序能力"
+        : "图像生成模型需要文本生成图像能力";
+  }
   return undefined;
 }
