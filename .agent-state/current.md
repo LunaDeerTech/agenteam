@@ -6,6 +6,15 @@
 
 运行与空间 owner 为 `/root/filter_preview_platform`，独占本页及必要部署 harness；root 负责全部 Git 和最终集成。2026-10-17 15:12 UTC 实核原 Central PID587898/start_ticks4887180 存活且活动 manifest 仍指向 6d8，Vue PID588615 与 FRP helper16216/frpc16223 均存活。workspace 约剩 1.7 GiB，独立 `/tmp` 约剩 8.5 GiB；重型 Go 构建唯一窗口，所有本轮可写临时、binary 与 fixture 产物使用 owned `/tmp`，保留至少 512 MiB。原 SMTP/账号/Session/密钥/代理配置与业务数据保留；当前只做运行、容量、迁移适用性及严格公网 TLS 路径预检查。以下既有部署事实仍是恢复依据，历史公网 TLS 失败不追认成功。
 
+只读部署前检查已完成：schema152、migration journal 无未应用项；models、snapshots、Knowledge index_profiles、Memory generations 均为0，按153两函数的实际谓词投影计数违规均为0，不存在旧维度/profile阻塞。邮件非终态与未join attempt均0，数据库约27.6MB；18份immutable与3个基础容器nonce身份匹配。私有结果与精确SQL在 `/tmp/agenteam-model-filter-deploy-20261017/`。最终停写前仍须重查，因为用户可继续使用旧服务。
+
+公网TLS最小诊断：部署leaf SAN确有 `154.12.86.233`，`mcpc-terra.lunadeer.cn`亦解析为该IP；继承环境代理请求原origin却返回 `CN=openai.com` 并curl60/HTTP000。严格直连curl7；保持原IP/CA验证而仅把CONNECT authority切到域名的唯一后续仍curl60/HTTP000，未取得nonce或release，不据此认定FRP或应用故障。脱敏后续结果在 `/tmp/agenteam-tls-connect-authority-gprwt4ae/result.json`，代理/信任/服务配置均未改。显式SNI进一步返回由openai.com签发的域名leaf，原CA验证num19；使用环境正常CA的同18443域名请求虽TLS验证0，仍HTTP503，代理正文为上游CERTIFICATE_VERIFY_FAILED。没有放宽验证或修改信任。
+
+
+最小公网归属验证现已打通：新增 [check-persistent-model-public.py](../scripts/check-persistent-model-public.py) 仅临时转发身份/版本JSON，上游保持原CA、IP与leaf等值校验。2026-10-17基线复验经独立FRP公网18444的HTTP请求取得identity/release各200，nonce、6d8版本、实际后端SHA与前端index SHA均和严格本机结果相等；公网HTTP层不等于原18443的端到端TLS通过。当前最终部署仍未进行，候选切换后复用同一入口验证新版本。第二轮CLI实际0，FRP helper653323/frpc653340已精确消失，helper真实wait241（SIGTERM子退出），relay已join、端口已释放；结果在 `/tmp/agenteam-model-filter-deploy-20261017/public-baseline-r2/result.json`。首轮在映射成功后因本内核无proc children文件退出1、未发公网GET；改为按proc stat的精确parent PID查child后窄复验通过，原失败保留，首轮配置已消失且精确配置路径无进程消费者。
+
+本轮独审私有Vite使用冻结Vue源码 `/workspace/agenteam-chat-multimodal-vue/web`，仅本机5281；PID653254/start_ticks5427001，缓存/日志/恢复脚本在 `/tmp/agenteam-type-filter-vite-k8aw_005/`，由运行owner统一清理，不影响公开5245。
+
 ## 当前部署与恢复入口
 
 2026-10-17，按用户最新授权，Central 与 Vue 已从 b9d 同步升级至冻结版本 `6d8ad217f445b676228c7d63c8e9e0340fd49bf2`；恢复分支仍为 `ai/frontend-vue-rebuild-20261016`。Go 1.27.1 生产构建与配置检查实际 exit0，1897 项生产输入前后一致；Vue 类型与生产构建实际 exit0，142 份冻结源一致。首轮 Go 构建因部署脚本 300 秒预算被 TERM（actual -15，外层 exit1），无编译错误且子进程已清退；同输入复用热缓存、600 秒预算的第二轮实际通过，不追认首轮成功。
