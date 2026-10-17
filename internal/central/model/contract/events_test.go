@@ -4,7 +4,7 @@ import "testing"
 
 func TestConfigurationEventsContainOnlyClosedSafeFields(t *testing.T) {
 	x := setup(t)
-	e := ConfigurationChanged{AggregateID: x.snapshot.Identity.ModelID.String(), Version: 1, Scope: "system", ChangedFields: []string{"capabilities", "parameters"}}
+	e := ConfigurationChanged{AggregateID: x.snapshot.Identity.ModelID.String(), Version: 1, Scope: "system", ChangedFields: []string{"capabilities", "notes", "parameters"}}
 	must(t, e.Validate())
 	c := e.Clone()
 	c.ChangedFields[0] = "raw_prompt"

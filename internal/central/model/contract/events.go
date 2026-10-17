@@ -17,7 +17,7 @@ type ConfigurationChanged struct {
 }
 
 func (e ConfigurationChanged) Validate() error {
-	if !uuid(e.AggregateID) || e.Version.Validate() != nil || e.Scope != "system" && e.Scope != "project" || e.Scope == "system" && e.ProjectID != "" || e.Scope == "project" && !uuid(e.ProjectID) || len(e.ChangedFields) == 0 || !unique(e.ChangedFields, "created", "deleted", "name", "enabled", "base_url", "credential_ref", "provider_options", "model_id", "parameters", "request_overwrite", "header_overwrite", "capabilities", "replacement", "selection") {
+	if !uuid(e.AggregateID) || e.Version.Validate() != nil || e.Scope != "system" && e.Scope != "project" || e.Scope == "system" && e.ProjectID != "" || e.Scope == "project" && !uuid(e.ProjectID) || len(e.ChangedFields) == 0 || !unique(e.ChangedFields, "created", "deleted", "name", "notes", "enabled", "base_url", "credential_ref", "provider_options", "model_id", "parameters", "request_overwrite", "header_overwrite", "capabilities", "replacement", "selection") {
 		return bad()
 	}
 	return nil
