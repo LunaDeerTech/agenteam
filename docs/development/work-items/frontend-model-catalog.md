@@ -1,6 +1,6 @@
 # 新 Vue 模型目录与平台模型用途
 
-状态：2026-10-17 已授权实施，起点 `97ac04e3`。本卡是本包共同合同，当前为实施中，不以旧D09或旧前端验收替代新组合结果。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
+状态：2026-10-17 已授权实施，起点 `97ac04e3`。本卡是本包共同合同，已实现并完成下述本地适用验证，不以旧D09或旧前端验收替代新组合结果。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
 ## 1. 页面与完整流程
 
@@ -40,7 +40,7 @@ Meeting Summary沿独立 `/system/model-selection/meeting-summary` GET/PUT：`{i
 
 模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除引用。
 
-既有配置/Secret的lookup只观察历史身份，`found/observed=true`不能证明本次body匹配，false也不证明未提交或可换key。Unknown冻结原method/path/key/body/version；用户显式恢复时必须由原Execute严格核对原材料并返回匹配receipt后才终结，不仅凭lookup显示成功。lookup可以辅助核对，不能代原Execute。Secret原材料仅留该命令owner内存，确认、放弃或身份失效后清理；不写本地存储、日志或URL。已确认receipt后的GET失败仅重读，不再次执行成功写入。409保留非秘密草稿并显式采用新版本；Secret已知未提交的409须清秘密输入，显式读取新凭据版本后重新填写，不能沿用Unknown的原材料恢复；权限失效清本包数据，不伪造Session注销。
+既有配置/Secret的lookup只观察历史身份，`found/observed=true`不能证明本次body匹配，false也不证明未提交或可换key。Unknown冻结原method/path/key/body/version；用户显式恢复时必须由原Execute严格核对原材料并返回匹配receipt后才终结，不仅凭lookup显示成功。lookup可以辅助核对，不能代原Execute。Secret原材料仅留该命令owner内存，确认、放弃或身份失效后清理；不写本地存储、日志或URL。已确认receipt后的GET失败仅重读，不再次执行成功写入。409保留非秘密草稿并显式采用新版本；Secret已知未提交（not_started或not_committed）的409须清秘密输入，显式读取新凭据版本后重新填写，不能沿用Unknown的原材料恢复；权限失效清本包数据，不伪造Session注销。
 
 ## 4. 新增发现与有界真实测试
 
@@ -64,6 +64,26 @@ outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集�
 
 account_backend唯一维护后端/API/schema及00147、00148；proxy_copy唯一维护新Vue；本卡、蓝图和当前摘要由account_contract维护，root负责Git。测试、视觉与安全由root指定owner独立分工，不把作者检查写成独审。
 
-首链为供应商/凭据→模型→测试→用途保存与刷新；并检查部分完成、权限/CSRF、409、Unknown原请求终结、引用阻断、能力不支持与取消。发现/test使用任务拥有的模拟供应商和真实App/Secret/出站实现，不用用户现有凭据或外部供应商实发。页面核桌面/窄屏、键盘/modal回焦、返回列表与部分结果；现系统导航10项需要新检查，旧11项通过事实保留为历史。当前family调整仍在实施和隔离联调；先前冻结输入的权限/生命周期等未变结果可限定复用，不把旧协议整页或旧配置链当作新family验收。
+首链为供应商/凭据→模型→测试→用途保存与刷新；并检查部分完成、权限/CSRF、409、Unknown原请求终结、引用阻断、能力不支持与取消。发现/test使用任务拥有的模拟供应商和真实App/Secret/出站实现，不用用户现有凭据或外部供应商实发。页面核桌面/窄屏、键盘/modal回焦、返回列表与部分结果；现系统导航10项需要新检查，旧11项通过事实保留为历史。新family已完成下述真实链；先前冻结输入的权限/生命周期等未变结果仅限定复用，不把旧协议整页或旧配置链当作新family验收。
 
-当前集成与验证仍为WIP：r1旧CRUD/权限及供应商首链通过；r2启动前依赖失败未归因且已清退；family新真链、风险PG与独立权限验证待r3就绪。前端工程检查及86unit已过，后续字典定向检查和窄屏横溢同输入复验通过，其余状态独审仍在进行；精确组合与下一断点见[当前状态](../../../.agent-state/current.md)。
+最终主树集成`65e61bd4`，生产输入backend `e48dceaf`与Vue `2464e966`，运行harness为`c798f9b4`；结果按各自冻结输入和分轮范围记录：
+
+- r3严格CA管理API通过发现、chat测试、同key终态重放零重复、429安全失败及成功后丢浏览器响应的原key恢复；独立权限probe通过普通403、无CSRF403、异body409、撤销Session401，对供应商调用增量均为0，自有对象和Session已清理。
+- 真实Vue两case分轮通过：同供应商chat/embedding、凭据与配置/手动编辑、混合发现导入、首项受理后停止未开始项并继续、两adapter测试、429和丢成功响应后同key恢复；用途保存刷新、两处引用的取消及替换删除均有持久状态核对。各case finally logout204→401、浏览器退出。用途有效通过所在外层因目录定位器失败exit1，目录限定修复后单跑通过，不写成初次整轮全绿。
+- 最后作者组合门采用生产`e48dceaf`/取消测试`271b68`、PG17.8，实际PASS11.06s/外链exit0：同family两type与SQL约束、引用删除409、带凭据认证代理真实调用及原key零重复、规则拒绝零hit；真实HTTP取消后caller/handler/socket join，持久cancelled可原key恢复，Model/Proxy租约归零，删除模型/供应商/凭据后历史receipt仍返回。此为作者组合检查，非新增race或独立全矩阵；其中embedding创建不单独代表调用，实际embedding调用由前述API/UI链证明。
+- Vue最后13项受影响单测、格式/type/build通过；之前17文件86unit及字典定向仅按原输入复用。秘密材料closure与known Secret 409两合法状态处理已修并独审关闭；有限视觉复核包括窄屏横溢、列表滚动330→330/回焦、409与Unknown。
+
+原失败保留：r2启动前依赖失败尚未归因；管理harness初次缺正确CA，补CA后未降TLS；UI关闭按钮定位器歧义经限定修改后通过；旧PG16 setup失败未进入业务。没有使用用户凭据或外部供应商，不宣称所有供应商协议、全部项目/Agent执行或公网已验。
+
+r3原链actual exit0，App/TLS/供应商join，4容器+4网络及4专属目录清零；风险fixture另6资源/3目录亦清零。Vue5281 TERM后原wait143且无进程/监听，5282/5283无监听；5288仅确认进程/监听已无，旧launcher wait不可恢复。两个测试二进制按原SHA删除，必要私有证据保持0700/0600、不入Git；既有公开服务和用户数据未操作。
+
+本轮最终交付为示例数据截图，四图均由视觉owner上传并匿名下载核对；截图证明页面呈现，不替代真实API验收，也不代表公网已更新：
+
+| 页面 | 原图 |
+| --- | --- |
+| 供应商目录 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d9385b204.png) |
+| 同供应商聊天与嵌入模型 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d9385c771.png) |
+| 发现与导入 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d938aa5e8.png) |
+| 深色平台用途 | [查看原图](https://img.lunadeer.cn/i/2026/10/17/6ad2d938569be.png) |
+
+精确恢复状态与待办见[当前状态](../../../.agent-state/current.md)。
