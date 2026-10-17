@@ -164,6 +164,8 @@ func TestModelProjectConfigurationHTTPBoundedRepresentation(t *testing.T) {
 	// Prepare a page of individually domain-legal rows. Typed reasoning levels
 	// are bounded to 32; they can no longer produce one arbitrarily large row.
 	// JSON string escaping still makes this complete page exceed the wire cap.
+	// This is SQL-only read-defense material. Management modelPolicy still
+	// rejects nonempty parameters; this does not prove a writable configuration.
 	input := m.Input.Clone()
 	input.Parameters = json.RawMessage(`{"padding":"` + strings.Repeat("<", 60<<10) + `"}`)
 	if err := input.Validate(); err != nil {
