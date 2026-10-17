@@ -4,6 +4,7 @@ import {
   onBeforeUnmount,
   reactive,
   ref,
+  shallowReactive,
   shallowRef,
   watch,
 } from "vue";
@@ -42,7 +43,7 @@ const network = shallowRef<NetworkCommand<DiscoveryResult>>();
 const result = shallowRef<DiscoveryResult>();
 const selected = ref<string[]>([]);
 const filter = ref("");
-const drafts = reactive<Record<string, ModelDraft>>(Object.create(null));
+const drafts = shallowReactive<Record<string, ModelDraft>>(Object.create(null));
 const configuring = ref(false);
 function configure() {
   for (const id of selected.value)
