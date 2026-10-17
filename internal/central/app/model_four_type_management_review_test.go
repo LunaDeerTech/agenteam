@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"io"
 	"net"
 	"net/http"
@@ -24,6 +25,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // This independent review traverses the real App, management HTTP, PostgreSQL,
@@ -214,6 +216,29 @@ func TestModelFourTypeManagementIndependentReview(t *testing.T) {
 			t.Fatal("rejected capability mutation changed the stored model", kind)
 		}
 	}
+	// Migration 150 expands the family while preserving the native protocol/type
+	// relation. Both values below are individually valid, so this must reach the
+	// cross-table check rather than a scalar enum or foreign-key failure.
+	func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		embeddingPath := "models/" + models["embedding"]
+		before := call(http.MethodGet, embeddingPath, "", nil, 200)
+		nativeID := key()
+		_, err := a.store.Exec(ctx, `INSERT INTO agenteam_model.providers(id,scope,project_id,name,protocol,base_url,enabled,credential_id,provider_options,version,created_at,updated_at)
+ SELECT $2,scope,project_id,'Independent native constraint fixture','openai-chat-completions',base_url,enabled,NULL,provider_options,1,created_at,updated_at FROM agenteam_model.providers WHERE id=$1`, providerID, nativeID)
+		previewCheck(t, "native provider constraint fixture", err)
+		_, err = a.store.Exec(ctx, `UPDATE agenteam_model.models SET provider_id=$2 WHERE id=$1`, models["embedding"], nativeID)
+		var constraint *pgconn.PgError
+		if !errors.As(err, &constraint) || constraint.Code != "23514" || constraint.ConstraintName != "models_provider_type_check" {
+			t.Fatal("native Chat-only provider admitted an embedding or rejected it at the wrong constraint")
+		}
+		_, err = a.store.Exec(ctx, `DELETE FROM agenteam_model.providers WHERE id=$1`, nativeID)
+		previewCheck(t, "remove native constraint fixture", err)
+		if !bytes.Equal(before, call(http.MethodGet, embeddingPath, "", nil, 200)) {
+			t.Fatal("native protocol/type refusal changed the original family model")
+		}
+	}()
 	var selection struct {
 		ID         string            `json:"id"`
 		Version    string            `json:"version"`
