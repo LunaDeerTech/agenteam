@@ -50,21 +50,23 @@ test("one real supplier configures credentials and mixed models, discovers, impo
     waitUntil: "domcontentloaded",
   });
   await page.getByRole("button", { name: "添加供应商", exact: true }).click();
-  let dialog = page.getByRole("dialog");
+  let dialog = page.getByRole("dialog", { name: "添加供应商", exact: true });
   await dialog.getByLabel("供应商名称", { exact: true }).fill(name);
   await dialog
-    .getByLabel("服务地址", { exact: true })
+    .getByLabel("API 端点", { exact: true })
     .fill(owned.provider_base_url);
   await fillPrivate(
     dialog.getByLabel("API 凭据（可选）", { exact: true }),
     owned.provider_credential,
   );
   await dialog.getByRole("button", { name: "保存", exact: true }).click();
+  // Creation now closes its dialog after canonical readback and opens the
+  // inline configuration tab. Credential persistence is still checked below.
+  await expect(dialog).toHaveCount(0);
+  await expect(page).toHaveURL(/\/system\/models\/[0-9a-f-]+\?tab=config$/);
   await expect(
-    dialog.getByText("供应商已保存。", { exact: true }),
-  ).toBeVisible();
-  await dialog.getByRole("button", { name: "完成", exact: true }).click();
-  await page.getByRole("link", { name, exact: true }).click();
+    page.getByRole("tab", { name: "配置", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
   const providerID = new URL(page.url()).pathname.split("/").at(-1);
   const provider = await api(page, `/system/model-providers/${providerID}`);
@@ -74,6 +76,11 @@ test("one real supplier configures credentials and mixed models, discovers, impo
       !!provider.value.input.credential_ref,
   ).toBe(true);
   expect((await providerStats(page, owned)).requests).toBe(before.requests);
+
+  await page.getByRole("tab", { name: "模型", exact: true }).click();
+  await expect(
+    page.getByRole("tab", { name: "模型", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
 
   // Manual creation and editing use the actual fields, with bounded failure later.
   await page.getByRole("button", { name: "添加模型", exact: true }).click();

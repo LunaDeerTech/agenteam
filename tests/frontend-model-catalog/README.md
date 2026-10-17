@@ -34,7 +34,7 @@ test --config tests/frontend-model-catalog/playwright.config.cjs --list
 
 - `api-smoke.spec.cjs`：在浏览器的同源文档中调用真实 API，核 CRUD、凭据安全投影、原 key 回执、版本冲突、分页、单一 summary 用途的版本与回执重放、旧 memory 字段/独立 meeting-summary 接口拒绝及删除替换影响，以及普通身份403/缺CSRF403。它证明正式 API 接线，不代替页面控件旅程。
 - `management.spec.cjs`：须包含模型管理接线及迁移147的组合；发现和试调用到真实受控 TLS 目标，验证终态重放不重复请求、上游拒绝，以及受理完成后响应丢失再用原 key/body 恢复。响应丢失由浏览器只丢弃已经完整取得的正式响应，不替换 API 结果。
-- `catalog-ui.spec.cjs`：新 family 组合的页面旅程；同一供应商与凭据，手工模型编辑、发现后逐模型选择 chat/embedding 并导入、第一项真实提交后停止后续导入再继续、以“供应商/模型 ID”定位两个真实 adapter 测试、上游失败和 UI 显式恢复原测试请求。旧双协议组合不能执行或记作本场景通过。
+- `catalog-ui.spec.cjs`：新 family 组合的页面旅程；在创建 modal 中填写 API 端点与凭据，成功后自动进入 `/system/models/:providerId?tab=config` 的内联配置，读取正式 API 确认供应商与凭据已保存，再切到“模型”Tab。随后手工模型编辑、发现后逐模型选择 chat/embedding 并导入、第一项真实提交后停止后续导入再继续、以“供应商/模型 ID”定位两个真实 adapter 测试、上游失败和 UI 显式恢复原测试请求。旧双协议组合不能执行或记作本场景通过。
 - `picker-api.spec.cjs`：跨两个供应商的真实列表分页与规范化 q 查询，核安全 provider 五字段投影、凭据不泄漏、改变 q/provider/list-kind 的游标拒绝、匿名401和普通用户403；无模型出网。
 - `selection-ui.spec.cjs`：正式 API 创建两个供应商、13个独立模型，超过真实 picker 的10项页长。用户界面通过锚定浮层的服务端搜索及下一页找到首页之外的总结模型，跨供应商选择只改草稿，再选择向量模型并点击唯一“保存”；断言一个用途 PUT、版本加一和刷新保留。缺少 json_schema 的总结候选禁用；删除已引用总结模型时先取消，再用同一全局 picker 选择另一供应商的替代模型，核引用替换持久化。全程不需要模型出网。
 - 统一用途须包含迁移149和对应前后端组合：GET/PUT `/system/model-selection` 使用一个 id/version/receipt，Memory 与 Meeting 共用 `summary`；不再请求独立 meeting-summary 资源。真实 PG 的迁移重置、两消费者共用解析、Commit Unknown 与引用一致性由对应后端 selector 验证，浏览器场景不冒充这些内部门。原两资源界面的通过证据不算新合同已验；`--list` 只确认可选择场景，实际结果须在新组合运行后记录。
@@ -64,6 +64,12 @@ SUMMARY_SECURITY_RUN=1 node tests/frontend-model-catalog/summary-security.cjs
 该检查验证同版本并发只有一个提交、原 key 异 body 拒绝与注销后重放拒绝。收尾使用合法的新版本恢复原配置内容，删除自己的模型副本并退出两个 Session；不把配置内容恢复称为版本回滚。实际执行证据由独立 owner 记录，不与页面测试混称。
 
 2026-10-17 的实际组合为 App/fixture `5edd81b1` 与 Vue `0852da63`：三条原 CLI 分别 exit0，1 case 通过，耗时 36.2s、11.4s、20.3s。每条都经过严格 CA/leaf/nonce、真实登录及退出204→401、浏览器关闭。这里是新库 schema149 的 API/UI 证据；旧配置重置、Memory/Meeting 两消费者、持久 Commit Unknown 与独立并发门由对应 PG/App/安全检查分别报告，不由这三条替代。未部署公网，未使用用户数据或真实外部模型服务。
+
+## 供应商配置页签的 harness 随动
+
+2026-10-17 按 Vue 候选 `4eafeeee` 同步创建入口：表单“服务地址”现为“API 端点”，创建成功即关闭 modal 并进入配置 Tab，不再等待“完成”后点击列表名称。名称入口仍为 `/system/models/:providerId`，默认模型 Tab；列表“配置”进入 `?tab=config`，已有供应商属性和凭据由同页内联编辑。正式目录旅程保留原凭据持久化及后续业务断言，只调整导航/定位。
+
+本次仅执行语法、格式与锁定 CLI `--list` 检查，未启动 App/PG 或重跑真实目录旅程；新增界面的实际浏览器结果由作者和独立视觉检查分别报告。上方旧真实链结果仍保持其原输入，不能记作新页签组合已通过。
 
 ## 全局模型 picker 的限定运行
 
