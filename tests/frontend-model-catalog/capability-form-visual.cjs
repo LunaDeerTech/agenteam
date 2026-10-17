@@ -1,5 +1,5 @@
 // Independent controlled review of type-aware model capabilities. No real backend or provider.
-// node capability-form-visual.cjs --base-url http://127.0.0.1:5281 --owned capability-form-visual --input <revision> --run <label> [--only chat|embedding|create|narrow] [--check]
+// node capability-form-visual.cjs --base-url http://127.0.0.1:5281 --owned capability-form-visual --input <revision> --run <label> [--only compact|four-types|create-four|narrow] [--check]
 const { createRequire } = require("node:module");
 const locked = createRequire(
   "/workspace/agenteam/tests/account-captcha-web/package.json",
@@ -31,15 +31,6 @@ const row = (p, modelId = "sample-chat") =>
   table(p)
     .getByRole("row")
     .filter({ has: p.getByRole("cell", { name: modelId, exact: true }) });
-const sw = (p) => row(p).getByRole("switch");
-const writes = (s) => s.requests.filter((r) => r.method === "PUT");
-const gate = () => {
-  let release;
-  const promise = new Promise((resolve) => {
-    release = resolve;
-  });
-  return { promise, release };
-};
 let stage = "prepare";
 async function shot(p, name) {
   assert(
@@ -73,7 +64,12 @@ function sampleModel(n, type, modelId) {
     created_at: at,
     updated_at: at,
     input: {
-      name: type === "chat" ? "团队对话模型" : "项目向量模型",
+      name: {
+        chat: "团队对话模型",
+        embedding: "项目嵌入模型",
+        reranker: "文档重排模型",
+        image_generation: "图像生成模型",
+      }[type],
       provider_model_id: modelId,
       type,
       enabled: true,
@@ -86,10 +82,15 @@ function sampleModel(n, type, modelId) {
         streaming: type === "chat",
         reasoning: false,
         input_modalities: ["text"],
-        output_modalities: [type === "chat" ? "text" : "vector"],
+        output_modalities: {
+          chat: ["text"],
+          embedding: ["vector"],
+          reranker: [],
+          image_generation: ["image"],
+        }[type],
         reasoning_efforts: [],
         structured_output_modes: type === "chat" ? ["text"] : [],
-        context_length: "8192",
+        context_length: ["chat", "embedding"].includes(type) ? "8192" : null,
         max_output: type === "chat" ? "1024" : null,
       },
     },
@@ -113,8 +114,10 @@ async function setup(c, variant) {
   const models = [
     sampleModel(10, "chat", "sample-chat"),
     sampleModel(11, "embedding", "sample-embedding"),
+    sampleModel(12, "reranker", "sample-reranker"),
+    sampleModel(13, "image_generation", "sample-image"),
   ];
-  if (variant === "narrow") {
+  if (["narrow", "compact"].includes(variant)) {
     models[0].input.capabilities.input_modalities = ["text", "image", "file"];
     models[0].input.capabilities.output_modalities = ["text"];
     models[0].input.capabilities.reasoning = true;
@@ -212,7 +215,7 @@ async function setup(c, variant) {
         protocols: [
           {
             protocol: "openai-compatible",
-            model_types: ["chat", "embedding"],
+            model_types: ["chat", "embedding", "reranker", "image_generation"],
             discovery: true,
             test: true,
           },
@@ -233,7 +236,7 @@ async function setup(c, variant) {
         assert.deepEqual(Object.keys(body).sort(), ["input", "provider_id"]);
         assert.equal(body.provider_id, provider.id);
         model = {
-          id: id(12),
+          id: id(30),
           provider_id: provider.id,
           version: "1",
           created_at: at,
@@ -377,233 +380,9 @@ async function finish(p, d, modelID) {
   await expect(d).toHaveCount(0);
   await expect(btn(row(p, modelID), "编辑")).toBeFocused();
 }
-async function chat({ p, s }) {
-  stage = "chat-basic";
-  let d = await editor(p);
-  await fixedChat(d);
-  await advanced(d);
-  await expect(field(d, "上下文长度（可选）")).toHaveValue("8192");
-  await expect(field(d, "最大输出（可选）")).toHaveValue("1024");
-  await expect(check(d, schemaLabel)).not.toBeChecked();
-  await expect(check(d, "支持思考")).not.toBeChecked();
-  await capture(p, d, "01-chat-basic");
-  stage = "chat-json-schema";
-  await check(d, schemaLabel).check();
-  await capture(p, d, "02-chat-json-schema");
-  stage = "chat-reasoning-empty";
-  await check(d, "支持思考").check();
-  await expect(
-    d.getByRole("region", { name: "思考等级", exact: true }),
-  ).toBeVisible();
-  await expect(field(d, "等级名称 1")).toHaveCount(0);
-  await capture(p, d, "03-chat-reasoning-empty");
-  const before = structuredClone(s.models[0].input);
-  await btn(d, "保存").click();
-  await finish(p, d, "sample-chat");
-  assert.equal(s.requests.length, 1);
-  assert.deepEqual(s.requests[0].body, {
-    expected_version: "1",
-    input: {
-      ...before,
-      capabilities: {
-        ...before.capabilities,
-        reasoning: true,
-        reasoning_efforts: [],
-        structured_output_modes: ["text", "json_schema"],
-      },
-    },
-  });
-  stage = "chat-reasoning-levels";
-  d = await editor(p);
-  await advanced(d);
-  await btn(d, "添加等级").click();
-  await expect(field(d, "等级名称 1")).toBeFocused();
-  await field(d, "等级名称 1").fill("轻度思考");
-  await p.keyboard.press("Tab");
-  await expect(field(d, "等级值 1")).toBeFocused();
-  await field(d, "等级值 1").fill("low");
-  await btn(d, "添加等级").click();
-  await expect(field(d, "等级名称 2")).toBeFocused();
-  await field(d, "等级名称 2").fill("深入思考 🚀");
-  await field(d, "等级值 2").fill("high");
-  await capture(p, d, "04-chat-reasoning-levels");
-  stage = "duplicate-level-validation";
-  await field(d, "等级值 2").fill("low");
-  await btn(d, "保存").click();
-  await expect(d.getByRole("alert")).toContainText("名称和值均不可重复");
-  assert.equal(s.requests.length, 1);
-  await capture(p, d, "05-duplicate-level-error");
-  await field(d, "等级值 2").fill("high");
-  stage = "reasoning-pending-save";
-  s.holdWrite = gate();
-  await btn(d, "保存").click();
-  try {
-    await expect.poll(() => s.requests.length).toBe(2);
-    await expect(field(d, "等级名称 1")).toBeDisabled();
-    await expect(check(d, "支持思考")).toBeDisabled();
-  } finally {
-    s.holdWrite.release();
-  }
-  await finish(p, d, "sample-chat");
-  assert.deepEqual(s.requests[1].body, {
-    expected_version: "2",
-    input: {
-      ...before,
-      capabilities: {
-        ...before.capabilities,
-        reasoning: true,
-        reasoning_efforts: [
-          { name: "轻度思考", value: "low" },
-          { name: "深入思考 🚀", value: "high" },
-        ],
-        structured_output_modes: ["text", "json_schema"],
-      },
-    },
-  });
-  return {
-    typeLocked: true,
-    noUnusedJSONFields: true,
-    textFixedMetadataNotice: true,
-    schemaBoolean: true,
-    emptyReasoningAccepted: true,
-    typedNameValuePreserved: true,
-    duplicateZeroAdditionalWrites: true,
-    pendingDisabled: true,
-    keyboardAddAndTab: true,
-    saveCloseFocus: true,
-  };
-}
-async function embedding({ p, s }) {
-  stage = "embedding-fixed";
-  const d = await editor(p, "sample-embedding");
-  await advanced(d);
-  await expect(
-    d
-      .locator(".fixed-modality")
-      .filter({ hasText: "输入模态" })
-      .locator(".fixed-value"),
-  ).toHaveText("文本");
-  await expect(
-    d
-      .locator(".fixed-modality")
-      .filter({ hasText: "输出模态" })
-      .locator(".fixed-value"),
-  ).toHaveText("向量");
-  for (const label of [
-    "支持思考",
-    schemaLabel,
-    "工具调用",
-    "并行工具调用",
-    "流式输出",
-  ])
-    await expect(check(d, label)).toHaveCount(0);
-  await expect(field(d, "最大输出（可选）")).toHaveCount(0);
-  await expect(field(d, "上下文长度（可选）")).toHaveValue("8192");
-  await capture(p, d, "06-embedding-fixed");
-  const before = structuredClone(s.models[1].input);
-  await field(d, "上下文长度（可选）").fill("16384");
-  await btn(d, "保存").click();
-  await finish(p, d, "sample-embedding");
-  assert.equal(s.requests.length, 1);
-  assert.deepEqual(s.requests[0].body, {
-    expected_version: "1",
-    input: {
-      ...before,
-      capabilities: { ...before.capabilities, context_length: "16384" },
-    },
-  });
-  return {
-    typeLocked: true,
-    fixedTextVector: true,
-    noChatOnlyControls: true,
-    contextRetained: true,
-    maxOutputNull: true,
-    fullInputPreserved: true,
-  };
-}
 async function selectType(p, d, label) {
   await d.getByRole("combobox", { name: "模型类型", exact: true }).click();
   await p.getByRole("option", { name: label, exact: true }).click();
-}
-async function create({ p, s }) {
-  stage = "create-type-selection";
-  await btn(p, "添加模型").click();
-  const d = p.getByRole("dialog", { name: "添加模型", exact: true });
-  await expect(
-    d.getByRole("combobox", { name: "模型类型", exact: true }),
-  ).toBeEnabled();
-  await field(d, "模型名称").fill("新建类型切换示例");
-  await field(d, "模型 ID").fill("sample-new-model");
-  await selectType(p, d, "对话");
-  await fixedChat(d);
-  await advanced(d);
-  await check(d, schemaLabel).check();
-  await check(d, "支持思考").check();
-  await btn(d, "添加等级").click();
-  await field(d, "等级名称 1").fill("深度");
-  await field(d, "等级值 1").fill("high");
-  await check(
-    d.getByRole("group", { name: "输入模态", exact: true }),
-    "图像",
-  ).check();
-  await capture(p, d, "07-create-chat");
-  await selectType(p, d, "向量");
-  await expect(
-    d
-      .locator(".fixed-modality")
-      .filter({ hasText: "输入模态" })
-      .locator(".fixed-value"),
-  ).toHaveText("文本");
-  await expect(
-    d
-      .locator(".fixed-modality")
-      .filter({ hasText: "输出模态" })
-      .locator(".fixed-value"),
-  ).toHaveText("向量");
-  await expect(check(d, "支持思考")).toHaveCount(0);
-  await selectType(p, d, "对话");
-  await fixedChat(d);
-  await selectType(p, d, "向量");
-  await field(d, "上下文长度（可选）").fill("4096");
-  await capture(p, d, "08-create-embedding");
-  stage = "create-embedding-normalization";
-  await btn(d, "保存").click();
-  await expect(d).toContainText("模型已保存。");
-  assert.equal(s.requests.length, 1);
-  assert.equal(s.requests[0].method, "POST");
-  assert.deepEqual(s.requests[0].body, {
-    provider_id: s.provider.id,
-    input: {
-      name: "新建类型切换示例",
-      provider_model_id: "sample-new-model",
-      type: "embedding",
-      enabled: true,
-      parameters: {},
-      request_overwrite: {},
-      header_overwrite: {},
-      capabilities: {
-        tool_calls: false,
-        parallel_tool_calls: false,
-        streaming: false,
-        reasoning: false,
-        input_modalities: ["text"],
-        output_modalities: ["vector"],
-        reasoning_efforts: [],
-        structured_output_modes: [],
-        context_length: "4096",
-        max_output: null,
-      },
-    },
-  });
-  await btn(d, "完成").click();
-  await expect(d).toHaveCount(0);
-  await expect(row(p, "sample-new-model")).toBeVisible();
-  return {
-    newTypeSelectable: true,
-    typeRoundTrip: true,
-    hiddenChatFieldsExcluded: true,
-    createExactEmbedding: true,
-  };
 }
 async function narrow({ p, s }) {
   stage = "narrow-all-fields";
@@ -618,13 +397,14 @@ async function narrow({ p, s }) {
   await expect(
     check(d.getByRole("group", { name: "输入模态", exact: true }), "文件"),
   ).toBeChecked();
-  await capture(p, d, "09-narrow-reasoning");
+  const geometry = await compactRows(p, d);
+  await capture(p, d, "14-narrow-compact-reasoning");
   stage = "narrow-remove-and-cancel";
   await btn(d, "删除等级 2").click();
   await expect(field(d, "等级名称 1")).toBeFocused();
   await btn(d, "删除等级 1").click();
-  await expect(btn(d, "添加等级")).toBeFocused();
-  await btn(d, "添加等级").click();
+  await expect(btn(d, "添加思考等级")).toBeFocused();
+  await btn(d, "添加思考等级").click();
   await expect(field(d, "等级名称 1")).toBeFocused();
   await p.keyboard.press("Escape");
   const discard = p.getByRole("dialog", {
@@ -637,6 +417,7 @@ async function narrow({ p, s }) {
   await expect(btn(row(p), "编辑")).toBeFocused();
   assert.equal(s.requests.length, 0);
   return {
+    geometry,
     completeScrollingCapture: true,
     metadataChoicesVisible: true,
     levelRemoveFocus: true,
@@ -646,10 +427,257 @@ async function narrow({ p, s }) {
     ),
   };
 }
+
+async function compactRows(p, d) {
+  const rows = d.locator(".reasoning-row");
+  const count = await rows.count();
+  assert(count > 0);
+  for (let i = 1; i <= count; i++) {
+    await expect(field(d, `等级名称 ${i}`)).toBeVisible();
+    await expect(field(d, `等级值 ${i}`)).toBeVisible();
+    await expect(field(d, `等级名称 ${i}`)).toHaveAttribute(
+      "placeholder",
+      "名称",
+    );
+    await expect(field(d, `等级值 ${i}`)).toHaveAttribute("placeholder", "值");
+    await expect(btn(d, `删除等级 ${i}`)).toBeVisible();
+  }
+  const geometry = await rows.evaluateAll((nodes) =>
+    nodes.map((e) => {
+      const controls = [...e.querySelectorAll("input,button")].map((n) => {
+        const r = n.getBoundingClientRect();
+        return {
+          x: r.x,
+          y: r.y,
+          width: r.width,
+          height: r.height,
+          center: r.y + r.height / 2,
+        };
+      });
+      const labels = [...e.querySelectorAll(".ui-field-label")].map((n) => {
+        const r = n.getBoundingClientRect(),
+          c = getComputedStyle(n);
+        return {
+          width: r.width,
+          height: r.height,
+          clip: c.clip,
+          position: c.position,
+        };
+      });
+      return { controls, labels };
+    }),
+  );
+  for (const item of geometry) {
+    assert.equal(item.controls.length, 3);
+    assert(
+      Math.max(...item.controls.map((r) => r.center)) -
+        Math.min(...item.controls.map((r) => r.center)) <=
+        1,
+      "name/value/delete must share one row",
+    );
+    assert(
+      item.controls[0].x + item.controls[0].width <= item.controls[1].x,
+      "name/value overlap",
+    );
+    assert(
+      item.controls[1].x + item.controls[1].width <= item.controls[2].x,
+      "value/delete overlap",
+    );
+    assert(
+      item.labels.every(
+        (r) =>
+          r.width <= 1 &&
+          r.height <= 1 &&
+          r.clip === "rect(0px, 0px, 0px, 0px)",
+      ),
+      "visible level numbers remain",
+    );
+  }
+  const last = await rows.last().boundingBox(),
+    add = await btn(d, "添加思考等级").boundingBox();
+  assert(add.y >= last.y + last.height, "add action must stay below rows");
+  await dimensions(p);
+  return geometry;
+}
+async function compact({ p, s }) {
+  stage = "desktop-compact-levels";
+  const d = await editor(p);
+  await fixedChat(d);
+  await advanced(d);
+  const geometry = await compactRows(p, d);
+  await field(d, "等级名称 1").focus();
+  await p.keyboard.press("Tab");
+  await expect(field(d, "等级值 1")).toBeFocused();
+  await p.keyboard.press("Tab");
+  await expect(btn(d, "删除等级 1")).toBeFocused();
+  await p.keyboard.press("Tab");
+  await expect(field(d, "等级名称 2")).toBeFocused();
+  await capture(p, d, "10-chat-compact-dark");
+  await btn(d, "取消").click();
+  await expect(d).toHaveCount(0);
+  await expect(btn(row(p), "编辑")).toBeFocused();
+  assert.equal(s.requests.length, 0);
+  return {
+    geometry,
+    accessibleIndexedLabels: true,
+    noVisibleNumbering: true,
+    keyboardOrder: true,
+    cleanCancelZeroWrites: true,
+  };
+}
+async function nonChat(d, type) {
+  const expected =
+    type === "embedding"
+      ? ["文本", "向量"]
+      : type === "reranker"
+        ? ["查询与文档", "排序结果"]
+        : ["文本", "图像"];
+  await expect(d.locator(".fixed-value")).toHaveText(expected);
+  for (const label of [
+    schemaLabel,
+    "支持思考",
+    "工具调用",
+    "并行工具调用",
+    "流式输出",
+  ])
+    await expect(check(d, label)).toHaveCount(0);
+  await expect(field(d, "最大输出（可选）")).toHaveCount(0);
+  if (type === "embedding") await advanced(d);
+  else {
+    await expect(d.locator("details")).toHaveCount(0);
+    await expect(field(d, "上下文长度（可选）")).toHaveCount(0);
+  }
+}
+async function fourTypes({ p, s }) {
+  stage = "four-types-list";
+  await expect(
+    row(p, "sample-embedding").getByText("嵌入", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    row(p, "sample-reranker").getByText("重排", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    row(p, "sample-image").getByText("图像生成", { exact: true }),
+  ).toBeVisible();
+  for (const [index, type, modelID, label, image] of [
+    [1, "embedding", "sample-embedding", "嵌入", "11-embedding-light"],
+    [2, "reranker", "sample-reranker", "重排", "12-reranker-light"],
+    [
+      3,
+      "image_generation",
+      "sample-image",
+      "图像生成",
+      "13-image-generation-light",
+    ],
+  ]) {
+    stage = "edit-" + type;
+    const d = await editor(p, modelID);
+    await expect(
+      d.getByRole("combobox", { name: "模型类型", exact: true }),
+    ).toContainText(label);
+    await nonChat(d, type);
+    await capture(p, d, image);
+    const before = structuredClone(s.models[index].input);
+    await field(d, "模型名称").fill(before.name + "示例");
+    if (type === "embedding")
+      await field(d, "上下文长度（可选）").fill("16384");
+    await btn(d, "保存").click();
+    await finish(p, d, modelID);
+    const expected = structuredClone(before);
+    expected.name += "示例";
+    if (type === "embedding") expected.capabilities.context_length = "16384";
+    assert.deepEqual(s.requests.at(-1).body, {
+      expected_version: "1",
+      input: expected,
+    });
+  }
+  assert.equal(s.requests.length, 3);
+  return {
+    labelsEmbeddingRenamed: true,
+    allExistingTypesLocked: true,
+    exactNonChatWrites: 3,
+    rerankerOutputEmpty: true,
+    imageOutputImage: true,
+    newTypesNoAdvanced: true,
+  };
+}
+async function createFour({ p, s }) {
+  stage = "create-four-options";
+  await btn(p, "添加模型").click();
+  const d = p.getByRole("dialog", { name: "添加模型", exact: true });
+  await field(d, "模型名称").fill("图像生成配置示例");
+  await field(d, "模型 ID").fill("sample-new-image");
+  const type = d.getByRole("combobox", { name: "模型类型", exact: true });
+  await expect(type).toBeEnabled();
+  await type.click();
+  await expect(p.getByRole("option")).toHaveText([
+    "对话",
+    "嵌入",
+    "重排",
+    "图像生成",
+  ]);
+  await p.getByRole("option", { name: "对话", exact: true }).click();
+  await check(d, schemaLabel).check();
+  await check(d, "支持思考").check();
+  await btn(d, "添加思考等级").click();
+  await field(d, "等级名称 1").fill("深入思考");
+  await field(d, "等级值 1").fill("high");
+  await advanced(d);
+  await field(d, "上下文长度（可选）").fill("8192");
+  await field(d, "最大输出（可选）").fill("1024");
+  for (const [type, label] of [
+    ["embedding", "嵌入"],
+    ["reranker", "重排"],
+    ["image_generation", "图像生成"],
+  ]) {
+    await selectType(p, d, label);
+    await nonChat(d, type);
+  }
+  await capture(p, d, "15-create-image-generation-dark");
+  await btn(d, "保存").click();
+  await expect(d).toContainText("模型已保存。");
+  assert.equal(s.requests.length, 1);
+  assert.equal(s.requests[0].method, "POST");
+  assert.deepEqual(s.requests[0].body, {
+    provider_id: s.provider.id,
+    input: {
+      name: "图像生成配置示例",
+      provider_model_id: "sample-new-image",
+      type: "image_generation",
+      enabled: true,
+      parameters: {},
+      request_overwrite: {},
+      header_overwrite: {},
+      capabilities: {
+        tool_calls: false,
+        parallel_tool_calls: false,
+        streaming: false,
+        reasoning: false,
+        input_modalities: ["text"],
+        output_modalities: ["image"],
+        reasoning_efforts: [],
+        structured_output_modes: [],
+        context_length: null,
+        max_output: null,
+      },
+    },
+  });
+  await btn(d, "完成").click();
+  await expect(d).toHaveCount(0);
+  await expect(row(p, "sample-new-image")).toBeVisible();
+  return {
+    fourSelectableTypes: true,
+    hiddenChatFieldsExcluded: true,
+    imageCreateExactPayload: true,
+  };
+}
+
 async function main() {
   await fs.mkdir(out, { recursive: true });
   const only = args.includes("--only") ? arg("--only") : undefined;
-  assert(!only || ["chat", "embedding", "create", "narrow"].includes(only));
+  assert(
+    !only || ["compact", "four-types", "create-four", "narrow"].includes(only),
+  );
   const results = [],
     browser = await chromium.launch({
       executablePath: "/usr/bin/chromium",
@@ -657,9 +685,9 @@ async function main() {
     });
   try {
     for (const [name, work] of [
-      ["chat", chat],
-      ["embedding", embedding],
-      ["create", create],
+      ["compact", compact],
+      ["four-types", fourTypes],
+      ["create-four", createFour],
       ["narrow", narrow],
     ]) {
       if (only && only !== name) continue;
@@ -668,7 +696,7 @@ async function main() {
           name === "narrow"
             ? { width: 390, height: 844 }
             : { width: 1440, height: 1000 },
-        colorScheme: name === "narrow" ? "light" : "dark",
+        colorScheme: ["narrow", "four-types"].includes(name) ? "light" : "dark",
         reducedMotion: name === "narrow" ? "reduce" : "no-preference",
         serviceWorkers: "block",
       });
@@ -678,7 +706,12 @@ async function main() {
         const detail = await work(data);
         assert.deepEqual(data.s.errors, []);
         assert.deepEqual(data.s.unexpected, []);
-        results.push({ name, outcome: "observed", detail });
+        results.push({
+          name,
+          outcome: "observed",
+          detail,
+          timeline: data.s.timeline,
+        });
       } catch (e) {
         const p = c.pages().at(-1);
         const diagnostic =

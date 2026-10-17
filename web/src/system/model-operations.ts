@@ -19,6 +19,7 @@ function networkCommand<T>(
   path: string,
   body: unknown,
   validate: (v: unknown) => v is T,
+  timeoutMs?: 130000,
 ): NetworkCommand<T> {
   let controller = new AbortController();
   const command = systemCommand(
@@ -27,6 +28,7 @@ function networkCommand<T>(
       method: "POST",
       body: JSON.stringify(body),
       modelOperationSignal: () => controller.signal,
+      modelOperationTimeoutMs: timeoutMs,
     },
     validate,
   );
@@ -90,7 +92,7 @@ export interface TestResult extends OperationResult {
   model_id: string;
   model_version: string;
 }
-function common(v: Record<string, unknown>) {
+function common(v: Record<string, unknown>, maximumDuration: number) {
   return (
     isId(v.operation_id) &&
     isId(v.provider_id) &&
@@ -101,7 +103,7 @@ function common(v: Record<string, unknown>) {
       : operationReasons.includes(v.reason as OperationReason)) &&
     Number.isInteger(v.duration_ms) &&
     Number(v.duration_ms) >= 0 &&
-    Number(v.duration_ms) <= 20000 &&
+    Number(v.duration_ms) <= maximumDuration &&
     isInstant(v.created_at)
   );
 }
@@ -118,7 +120,7 @@ export function isDiscoveryResult(v: unknown): v is DiscoveryResult {
       "duration_ms",
       "created_at",
     ]) &&
-    common(v) &&
+    common(v, 20000) &&
     Array.isArray(v.items) &&
     v.items.length <= 1000 &&
     v.items.every(
@@ -147,7 +149,7 @@ export function isTestResult(v: unknown): v is TestResult {
       "duration_ms",
       "created_at",
     ]) &&
-    common(v) &&
+    common(v, 120000) &&
     isId(v.model_id) &&
     isVersion(v.model_version)
   );
@@ -187,6 +189,7 @@ export function discoveryCommand(provider: Provider) {
   );
 }
 export function modelTestCommand(provider: Provider, model: CatalogModel) {
+  const image = model.input.type === "image_generation";
   return networkCommand(
     `/system/models/${model.id}/test`,
     { expected_version: model.version, provider_version: provider.version },
@@ -195,7 +198,9 @@ export function modelTestCommand(provider: Provider, model: CatalogModel) {
       v.provider_id === provider.id &&
       v.provider_version === provider.version &&
       v.model_id === model.id &&
-      v.model_version === model.version,
+      v.model_version === model.version &&
+      v.duration_ms <= (image ? 120000 : 20000),
+    image ? 130000 : undefined,
   );
 }
 export const reasonLabels: Record<OperationReason, string> = {
