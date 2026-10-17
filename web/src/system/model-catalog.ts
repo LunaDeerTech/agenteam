@@ -54,6 +54,7 @@ export interface ReasoningEffort {
   name: string;
   value: string;
 }
+export type ReasoningToggleMode = "enable_thinking" | "thinking_type";
 export interface Capabilities {
   tool_calls: boolean;
   parallel_tool_calls: boolean;
@@ -62,12 +63,13 @@ export interface Capabilities {
   input_modalities: string[];
   output_modalities: string[];
   reasoning_efforts: ReasoningEffort[];
+  reasoning_toggle_mode: ReasoningToggleMode | null;
   structured_output_modes: string[];
   context_length: string | null;
   max_output: string | null;
 }
 export interface ModelInput {
-  name: string;
+  notes: string;
   provider_model_id: string;
   type: ModelType;
   enabled: boolean;
@@ -83,6 +85,50 @@ export interface CatalogModel {
   version: string;
   created_at: string;
   updated_at: string;
+}
+export type ReasoningChoice =
+  { mode: "default" | "on" | "off" } | { mode: "effort"; value: string };
+export interface ModelChoice {
+  model_id: string;
+  reasoning: ReasoningChoice;
+}
+export function isReasoningChoice(value: unknown): value is ReasoningChoice {
+  return (
+    isRecord(value) &&
+    (value.mode === "effort"
+      ? onlyKeys(value, ["mode", "value"]) &&
+        typeof value.value === "string" &&
+        /^[A-Za-z0-9_.:-]{1,32}$/.test(value.value)
+      : onlyKeys(value, ["mode"]) &&
+        ["default", "on", "off"].includes(value.mode as string))
+  );
+}
+export function isModelChoice(value: unknown): value is ModelChoice {
+  return (
+    isRecord(value) &&
+    onlyKeys(value, ["model_id", "reasoning"]) &&
+    isId(value.model_id) &&
+    isReasoningChoice(value.reasoning)
+  );
+}
+export function modelReasoningIssue(
+  model: CatalogModel,
+  choice: ReasoningChoice,
+) {
+  if (choice.mode === "default") return undefined;
+  const capability = model.input.capabilities;
+  if (model.input.type !== "chat" || !capability.reasoning)
+    return "此模型不支持思考选项";
+  if (choice.mode === "effort")
+    return capability.reasoning_efforts.some(
+      (level) => level.value === choice.value,
+    )
+      ? undefined
+      : "思考等级已不可用，请重新选择";
+  return !capability.reasoning_efforts.length &&
+    capability.reasoning_toggle_mode
+    ? undefined
+    : "此模型尚未配置可用的思考开关格式";
 }
 export const commandKinds = [
   "provider.create",
@@ -202,6 +248,7 @@ export function isCapabilities(v: unknown): v is Capabilities {
       "input_modalities",
       "output_modalities",
       "reasoning_efforts",
+      "reasoning_toggle_mode",
       "structured_output_modes",
       "context_length",
       "max_output",
@@ -222,6 +269,12 @@ export function isCapabilities(v: unknown): v is Capabilities {
       ["text", "json_schema"].includes(value),
     ) &&
     isReasoningEfforts(v.reasoning_efforts) &&
+    (v.reasoning_toggle_mode === null ||
+      (v.reasoning === true &&
+        v.reasoning_efforts.length === 0 &&
+        ["enable_thinking", "thinking_type"].includes(
+          v.reasoning_toggle_mode as string,
+        ))) &&
     (!v.parallel_tool_calls || !!v.tool_calls) &&
     (!!v.reasoning || v.reasoning_efforts.length === 0) &&
     (v.context_length === null || isVersion(v.context_length)) &&
@@ -235,7 +288,7 @@ export function isModelInput(v: unknown): v is ModelInput {
   return (
     isRecord(v) &&
     onlyKeys(v, [
-      "name",
+      "notes",
       "provider_model_id",
       "type",
       "enabled",
@@ -244,7 +297,10 @@ export function isModelInput(v: unknown): v is ModelInput {
       "header_overwrite",
       "capabilities",
     ]) &&
-    text(v.name, 128) &&
+    typeof v.notes === "string" &&
+    [...v.notes].length <= 2000 &&
+    new TextEncoder().encode(v.notes).length <= 8000 &&
+    !v.notes.includes("\0") &&
     text(v.provider_model_id, 256) &&
     modelTypes.includes(v.type as ModelType) &&
     typeof v.enabled === "boolean" &&
@@ -252,7 +308,8 @@ export function isModelInput(v: unknown): v is ModelInput {
     isRecord(v.request_overwrite) &&
     isRecord(v.header_overwrite) &&
     Object.values(v.header_overwrite).every((x) => typeof x === "string") &&
-    isCapabilities(v.capabilities)
+    isCapabilities(v.capabilities) &&
+    (v.type === "chat" || v.capabilities.reasoning_toggle_mode === null)
   );
 }
 export function isCatalogModel(v: unknown): v is CatalogModel {

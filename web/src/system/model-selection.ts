@@ -6,6 +6,8 @@ import {
   isCatalogLookup,
   isCatalogReceipt,
   onlyKeys,
+  isModelChoice,
+  type ModelChoice,
   type CatalogModel,
   type CatalogOperation,
   type CatalogReceipt,
@@ -34,10 +36,10 @@ export const purposeDescriptions: Record<ModelPurpose, string> = {
   image: "预留文本生成图像能力；需图像生成模型，当前尚未接入业务调用。",
 };
 export interface SelectionValues {
-  embedding: string;
-  summary: string;
-  reranker: string | null;
-  image: string | null;
+  embedding: ModelChoice;
+  summary: ModelChoice;
+  reranker: ModelChoice | null;
+  image: ModelChoice | null;
 }
 export interface ModelSelection {
   id: string;
@@ -52,10 +54,10 @@ export function isSelectionValues(value: unknown): value is SelectionValues {
   return (
     isRecord(value) &&
     onlyKeys(value, platformPurposes) &&
-    isId(value.embedding) &&
-    isId(value.summary) &&
-    (value.reranker === null || isId(value.reranker)) &&
-    (value.image === null || isId(value.image))
+    isModelChoice(value.embedding) &&
+    isModelChoice(value.summary) &&
+    (value.reranker === null || isModelChoice(value.reranker)) &&
+    (value.image === null || isModelChoice(value.image))
   );
 }
 export function isModelSelection(value: unknown): value is ModelSelection {
@@ -161,6 +163,7 @@ export function modelPurposeIssue(
       c.streaming ||
       c.reasoning ||
       c.reasoning_efforts.length ||
+      c.reasoning_toggle_mode !== null ||
       c.structured_output_modes.length ||
       c.context_length !== null ||
       c.max_output !== null

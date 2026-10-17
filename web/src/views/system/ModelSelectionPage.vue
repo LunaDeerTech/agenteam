@@ -9,6 +9,9 @@ import { AccountError, accountEnabled } from "../../account/transport";
 import {
   catalogError,
   modelDisplayName,
+  modelReasoningIssue,
+  type ModelChoice,
+  type ReasoningChoice,
   getModel,
   getProvider,
   type CatalogModel,
@@ -32,7 +35,7 @@ import { useCatalogCommand } from "../../system/useCatalogCommand";
 interface Snapshot {
   id: string;
   version: string;
-  values: Partial<Record<ModelPurpose, string>>;
+  values: Partial<Record<ModelPurpose, ModelChoice>>;
 }
 interface Reference {
   model?: CatalogModel;
@@ -70,9 +73,10 @@ async function resolveReference(id: string, refresh = false) {
 }
 function referenceIssue(
   purpose: ModelPurpose,
-  id: string,
+  choice: ModelChoice | undefined,
   retainExisting = false,
 ) {
+  const id = choice?.model_id;
   if (!id)
     return purpose === "reranker" || purpose === "image"
       ? undefined
@@ -85,7 +89,8 @@ function referenceIssue(
       ? "当前引用的模型或供应商已不存在"
       : "当前引用暂时无法核对，请重新读取";
   return value.model && value.provider
-    ? modelPurposeIssue(purpose, value.model, value.provider, retainExisting)
+    ? modelPurposeIssue(purpose, value.model, value.provider, retainExisting) ||
+        modelReasoningIssue(value.model, choice!.reasoning)
     : "当前引用不可用";
 }
 function referenceLabel(id: string) {
@@ -102,11 +107,29 @@ function referenceLabel(id: string) {
       : value.model.input.provider_model_id
     : id;
 }
+function sameChoice(left?: ModelChoice, right?: ModelChoice) {
+  return (
+    left?.model_id === right?.model_id &&
+    left?.reasoning.mode === right?.reasoning.mode &&
+    (left?.reasoning.mode === "effort" ? left.reasoning.value : undefined) ===
+      (right?.reasoning.mode === "effort" ? right.reasoning.value : undefined)
+  );
+}
+function copyValues(values: Snapshot["values"]): Snapshot["values"] {
+  return Object.fromEntries(
+    Object.entries(values).map(([purpose, choice]) => [
+      purpose,
+      choice
+        ? { model_id: choice.model_id, reasoning: { ...choice.reasoning } }
+        : undefined,
+    ]),
+  );
+}
 function createSelection() {
   const purposes = platformPurposes;
   const baseline = shallowRef<Snapshot>();
   const latest = shallowRef<Snapshot>();
-  const draft = ref<Partial<Record<ModelPurpose, string>>>({});
+  const draft = ref<Partial<Record<ModelPurpose, ModelChoice>>>({});
   const reading = ref(false);
   const readError = shallowRef<unknown>();
   const saved = ref(false);
@@ -117,8 +140,7 @@ function createSelection() {
       !!baseline.value &&
       purposes.some(
         (purpose) =>
-          (draft.value[purpose] || "") !==
-          (baseline.value?.values[purpose] || ""),
+          !sameChoice(draft.value[purpose], baseline.value?.values[purpose]),
       ),
   );
   const conflict = computed(
@@ -139,18 +161,19 @@ function createSelection() {
       (purpose) =>
         !!referenceIssue(
           purpose,
-          draft.value[purpose] || "",
-          draft.value[purpose] === baseline.value?.values[purpose],
+          draft.value[purpose],
+          draft.value[purpose]?.model_id ===
+            baseline.value?.values[purpose]?.model_id,
         ),
     ),
   );
   function adopt(value: Snapshot, retainDraft = false) {
     baseline.value = value;
     latest.value = undefined;
-    if (!retainDraft) draft.value = { ...value.values };
+    if (!retainDraft) draft.value = copyValues(value.values);
     command.clear();
-    for (const id of Object.values(value.values))
-      if (id) void resolveReference(id);
+    for (const choice of Object.values(value.values))
+      if (choice) void resolveReference(choice.model_id);
   }
   async function read() {
     if (
@@ -170,10 +193,10 @@ function createSelection() {
         id: result.id,
         version: result.version,
         values: {
-          embedding: result.configured?.embedding || "",
-          summary: result.configured?.summary || "",
-          reranker: result.configured?.reranker || "",
-          image: result.configured?.image || "",
+          embedding: result.configured?.embedding ?? undefined,
+          summary: result.configured?.summary ?? undefined,
+          reranker: result.configured?.reranker ?? undefined,
+          image: result.configured?.image ?? undefined,
         },
       };
       if (!current()) return;
@@ -181,7 +204,9 @@ function createSelection() {
         latest.value = value;
       else adopt(value);
       for (const id of new Set(
-        Object.values({ ...value.values, ...draft.value }),
+        Object.values({ ...value.values, ...draft.value }).flatMap((choice) =>
+          choice ? [choice.model_id] : [],
+        ),
       )) {
         if (id) void resolveReference(id, !references.value[id]?.loading);
       }
@@ -200,7 +225,7 @@ function createSelection() {
       !dirty.value
     )
       return;
-    const captured = { ...baseline.value, values: { ...draft.value } };
+    const captured = { ...baseline.value, values: copyValues(draft.value) };
     saved.value = false;
     await command.submit(
       () =>
@@ -214,7 +239,7 @@ function createSelection() {
         }),
       (receipt) => {
         baseline.value = { ...captured, version: receipt.version };
-        draft.value = { ...captured.values };
+        draft.value = copyValues(captured.values);
         latest.value = undefined;
         saved.value = true;
       },
@@ -283,10 +308,14 @@ function readAll() {
 }
 function clearPurpose(purpose: ModelPurpose) {
   if (editingLocked.value || selection.locked.value) return;
-  selection.draft.value[purpose] = "";
+  delete selection.draft.value[purpose];
   selection.saved.value = false;
 }
-function selectModel(purpose: ModelPurpose, model: CatalogModelOption) {
+function selectModel(
+  purpose: ModelPurpose,
+  model: CatalogModelOption,
+  reasoning?: ReasoningChoice,
+) {
   if (
     editingLocked.value ||
     selection.locked.value ||
@@ -294,7 +323,17 @@ function selectModel(purpose: ModelPurpose, model: CatalogModelOption) {
   )
     return;
   references.value[model.id] = { model, provider: model.provider };
-  selection.draft.value[purpose] = model.id;
+  const previous = selection.draft.value[purpose];
+  const choice =
+    reasoning ??
+    (previous?.model_id === model.id
+      ? previous.reasoning
+      : { mode: "default" });
+  if (modelReasoningIssue(model, choice)) return;
+  selection.draft.value[purpose] = {
+    model_id: model.id,
+    reasoning: { ...choice },
+  };
   selection.saved.value = false;
 }
 watch(
@@ -362,24 +401,24 @@ onBeforeUnmount(() => {
             <p
               v-if="
                 selection.draft.value[purpose] &&
-                referenceIssue(purpose, selection.draft.value[purpose] || '')
+                referenceIssue(purpose, selection.draft.value[purpose])
               "
               class="reference-issue"
               role="status"
             >
-              {{
-                referenceIssue(purpose, selection.draft.value[purpose] || "")
-              }}
+              {{ referenceIssue(purpose, selection.draft.value[purpose]) }}
             </p>
           </div>
           <div class="purpose-actions">
             <ModelSelect
               :label="`选择${purposeLabels[purpose]}`"
-              :model-value="selection.draft.value[purpose] || ''"
+              :model-value="selection.draft.value[purpose]?.model_id || ''"
+              :reasoning="selection.draft.value[purpose]?.reasoning"
+              allow-reasoning
               :selected-label="
                 selection.baseline.value
                   ? selection.draft.value[purpose]
-                    ? referenceLabel(selection.draft.value[purpose]!)
+                    ? referenceLabel(selection.draft.value[purpose]!.model_id)
                     : undefined
                   : selection.reading.value
                     ? '正在读取配置…'
@@ -389,7 +428,9 @@ onBeforeUnmount(() => {
               :issue="
                 (model) => modelPurposeIssue(purpose, model, model.provider)
               "
-              @select="selectModel(purpose, $event)"
+              @select="
+                (model, reasoning) => selectModel(purpose, model, reasoning)
+              "
             />
             <UiButton
               v-if="

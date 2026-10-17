@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import {
   UiButton,
   UiCheckboxGroup,
@@ -52,6 +52,22 @@ const inputModalities = computed({
 });
 const levels = ref<HTMLElement>();
 const addLevel = ref<HTMLElement>();
+watch(
+  () => [
+    props.draft.type,
+    props.draft.reasoning,
+    props.draft.reasoningEfforts.length,
+  ],
+  () => {
+    if (
+      !chat.value ||
+      !props.draft.reasoning ||
+      props.draft.reasoningEfforts.length
+    )
+      props.draft.reasoningToggleMode = "";
+  },
+  { flush: "sync" },
+);
 async function appendLevel() {
   if (props.draft.reasoningEfforts.length >= 32) return;
   props.draft.reasoningEfforts.push({ name: "", value: "" });
@@ -78,7 +94,10 @@ async function removeLevel(index: number) {
         required
         maxlength="256"
       />
-      <UiInput v-model="draft.name" label="备注" maxlength="128" />
+      <label class="ui-field model-notes">
+        <span class="ui-field-label">备注（可选）</span>
+        <textarea v-model="draft.notes" class="ui-input" rows="2" />
+      </label>
     </template>
     <UiSelect
       v-model="draft.type"
@@ -146,6 +165,19 @@ async function removeLevel(index: number) {
           class="reasoning-levels"
           aria-label="思考等级"
         >
+          <UiSelect
+            v-if="!draft.reasoningEfforts.length"
+            v-model="draft.reasoningToggleMode"
+            label="思考开关格式"
+            :options="[
+              { value: '', label: '供应商默认' },
+              { value: 'enable_thinking', label: 'enable_thinking' },
+              { value: 'thinking_type', label: 'thinking.type' },
+            ]"
+          />
+          <p v-if="!draft.reasoningEfforts.length" class="model-hint">
+            按供应商 API 选择开关格式。
+          </p>
           <div ref="levels" class="reasoning-rows">
             <div
               v-for="(effort, index) in draft.reasoningEfforts"
@@ -205,6 +237,10 @@ async function removeLevel(index: number) {
   </div>
 </template>
 <style scoped>
+.model-notes textarea {
+  min-height: 64px;
+  resize: vertical;
+}
 .model-fields,
 .capability-fields {
   display: grid;

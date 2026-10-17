@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, useId, watch } from "vue";
 import { UiSearchSelect } from "../ui";
 import {
   catalogError,
   listModels,
   modelDisplayName,
   modelTypeChoices,
+  modelReasoningIssue,
   type CatalogModelOption,
+  type ReasoningChoice,
 } from "../../system/model-catalog";
 import { useCursorList } from "../../system/useCursorList";
 import { useSystemAccess } from "../../system/requests";
@@ -15,9 +17,14 @@ const props = defineProps<{
   modelValue?: string;
   selectedLabel?: string;
   disabled?: boolean;
+  allowReasoning?: boolean;
+  reasoning?: ReasoningChoice;
   issue: (model: CatalogModelOption) => string | undefined;
 }>();
-const emit = defineEmits<{ select: [model: CatalogModelOption] }>();
+const emit = defineEmits<{
+  select: [model: CatalogModelOption, reasoning?: ReasoningChoice];
+}>();
+const id = useId();
 const access = useSystemAccess();
 const opened = ref(false);
 const query = ref("");
@@ -46,8 +53,62 @@ const options = computed(() =>
       (choice) => choice.value === model.input.type,
     )?.label,
     disabledReason: props.issue(model),
+    details:
+      !!model.input.notes.trim() ||
+      !!(props.allowReasoning && model.input.capabilities.reasoning),
   })),
 );
+function candidate(value: string) {
+  return list.items.value.find((model) => model.id === value);
+}
+function currentReasoning(value: string): ReasoningChoice {
+  return value === props.modelValue && props.reasoning
+    ? props.reasoning
+    : { mode: "default" };
+}
+function reasoningOptions(
+  value: string,
+): { label: string; choice: ReasoningChoice }[] {
+  const c = candidate(value)?.input.capabilities;
+  if (!c?.reasoning) return [];
+  const result: { label: string; choice: ReasoningChoice }[] = [
+    { label: "供应商默认", choice: { mode: "default" } },
+  ];
+  if (c.reasoning_efforts.length)
+    return [
+      ...result,
+      ...c.reasoning_efforts.map((effort) => ({
+        label: effort.name,
+        choice: { mode: "effort" as const, value: effort.value },
+      })),
+    ];
+  return c.reasoning_toggle_mode
+    ? [
+        ...result,
+        { label: "开启思考", choice: { mode: "on" } },
+        { label: "关闭思考", choice: { mode: "off" } },
+      ]
+    : result;
+}
+function checked(value: string, choice: ReasoningChoice) {
+  const current = currentReasoning(value);
+  return (
+    current.mode === choice.mode &&
+    (current.mode !== "effort" ||
+      (choice.mode === "effort" && current.value === choice.value))
+  );
+}
+function chooseReasoning(value: string, choice: ReasoningChoice) {
+  const model = candidate(value);
+  if (
+    props.allowReasoning &&
+    model &&
+    !props.disabled &&
+    !props.issue(model) &&
+    !modelReasoningIssue(model, choice)
+  )
+    emit("select", model, choice);
+}
 function cancelRead() {
   clearTimeout(timer);
   timer = undefined;
@@ -89,6 +150,7 @@ onBeforeUnmount(cancelRead);
     :model-value="modelValue"
     :selected-label="selectedLabel"
     :options="options"
+    rich
     :query="query"
     :disabled="disabled || !access.allowed.value"
     :loading="list.pending.value || waiting"
@@ -105,5 +167,86 @@ onBeforeUnmount(cancelRead);
     @previous="list.previous"
     @next="list.next"
     @retry="!queryIssue && list.reload()"
-  />
+  >
+    <template #details="{ option }">
+      <p
+        v-if="candidate(option.value)?.input.notes.trim()"
+        class="model-picker-notes"
+      >
+        {{ candidate(option.value)?.input.notes }}
+      </p>
+      <fieldset
+        v-if="
+          allowReasoning &&
+          candidate(option.value)?.input.capabilities.reasoning
+        "
+        class="model-picker-reasoning"
+        :disabled="disabled || !!option.disabledReason"
+      >
+        <legend class="sr-only">思考策略</legend>
+        <label
+          v-for="(item, index) in reasoningOptions(option.value)"
+          :key="index"
+        >
+          <input
+            type="radio"
+            :name="`${id}-${option.value}-reasoning`"
+            :checked="checked(option.value, item.choice)"
+            @change="chooseReasoning(option.value, item.choice)"
+          />{{ item.label }}
+        </label>
+        <p
+          v-if="
+            !candidate(option.value)?.input.capabilities.reasoning_efforts
+              .length &&
+            !candidate(option.value)?.input.capabilities.reasoning_toggle_mode
+          "
+          class="model-picker-hint"
+        >
+          此模型尚未配置思考开关格式，按供应商默认策略调用。
+        </p>
+      </fieldset>
+    </template>
+  </UiSearchSelect>
 </template>
+
+<style scoped>
+.model-picker-notes {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.model-picker-reasoning {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.model-picker-reasoning label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.model-picker-reasoning input {
+  flex: none;
+}
+.model-picker-hint {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (pointer: coarse) {
+  .model-picker-reasoning label {
+    min-height: 44px;
+  }
+}
+</style>
