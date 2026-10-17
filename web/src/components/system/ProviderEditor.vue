@@ -587,17 +587,26 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 10px;
+  column-gap: 10px;
+  row-gap: var(--space-2);
+}
+.credential-row > :deep(.ui-field) {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  grid-template-rows: subgrid;
 }
 .credential-row > .credential-delete {
-  padding-top: 24px;
+  grid-column: 2;
+  grid-row: 2;
+  align-self: center;
 }
 @media (max-width: 480px) {
   .credential-row {
     grid-template-columns: minmax(0, 1fr);
   }
   .credential-row > .credential-delete {
-    padding-top: 0;
+    grid-column: 1;
+    grid-row: 4;
     justify-self: start;
   }
 }

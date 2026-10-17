@@ -1,5 +1,5 @@
 // Independent browser review. All API data is synthetic; unknown origins/routes fail closed.
-// node provider-credential-delete-visual.cjs --base-url http://127.0.0.1:5281 --owned credential-delete-visual --input <revision> --run <label> [--only layout|recovery|partial|unavailable] [--check]
+// node provider-credential-delete-visual.cjs --base-url http://127.0.0.1:5281 --owned credential-delete-visual --input <revision> --run <label> [--only layout|recovery|partial|unavailable|narrow-layout] [--check]
 const { createRequire } = require("node:module");
 const locked = createRequire(
   "/workspace/agenteam/tests/account-captcha-web/package.json",
@@ -269,7 +269,21 @@ async function setup(c, options = {}) {
   });
   const p = await c.newPage();
   p.setDefaultTimeout(10000);
-  p.on("pageerror", () => s.errors.push("pageerror"));
+  p.on("pageerror", (error) =>
+    s.errors.push({ name: error.name, message: error.message.slice(0, 400) }),
+  );
+  s.consoleErrors = [];
+  p.on("console", (message) => {
+    if (message.type() === "error")
+      s.consoleErrors.push(message.text().slice(0, 400));
+  });
+  s.failedResources = [];
+  p.on("requestfailed", (request) =>
+    s.failedResources.push({
+      path: new URL(request.url()).pathname,
+      error: request.failure()?.errorText,
+    }),
+  );
   await p.goto(origin + `/system/models/${id(1)}?tab=config`, {
     waitUntil: "domcontentloaded",
     timeout: 30000,
@@ -403,16 +417,21 @@ async function partial({ p, s }) {
   await expect(dialog(p)).toContainText(
     "当前供应商已不使用此凭据，凭据尚未删除。",
   );
-  await expect(btn(dialog(p), "关闭")).toBeEnabled();
+  stage = "partial-initial-close-enabled";
+  const closeAction = btn(dialog(p), "关闭").filter({ hasText: "关闭" });
+  await expect(closeAction).toHaveCount(1);
+  await expect(closeAction).toBeEnabled();
   assert.equal(puts(s).length, 1);
   assert.equal(deletes(s).length, 1);
   assert.equal(s.secretDeleted, false);
   await shot(p, "narrow-partial");
-  await btn(dialog(p), "关闭").click();
+  await closeAction.click();
   await expect(dialog(p)).toHaveCount(0);
+  stage = "partial-closed-trigger-enabled";
   await expect(trigger(p)).toBeEnabled();
   await expect(trigger(p)).toBeFocused();
   await trigger(p).click();
+  stage = "partial-reopened-continue-enabled";
   await expect(btn(dialog(p), "继续删除")).toBeEnabled();
   assert.equal(puts(s).length, 1);
   assert.equal(deletes(s).length, 1);
@@ -441,11 +460,27 @@ async function unavailable({ p, s }) {
   assert.equal(s.writes.length, 0);
   return { deleteDisabled: true, ...(await dimensions(p)) };
 }
+async function narrowLayout({ p, s }) {
+  stage = "narrow-field-layout";
+  await expect(trigger(p)).toBeEnabled();
+  await expect(secretInput(p)).toHaveValue("");
+  await expect(trigger(p)).toBeInViewport();
+  await shot(p, "narrow-config-final");
+  assert.equal(s.writes.length, 0);
+  return { readOnlyObservation: true, ...(await dimensions(p)) };
+}
 async function main() {
   await fs.mkdir(out, { recursive: true });
   const only = args.includes("--only") ? arg("--only") : undefined;
   assert(
-    !only || ["layout", "recovery", "partial", "unavailable"].includes(only),
+    !only ||
+      [
+        "layout",
+        "recovery",
+        "partial",
+        "unavailable",
+        "narrow-layout",
+      ].includes(only),
   );
   const results = [],
     browser = await chromium.launch({
@@ -457,6 +492,7 @@ async function main() {
       ["layout", {}, layout],
       ["recovery", {}, recovery],
       ["partial", { narrow: true }, partial],
+      ["narrow-layout", { narrow: true }, narrowLayout],
       ["unavailable", { narrow: true, empty: true }, unavailable],
       ["unavailable", { narrow: true, readonly: true }, unavailable],
     ]) {
@@ -485,8 +521,31 @@ async function main() {
           outcome: "failed",
           stage,
           check: String(e.message).split("\n")[0],
+          location: String(e.stack)
+            .split("\n")
+            .filter((line) =>
+              line.includes("provider-credential-delete-visual.cjs:"),
+            )
+            .slice(0, 2),
           api: c.review?.api,
           unexpected: c.review?.unexpected,
+          errors: c.review?.errors,
+          consoleErrors: c.review?.consoleErrors,
+          failedResources: c.review?.failedResources,
+          document:
+            p && !p.isClosed()
+              ? await p.evaluate(() => ({
+                  ready: document.readyState,
+                  body: document.body.innerText.slice(0, 1200),
+                  headings: [...document.querySelectorAll("h1")].map((n) => ({
+                    text: n.textContent,
+                    display: getComputedStyle(n).display,
+                    visibility: getComputedStyle(n).visibility,
+                    opacity: getComputedStyle(n).opacity,
+                  })),
+                  url: location.pathname + location.search,
+                }))
+              : undefined,
           focus:
             p && !p.isClosed()
               ? await p.evaluate(() => ({
@@ -494,6 +553,17 @@ async function main() {
                   role: document.activeElement?.getAttribute("role"),
                   label: document.activeElement?.getAttribute("aria-label"),
                 }))
+              : undefined,
+          controls:
+            p && !p.isClosed()
+              ? await p.locator("dialog[open] button").evaluateAll((nodes) =>
+                  nodes.map((n) => ({
+                    text: n.textContent.trim(),
+                    disabled: n.disabled,
+                    inDisabledFieldset: !!n.closest("fieldset:disabled"),
+                    ariaDisabled: n.getAttribute("aria-disabled"),
+                  })),
+                )
               : undefined,
         });
       } finally {
