@@ -31,7 +31,12 @@ export interface AccountRequest {
   current?: () => boolean;
   binary?: boolean;
   status?: number;
-  query?: Readonly<{ cursor?: string; limit?: string | number }>;
+  modelOperationSignal?: () => AbortSignal;
+  query?: Readonly<{
+    cursor?: string;
+    limit?: string | number;
+    provider_id?: string;
+  }>;
 }
 
 export interface AccountImage {
@@ -77,16 +82,28 @@ async function sendAccount<T>(
   if (!path.startsWith("/") || path.includes("?") || path.includes("#"))
     throw new AccountError("INVALID_REQUEST");
   const method = options.method ?? "GET";
+  const modelOperation =
+    method === "POST" &&
+    /^\/system\/(?:model-providers\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/discovery|models\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/test)$/.test(
+      path,
+    );
+  if (options.modelOperationSignal && !modelOperation)
+    throw new AccountError("INVALID_REQUEST");
   const query = new URLSearchParams();
   for (const [name, value] of Object.entries(options.query ?? {})) {
     if (value === undefined) continue;
     if (
       method !== "GET" ||
-      !["cursor", "limit"].includes(name) ||
+      !["cursor", "limit", "provider_id"].includes(name) ||
       !String(value) ||
       new TextEncoder().encode(String(value)).length > 8192 ||
       (name === "limit" &&
-        (!/^[1-9]\d{0,2}$/.test(String(value)) || Number(value) > 100))
+        (!/^[1-9]\d{0,2}$/.test(String(value)) || Number(value) > 100)) ||
+      (name === "provider_id" &&
+        (path !== "/system/models" ||
+          !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+            String(value),
+          )))
     )
       throw new AccountError("INVALID_REQUEST");
     query.set(name, String(value));
@@ -95,11 +112,16 @@ async function sendAccount<T>(
   if (
     typeof options.body === "string" &&
     new TextEncoder().encode(options.body).length >
-      (method === "PUT" && path === "/system/outbound-policy"
+      (["POST", "PUT", "DELETE"].includes(method) &&
+      /^\/system\/(?:model-providers|models|model-credentials)(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?$/.test(
+        path,
+      )
         ? 1048576
-        : method === "PUT" && path === "/system/smtp"
-          ? 32768
-          : 16384)
+        : method === "PUT" && path === "/system/outbound-policy"
+          ? 1048576
+          : method === "PUT" && path === "/system/smtp"
+            ? 32768
+            : 16384)
   )
     throw new AccountError("INVALID_ARGUMENT");
   const mutation = !!options.key;
@@ -114,7 +136,11 @@ async function sendAccount<T>(
   if (options.csrf) headers.set("X-CSRF-Token", options.csrf);
   if (options.key) headers.set("Idempotency-Key", options.key);
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 20000);
+  const externalSignal = options.modelOperationSignal?.();
+  const abort = () => controller.abort();
+  externalSignal?.addEventListener("abort", abort, { once: true });
+  if (externalSignal?.aborted) controller.abort();
+  const timeout = window.setTimeout(abort, modelOperation ? 30000 : 20000);
   try {
     const response = await fetch(`${apiBase}${path}${suffix}`, {
       method,
@@ -224,6 +250,7 @@ async function sendAccount<T>(
     );
   } finally {
     window.clearTimeout(timeout);
+    externalSignal?.removeEventListener("abort", abort);
   }
 }
 

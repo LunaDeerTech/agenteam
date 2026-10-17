@@ -215,6 +215,8 @@ func (b CredentialBinding) MarshalJSON() ([]byte, error) { return []byte(`"crede
 func (b CredentialBinding) LogValue() slog.Value         { return slog.StringValue("credential_binding") }
 
 type ProfileOptions struct {
+	// NoRedirects forbids every redirect, including same-origin GET redirects.
+	NoRedirects bool
 	Consumer    ac.Consumer
 	Streaming   bool
 	Limits      Limits

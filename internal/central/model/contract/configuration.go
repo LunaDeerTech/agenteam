@@ -48,7 +48,7 @@ func (p ProviderView) Validate() error {
 	if p.ID.Validate() != nil || !configScope(p.Scope) || p.Input.Validate() != nil || p.Version.Validate() != nil || p.CreatedAt.Validate() != nil || p.UpdatedAt.Validate() != nil || p.UpdatedAt.Time().Before(p.CreatedAt.Time()) {
 		return bad()
 	}
-	if p.Scope.Details().Kind == id.ProjectScope && !p.Input.Protocol.Supports(ChatModel) {
+	if p.Scope.Details().Kind == id.ProjectScope && (p.Input.Protocol == OpenAICompatible || !p.Input.Protocol.Supports(ChatModel)) {
 		return bad()
 	}
 	if p.Input.CredentialRef != nil && !p.Input.CredentialRef.Details().Scope.Equal(p.Scope) {

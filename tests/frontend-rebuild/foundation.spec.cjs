@@ -27,14 +27,14 @@ test("system settings navigation and appearance persist across a reload", async 
     name: "系统设置",
     exact: true,
   });
-  await expect(settings.getByRole("link")).toHaveCount(11);
-  await settings.getByRole("link", { name: "Providers", exact: true }).click();
-  await expect(page).toHaveURL(/\/system\/providers$/);
+  await expect(settings.getByRole("link")).toHaveCount(10);
+  await settings.getByRole("link", { name: "模型目录", exact: true }).click();
+  await expect(page).toHaveURL(/\/system\/models$/);
   await expect(
-    page.getByRole("heading", { name: "Providers", exact: true }),
+    page.getByRole("heading", { name: "模型目录", exact: true }),
   ).toBeFocused();
   await expect(
-    settings.getByRole("link", { name: "Providers", exact: true }),
+    settings.getByRole("link", { name: "模型目录", exact: true }),
   ).toHaveAttribute("aria-current", "page");
   await page.goBack();
   await expect(

@@ -90,8 +90,13 @@ defineExpose({ navigate, focusResults, refresh });
       >
         {{ emptyText }}
       </p>
+      <slot
+        v-if="list.items.value.length && $slots.table"
+        name="table"
+        :items="list.items.value"
+      />
       <ul
-        v-if="list.items.value.length"
+        v-else-if="list.items.value.length"
         class="system-list-rows"
         :aria-label="label"
       >

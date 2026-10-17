@@ -109,7 +109,7 @@ func WriteProblem(w http.ResponseWriter, r *http.Request, err error) {
 			p.RetryHint = f.RetryHint
 		}
 	}
-	if code == foundation.CommitUnknown {
+	if code == foundation.CommitUnknown && p.RetryHint != "replay" {
 		p.RetryHint = "lookup"
 	}
 	if p.RetryHint == "" && (code == foundation.VersionConflict || code == foundation.TaskVersionConflict || code == foundation.CursorStale) {

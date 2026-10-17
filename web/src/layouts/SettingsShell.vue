@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import { computed, provide, shallowReadonly, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import {
+  computed,
+  provide,
+  shallowReadonly,
+  shallowRef,
+  ref,
+  watch,
+} from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import { UiDialog, UiIconButton } from "../components/ui";
 import {
   systemSettings,
@@ -10,16 +17,19 @@ import {
 import PageHeading from "./PageHeading.vue";
 import SettingsNavigation from "./SettingsNavigation.vue";
 import { settingsActionsTarget } from "./settingsActions";
+import { settingsHeading, type SettingsHeading } from "./settingsHeading";
 
 const route = useRoute();
 const directoryOpen = ref(false);
 const actionsTarget = ref<HTMLElement>();
+const heading = shallowRef<SettingsHeading>();
+provide(settingsHeading, heading);
 provide(settingsActionsTarget, shallowReadonly(actionsTarget));
 const scope = computed(() => route.meta.settingsScope || "system");
 const wideBody = computed(
   () =>
     scope.value === "system" &&
-    ["users", "invitations", "smtp", "outbound-policy"].includes(
+    ["users", "invitations", "smtp", "outbound-policy", "models"].includes(
       String(route.meta.settingKey),
     ),
 );
@@ -46,14 +56,24 @@ watch(
 </script>
 
 <template>
-  <div class="settings-shell" :data-settings-scope="scope">
+  <div
+    class="settings-shell"
+    :class="{ 'settings-shell--models': route.meta.settingKey === 'models' }"
+    :data-settings-scope="scope"
+  >
     <aside class="settings-sidebar">
       <h2>{{ title }}</h2>
       <SettingsNavigation :pages="pages" :scope="scope" :label="title" />
     </aside>
     <section class="settings-main" aria-labelledby="page-title">
+      <RouterLink
+        v-if="heading?.back"
+        class="settings-back"
+        :to="heading.back.to"
+        >← {{ heading.back.label }}</RouterLink
+      >
       <PageHeading
-        :title="route.meta.title || ''"
+        :title="heading?.title || route.meta.title || ''"
         :description="route.meta.description"
       >
         <template #actions>
@@ -92,6 +112,16 @@ watch(
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 0;
   flex: 1;
+}
+.settings-back {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+}
+.settings-back:hover {
+  color: var(--text-primary);
 }
 .settings-sidebar {
   min-height: 0;
@@ -138,6 +168,15 @@ watch(
   }
 }
 @media (max-width: 760px) {
+  .settings-shell--models :deep(.page-heading) {
+    flex-wrap: wrap;
+  }
+  .settings-shell--models :deep(.page-heading-actions) {
+    width: 100%;
+  }
+  .settings-shell--models .settings-heading-actions {
+    justify-content: flex-end;
+  }
   .settings-shell {
     display: flex;
   }

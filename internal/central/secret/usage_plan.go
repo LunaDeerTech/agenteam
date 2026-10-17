@@ -11,7 +11,7 @@ import (
 )
 
 func accountOwner(owner sc.CredentialLeaseOwner) bool {
-	return owner.Details().Kind == sc.AccountDeliveryOwner || owner.Details().Kind == sc.AccountResponseOwner || owner.Details().Kind == sc.OutboundProxyOwner
+	return owner.Details().Kind == sc.AccountDeliveryOwner || owner.Details().Kind == sc.AccountResponseOwner || owner.Details().Kind == sc.OutboundProxyOwner || owner.Details().Kind == sc.ModelManagementRequestOwner
 }
 func (s *Service) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.UsageDependencies, error) {
 	if r.Validate() != nil {
@@ -183,3 +183,28 @@ func (s *Service) ApplyUsageInTx(ctx context.Context, tx foundation.Tx, r sc.Usa
 }
 
 var _ sc.UsageOperations = (*Service)(nil)
+
+// ValidateManagementCredentialInTx keeps a saved management request bound to
+// the credential version it read. The caller holds the complete authenticated
+// usage plan until its bounded external operation has actually joined.
+func (s *Service) ValidateManagementCredentialInTx(ctx context.Context, tx foundation.Tx, r sc.UsageRequest, p sc.UsageDependencies, expected foundation.Version) error {
+	if r.LeaseOwner.Details().Kind != sc.ModelManagementRequestOwner || r.Action != sc.ReadLeaseUsage || expected.Validate() != nil {
+		return invalid()
+	}
+	if e := s.validateUsage(ctx, tx, r, p); e != nil {
+		return e
+	}
+	x, e := s.state().store.InTx(tx)
+	if e != nil {
+		return unavailable(e)
+	}
+	m, _, e := loadMetadata(ctx, x, r.Ref)
+	if e != nil {
+		return e
+	}
+	if m.Purpose != sc.Model || m.Version != expected {
+		return failure(AuthorizationRejected, foundation.VersionConflict, nil)
+	}
+	_, e = s.leaseGrant(ctx, tx, r.Actor, r.Ref, r.LeaseOwner, sc.ReadLease)
+	return e
+}

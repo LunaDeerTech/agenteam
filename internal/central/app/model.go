@@ -12,6 +12,7 @@ func systemModelRoutes(accounts, models http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		for _, root := range [...]string{
 			"/api/v1/system/model-providers",
+			"/api/v1/system/model-capabilities",
 			"/api/v1/system/models",
 			"/api/v1/system/model-selection",
 			"/api/v1/system/model-commands",

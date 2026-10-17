@@ -16,13 +16,7 @@ export const systemSettings: readonly SettingsPage[] = [
     group: "用户与邀请",
     icon: "mail",
   },
-  {
-    key: "providers",
-    title: "Providers",
-    group: "模型与 Provider",
-    icon: "server",
-  },
-  { key: "models", title: "模型", group: "模型与 Provider", icon: "grid" },
+  { key: "models", title: "模型目录", group: "模型与 Provider", icon: "grid" },
   {
     key: "model-selection",
     title: "平台模型用途",
@@ -118,13 +112,17 @@ function settingsRoutes(
               ? () => import("../views/system/SmtpSettingsPage.vue")
               : scope === "system" && page.key === "outbound-policy"
                 ? () => import("../views/system/OutboundPolicyPage.vue")
-                : scope !== "personal"
-                  ? emptyPage
-                  : page.key === "profile"
-                    ? () => import("../views/ProfilePage.vue")
-                    : page.key === "appearance"
-                      ? () => import("../views/AppearancePage.vue")
-                      : () => import("../views/PasswordPage.vue"),
+                : scope === "system" && page.key === "models"
+                  ? () => import("../views/system/ModelCatalogPage.vue")
+                  : scope === "system" && page.key === "model-selection"
+                    ? () => import("../views/system/ModelSelectionPage.vue")
+                    : scope !== "personal"
+                      ? emptyPage
+                      : page.key === "profile"
+                        ? () => import("../views/ProfilePage.vue")
+                        : page.key === "appearance"
+                          ? () => import("../views/AppearancePage.vue")
+                          : () => import("../views/PasswordPage.vue"),
     meta: {
       title: page.title,
       settingsScope: scope,
@@ -142,6 +140,8 @@ function settingsRoutes(
             "account-security",
             "smtp",
             "outbound-policy",
+            "models",
+            "model-selection",
           ].includes(page.key))
           ? undefined
           : "unimplemented",
@@ -190,6 +190,17 @@ export const routes: RouteRecordRaw[] = [
   },
   { path: "/system", redirect: { name: "system-settings-users" } },
   ...settingsRoutes("system", systemSettings, "/system"),
+  {
+    path: "/system/models/:providerId",
+    name: "system-provider-detail",
+    component: () => import("../views/system/ProviderDetailPage.vue"),
+    meta: {
+      title: "供应商",
+      settingsScope: "system",
+      settingKey: "models",
+      layout: "app",
+    },
+  },
   { path: "/settings", redirect: { name: "personal-settings-profile" } },
   ...settingsRoutes("personal", personalSettings, "/settings"),
   {

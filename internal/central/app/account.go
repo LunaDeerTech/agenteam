@@ -26,6 +26,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/mcp"
 	meetingc "github.com/LunaDeerTech/agenteam/internal/central/meeting/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	"github.com/LunaDeerTech/agenteam/internal/central/model/managementwire"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
@@ -561,6 +562,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if mcpAuthority != nil {
 		secretUsage = m3SecretUsage{model: usage, mcp: mcpAuthority}
 	}
+	managementAuthority, err := model.NewManagementSecretAuthority(modelStore, modelAuthority, secretUsage)
+	if err != nil {
+		return err
+	}
+	secretUsage = managementAuthority
 	proxyStore, ok := db.(outbound.Store)
 	if !ok {
 		return errors.New("OUTBOUND_STORE_UNAVAILABLE")
@@ -707,6 +713,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return context.Canceled
 	}
 	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
+	if err != nil {
+		return err
+	}
+	management, err := model.NewManagement(models, managementAuthority, secrets, modelManagementProcessAuthority{objects.guard}, managementwire.Transport{Policy: transport.policy, Trust: cfg.OutboundTrust(), Resolver: transport.resolver})
 	if err != nil {
 		return err
 	}
@@ -1020,7 +1030,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			return err
 		}
 	}
-	modelHandler, err := model.NewSystemHTTPHandler(models, core, secrets, model.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
+	modelHandler, err := model.NewSystemHTTPHandler(models, core, secrets, model.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin(), Management: management})
 	if err != nil {
 		return err
 	}
@@ -1139,6 +1149,9 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	deps.objects = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (objectStorage, error) {
 		if err := objects.runtime.Initialize(ctx); err != nil {
+			return objects, err
+		}
+		if err := management.Recover(ctx); err != nil {
 			return objects, err
 		}
 		if err := transport.policy.RecoverProxyCredentials(ctx); err != nil {

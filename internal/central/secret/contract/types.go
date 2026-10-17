@@ -76,12 +76,13 @@ func (p Purpose) Valid() bool {
 type LeaseOwnerKind string
 
 const (
-	AccountDeliveryOwner      LeaseOwnerKind = "account_delivery_attempt"
-	AccountResponseOwner      LeaseOwnerKind = "account_response"
-	ExecutionOwner            LeaseOwnerKind = "execution"
-	ModelCallOwner            LeaseOwnerKind = "model_call"
-	MCPConnectionRequestOwner LeaseOwnerKind = "mcp_connection_request"
-	OutboundProxyOwner        LeaseOwnerKind = "outbound_proxy"
+	AccountDeliveryOwner        LeaseOwnerKind = "account_delivery_attempt"
+	AccountResponseOwner        LeaseOwnerKind = "account_response"
+	ExecutionOwner              LeaseOwnerKind = "execution"
+	ModelCallOwner              LeaseOwnerKind = "model_call"
+	MCPConnectionRequestOwner   LeaseOwnerKind = "mcp_connection_request"
+	OutboundProxyOwner          LeaseOwnerKind = "outbound_proxy"
+	ModelManagementRequestOwner LeaseOwnerKind = "model_management_request"
 )
 
 type CredentialLeaseOwner struct{ data func() OwnerDetails }
@@ -91,7 +92,7 @@ type OwnerDetails struct {
 }
 
 func NewCredentialLeaseOwner(kind LeaseOwnerKind, id string) (CredentialLeaseOwner, error) {
-	if kind != ExecutionOwner && kind != ModelCallOwner && kind != AccountDeliveryOwner && kind != AccountResponseOwner && kind != MCPConnectionRequestOwner && kind != OutboundProxyOwner || !validID(id) {
+	if kind != ExecutionOwner && kind != ModelCallOwner && kind != AccountDeliveryOwner && kind != AccountResponseOwner && kind != MCPConnectionRequestOwner && kind != OutboundProxyOwner && kind != ModelManagementRequestOwner || !validID(id) {
 		return CredentialLeaseOwner{}, bad()
 	}
 	d := OwnerDetails{kind, id}

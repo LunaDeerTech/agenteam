@@ -155,7 +155,7 @@ func (c *Client) Do(ctx context.Context, request *http.Request, profile Profile)
 		}
 		location := x.raw.Header.Get("Location")
 		x.close()
-		if redirects >= p.Limits.Redirects || req.Method != "GET" && req.Method != "HEAD" || req.Body != nil && req.Body != http.NoBody {
+		if p.NoRedirects || redirects >= p.Limits.Redirects || req.Method != "GET" && req.Method != "HEAD" || req.Body != nil && req.Body != http.NoBody {
 			return fail(a.fail(ac.RedirectDenied, nil))
 		}
 		relative, e := url.Parse(location)

@@ -42,6 +42,8 @@ const (
 type Protocol string
 
 const (
+	// OpenAICompatible is a provider family, never a wire adapter profile.
+	OpenAICompatible  Protocol = "openai-compatible"
 	OpenAIChat        Protocol = "openai-chat-completions"
 	AnthropicMessages Protocol = "anthropic-messages"
 	OpenAIEmbeddings  Protocol = "openai-embeddings"
@@ -77,9 +79,11 @@ func (p Protocol) Profile() ProfileID {
 	}
 	return ""
 }
-func (p Protocol) Valid() bool { return p.Profile() != "" }
+func (p Protocol) Valid() bool { return p == OpenAICompatible || p.Profile() != "" }
 func (p Protocol) Supports(t ModelType) bool {
 	switch p {
+	case OpenAICompatible:
+		return t == ChatModel || t == EmbeddingModel
 	case OpenAIChat, AnthropicMessages:
 		return t == ChatModel
 	case OpenAIEmbeddings:
@@ -90,6 +94,21 @@ func (p Protocol) Supports(t ModelType) bool {
 		return t == ImageModel
 	}
 	return false
+}
+
+// EffectiveProtocol resolves a saved provider family and model type into one
+// existing wire adapter. Runtime snapshots must store this concrete result.
+func (p Protocol) EffectiveProtocol(t ModelType) Protocol {
+	if !p.Supports(t) {
+		return ""
+	}
+	if p == OpenAICompatible {
+		if t == ChatModel {
+			return OpenAIChat
+		}
+		return OpenAIEmbeddings
+	}
+	return p
 }
 
 type Purpose string
@@ -320,7 +339,7 @@ type ModelIdentity struct {
 }
 
 func (m ModelIdentity) Validate() error {
-	if m.ProviderID.Validate() != nil || m.ModelID.Validate() != nil || !name(m.ProviderName, 128) || !name(m.ModelName, 128) || !text(m.ProviderModelID, 256) || !m.Protocol.Supports(m.ModelType) || m.Profile != m.Protocol.Profile() || !safeToken(m.AdapterRevision, 128) {
+	if m.ProviderID.Validate() != nil || m.ModelID.Validate() != nil || !name(m.ProviderName, 128) || !name(m.ModelName, 128) || !text(m.ProviderModelID, 256) || !m.Protocol.Supports(m.ModelType) || m.Protocol == OpenAICompatible || m.Profile != m.Protocol.Profile() || !safeToken(m.AdapterRevision, 128) {
 		return bad()
 	}
 	return nil

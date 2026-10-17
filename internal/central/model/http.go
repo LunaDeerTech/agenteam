@@ -14,11 +14,15 @@ import (
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
 
-type SystemHTTPOptions struct{ PublicOrigin string }
+type SystemHTTPOptions struct {
+	PublicOrigin string
+	Management   *Management
+}
 type systemHTTP struct {
-	core     *Service
-	boundary *account.HTTPBoundary
-	writes   sc.HumanWriteCommands
+	core       *Service
+	boundary   *account.HTTPBoundary
+	writes     sc.HumanWriteCommands
+	management *Management
 }
 type systemHTTPRoute struct {
 	method, path string
@@ -50,7 +54,7 @@ func NewSystemHTTPHandler(core *Service, accounts *account.Service, writes sc.Hu
 	if err != nil {
 		return nil, err
 	}
-	h := &systemHTTP{core, b, writes}
+	h := &systemHTTP{core, b, writes, options.Management}
 	groups := map[string][]systemHTTPRoute{}
 	for _, route := range h.routes() {
 		groups[route.path] = append(groups[route.path], route)
@@ -88,6 +92,9 @@ func NewSystemHTTPHandler(core *Service, accounts *account.Service, writes sc.Hu
 
 func (h *systemHTTP) routes() []systemHTTPRoute {
 	return []systemHTTPRoute{
+		{"GET", "/system/model-capabilities", id.Read, false, h.modelCapabilities},
+		{"POST", "/system/model-providers/{id}/discovery", id.Mutate, false, h.discoverModels},
+		{"POST", "/system/models/{id}/test", id.Mutate, false, h.testModel},
 		{"GET", "/system/model-providers", id.Read, true, h.listProviders},
 		{"POST", "/system/model-providers", id.Mutate, false, h.createProvider},
 		{"GET", "/system/model-providers/{id}", id.Read, false, h.getProvider},

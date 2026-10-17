@@ -14,6 +14,11 @@ export interface CursorPage<T> {
   items: T[];
   next_cursor?: string;
 }
+export interface CursorPosition {
+  pageSize: PageSize;
+  index: number;
+  cursors: Array<string | undefined>;
+}
 export interface CursorListOptions {
   enabled?: () => boolean;
   immediate?: boolean;
@@ -127,6 +132,35 @@ export function useCursorList<T>(
     nextCursor,
     cancel,
     reset,
+    position(): CursorPosition {
+      return {
+        pageSize: pageSize.value,
+        index: index.value,
+        cursors: [...cursors.value],
+      };
+    },
+    async restore(position: CursorPosition) {
+      if (
+        !isPageSize(position.pageSize) ||
+        !Number.isInteger(position.index) ||
+        position.index < 0 ||
+        position.index >= position.cursors.length ||
+        position.cursors[0] !== undefined ||
+        position.cursors.some(
+          (v, i) =>
+            i > 0 &&
+            (typeof v !== "string" ||
+              !v ||
+              new TextEncoder().encode(v).length > 8192),
+        )
+      )
+        return;
+      clear();
+      pageSize.value = position.pageSize;
+      cursors.value = [...position.cursors];
+      index.value = position.index;
+      await load(position.index, position.cursors[position.index]);
+    },
     updateItem(matches: (item: T) => boolean, update: (item: T) => T) {
       if (!alive || !enabled.value) return;
       items.value = items.value.map((item) =>

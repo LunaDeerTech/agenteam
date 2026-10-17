@@ -47,6 +47,10 @@ func TestSelectionIsClosedAndNoSummaryDefault(t *testing.T) {
 	must(t, e)
 	provider := ProviderView{ID: fresh[Provider](t), Scope: pScope, Input: ProviderInput{Name: "p", Protocol: OpenAIEmbeddings, BaseURL: "https://example.test/v1", Options: json.RawMessage(`{}`)}, Version: 1, CreatedAt: x.now, UpdatedAt: x.now}
 	reject(t, provider.Validate())
+	provider.Input.Protocol = OpenAICompatible
+	reject(t, provider.Validate())
+	provider.Scope = id.SystemScope()
+	must(t, provider.Validate())
 }
 
 // These are URL syntax checks, not DNS resolution or outbound authorization.

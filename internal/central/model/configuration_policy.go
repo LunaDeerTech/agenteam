@@ -35,7 +35,7 @@ func providerPolicyScope(v mc.ProviderInput, scope id.Scope) error {
 	if scope.Validate() != nil {
 		return fault(f.InvalidArgument)
 	}
-	if scope.Details().Kind == id.ProjectScope && !v.Protocol.Supports(mc.ChatModel) {
+	if scope.Details().Kind == id.ProjectScope && (v.Protocol == mc.OpenAICompatible || !v.Protocol.Supports(mc.ChatModel)) {
 		return fault(f.InvalidArgument)
 	}
 	// Native options have no verified profile schema in B01-K.
