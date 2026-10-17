@@ -11,12 +11,13 @@ import (
 )
 
 type TaskDependencies struct {
-	Pending    ec.PendingClaimGroupGuard
-	Structure  *Reader
-	TaskEvents c.TaskEvents
-	Authority  *Authority
-	Events     oc.Appender
-	Activity   ActivityAuthority
+	Attachments ec.ArtifactAttachmentCapture
+	Pending     ec.PendingClaimGroupGuard
+	Structure   *Reader
+	TaskEvents  c.TaskEvents
+	Authority   *Authority
+	Events      oc.Appender
+	Activity    ActivityAuthority
 }
 type TaskService struct{ data func() *taskServiceState }
 type taskServiceState struct {

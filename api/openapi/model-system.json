@@ -2531,7 +2531,7 @@
             "CSRF": []
           }
         ],
-        "description": "Explicit bounded management operation using saved resource IDs only. Current Session/admin/CSRF and expected versions required. One durable operation per original key/body: repeat POST returns its stored result without another upstream request. Pending returns COMMIT_UNKNOWN with retry_hint=replay; no lookup endpoint. Stopped-process recovery records unknown/interrupted rather than resending. Overall operation20s, global4 concurrent, no queue, strict TLS/current outbound policy+proxy, no redirects or environment proxy. Upstream failures return safe outcome/reason without response text or credentials.",
+        "description": "Explicit bounded management operation using the saved model/provider configuration and optional bounded Chat input. Current Session/admin/CSRF and both expected versions are required. Global 4 concurrent/no queue; strict TLS/current outbound policy and proxy, no redirects or environment proxy. Same key/body returns the stored result without another upstream request; pending returns COMMIT_UNKNOWN/replay. Stopped-process recovery records unknown/interrupted. Finite answer_text is returned for successful Chat only; failures expose safe reason without upstream response text.",
         "parameters": [
           {
             "in": "path",
@@ -2609,7 +2609,7 @@
         },
         "requestBody": {
           "required": true,
-          "description": "Strict JSON object, maximum 4096 bytes; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "description": "Strict JSON object, maximum 16 MiB on this endpoint only. Unknown/duplicate keys, trailing JSON, non-UTF-8, invalid media/base64 and malformed null/scalars rejected. Optional input is Chat-only; original key/body recovers its receipt without resending.",
           "content": {
             "application/json": {
               "schema": {
@@ -3851,6 +3851,9 @@
           },
           "provider_version": {
             "$ref": "./common.json#/components/schemas/Version"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ManagementChatInput"
           }
         }
       },
@@ -3945,7 +3948,9 @@
           "duration_ms",
           "created_at",
           "model_id",
-          "model_version"
+          "model_version",
+          "answer_text",
+          "answer_truncated"
         ],
         "properties": {
           "operation_id": {
@@ -3998,9 +4003,21 @@
           },
           "model_version": {
             "$ref": "./common.json#/components/schemas/Version"
+          },
+          "answer_text": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 8192,
+            "description": "Chat success returns plain text (possibly empty), at most 8 KiB UTF-8; non-Chat or unsuccessful tests return null. Never a provider error body or credential."
+          },
+          "answer_truncated": {
+            "type": "boolean",
+            "description": "True only when the successful Chat text exceeded the UTF-8 byte bound. Non-Chat and unsuccessful tests return false."
           }
         },
-        "description": "A bounded protocol-response check, not an Image artifact or URL-download result. Image generation: overall and response-header deadline 120 seconds, read-idle 30 seconds, raw response at most 8 MiB and decoded base64 at most 6 MiB; duration_ms may reach 120000. Other model tests remain 20 seconds (duration_ms at most 20000) and 1 MiB. Caller cancellation and earlier deadlines apply; terminal receipt/lease cleanup retains its independent 5-second budget and only follows actual I/O join."
+        "description": "Bounded protocol response, not an Image Artifact/download result. Chat with attachments and Image Generation use an absolute overall/header deadline of 120s and read-idle 30s; all other tests remain 20s. Image response raw 8MiB/decoded base64 6MiB; other responses 1MiB. Cancellation closes and joins actual I/O before independent 5s receipt/lease cleanup. Optional Chat input uses the same media validator/encoder as runtime inputs; PDF is sent natively, text/Markdown/DOCX are explicitly extracted as untrusted attachment text."
       },
       "ModelProviderSummary": {
         "type": "object",
@@ -4156,6 +4173,65 @@
             "$ref": "#/components/schemas/ReasoningChoice"
           }
         }
+      },
+      "ManagementChatAttachment": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "media_type",
+          "data_base64"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "UTF-8 basename, at most 255 bytes; no controls, slash/backslash, dot/dot-dot or leading/trailing whitespace."
+          },
+          "media_type": {
+            "enum": [
+              "image/png",
+              "image/jpeg",
+              "image/webp",
+              "image/gif",
+              "application/pdf",
+              "text/plain",
+              "text/markdown",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "data_base64": {
+            "type": "string",
+            "maxLength": 5592408,
+            "contentEncoding": "base64",
+            "description": "Strict standard base64, without whitespace. Image/PDF at most 4 MiB decoded; plain/Markdown/DOCX at most 1 MiB. Non-animated GIF only."
+          }
+        },
+        "description": "No URL, object key or caller-selected Project reference. The bounded bytes belong only to this explicit management command."
+      },
+      "ManagementChatInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "attachments"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 16384,
+            "description": "At most 16 KiB UTF-8, no NUL. Text may be empty when an attachment is present."
+          },
+          "attachments": {
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+              "$ref": "#/components/schemas/ManagementChatAttachment"
+            }
+          }
+        },
+        "description": "Chat only. Nonempty text or at least one attachment is required; decoded attachments total at most 8 MiB. Exact order, name, MIME and content digest are bound to the original idempotency key."
       }
     }
   }

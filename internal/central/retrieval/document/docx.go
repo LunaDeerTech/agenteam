@@ -24,6 +24,23 @@ func ParseDOCX(ctx context.Context, source parser.SourceIdentity, title string, 
 	if ctx == nil || source.Validate() != nil {
 		return chunker.Document{}, invalid()
 	}
+	return parseDOCX(ctx, source, title, raw)
+}
+
+// ExtractDOCXText reuses the bounded parser without inventing a Knowledge
+// document identity. It emits no locators, performs no I/O and grants no access.
+func ExtractDOCXText(ctx context.Context, raw []byte) (string, error) {
+	if ctx == nil {
+		return "", invalid()
+	}
+	parsed, err := parseDOCX(ctx, parser.SourceIdentity{}, "", raw)
+	if err != nil {
+		return "", err
+	}
+	return parsed.Text, nil
+}
+
+func parseDOCX(ctx context.Context, source parser.SourceIdentity, title string, raw []byte) (chunker.Document, error) {
 	if err := ctx.Err(); err != nil {
 		return chunker.Document{}, err
 	}

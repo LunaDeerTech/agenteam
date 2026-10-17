@@ -46,6 +46,7 @@ func (t Transport) newClient() (*outbound.Client, error) {
 type Request struct {
 	Snapshot       mc.ConfigSnapshot
 	Messages       []mc.Message
+	Media          []PreparedMedia
 	Tools          []mc.Tool
 	ToolChoice     mc.ToolChoice
 	ResponseFormat mc.ResponseFormat
@@ -231,23 +232,39 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 	}
 	// Explicit wire tags prevent either public-contract JSON or logging methods
 	// from becoming an alternative encoding of the provider request.
-	type wireMessage struct {
-		Role    string `json:"role"`
-		Content string `json:"content"`
+	encoder, err := newMediaEncoder(r.Media, c)
+	if err != nil {
+		return fail(err)
 	}
-	messages := make([]wireMessage, 0, len(r.Messages))
-	encodedSize := 128 + 6*len(s.ProviderModelID)
+	messages := make([]toolsMessageWire, 0, len(r.Messages))
+	encodedSize := 512 + quotedSize(s.ProviderModelID) + quotedSize(string(r.ResponseFormat.Schema))
+	charge := func(n int) error {
+		if n > maxTextBytes-encodedSize {
+			return limitFailure()
+		}
+		encodedSize += n
+		return nil
+	}
 	for _, m := range r.Messages {
-		if m.Role == "tool" || len(m.Parts) != 1 || m.Parts[0].Text == nil {
+		if err := ctx.Err(); err != nil {
+			return fail(contextFailure(err))
+		}
+		var content any
+		if m.Role == "user" {
+			content, err = encoder.user(ctx, m.Parts, charge)
+		} else if (m.Role == "system" || m.Role == "assistant") && len(m.Parts) == 1 && m.Parts[0].Text != nil {
+			content = m.Parts[0].Text.Text
+			err = charge(64 + quotedSize(m.Parts[0].Text.Text))
+		} else {
 			return fail(unsupported())
 		}
-		// Bound allocation before json.Marshal; up to 256 individually valid
-		// 16 MiB parts must not allocate a multi-gigabyte temporary encoding.
-		encodedSize += quotedSize(m.Parts[0].Text.Text) + len(m.Role) + 32
-		if encodedSize > maxTextBytes+8192 {
-			return fail(limitFailure())
+		if err != nil {
+			return fail(err)
 		}
-		messages = append(messages, wireMessage{m.Role, m.Parts[0].Text.Text})
+		messages = append(messages, toolsMessageWire{Role: m.Role, Content: content})
+	}
+	if err := encoder.complete(); err != nil {
+		return fail(err)
 	}
 	var maxOutput *int64
 	if c.MaxOutput != nil {
@@ -261,7 +278,7 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 	body := struct {
 		reasoningWireFields
 		Model     string                `json:"model"`
-		Messages  []wireMessage         `json:"messages"`
+		Messages  []toolsMessageWire    `json:"messages"`
 		Stream    bool                  `json:"stream"`
 		Options   map[string]bool       `json:"stream_options,omitempty"`
 		MaxOutput *int64                `json:"max_completion_tokens,omitempty"`

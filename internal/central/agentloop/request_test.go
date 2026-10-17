@@ -76,23 +76,25 @@ func requestFields(t *testing.T, purpose string) ec.PreparationInputFields {
 		ExecutionID   i.ExecutionID `json:"execution_id"`
 		LaunchDigest  f.Digest      `json:"launch_digest"`
 		Input         struct {
-			SchemaVersion      f.Version         `json:"schema_version"`
-			Task               wc.Task           `json:"task"`
-			Sprint             wc.Sprint         `json:"sprint"`
-			Milestone          wc.Milestone      `json:"milestone"`
-			Purpose            string            `json:"purpose"`
-			UnresolvedBlockers []wc.TaskBlocker  `json:"unresolved_blockers"`
-			RecentTaskEvents   []json.RawMessage `json:"recent_task_events"`
+			SchemaVersion      f.Version                       `json:"schema_version"`
+			Task               wc.Task                         `json:"task"`
+			Sprint             wc.Sprint                       `json:"sprint"`
+			Milestone          wc.Milestone                    `json:"milestone"`
+			Purpose            string                          `json:"purpose"`
+			UnresolvedBlockers []wc.TaskBlocker                `json:"unresolved_blockers"`
+			RecentTaskEvents   []json.RawMessage               `json:"recent_task_events"`
+			Attachments        []ec.CapturedArtifactAttachment `json:"attachments"`
 		} `json:"input"`
 	}{SchemaVersion: 1, ExecutionID: e, LaunchDigest: launchDigest, Input: struct {
-		SchemaVersion      f.Version         `json:"schema_version"`
-		Task               wc.Task           `json:"task"`
-		Sprint             wc.Sprint         `json:"sprint"`
-		Milestone          wc.Milestone      `json:"milestone"`
-		Purpose            string            `json:"purpose"`
-		UnresolvedBlockers []wc.TaskBlocker  `json:"unresolved_blockers"`
-		RecentTaskEvents   []json.RawMessage `json:"recent_task_events"`
-	}{1, task, sprint, milestone, purpose, []wc.TaskBlocker{}, []json.RawMessage{historyBytes}}})
+		SchemaVersion      f.Version                       `json:"schema_version"`
+		Task               wc.Task                         `json:"task"`
+		Sprint             wc.Sprint                       `json:"sprint"`
+		Milestone          wc.Milestone                    `json:"milestone"`
+		Purpose            string                          `json:"purpose"`
+		UnresolvedBlockers []wc.TaskBlocker                `json:"unresolved_blockers"`
+		RecentTaskEvents   []json.RawMessage               `json:"recent_task_events"`
+		Attachments        []ec.CapturedArtifactAttachment `json:"attachments"`
+	}{1, task, sprint, milestone, purpose, []wc.TaskBlocker{}, []json.RawMessage{historyBytes}, []ec.CapturedArtifactAttachment{}}})
 	requestOK(t, err)
 	trigger, err := ec.NewCapturedTriggerInput(ec.TriggerInputRef{ProviderType: "task", SchemaVersion: 1, InputID: requestID[ec.TriggerInput](t, 13), Digest: ec.TriggerInputDigest(triggerBytes)}, triggerBytes)
 	requestOK(t, err)

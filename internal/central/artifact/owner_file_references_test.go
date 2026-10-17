@@ -188,9 +188,9 @@ func TestOwnerFileReferencesRejectMissingLocksRevocationAndUnpublishedIdentity(t
 	if _, err = NewOwnerFileReferences(nil); err == nil {
 		t.Fatal("missing original Service accepted")
 	}
-	state := port.original.state()
-	state.ownership = nil
-	if _, err = NewOwnerFileReferences(port.original); err == nil {
+	state := &serviceState{store: port.store, owners: port.owners}
+	unowned := &Service{data: func() *serviceState { return state }}
+	if _, err = NewOwnerFileReferences(unowned); err == nil {
 		t.Fatal("unowned Service accepted")
 	}
 }

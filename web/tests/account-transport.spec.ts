@@ -310,3 +310,94 @@ describe("account HTTP response contract", () => {
     );
   });
 });
+
+describe("multimodal model-test request budgets", () => {
+  const modelId = "019a4444-4444-7444-8444-444444444444";
+  const testPath = `/system/models/${modelId}/test`;
+  const mib = 1024 * 1024;
+  const bodyWithBytes = (bytes: number) => {
+    const empty = JSON.stringify({ text: "" });
+    return JSON.stringify({ text: "a".repeat(bytes - empty.length) });
+  };
+
+  it("counts the entire UTF-8 JSON envelope at the 16 MiB model-test boundary", async () => {
+    const fetcher = vi.fn(async (_url: string, _init?: RequestInit) =>
+      json({ accepted: true }),
+    );
+    vi.stubGlobal("fetch", fetcher);
+    const { accountRequest } = await import("../src/account/transport");
+    const envelope = {
+      expected_version: "3",
+      provider_version: "2",
+      input: {
+        text: "🧠",
+        attachments: [
+          {
+            name: "sample.pdf",
+            media_type: "application/pdf",
+            data_base64: "",
+          },
+        ],
+      },
+    };
+    const available =
+      16 * mib - new TextEncoder().encode(JSON.stringify(envelope)).length;
+    envelope.input.text += "a".repeat(available % 4);
+    envelope.input.attachments[0]!.data_base64 = "A".repeat(
+      available - (available % 4),
+    );
+    // Attachment content limits belong to the input validator. This fixture
+    // isolates the transport budget for the complete encoded JSON envelope.
+    const boundary = JSON.stringify(envelope);
+    expect(new TextEncoder().encode(boundary)).toHaveLength(16 * mib);
+    await expect(
+      accountRequest(testPath, { method: "POST", body: boundary }, valid),
+    ).resolves.toEqual({ accepted: true });
+    expect(fetcher.mock.calls[0]?.[0]).toBe(`/api/v1${testPath}`);
+    envelope.input.text += "a";
+    await expect(
+      accountRequest(
+        testPath,
+        { method: "POST", body: JSON.stringify(envelope) },
+        valid,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_ARGUMENT" });
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
+
+  it("keeps ordinary and catalog budgets and denies the large exception on other paths or methods", async () => {
+    const fetcher = vi.fn(async () => json({ accepted: true }));
+    vi.stubGlobal("fetch", fetcher);
+    const { accountRequest } = await import("../src/account/transport");
+    await accountRequest(
+      "/me",
+      { method: "PATCH", body: bodyWithBytes(16384) },
+      valid,
+    );
+    const aboveOrdinary = bodyWithBytes(16385);
+    for (const [path, method] of [
+      ["/me", "PATCH"],
+      [testPath, "GET"],
+      [testPath, "PUT"],
+      ["/system/models/not-a-uuid/test", "POST"],
+      [`${testPath}/extra`, "POST"],
+      [`/system/model-providers/${modelId}/discovery`, "POST"],
+    ] as const)
+      await expect(
+        accountRequest(path, { method, body: aboveOrdinary }, valid),
+      ).rejects.toMatchObject({ code: "INVALID_ARGUMENT" });
+    await accountRequest(
+      `/system/models/${modelId}`,
+      { method: "PUT", body: bodyWithBytes(mib) },
+      valid,
+    );
+    await expect(
+      accountRequest(
+        `/system/models/${modelId}`,
+        { method: "PUT", body: bodyWithBytes(mib + 1) },
+        valid,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_ARGUMENT" });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+});

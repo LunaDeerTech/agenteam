@@ -64,7 +64,7 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 		if !taskPlanningWriteSupported(r.Input, t) {
 			return internal(nil)
 		}
-		if u := r.Input.Update; u != nil && (u.Title != nil && *u.Title != t.Title || u.Description != nil && *u.Description != t.Description || u.Type != nil && *u.Type != t.Type || u.Priority != nil && *u.Priority != t.Priority || u.Plan != nil && *u.Plan != t.Plan) {
+		if u := r.Input.Update; u != nil && (u.Title != nil && *u.Title != t.Title || u.Description != nil && *u.Description != t.Description || u.Type != nil && *u.Type != t.Type || u.Priority != nil && *u.Priority != t.Priority || u.Plan != nil && *u.Plan != t.Plan || u.Attachments != nil && !slices.Equal(*u.Attachments, t.Attachments)) {
 			return internal(nil)
 		}
 		return nil
@@ -99,8 +99,8 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 		if p.Before != nil || v.EffectiveState() != c.TaskStateBacklog || v.AssigneeAgentID != nil || t.Version != 1 || t.SprintID != v.SprintID || !sameValue(t.CreatedAt, t.UpdatedAt) {
 			return internal(nil)
 		}
-		expected = c.Task{ID: in.Target, ProjectID: in.Project, MilestoneID: p.Placement.Milestone, SprintID: v.SprintID, Title: v.Title, Description: v.Description, Type: v.Type, Priority: v.Priority, State: c.TaskStateBacklog, Plan: v.Plan, ManualRank: t.ManualRank, Version: 1, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt}
-		fields = []c.TaskChangedField{c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
+		expected = c.Task{ID: in.Target, ProjectID: in.Project, MilestoneID: p.Placement.Milestone, SprintID: v.SprintID, Title: v.Title, Description: v.Description, Type: v.Type, Priority: v.Priority, State: c.TaskStateBacklog, Plan: v.Plan, Attachments: slices.Clone(v.Attachments), ManualRank: t.ManualRank, Version: 1, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt}
+		fields = []c.TaskChangedField{c.TaskAttachmentsChanged, c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
 		change = c.TaskCreatedChange
 	} else {
 		if p.Before == nil || p.Before.Validate() != nil || in.Expected == nil || p.Before.Version != *in.Expected || !taskPlanningWriteSupported(in, *p.Before) || p.Before.ID != in.Target || p.Before.ProjectID != in.Project || p.Before.SprintID != t.SprintID || p.Before.MilestoneID != t.MilestoneID || t.UpdatedAt.Time().Before(p.Before.UpdatedAt.Time()) {
@@ -114,6 +114,10 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 		expected.Version = f.Version(n)
 		expected.UpdatedAt = t.UpdatedAt
 		if u := in.Update; u != nil {
+			if u.Attachments != nil && !slices.Equal(*u.Attachments, expected.Attachments) {
+				expected.Attachments = slices.Clone(*u.Attachments)
+				fields = append(fields, c.TaskAttachmentsChanged)
+			}
 			if u.Description != nil && *u.Description != expected.Description {
 				expected.Description = *u.Description
 				fields = append(fields, c.TaskDescriptionChanged)
@@ -141,6 +145,11 @@ func validateTaskRecord(r *taskRecord, a i.Actor) error {
 			expected.ManualRank = t.ManualRank
 			fields = []c.TaskChangedField{c.TaskRankChanged}
 			change = c.TaskReorderedChange
+		}
+	}
+	if _, changed := taskAttachmentIDs(in); changed {
+		if err := validateTaskAttachmentBinding(t.ProjectID, t.Attachments, p.Attachments); err != nil {
+			return err
 		}
 	}
 	if len(fields) == 0 || !sameValue(expected, t) {

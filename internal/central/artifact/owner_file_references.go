@@ -13,7 +13,10 @@ import (
 // OwnerFileReferences lends only published Artifact identity validation to the
 // caller's existing transaction. The caller owns the SQL lifetime and full
 // lock union. No Artifact read session, Object access or content is produced.
-type OwnerFileReferences struct{ original *Service }
+type OwnerFileReferences struct {
+	store  Store
+	owners *OwnerProvider
+}
 
 type fileReferenceLockStore interface {
 	Store
@@ -31,19 +34,19 @@ func NewOwnerFileReferences(original *Service) (*OwnerFileReferences, error) {
 	if _, ok := s.store.(fileReferenceLockStore); !ok {
 		return nil, failure(f.DependencyUnbound, nil)
 	}
-	return &OwnerFileReferences{original}, nil
+	return &OwnerFileReferences{store: s.store, owners: s.owners}, nil
 }
 
 func (r *OwnerFileReferences) RequireStore(value any) error {
 	actual, ok := value.(Store)
-	if r == nil || r.original == nil || r.original.data == nil || !ok || !sameProjectAuditStore(r.original.state().store, actual) {
+	if r == nil || r.owners == nil || !ok || !sameProjectAuditStore(r.store, actual) {
 		return failure(f.DependencyUnbound, nil)
 	}
 	return nil
 }
 
 func (r *OwnerFileReferences) input(ctx context.Context, actor i.Actor, project i.ProjectID, artifact ac.ArtifactID) error {
-	if r == nil || r.original == nil || r.original.data == nil {
+	if r == nil || r.owners == nil {
 		return failure(f.DependencyUnbound, nil)
 	}
 	if ctx == nil || project.Validate() != nil || artifact.Validate() != nil {
@@ -80,7 +83,7 @@ func (r *OwnerFileReferences) FileReferenceLocks(ctx context.Context, actor i.Ac
 	if err := r.input(ctx, actor, project, artifact); err != nil {
 		return nil, err
 	}
-	s := r.original.state()
+	s := r
 	deps, err := s.owners.state().authority.Discover(ctx, subject(actor, project))
 	if err != nil {
 		return nil, portError(err)
@@ -98,7 +101,7 @@ func (r *OwnerFileReferences) RequireFileReferenceInTx(ctx context.Context, tx f
 	if err := r.input(ctx, actor, project, artifact); err != nil {
 		return err
 	}
-	s := r.original.state()
+	s := r
 	x, err := s.store.InTx(tx)
 	if err != nil {
 		return portError(err)

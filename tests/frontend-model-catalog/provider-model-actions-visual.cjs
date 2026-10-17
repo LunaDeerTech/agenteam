@@ -278,6 +278,7 @@ async function setup(c) {
         assert.deepEqual(body, {
           expected_version: models[0].version,
           provider_version: provider.version,
+          input: { text: "请简要说明收到的内容。", attachments: [] },
         });
         s.testRuns++;
         receipt = {
@@ -290,6 +291,8 @@ async function setup(c) {
           reason: null,
           duration_ms: 57,
           created_at: at,
+          answer_text: "这是合成的文本测试回答。",
+          answer_truncated: false,
         };
       }
       s.receipts.set(key, { ep, body: structuredClone(body), receipt });

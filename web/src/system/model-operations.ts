@@ -12,6 +12,10 @@ import {
 } from "./model-catalog";
 import { systemCommand, systemRequest } from "./requests";
 import type { AccountCommand } from "../account/session";
+import {
+  validateModelTestInput,
+  type ModelTestInput,
+} from "./model-test-input";
 export interface NetworkCommand<T> extends AccountCommand<T> {
   cancel: () => void;
 }
@@ -91,6 +95,8 @@ export interface DiscoveryResult extends OperationResult {
 export interface TestResult extends OperationResult {
   model_id: string;
   model_version: string;
+  answer_text: string | null;
+  answer_truncated: boolean;
 }
 function common(v: Record<string, unknown>, maximumDuration: number) {
   return (
@@ -148,10 +154,19 @@ export function isTestResult(v: unknown): v is TestResult {
       "reason",
       "duration_ms",
       "created_at",
+      "answer_text",
+      "answer_truncated",
     ]) &&
     common(v, 120000) &&
     isId(v.model_id) &&
-    isVersion(v.model_version)
+    isVersion(v.model_version) &&
+    typeof v.answer_truncated === "boolean" &&
+    (v.answer_text === null
+      ? v.answer_truncated === false
+      : typeof v.answer_text === "string" &&
+        new TextEncoder().encode(v.answer_text).length <= 8192) &&
+    (v.outcome === "succeeded" ||
+      (v.answer_text === null && v.answer_truncated === false))
   );
 }
 export function getModelCapabilities(current?: () => boolean) {
@@ -188,19 +203,37 @@ export function discoveryCommand(provider: Provider) {
       v.provider_version === provider.version,
   );
 }
-export function modelTestCommand(provider: Provider, model: CatalogModel) {
-  const image = model.input.type === "image_generation";
+export function modelTestCommand(
+  provider: Provider,
+  model: CatalogModel,
+  input?: ModelTestInput,
+) {
+  if (input && validateModelTestInput(input, model))
+    throw new AccountError("INVALID_ARGUMENT");
+  const extended =
+    model.input.type === "image_generation" ||
+    (model.input.type === "chat" && !!input?.attachments.length);
+  const body = {
+    expected_version: model.version,
+    provider_version: provider.version,
+    ...(input ? { input } : {}),
+  };
+  if (new TextEncoder().encode(JSON.stringify(body)).length > 16 * 1024 * 1024)
+    throw new AccountError("INVALID_ARGUMENT");
   return networkCommand(
     `/system/models/${model.id}/test`,
-    { expected_version: model.version, provider_version: provider.version },
+    body,
     (v): v is TestResult =>
       isTestResult(v) &&
       v.provider_id === provider.id &&
       v.provider_version === provider.version &&
       v.model_id === model.id &&
       v.model_version === model.version &&
-      v.duration_ms <= (image ? 120000 : 20000),
-    image ? 130000 : undefined,
+      v.duration_ms <= (extended ? 120000 : 20000) &&
+      (model.input.type === "chat" && v.outcome === "succeeded"
+        ? typeof v.answer_text === "string"
+        : v.answer_text === null && v.answer_truncated === false),
+    extended ? 130000 : undefined,
   );
 }
 export const reasonLabels: Record<OperationReason, string> = {

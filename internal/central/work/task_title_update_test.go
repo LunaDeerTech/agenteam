@@ -102,7 +102,7 @@ func (s *titleUpdateStore) QueryRow(_ context.Context, query string, args ...any
 			v := t.AssigneeAgentID.String()
 			agent = &v
 		}
-		return taskTriggerRow{t.ID.String(), t.ProjectID.String(), t.MilestoneID.String(), t.SprintID.String(), t.Title, t.Description, t.Type, t.Priority, t.State, agent, t.Plan, t.ManualRank, t.Version, t.CreatedAt.Time(), t.UpdatedAt.Time()}
+		return taskTriggerRow{t.ID.String(), t.ProjectID.String(), t.MilestoneID.String(), t.SprintID.String(), t.Title, t.Description, t.Type, t.Priority, t.State, agent, t.Plan, t.ManualRank, t.Version, t.CreatedAt.Time(), t.UpdatedAt.Time(), []byte(`[]`)}
 	case strings.Contains(query, "FROM agenteam_work.sprints"):
 		return taskTriggerRow{t.SprintID.String(), t.ProjectID.String(), t.MilestoneID.String(), "Planning sprint", "", t.ManualRank, f.Version(1), t.CreatedAt.Time(), t.CreatedAt.Time(), (*time.Time)(nil), []byte(nil), (*time.Time)(nil), []byte(nil)}
 	case strings.Contains(query, "FROM agenteam_work.milestones"):

@@ -16,7 +16,9 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
@@ -84,14 +86,15 @@ func taskRankLock(p c.ProjectID, g taskGroup) f.LockRequest {
 	return f.LockRequest{Key: key, Mode: f.Exclusive}
 }
 
-const taskColumns = `id::text,project_id::text,milestone_id::text,sprint_id::text,title,description,type,priority,state,assignee_agent_id::text,plan,manual_rank,version,created_at,updated_at`
+const taskColumns = `id::text,project_id::text,milestone_id::text,sprint_id::text,title,description,type,priority,state,assignee_agent_id::text,plan,manual_rank,version,created_at,updated_at,attachment_data`
 
 func scanTask(row interface{ Scan(...any) error }) (c.Task, error) {
 	var t c.Task
 	var id, p, m, s string
 	var agent *string
+	var attachments []byte
 	var created, updated time.Time
-	if err := row.Scan(&id, &p, &m, &s, &t.Title, &t.Description, &t.Type, &t.Priority, &t.State, &agent, &t.Plan, &t.ManualRank, &t.Version, &created, &updated); err != nil {
+	if err := row.Scan(&id, &p, &m, &s, &t.Title, &t.Description, &t.Type, &t.Priority, &t.State, &agent, &t.Plan, &t.ManualRank, &t.Version, &created, &updated, &attachments); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return c.Task{}, fault(f.TaskNotFound)
 		}
@@ -122,6 +125,14 @@ func scanTask(row interface{ Scan(...any) error }) (c.Task, error) {
 	}
 	if t.UpdatedAt, err = f.NewInstant(updated); err != nil {
 		return c.Task{}, internal(err)
+	}
+	capturedAttachments, err := decodeTaskAttachments(attachments, t.ProjectID)
+	if err != nil {
+		return c.Task{}, err
+	}
+	t.Attachments = make([]ac.ArtifactID, len(capturedAttachments))
+	for n, source := range capturedAttachments {
+		t.Attachments[n] = source.ArtifactID
 	}
 	if err = t.Validate(); err != nil {
 		return c.Task{}, internal(err)
@@ -262,17 +273,18 @@ type taskGroupPlan struct {
 	Generation int64      `json:"generation"`
 }
 type taskPlan struct {
-	Before          *c.Task         `json:"before"`
-	After           c.TaskMutation  `json:"after"`
-	Placement       taskPlacement   `json:"placement"`
-	Groups          []taskGroupPlan `json:"groups"`
-	QueryGeneration int64           `json:"query_generation"`
-	TaskEvent       json.RawMessage `json:"task_event"`
-	Header          event.Header    `json:"header"`
-	Payload         json.RawMessage `json:"payload"`
+	Attachments     []ec.CapturedArtifactAttachment `json:"attachments"`
+	Before          *c.Task                         `json:"before"`
+	After           c.TaskMutation                  `json:"after"`
+	Placement       taskPlacement                   `json:"placement"`
+	Groups          []taskGroupPlan                 `json:"groups"`
+	QueryGeneration int64                           `json:"query_generation"`
+	TaskEvent       json.RawMessage                 `json:"task_event"`
+	Header          event.Header                    `json:"header"`
+	Payload         json.RawMessage                 `json:"payload"`
 }
 
-var taskPlanFields = []string{"before", "after", "placement", "groups", "query_generation", "task_event", "header", "payload"}
+var taskPlanFields = []string{"attachments", "before", "after", "placement", "groups", "query_generation", "task_event", "header", "payload"}
 
 type taskRecord struct {
 	ID          c.TaskCommandID
@@ -431,8 +443,19 @@ func applyTaskPlan(ctx context.Context, x postgres.SQLExecutor, r *taskRecord) e
 	p := r.Plan
 	t := p.After.Task
 	in := r.Input
+	var attachmentData []byte
+	if _, changed := taskAttachmentIDs(in); changed {
+		if err := validateTaskAttachmentBinding(t.ProjectID, t.Attachments, p.Attachments); err != nil {
+			return err
+		}
+		var err error
+		attachmentData, err = json.Marshal(p.Attachments)
+		if err != nil {
+			return internal(err)
+		}
+	}
 	if in.Create != nil {
-		if err := taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.tasks(id,project_id,milestone_id,sprint_id,title,description,type,priority,state,assignee_agent_id,plan,manual_rank,version,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,NULL,$10,$11,$12,$13,$14)`, t.ID.String(), t.ProjectID.String(), t.MilestoneID.String(), t.SprintID.String(), t.Title, t.Description, string(t.Type), string(t.Priority), string(t.State), t.Plan, t.ManualRank, int64(t.Version), t.CreatedAt.Time(), t.UpdatedAt.Time())); err != nil {
+		if err := taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.tasks(id,project_id,milestone_id,sprint_id,title,description,type,priority,state,assignee_agent_id,plan,manual_rank,version,created_at,updated_at,attachment_data) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,NULL,$10,$11,$12,$13,$14,$15)`, t.ID.String(), t.ProjectID.String(), t.MilestoneID.String(), t.SprintID.String(), t.Title, t.Description, string(t.Type), string(t.Priority), string(t.State), t.Plan, t.ManualRank, int64(t.Version), t.CreatedAt.Time(), t.UpdatedAt.Time(), attachmentData)); err != nil {
 			return err
 		}
 	} else {
@@ -441,6 +464,9 @@ func applyTaskPlan(ctx context.Context, x postgres.SQLExecutor, r *taskRecord) e
 		add := func(column string, v any) { args = append(args, v); query += fmt.Sprintf(",%s=$%d", column, len(args)) }
 		if in.Update != nil {
 			u := in.Update
+			if u.Attachments != nil {
+				add("attachment_data", attachmentData)
+			}
 			if u.Title != nil {
 				add("title", t.Title)
 			}
@@ -703,6 +729,14 @@ func decodeTaskPlanHeader(raw []byte) (event.Header, error) {
 	return h, nil
 }
 
+func (v taskPlan) MarshalJSON() ([]byte, error) {
+	type wire taskPlan
+	if v.Attachments == nil {
+		v.Attachments = []ec.CapturedArtifactAttachment{}
+	}
+	return json.Marshal(wire(v))
+}
+
 func (v *taskPlan) UnmarshalJSON(raw []byte) error {
 	object, err := taskPrivateObject(raw, taskPlanCap, taskPlanFields, []string{"before"})
 	if err != nil {
@@ -711,20 +745,26 @@ func (v *taskPlan) UnmarshalJSON(raw []byte) error {
 	// Header is intentionally raw here: event.Header has a distinct explicit
 	// DecodeHeader boundary, and a plain nested struct would bypass that boundary.
 	var next struct {
-		Before          *c.Task         `json:"before"`
-		After           c.TaskMutation  `json:"after"`
-		Placement       taskPlacement   `json:"placement"`
-		Groups          []taskGroupPlan `json:"groups"`
-		QueryGeneration int64           `json:"query_generation"`
-		TaskEvent       json.RawMessage `json:"task_event"`
-		Header          json.RawMessage `json:"header"`
-		Payload         json.RawMessage `json:"payload"`
+		Attachments     []ec.CapturedArtifactAttachment `json:"attachments"`
+		Before          *c.Task                         `json:"before"`
+		After           c.TaskMutation                  `json:"after"`
+		Placement       taskPlacement                   `json:"placement"`
+		Groups          []taskGroupPlan                 `json:"groups"`
+		QueryGeneration int64                           `json:"query_generation"`
+		TaskEvent       json.RawMessage                 `json:"task_event"`
+		Header          json.RawMessage                 `json:"header"`
+		Payload         json.RawMessage                 `json:"payload"`
 	}
 	if err = json.Unmarshal(raw, &next); err != nil {
 		return internal(err)
 	}
-	if !next.After.Changed || next.Groups == nil || len(next.Groups) > 2 || next.QueryGeneration < 1 {
+	if !next.After.Changed || next.Groups == nil || len(next.Groups) > 2 || next.QueryGeneration < 1 || next.Attachments == nil || len(next.Attachments) > ec.MaxInputAttachments {
 		return internal(nil)
+	}
+	for _, attachment := range next.Attachments {
+		if attachment.Validate() != nil || attachment.ProjectID != next.After.Task.ProjectID {
+			return internal(nil)
+		}
 	}
 	header, err := decodeTaskPlanHeader(object["header"])
 	if err != nil {
@@ -738,6 +778,6 @@ func (v *taskPlan) UnmarshalJSON(raw []byte) error {
 	if err = payload.UnmarshalJSON(next.Payload); err != nil {
 		return internal(err)
 	}
-	*v = taskPlan{Before: next.Before, After: next.After, Placement: next.Placement, Groups: next.Groups, QueryGeneration: next.QueryGeneration, TaskEvent: bytes.Clone(next.TaskEvent), Header: header, Payload: bytes.Clone(next.Payload)}
+	*v = taskPlan{Attachments: next.Attachments, Before: next.Before, After: next.After, Placement: next.Placement, Groups: next.Groups, QueryGeneration: next.QueryGeneration, TaskEvent: bytes.Clone(next.TaskEvent), Header: header, Payload: bytes.Clone(next.Payload)}
 	return nil
 }

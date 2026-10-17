@@ -300,13 +300,14 @@ func directTextDrainCandidate(t *testing.T) (directTextModelFacts, agentloop.Dir
 		t.Fatal(err)
 	}
 	type taskSource struct {
-		SchemaVersion      f.Version         `json:"schema_version"`
-		Task               wc.Task           `json:"task"`
-		Sprint             wc.Sprint         `json:"sprint"`
-		Milestone          wc.Milestone      `json:"milestone"`
-		Purpose            string            `json:"purpose"`
-		UnresolvedBlockers []wc.TaskBlocker  `json:"unresolved_blockers"`
-		RecentTaskEvents   []json.RawMessage `json:"recent_task_events"`
+		SchemaVersion      f.Version                       `json:"schema_version"`
+		Task               wc.Task                         `json:"task"`
+		Sprint             wc.Sprint                       `json:"sprint"`
+		Milestone          wc.Milestone                    `json:"milestone"`
+		Purpose            string                          `json:"purpose"`
+		UnresolvedBlockers []wc.TaskBlocker                `json:"unresolved_blockers"`
+		RecentTaskEvents   []json.RawMessage               `json:"recent_task_events"`
+		Attachments        []ec.CapturedArtifactAttachment `json:"attachments"`
 	}
 	digest, err := v.Request.Launch.Digest()
 	if err != nil {
@@ -317,7 +318,7 @@ func directTextDrainCandidate(t *testing.T) (directTextModelFacts, agentloop.Dir
 		ExecutionID   i.ExecutionID `json:"execution_id"`
 		LaunchDigest  f.Digest      `json:"launch_digest"`
 		Input         taskSource    `json:"input"`
-	}{1, v.Request.ExecutionID, digest, taskSource{1, task, sprint, milestone, v.Request.Launch.Purpose, []wc.TaskBlocker{}, []json.RawMessage{history}}})
+	}{1, v.Request.ExecutionID, digest, taskSource{1, task, sprint, milestone, v.Request.Launch.Purpose, []wc.TaskBlocker{}, []json.RawMessage{history}, []ec.CapturedArtifactAttachment{}}})
 	if err != nil {
 		t.Fatal(err)
 	}

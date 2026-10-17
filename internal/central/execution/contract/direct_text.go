@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"strings"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	object "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 )
 
@@ -142,10 +144,66 @@ func (v DirectTextRoundFields) Validate() error {
 		if n == 1 {
 			role = "user"
 		}
-		if m.Validate() != nil || m.Role != role || len(m.Parts) != 1 || m.Parts[0].Text == nil {
+		if m.Validate() != nil || m.Role != role || m.Parts[0].Text == nil || n == 0 && len(m.Parts) != 1 {
+			return invalid()
+		}
+		mediaCount := 0
+		for _, part := range m.Parts {
+			if part.Text != nil {
+				continue
+			}
+			media := part.Image
+			if media == nil {
+				media = part.File
+			}
+			if n == 0 || media == nil || media.Ref.Details().Kind != object.ArtifactFile || (part.Image != nil) != strings.HasPrefix(media.MediaType, "image/") {
+				return invalid()
+			}
+			mediaCount++
+		}
+		if mediaCount > MaxInputAttachments {
 			return invalid()
 		}
 	}
+	return nil
+}
+
+// Both no-tools and single-tool rounds reuse these fields. Their durable
+// encoding must preserve business media references, unlike ordinary Message
+// JSON, which intentionally redacts them for logs.
+type directTextRoundFieldsWire struct {
+	ID             RoundID           `json:"round_id"`
+	InputBindingID InputBindingID    `json:"input_binding_id"`
+	ExecutionID    i.ExecutionID     `json:"execution_id"`
+	SnapshotID     SnapshotID        `json:"snapshot_id"`
+	StartID        DirectTextStartID `json:"start_id"`
+	CallID         mc.CallID         `json:"call_id"`
+	ContextDigest  f.Digest          `json:"context_digest"`
+	Input          mc.InputIdentity  `json:"input"`
+	Messages       json.RawMessage   `json:"messages"`
+	CreatedAt      f.Instant         `json:"created_at"`
+}
+
+func (v DirectTextRoundFields) MarshalJSON() ([]byte, error) {
+	messages, err := mc.EncodeCanonicalMessages(v.Messages)
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(directTextRoundFieldsWire{v.ID, v.InputBindingID, v.ExecutionID, v.SnapshotID, v.StartID, v.CallID, v.ContextDigest, v.Input, messages, v.CreatedAt})
+}
+
+func (v *DirectTextRoundFields) UnmarshalJSON(raw []byte) error {
+	var wire directTextRoundFieldsWire
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if decoder.Decode(&wire) != nil || decoder.Decode(new(any)) != io.EOF {
+		return invalid()
+	}
+	messages, err := mc.DecodeCanonicalMessages(wire.Messages)
+	if err != nil {
+		return invalid()
+	}
+	*v = DirectTextRoundFields{ID: wire.ID, InputBindingID: wire.InputBindingID, ExecutionID: wire.ExecutionID, SnapshotID: wire.SnapshotID, StartID: wire.StartID, CallID: wire.CallID, ContextDigest: wire.ContextDigest, Input: wire.Input, Messages: messages, CreatedAt: wire.CreatedAt}
 	return nil
 }
 

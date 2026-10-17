@@ -32,6 +32,7 @@ type Dependencies struct {
 	Agents             ac.WorkReferences
 	Directory          ac.DirectoryQueries
 	References         ReferenceAuthority
+	Attachments        ec.ArtifactAttachmentCapture
 	DecisionAuthority  *Authority
 	DecisionResults    ec.MeetingResultReader
 	DecisionEvents     *DecisionEvents
@@ -125,7 +126,25 @@ func (s *Service) referenceLocks(ctx context.Context, a i.Actor, p i.ProjectID, 
 	if nilPort(s.deps.References) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return s.deps.References.ReferenceLocks(ctx, a, p, refs)
+	locks, err := s.deps.References.ReferenceLocks(ctx, a, p, refs)
+	if err != nil {
+		return nil, err
+	}
+	ids, err := meetingAttachmentIDs(nodes)
+	if err != nil {
+		return nil, err
+	}
+	if len(ids) != 0 {
+		if nilPort(s.deps.Attachments) {
+			return nil, fault(f.DependencyUnbound)
+		}
+		more, err := s.deps.Attachments.AttachmentLocks(ctx, a, p, ids)
+		if err != nil {
+			return nil, portError(err)
+		}
+		locks = append(locks, more...)
+	}
+	return normalize(locks)
 }
 func (s *Service) requireReferences(ctx context.Context, tx f.Tx, a i.Actor, p i.ProjectID, nodes []c.InlineNode) error {
 	refs := references(nodes)
@@ -249,7 +268,7 @@ func (s *Service) Start(ctx context.Context, a i.Actor, r c.StartRequest) (c.Rec
 		if err != nil {
 			return err
 		}
-		turn, err := insertTurn(ctx, x, id, r.Mode, nodes, participants, at, nil)
+		turn, err := s.insertTurn(ctx, tx, x, a, r.ProjectID, id, r.Mode, nodes, participants, at, nil)
 		if err != nil {
 			return err
 		}
@@ -382,7 +401,7 @@ func (s *Service) Send(ctx context.Context, a i.Actor, r c.SendRequest) (c.Recei
 		if err = s.requireReplyInTx(ctx, tx, r.MeetingID, r.ReplyTo); err != nil {
 			return err
 		}
-		turn, err := insertTurn(ctx, x, r.MeetingID, r.Mode, nodes, participants, now(), r.ReplyTo)
+		turn, err := s.insertTurn(ctx, tx, x, a, r.ProjectID, r.MeetingID, r.Mode, nodes, participants, now(), r.ReplyTo)
 		if err != nil {
 			return err
 		}
@@ -464,7 +483,7 @@ func (s *Service) requireReplyInTx(ctx context.Context, tx f.Tx, meeting c.Meeti
 	return ctx.Err()
 }
 
-func insertTurn(ctx context.Context, x postgres.SQLExecutor, meeting c.MeetingID, mode string, nodes []c.InlineNode, participants []c.ParticipantView, at time.Time, reply *c.MessageID) (c.TurnID, error) {
+func (s *Service) insertTurn(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, actor i.Actor, project i.ProjectID, meeting c.MeetingID, mode string, nodes []c.InlineNode, participants []c.ParticipantView, at time.Time, reply *c.MessageID) (c.TurnID, error) {
 	var zero c.TurnID
 	turn, err := f.NewID[c.Turn]()
 	if err != nil {
@@ -514,7 +533,15 @@ func insertTurn(ctx context.Context, x postgres.SQLExecutor, meeting c.MeetingID
 		id := reply.String()
 		replyID = &id
 	}
-	if _, err = x.Exec(ctx, `INSERT INTO agenteam_meeting.messages(id,meeting_id,participant_id,content,content_digest,created_at,reply_to_id) VALUES($1,$2,$3,$4,$5,$6,$7)`, message.String(), meeting.String(), user.ID.String(), body, digest(body).String(), at, replyID); err != nil {
+	attachments, err := s.captureMeetingAttachments(ctx, tx, x, actor, project, meeting, nodes)
+	if err != nil {
+		return zero, err
+	}
+	attachmentData, err := json.Marshal(attachments)
+	if err != nil {
+		return zero, portError(err)
+	}
+	if _, err = x.Exec(ctx, `INSERT INTO agenteam_meeting.messages(id,meeting_id,participant_id,content,content_digest,created_at,reply_to_id,attachment_data) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, message.String(), meeting.String(), user.ID.String(), body, digest(body).String(), at, replyID, attachmentData); err != nil {
 		return zero, portError(err)
 	}
 	for n, node := range nodes {

@@ -33,7 +33,7 @@ func (executionTriggerContexts) BuildTriggerContext(ctx context.Context, r ec.Pr
 	}
 }
 
-func constructMeeting(db database, b *executionRuntimeAssembly, a *executionRuntimeAuthorities, projects *projectUsageAssembly, models *model.Service, references meeting.ReferenceAuthority, objects *objectAssembly, auditor au.Appender, lifecycleEvents *meeting.ProposalEvents, decisionEvents *meeting.DecisionEvents) error {
+func constructMeeting(db database, b *executionRuntimeAssembly, a *executionRuntimeAuthorities, projects *projectUsageAssembly, models *model.Service, references meeting.ReferenceAuthority, objects *objectAssembly, auditor au.Appender, lifecycleEvents *meeting.ProposalEvents, decisionEvents *meeting.DecisionEvents, attachments ...ec.ArtifactAttachmentCapture) error {
 	store, ok := db.(meeting.Store)
 	if !ok || b == nil || a == nil || a.m3 == nil || b.agentCalls == nil || b.executionCalls == nil || b.cancellation == nil || b.modelRuntime == nil || b.modelCalls == nil || b.realtime == nil || projects == nil || runtimeInformationNil(references) || objects == nil || objects.guard == nil || runtimeInformationNil(auditor) || lifecycleEvents == nil || decisionEvents == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -57,7 +57,14 @@ func constructMeeting(db database, b *executionRuntimeAssembly, a *executionRunt
 	if err != nil {
 		return err
 	}
-	b.meetings, err = meeting.NewService(store, meeting.Dependencies{Projects: projects.projects, Agents: a.agents, Directory: b.agentCalls.DirectoryReader(), References: references, DecisionAuthority: a.m3.meeting, DecisionResults: b.meetingResults, DeletionAuthority: deletionAuthority, Audit: auditor, LifecycleEvents: lifecycleEvents, RuntimeViews: b.meetingResults, DecisionEvents: decisionEvents, RuntimeProjections: b.meetingResults, Realtime: b.realtime})
+	if len(attachments) > 1 || len(attachments) == 1 && runtimeInformationNil(attachments[0]) {
+		return f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	var capture ec.ArtifactAttachmentCapture
+	if len(attachments) == 1 {
+		capture = attachments[0]
+	}
+	b.meetings, err = meeting.NewService(store, meeting.Dependencies{Attachments: capture, Projects: projects.projects, Agents: a.agents, Directory: b.agentCalls.DirectoryReader(), References: references, DecisionAuthority: a.m3.meeting, DecisionResults: b.meetingResults, DeletionAuthority: deletionAuthority, Audit: auditor, LifecycleEvents: lifecycleEvents, RuntimeViews: b.meetingResults, DecisionEvents: decisionEvents, RuntimeProjections: b.meetingResults, Realtime: b.realtime})
 	if err != nil {
 		return err
 	}

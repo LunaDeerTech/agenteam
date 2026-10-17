@@ -3,11 +3,13 @@ package model
 import (
 	"context"
 	"encoding/json"
+	media "github.com/LunaDeerTech/agenteam/internal/central/model/media"
 	"time"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model/managementwire"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
@@ -60,7 +62,7 @@ func managementCurrent(ctx context.Context, x postgres.SQLExecutor, o management
 
 // Execute binds one administrative intent to one durable operation. No recovery
 // path repeats external I/O; a stopped unfinished operation becomes interrupted.
-func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.IdempotencyKey, action, resource string, expected, providerVersion f.Version) (ManagementResult, error) {
+func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.IdempotencyKey, action, resource string, expected, providerVersion f.Version, chatInputs ...*media.Input) (ManagementResult, error) {
 	var empty ManagementResult
 	if m == nil || ctx == nil {
 		return empty, fault(f.DependencyUnbound)
@@ -76,6 +78,32 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 	} else if providerVersion.Validate() != nil {
 		return empty, fault(f.InvalidArgument)
 	}
+	// Uploaded content parsing shares the same four-operation budget. Receipt
+	// replays may verify their bounded input again, but never repeat external I/O.
+	reserved := len(chatInputs) > 0 && chatInputs[0] != nil
+	if reserved {
+		select {
+		case m.slots <- struct{}{}:
+			defer func() { <-m.slots }()
+		default:
+			return empty, fault(f.ResourceBusy)
+		}
+	}
+	requestContext, requestStarted := ctx, time.Now()
+	preparation, stopPreparation := context.WithDeadline(ctx, requestStarted.Add(120*time.Second))
+	defer stopPreparation()
+	input, prepared, inputDigest, e := prepareManagementMedia(preparation, chatInputs)
+	if e != nil {
+		return empty, e
+	}
+	defer func() {
+		for _, v := range prepared {
+			v.Clear()
+		}
+	}()
+	if action != "test" && input != nil {
+		return empty, fault(f.InvalidArgument)
+	}
 	ci, e := f.NewCommandIdentity("model.management", []string{actor.Details().UserID}, action, key)
 	if e != nil {
 		return empty, fault(f.InvalidArgument)
@@ -83,10 +111,10 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 	sem, _ := json.Marshal(struct {
 		Action, Resource   string
 		Expected, Provider f.Version
-	}{action, resource, expected, providerVersion})
+		Input              *managementMediaDigest
+	}{action, resource, expected, providerVersion, inputDigest})
 	digest, semantic := hash([]byte(ci.Canonical())).String(), hash(sem).String()
-	requestContext, requestStarted := ctx, time.Now()
-	ctx, cancel := managementRequestContext(requestContext, requestStarted, "")
+	ctx, cancel := managementRequestContext(requestContext, requestStarted, "", len(prepared) > 0)
 	defer cancel()
 	st := m.service.state()
 	cause, e := readCause("management")
@@ -132,11 +160,13 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 		}
 		return empty, nil
 	}
-	select {
-	case m.slots <- struct{}{}:
-		defer func() { <-m.slots }()
-	default:
-		return empty, fault(f.ResourceBusy)
+	if !reserved {
+		select {
+		case m.slots <- struct{}{}:
+			defer func() { <-m.slots }()
+		default:
+			return empty, fault(f.ResourceBusy)
+		}
 	}
 	opID, e := newID()
 	if e != nil {
@@ -161,15 +191,24 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 		o.ModelVersion = expected
 		o.Provider = mr.ProviderID
 		o.modelType = mr.Input.Type
-		if o.modelType == mc.ImageModel {
-			// Only a real loaded Image model may select the longer budget. Keep
+		if input != nil && o.modelType != mc.ChatModel {
+			return empty, fault(f.InvalidArgument)
+		}
+		o.hasAttachments = len(prepared) > 0
+		if input != nil {
+			if _, e = adapter.EncodeUserContent(ctx, input.Text, prepared, mr.Input.Capabilities); e != nil {
+				return empty, e
+			}
+		}
+		if o.modelType == mc.ImageModel || o.hasAttachments {
+			// Only a real loaded Image model or validated Chat attachments select the longer budget. Keep
 			// the original start/caller deadline; never restart a spent budget.
 			if e = ctx.Err(); e != nil {
 				return empty, e
 			}
 			cancel()
 			var imageCancel context.CancelFunc
-			ctx, imageCancel = managementRequestContext(requestContext, requestStarted, o.modelType)
+			ctx, imageCancel = managementRequestContext(requestContext, requestStarted, o.modelType, o.hasAttachments)
 			defer imageCancel()
 		}
 	}
@@ -319,16 +358,24 @@ func (m *Management) Execute(ctx context.Context, actor id.Actor, key f.Idempote
 		} else if protocol == mc.OpenAICompatible {
 			protocol = mc.OpenAIChat
 		}
-		input := managementwire.Request{Action: o.Action, Protocol: string(protocol), Endpoint: provider.Input.BaseURL}
+		wireInput := managementwire.Request{Action: o.Action, Protocol: string(protocol), Endpoint: provider.Input.BaseURL}
 		if model != nil {
-			input.Model = model.Input.ProviderModelID
+			wireInput.Model = model.Input.ProviderModelID
+			if input != nil {
+				wireInput.Chat = &managementwire.ChatInput{Text: input.Text, Attachments: prepared, Capabilities: model.Input.Capabilities}
+			}
 		}
-		wire, e := m.transport.Run(networkContext, input, material, call)
+		wire, e := m.transport.Run(networkContext, wireInput, material, call)
 		if e != nil {
 			return e
 		}
 		wireFinished = true
 		result = o.result(wire.Reason, time.Since(started))
+		if o.modelType == mc.ChatModel && wire.Reason == "" {
+			answer := wire.Answer
+			result.AnswerText = &answer
+			result.AnswerTruncated = wire.Truncated
+		}
 		if result.Items != nil {
 			for _, v := range wire.Items {
 				*result.Items = append(*result.Items, ManagementItem{v})

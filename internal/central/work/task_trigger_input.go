@@ -19,13 +19,14 @@ import (
 const TaskTriggerRecentEvents = 32
 
 type taskTriggerWire struct {
-	SchemaVersion      f.Version         `json:"schema_version"`
-	Task               c.Task            `json:"task"`
-	Sprint             c.Sprint          `json:"sprint"`
-	Milestone          c.Milestone       `json:"milestone"`
-	Purpose            string            `json:"purpose"`
-	UnresolvedBlockers []c.TaskBlocker   `json:"unresolved_blockers"`
-	RecentTaskEvents   []json.RawMessage `json:"recent_task_events"`
+	SchemaVersion      f.Version                       `json:"schema_version"`
+	Task               c.Task                          `json:"task"`
+	Sprint             c.Sprint                        `json:"sprint"`
+	Milestone          c.Milestone                     `json:"milestone"`
+	Purpose            string                          `json:"purpose"`
+	UnresolvedBlockers []c.TaskBlocker                 `json:"unresolved_blockers"`
+	RecentTaskEvents   []json.RawMessage               `json:"recent_task_events"`
+	Attachments        []ec.CapturedArtifactAttachment `json:"attachments"`
 }
 
 // TaskTriggerInput is an owned observation. Neither construction nor decoding
@@ -35,6 +36,7 @@ type TaskTriggerInput struct{ data func() taskTriggerWire }
 
 func (v taskTriggerWire) clone() taskTriggerWire {
 	v.Task = v.Task.Clone()
+	v.Attachments = slices.Clone(v.Attachments)
 	v.Sprint = v.Sprint.Clone()
 	v.UnresolvedBlockers = slices.Clone(v.UnresolvedBlockers)
 	for n := range v.UnresolvedBlockers {
@@ -51,6 +53,9 @@ func (v taskTriggerWire) validate() error {
 		v.Purpose != "task/work" && v.Purpose != "task/review" || v.Task.ProjectID != v.Sprint.ProjectID || v.Task.ProjectID != v.Milestone.ProjectID ||
 		v.Task.SprintID != v.Sprint.ID || v.Task.MilestoneID != v.Milestone.ID || v.Sprint.MilestoneID != v.Milestone.ID ||
 		v.UnresolvedBlockers == nil || len(v.UnresolvedBlockers) > 256 || v.RecentTaskEvents == nil || len(v.RecentTaskEvents) == 0 || len(v.RecentTaskEvents) > TaskTriggerRecentEvents {
+		return fault(f.InvalidArgument)
+	}
+	if err := validateTaskAttachmentBinding(v.Task.ProjectID, v.Task.Attachments, v.Attachments); err != nil {
 		return fault(f.InvalidArgument)
 	}
 	seen := map[string]bool{}
@@ -137,6 +142,29 @@ func (v TaskTriggerInput) RecentTaskEvents() []json.RawMessage {
 	}
 	return v.data().RecentTaskEvents
 }
+func (v TaskTriggerInput) Attachments() []ec.CapturedArtifactAttachment {
+	if v.data == nil {
+		return nil
+	}
+	return slices.Clone(v.data().Attachments)
+}
+
+// ModelData excludes Object identities and immutable source control metadata.
+func (v TaskTriggerInput) ModelData() ([]byte, error) {
+	if v.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	w := v.data()
+	return json.Marshal(struct {
+		Task      c.Task            `json:"task"`
+		Sprint    c.Sprint          `json:"sprint"`
+		Milestone c.Milestone       `json:"milestone"`
+		Purpose   string            `json:"purpose"`
+		Blockers  []c.TaskBlocker   `json:"unresolved_blockers"`
+		Events    []json.RawMessage `json:"recent_task_events"`
+	}{w.Task, w.Sprint, w.Milestone, w.Purpose, w.UnresolvedBlockers, w.RecentTaskEvents})
+}
+
 func (v TaskTriggerInput) Data() ([]byte, error) {
 	if v.data == nil {
 		return nil, fault(f.InvalidArgument)
@@ -144,7 +172,7 @@ func (v TaskTriggerInput) Data() ([]byte, error) {
 	return json.Marshal(v.data())
 }
 func DecodeTaskTriggerInput(raw []byte) (TaskTriggerInput, error) {
-	if _, err := taskPrivateObject(raw, ec.MaxTriggerInputBytes, []string{"schema_version", "task", "sprint", "milestone", "purpose", "unresolved_blockers", "recent_task_events"}, nil); err != nil {
+	if _, err := taskPrivateObject(raw, ec.MaxTriggerInputBytes, []string{"schema_version", "task", "sprint", "milestone", "purpose", "unresolved_blockers", "recent_task_events", "attachments"}, nil); err != nil {
 		return TaskTriggerInput{}, fault(f.InvalidArgument)
 	}
 	var w taskTriggerWire

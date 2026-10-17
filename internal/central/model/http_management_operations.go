@@ -1,9 +1,11 @@
 package model
 
 import (
+	"encoding/json"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	media "github.com/LunaDeerTech/agenteam/internal/central/model/media"
 	"net/http"
 )
 
@@ -38,11 +40,16 @@ func (h *systemHTTP) discoverModels(w http.ResponseWriter, r *http.Request, m mc
 }
 func (h *systemHTTP) testModel(w http.ResponseWriter, r *http.Request, m mc.CommandMeta) (any, error) {
 	var dto struct {
-		Expected f.Version `json:"expected_version"`
-		Provider f.Version `json:"provider_version"`
+		Expected f.Version       `json:"expected_version"`
+		Provider f.Version       `json:"provider_version"`
+		Input    json.RawMessage `json:"input"`
 	}
-	if e := httpapi.DecodeJSON(w, r, &dto, 4096); e != nil {
+	if e := httpapi.DecodeJSON(w, r, &dto, media.MaxRequestBytes); e != nil {
 		return nil, e
 	}
-	return h.management.Execute(r.Context(), m.Actor, m.Key, "test", r.PathValue("id"), dto.Expected, dto.Provider)
+	input, err := decodeManagementMedia(dto.Input)
+	if err != nil {
+		return nil, err
+	}
+	return h.management.Execute(r.Context(), m.Actor, m.Key, "test", r.PathValue("id"), dto.Expected, dto.Provider, input)
 }

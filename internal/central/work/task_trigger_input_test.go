@@ -19,7 +19,7 @@ func taskTriggerFixtureInput(t *testing.T) taskTriggerWire {
 	task := r.Plan.After.Task
 	milestone := c.Milestone{ID: task.MilestoneID, ProjectID: task.ProjectID, Title: "milestone", Description: "private milestone", ManualRank: task.ManualRank, Version: 1, CreatedAt: task.CreatedAt, UpdatedAt: task.UpdatedAt}
 	sprint := c.Sprint{ID: task.SprintID, ProjectID: task.ProjectID, MilestoneID: task.MilestoneID, Title: "sprint", Description: "private sprint", ManualRank: task.ManualRank, Version: 1, CreatedAt: task.CreatedAt, UpdatedAt: task.UpdatedAt, State: c.Planned}
-	return taskTriggerWire{1, task, sprint, milestone, "task/work", []c.TaskBlocker{}, []json.RawMessage{bytes.Clone(r.Plan.TaskEvent)}}
+	return taskTriggerWire{1, task, sprint, milestone, "task/work", []c.TaskBlocker{}, []json.RawMessage{bytes.Clone(r.Plan.TaskEvent)}, []ec.CapturedArtifactAttachment{}}
 }
 func taskTriggerFixtureRequest(t *testing.T) (i.ExecutionID, ec.LaunchRequest) {
 	t.Helper()

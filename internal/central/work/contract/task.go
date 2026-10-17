@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"slices"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -140,21 +141,22 @@ func (v TaskCommandName) Validate() error {
 func (v TaskCommandName) IsCreate() bool { return v == TaskCommandCreate }
 
 type Task struct {
-	ID              TaskID       `json:"id"`
-	ProjectID       ProjectID    `json:"project_id"`
-	MilestoneID     MilestoneID  `json:"milestone_id"`
-	SprintID        SprintID     `json:"sprint_id"`
-	Title           string       `json:"title"`
-	Description     string       `json:"description"`
-	Type            TaskType     `json:"type"`
-	Priority        TaskPriority `json:"priority"`
-	State           TaskState    `json:"state"`
-	AssigneeAgentID *i.AgentID   `json:"assignee_agent_id"`
-	Plan            string       `json:"plan"`
-	ManualRank      string       `json:"manual_rank"`
-	Version         f.Version    `json:"version"`
-	CreatedAt       f.Instant    `json:"created_at"`
-	UpdatedAt       f.Instant    `json:"updated_at"`
+	ID              TaskID          `json:"id"`
+	ProjectID       ProjectID       `json:"project_id"`
+	MilestoneID     MilestoneID     `json:"milestone_id"`
+	SprintID        SprintID        `json:"sprint_id"`
+	Title           string          `json:"title"`
+	Description     string          `json:"description"`
+	Type            TaskType        `json:"type"`
+	Priority        TaskPriority    `json:"priority"`
+	State           TaskState       `json:"state"`
+	AssigneeAgentID *i.AgentID      `json:"assignee_agent_id"`
+	Plan            string          `json:"plan"`
+	ManualRank      string          `json:"manual_rank"`
+	Version         f.Version       `json:"version"`
+	CreatedAt       f.Instant       `json:"created_at"`
+	UpdatedAt       f.Instant       `json:"updated_at"`
+	Attachments     []ac.ArtifactID `json:"attachments"`
 }
 
 func (v Task) Validate() error {
@@ -167,7 +169,23 @@ func (v Task) Validate() error {
 	if err := ValidateDescription(v.Description); err != nil {
 		return err
 	}
+	if err := ValidateTaskAttachments(v.Attachments); err != nil {
+		return err
+	}
 	return ValidateTaskPlan(v.Plan)
+}
+func ValidateTaskAttachments(v []ac.ArtifactID) error {
+	if len(v) > 4 {
+		return invalid("/attachments", "TOO_MANY_ATTACHMENTS")
+	}
+	seen := map[ac.ArtifactID]bool{}
+	for _, id := range v {
+		if id.Validate() != nil || seen[id] {
+			return invalid("/attachments", "INVALID_ATTACHMENT")
+		}
+		seen[id] = true
+	}
+	return nil
 }
 func ValidateTaskPlan(v string) error {
 	if ValidateDescription(v) != nil {
@@ -182,18 +200,23 @@ func taskClonePtr[T any](v *T) *T {
 	c := *v
 	return &c
 }
-func (v Task) Clone() Task { v.AssigneeAgentID = taskClonePtr(v.AssigneeAgentID); return v }
+func (v Task) Clone() Task {
+	v.AssigneeAgentID = taskClonePtr(v.AssigneeAgentID)
+	v.Attachments = slices.Clone(v.Attachments)
+	return v
+}
 
 type TaskCreate struct {
-	TaskID          TaskID       `json:"task_id"`
-	SprintID        SprintID     `json:"sprint_id"`
-	Title           string       `json:"title"`
-	Description     string       `json:"description"`
-	Type            TaskType     `json:"type"`
-	Priority        TaskPriority `json:"priority"`
-	InitialState    TaskState    `json:"initial_state,omitempty"`
-	AssigneeAgentID *i.AgentID   `json:"assignee_agent_id,omitempty"`
-	Plan            string       `json:"plan"`
+	TaskID          TaskID          `json:"task_id"`
+	SprintID        SprintID        `json:"sprint_id"`
+	Title           string          `json:"title"`
+	Description     string          `json:"description"`
+	Type            TaskType        `json:"type"`
+	Priority        TaskPriority    `json:"priority"`
+	InitialState    TaskState       `json:"initial_state,omitempty"`
+	AssigneeAgentID *i.AgentID      `json:"assignee_agent_id,omitempty"`
+	Plan            string          `json:"plan"`
+	Attachments     []ac.ArtifactID `json:"attachments"`
 }
 
 func (v TaskCreate) EffectiveState() TaskState {
@@ -212,20 +235,28 @@ func (v TaskCreate) Validate() error {
 	if err := ValidateDescription(v.Description); err != nil {
 		return err
 	}
+	if err := ValidateTaskAttachments(v.Attachments); err != nil {
+		return err
+	}
 	return ValidateTaskPlan(v.Plan)
 }
-func (v TaskCreate) Clone() TaskCreate { v.AssigneeAgentID = taskClonePtr(v.AssigneeAgentID); return v }
+func (v TaskCreate) Clone() TaskCreate {
+	v.AssigneeAgentID = taskClonePtr(v.AssigneeAgentID)
+	v.Attachments = slices.Clone(v.Attachments)
+	return v
+}
 
 type TaskFieldsUpdate struct {
-	Title       *string       `json:"title,omitempty"`
-	Description *string       `json:"description,omitempty"`
-	Type        *TaskType     `json:"type,omitempty"`
-	Priority    *TaskPriority `json:"priority,omitempty"`
-	Plan        *string       `json:"plan,omitempty"`
+	Title       *string          `json:"title,omitempty"`
+	Description *string          `json:"description,omitempty"`
+	Type        *TaskType        `json:"type,omitempty"`
+	Priority    *TaskPriority    `json:"priority,omitempty"`
+	Plan        *string          `json:"plan,omitempty"`
+	Attachments *[]ac.ArtifactID `json:"attachments,omitempty"`
 }
 
 func (v TaskFieldsUpdate) Validate() error {
-	if v.Title == nil && v.Description == nil && v.Type == nil && v.Priority == nil && v.Plan == nil {
+	if v.Title == nil && v.Description == nil && v.Type == nil && v.Priority == nil && v.Plan == nil && v.Attachments == nil {
 		return invalid("", "EMPTY_UPDATE")
 	}
 	if v.Title != nil {
@@ -253,6 +284,14 @@ func (v TaskFieldsUpdate) Validate() error {
 			return err
 		}
 	}
+	if v.Attachments != nil {
+		if *v.Attachments == nil {
+			return invalid("/attachments", "INVALID_ATTACHMENT")
+		}
+		if err := ValidateTaskAttachments(*v.Attachments); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 func (v TaskFieldsUpdate) Clone() TaskFieldsUpdate {
@@ -261,6 +300,10 @@ func (v TaskFieldsUpdate) Clone() TaskFieldsUpdate {
 	v.Type = taskClonePtr(v.Type)
 	v.Priority = taskClonePtr(v.Priority)
 	v.Plan = taskClonePtr(v.Plan)
+	if v.Attachments != nil {
+		attachments := slices.Clone(*v.Attachments)
+		v.Attachments = &attachments
+	}
 	return v
 }
 
@@ -606,11 +649,14 @@ func (v *TaskCommandName) UnmarshalJSON(raw []byte) error {
 
 func (v Task) MarshalJSON() ([]byte, error) {
 	type wire Task
+	if v.Attachments == nil {
+		v.Attachments = []ac.ArtifactID{}
+	}
 	return checkedLimit(wire(v), v.Validate(), MaxTaskResultBytes)
 }
 func (v *Task) UnmarshalJSON(raw []byte) error {
 	type wire Task
-	w, err := decodeFieldsLimit[wire](raw, []string{"id", "project_id", "milestone_id", "sprint_id", "title", "description", "type", "priority", "state", "assignee_agent_id", "plan", "manual_rank", "version", "created_at", "updated_at"}, nil, []string{"assignee_agent_id"}, MaxTaskResultBytes)
+	w, err := decodeFieldsLimit[wire](raw, []string{"id", "project_id", "milestone_id", "sprint_id", "title", "description", "type", "priority", "state", "assignee_agent_id", "plan", "manual_rank", "version", "created_at", "updated_at", "attachments"}, nil, []string{"assignee_agent_id"}, MaxTaskResultBytes)
 	if err != nil {
 		return err
 	}
@@ -623,11 +669,14 @@ func (v *Task) UnmarshalJSON(raw []byte) error {
 
 func (v TaskCreate) MarshalJSON() ([]byte, error) {
 	type wire TaskCreate
+	if v.Attachments == nil {
+		v.Attachments = []ac.ArtifactID{}
+	}
 	return checkedLimit(wire(v), v.Validate(), MaxTaskRequestBytes)
 }
 func (v *TaskCreate) UnmarshalJSON(raw []byte) error {
 	type wire TaskCreate
-	w, err := decodeFieldsLimit[wire](raw, []string{"task_id", "sprint_id", "title", "type", "priority"}, []string{"description", "plan", "initial_state", "assignee_agent_id"}, nil, MaxTaskRequestBytes)
+	w, err := decodeFieldsLimit[wire](raw, []string{"task_id", "sprint_id", "title", "type", "priority"}, []string{"description", "plan", "initial_state", "assignee_agent_id", "attachments"}, nil, MaxTaskRequestBytes)
 	if err != nil {
 		return err
 	}
@@ -644,7 +693,7 @@ func (v TaskFieldsUpdate) MarshalJSON() ([]byte, error) {
 }
 func (v *TaskFieldsUpdate) UnmarshalJSON(raw []byte) error {
 	type wire TaskFieldsUpdate
-	w, err := decodeFieldsLimit[wire](raw, nil, []string{"title", "description", "type", "priority", "plan"}, nil, MaxTaskRequestBytes)
+	w, err := decodeFieldsLimit[wire](raw, nil, []string{"title", "description", "type", "priority", "plan", "attachments"}, nil, MaxTaskRequestBytes)
 	if err != nil {
 		return err
 	}

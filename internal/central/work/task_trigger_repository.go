@@ -40,7 +40,11 @@ func loadTaskTriggerInput(ctx context.Context, x postgres.SQLExecutor, project p
 	if err = ctx.Err(); err != nil {
 		return TaskTriggerInput{}, err
 	}
-	input, err := newTaskTriggerInput(taskTriggerWire{1, task, sprint, milestone, purpose, blockers, events})
+	attachments, err := loadTaskAttachments(ctx, x, task)
+	if err != nil {
+		return TaskTriggerInput{}, err
+	}
+	input, err := newTaskTriggerInput(taskTriggerWire{1, task, sprint, milestone, purpose, blockers, events, attachments})
 	if err != nil {
 		return TaskTriggerInput{}, taskTriggerError(err)
 	}

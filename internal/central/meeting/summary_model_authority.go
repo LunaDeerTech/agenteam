@@ -35,14 +35,16 @@ func NewSummaryAuthority(store Store, projects ec.PreparationProjectGate, guard 
 
 type summaryOwnerKey struct{}
 type summaryOwner struct {
-	mu        sync.Mutex
-	authority *SummaryAuthority
-	input     SummaryInput
-	call      mc.CallID
-	active    bool
-	snapshot  *mc.SnapshotID
-	lease     *sc.LeaseID
-	attempt   *mc.AttemptIdentity
+	mu            sync.Mutex
+	authority     *SummaryAuthority
+	input         SummaryInput
+	call          mc.CallID
+	active        bool
+	snapshot      *mc.SnapshotID
+	lease         *sc.LeaseID
+	attempt       *mc.AttemptIdentity
+	sourceRequest *mc.ModelRequest
+	sourceClosing bool
 }
 type summaryCallRecord struct {
 	// Set only by the transaction which inserted this call in this process.

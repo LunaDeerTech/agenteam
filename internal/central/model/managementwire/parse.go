@@ -10,6 +10,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/model/media"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 )
 
@@ -70,7 +71,16 @@ func parse(ctx context.Context, input Request, body []byte) Result {
 		if choice.Index == nil || *choice.Index != 0 || choice.Message.Role != "assistant" || strings.TrimSpace(choice.Message.Content) == "" || strings.ContainsRune(choice.Message.Content, 0) || strings.ContainsRune(choice.Message.Content, utf8.RuneError) || len(choice.Message.Content) > 64<<10 || choice.FinishReason != "stop" && choice.FinishReason != "length" {
 			return invalid
 		}
-		return Result{}
+		answer := choice.Message.Content
+		truncated := choice.FinishReason == "length" || len(answer) > media.MaxAnswerBytes
+		if len(answer) > media.MaxAnswerBytes {
+			end := media.MaxAnswerBytes
+			for !utf8.RuneStart(answer[end]) {
+				end--
+			}
+			answer = answer[:end]
+		}
+		return Result{Answer: answer, Truncated: truncated, fullAnswer: choice.Message.Content}
 	case embedProtocol:
 		var response struct {
 			Data []struct {

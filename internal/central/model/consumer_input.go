@@ -32,13 +32,18 @@ func runtimeStructuredInputDigest(ctx context.Context, messages []mc.Message, fo
 		defer clear(canonical)
 		format.Schema = canonical
 	}
+	messagesRaw, err := mc.EncodeCanonicalMessages(messages)
+	if err != nil {
+		return "", runtimePortError(err)
+	}
+	defer clear(messagesRaw)
 	// Use an explicit durable projection rather than any request log encoding.
 	input := struct {
 		Format         int               `json:"format"`
-		Messages       []mc.Message      `json:"messages"`
+		Messages       json.RawMessage   `json:"messages"`
 		ToolChoice     mc.ToolChoice     `json:"tool_choice"`
 		ResponseFormat mc.ResponseFormat `json:"response_format"`
-	}{1, messages, mc.ToolChoice{Kind: "none"}, format}
+	}{1, messagesRaw, mc.ToolChoice{Kind: "none"}, format}
 	raw, err := json.Marshal(input)
 	if err != nil {
 		return "", unavailable(err)

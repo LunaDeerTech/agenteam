@@ -2,7 +2,11 @@
 
 状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型、ModelPicker及从`90a1229b`开始的供应商列表/详情配置及模型列表动作增量已完成各自适用验证。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
-当前增量（4107e01b后）：模型ID作为主标识、原名称改为可空备注，类型补英文后缀，容量字段标注tokens；共享选择器更多菜单编辑用途思考策略。前端22项适用单测分轮通过（7领域、8搜索选择默认行为、7Select/Menu），最终type、生产构建及限定格式通过；作者两尺寸与独立4场景加键盘补段均通过。覆盖四种策略只在显式保存时提交、同模型保策略/换模型default、备注空保存、ID层级与tokens、390触控及原生200%/reduced-motion。共享测试缺matchMedia和辅助函数类型标注已仅修测试；补段Tab进入浏览器工具栏经hasFocus/往返诊断确认无trap，修正过严断言后通过，前端产品无返修。
+当前增量：现有 Chat 模型测试弹窗提供测试文本和受支持附件，明确开始后一次发送，显示有界纯文本回答与截断提示，不扩建 Meeting/Task 页面。前端 18 项定向用例分轮通过；作者两尺寸与独审桌面/窄屏、能力拒绝、Unknown 原请求、长回答滚动、附件移除回焦及原生 200%/reduced-motion 已通过。修复了最后附件键盘移除后焦点落 BODY 的问题；首大请求用例超时、首屏等待及测试夹具问题保留原事实。最终类型、限定格式和生产打包通过，首次 ENOSPC 后使用独占 `/tmp` 输出。真实后端/外部模型联调尚待，不把合成结果作为文件解析或真实模型支持的证明；本轮未更新公网。
+
+[桌面回答](https://img.lunadeer.cn/i/2026/10/17/6ad361ade9674.png)、[窄屏附件](https://img.lunadeer.cn/i/2026/10/17/6ad361ce9fdec.png)、[未知结果恢复](https://img.lunadeer.cn/i/2026/10/17/6ad361cdaa16d.png)均为合成数据，作者和独审已实看，图床匿名下载 HTTP 200 且字节一致。
+
+前轮增量（4107e01b后）：模型ID作为主标识、原名称改为可空备注，类型补英文后缀，容量字段标注tokens；共享选择器更多菜单编辑用途思考策略。前端22项适用单测分轮通过（7领域、8搜索选择默认行为、7Select/Menu），最终type、生产构建及限定格式通过；作者两尺寸与独立4场景加键盘补段均通过。覆盖四种策略只在显式保存时提交、同模型保策略/换模型default、备注空保存、ID层级与tokens、390触控及原生200%/reduced-motion。共享测试缺matchMedia和辅助函数类型标注已仅修测试；补段Tab进入浏览器工具栏经hasFocus/往返诊断确认无trap，修正过严断言后通过，前端产品无返修。
 
 独立真实App输入`daff9b9b`（后端产品`31f396b3`、前端`e042a489`）：`TestModelPickerReasoningIndependentReview` PASS 35.81s，session88803及App原Wait实际退出0。真实链覆盖可空/2000 Unicode码点备注与256字节规范模型ID、配置严格DTO/幂等回放、Memory提取归纳与嵌入及两个显式false快照；Meeting使用声明的vendor:deep调用失败后，即使平台配置与旧模型能力改变，仍按原snapshot/value重试。引用更新、不兼容替换拒绝及兼容替换保留choice，撤权后fresh/replay/lookup/list拒绝均通过；实际wire为4次Agent、4次Summary、1次Embedding请求，备注不进入身份或wire，日志/Secret边界及drain/join通过。
 
@@ -42,7 +46,7 @@ App实际覆盖enable_thinking:false、default和effort；on与thinking_type正�
 
 模型启用开关沿完整input和expected_version保存，仅改变enabled；确认回执后采用读回模型，读回失败只重读。等待、冲突及Unknown时保留行owner并禁用换页、切Tab和其它行操作，显式读取最新版本后才能采用保留的启停意图。被引用模型允许停用但不解除用途引用。仅本供应商列表省略供应商前缀，跨供应商选择器和用途页仍显示“供应商/模型ID”。编辑弹窗在干净且无未决命令时提供次要“删除模型”入口，复用既有引用/替换确认，取消返回编辑，完成返回列表。列表“测试”只打开既有测试弹窗；明确开始才按当前模型与供应商版本发请求，并遵守双启用、协议、权限及真实测试能力门，不因无凭据拒绝合法匿名配置。
 
-模型定义按类型显示，现compatible供应商family可配置对话（Chat）、嵌入（Embedding）、重排（ReRank）及图像生成（Image Generation）。Chat固定文本基础与文本输出，可额外声明图像/文件（当前调用仍仅支持文本），保JSON Schema及思考能力；嵌入固定text→vector、可填context，max_output始终null；重排为查询与文档→排序结果，wire input=[text]/output=[]；图像生成为text→image。两新类四项Chat布尔能力全false、等级/结构化数组空、context/max皆null，不显示无效高级项。新建/导入可选类型，编辑已有类型不可改；切换类型不泄漏隐藏草稿。各类启停/用途选择/显式管理测试沿真实服务端资格与能力门，不等于重排检索或图像Artifact业务consumer已接通。
+模型定义按类型显示，现compatible供应商family可配置对话（Chat）、嵌入（Embedding）、重排（ReRank）及图像生成（Image Generation）。Chat固定文本基础与文本输出，可额外声明图像/文件；管理测试的受支持格式、能力门与验证范围见第4节，能力勾选不代替实际调用证明，保JSON Schema及思考能力。嵌入固定text→vector、可填context，max_output始终null；重排为查询与文档→排序结果，wire input=[text]/output=[]；图像生成为text→image。两新类四项Chat布尔能力全false、等级/结构化数组空、context/max皆null，不显示无效高级项。新建/导入可选类型，编辑已有类型不可改；切换类型不泄漏隐藏草稿。各类启停/用途选择/显式管理测试沿真实服务端资格与能力门，不等于重排检索或图像Artifact业务consumer已接通。
 
 表单先显示模型ID，再显示“备注（可选）”；备注不作为上游身份、不在普通模型选项堆叠。上下文容量标为“上下文窗口（tokens，可选）”，不能解释成纯输入上限；Chat最大输出标为“最大输出（tokens，可选）”。无等级且支持思考时显示“思考开关格式”，可选供应商默认、enable_thinking或thinking.type，按供应商API明确选择；出现等级、关闭思考或切到非Chat时清空该映射。
 
@@ -121,17 +125,21 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 新增能力由后端真实System管理调用owner提供，不能借Project Invocation身份读取凭据。本包只开放`openai-compatible`供应商family，以Model.type派发Chat、Embeddings、Jina兼容Rerank或OpenAI Images协议；重排格式不称为OpenAI官方标准。四类共用已保存供应商端点与凭据，配置校验、snapshot/Profile与管理测试一致解析。旧协议记录只读；新增管理能力不等于完整检索或图像Artifact业务已接通。保存配置、选择模型和打开页面均不自动出网。
 
-| 接口                                          | 严格输入与输出                                                                                                                                                                                                                      |
-| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET `/system/model-capabilities`              | `{protocols:[{protocol:"openai-compatible",model_types:["chat","embedding","reranker","image_generation"],discovery:true,test:true}]}`；新建入口只有这一个family。                                                                  |
-| POST `/system/model-providers/{id}/discovery` | `{expected_version}`→`{operation_id,provider_id,provider_version,outcome,reason,items:[{provider_model_id}],duration_ms,created_at}`；只从已保存供应商的固定`models`路径获取ID，不据ID猜能力。失败或未知时items为空。               |
-| POST `/system/models/{id}/test`               | `{expected_version,provider_version}`→`{operation_id,provider_id,model_id,model_version,provider_version,outcome,reason,duration_ms,created_at}`；使用已保存模型/凭据和固定最小协议payload，不接自由prompt、任意URL或客户端Secret。 |
+| 接口                                          | 严格输入与输出                                                                                                                                                                                                                 |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GET `/system/model-capabilities`              | `{protocols:[{protocol:"openai-compatible",model_types:["chat","embedding","reranker","image_generation"],discovery:true,test:true}]}`；新建入口只有这一个family。                                                             |
+| POST `/system/model-providers/{id}/discovery` | `{expected_version}`→`{operation_id,provider_id,provider_version,outcome,reason,items:[{provider_model_id}],duration_ms,created_at}`；只从已保存供应商的固定`models`路径获取ID，不据ID猜能力。失败或未知时items为空。          |
+| POST `/system/models/{id}/test`               | `{expected_version,provider_version,input?:{text,attachments:[{name,media_type,data_base64}]}}`；只有Chat允许input，省略时沿固定最小测试。结果保原回执字段并必传`answer_text`和`answer_truncated`，不接任意URL或客户端Secret。 |
 
-outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集为`unsupported_protocol,configuration_changed,credential_unavailable,policy_rejected,network_failed,tls_failed,timeout,cancelled,upstream_rejected,invalid_response,response_limit,interrupted`。duration_ms为JSON整数：Discovery与非图像Test为0..20000，Image Test为0..120000，通用Test读取器上限120000。created_at沿正式UTC时间。返回不含供应商原文、认证头、响应内容、生成图片/URL或Secret；图像管理测试成功仅证明响应结构有效，不证明图片下载或Artifact保存。一次成功不标记供应商持续在线，不替用户保证后续调用可用。
+Chat input要求非空白文本或至少一个附件，原文本保留且UTF-8最多16KiB。附件最多4个、原始字节合计8MiB；PNG/JPEG/WebP/非动画GIF及PDF每个最多4MiB，纯文本/Markdown/DOCX每个最多1MiB，后三者明确提取文字。图片要求模型声明image，全部文件（含提取文字）要求file；只接本地文件，不下载用户URL。文件名须为非空basename、最多255字节，禁止路径分隔符、控制字符、`.`/`..`及首尾空白。最终JSON最多16MiB，预算只放宽精确模型测试POST，其它端点不变。
+
+选择文件仅构成本地草稿，明确开始才上传；未发请求的移除/关闭可清本地材料。pending与Unknown锁住输入和移除，原owner保留同一文本、附件、key/body供显式恢复，不能清空附件后伪造原请求，也不把停止等待说成上游未执行。普通关闭、重开、身份变化和卸载清本地材料；不新增长期管理附件资源或object URL。移除当前持焦附件后焦点转到相邻移除按钮，最后一项回选择附件。
+
+outcome为`succeeded|failed|unknown`；成功reason为null。安全reason闭集为`unsupported_protocol,configuration_changed,credential_unavailable,policy_rejected,network_failed,tls_failed,timeout,cancelled,upstream_rejected,invalid_response,response_limit,interrupted`。duration_ms为JSON整数：Discovery及无附件的非图像Test为0..20000，Image或带附件Chat Test为0..120000，通用Test读取器上限120000。created_at沿正式UTC时间。Chat成功的answer_text必须为字符串（可空），最多8KiB且保持完整UTF-8边界，answer_truncated明确截断；其它类型或失败/未知固定null、false。回答只按纯文本显示，不渲染模型HTML。返回不含原附件、认证头、上游原始body、生成图片/URL或Secret；图像管理测试成功仅证明响应结构有效，不证明图片下载或Artifact保存。一次成功不标记供应商持续在线，不替用户保证后续调用可用。
 
 两POST均要求System/CSRF/Idempotency-Key并持久绑定原身份、body和版本。原key/body完成重放返回同一结果，**不再次出网**；未决为`COMMIT_UNKNOWN/unknown`、`retry_hint=replay`，无额外lookup。有可靠原进程退出事实时可收敛`unknown/interrupted`，不猜上游未执行。重试一次外部调用必须是用户明确发起的新操作，不能因响应丢失自动换key。
 
-Discovery和Chat/Embedding/Rerank主操作20秒，Image总预算120秒、响应头等待不超过总预算、读取空闲30秒；真实I/O结束并join后有界5秒持久/lease收尾。Image Test前端仅此操作使用130秒等待余量，其它模型操作仍30秒；停止等待和Unknown原请求恢复不变。全局最多4个、不排队，满额`RESOURCE_BUSY`。发现响应最多2MiB、1000个ID，超限明确失败而非假完整目录；普通测试响应最多1MiB，Image原始响应8MiB、解码结果6MiB，不回传图像。只允许已保存配置派生路径，拒绝redirect；复用统一出站DNS/当前规则/代理/TLS，不读取环境代理兜底。实际网络期间当前Session/admin与Provider/Model/Secret版本由共享锁保护；关闭/取消需实际停止并join，界面不把取消请求当上游未执行证明。
+Discovery、无附件Chat、Embedding与Rerank主操作20秒；Image及带附件Chat总预算120秒，响应头等待不超过总预算、读取空闲30秒；真实I/O结束并join后有界5秒持久/lease收尾。这两类Test前端使用130秒等待余量，其它模型操作仍30秒；停止等待和Unknown原请求恢复不变。全局最多4个、不排队，满额`RESOURCE_BUSY`。发现响应最多2MiB、1000个ID，超限明确失败而非假完整目录；普通测试响应最多1MiB，Image原始响应8MiB、解码结果6MiB，不回传图像。只允许已保存配置派生路径，拒绝redirect；复用统一出站DNS/当前规则/代理/TLS，不读取环境代理兜底。实际网络期间当前Session/admin与Provider/Model/Secret版本由共享锁保护；关闭/取消需实际停止并join，界面不把取消请求当上游未执行证明。
 
 同一供应商发现一次，勾选导入时逐模型明确四种合法类型之一及对应能力，再使用现有`model.create`逐项串行，单批最多100项；每项独立key/body/receipt并显示已成功、失败、未开始或Unknown。不重复成功项，不把部分完成写成整体回滚；取消仅停止未开始项。导入前明确合法类型和能力配置，不从发现结果制造上下文、工具或推理支持。
 

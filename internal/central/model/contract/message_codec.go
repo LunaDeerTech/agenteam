@@ -109,9 +109,10 @@ type canonicalMediaWire struct {
 	MediaType string               `json:"media_type"`
 }
 type canonicalMCPFileWire struct {
-	Kind      oc.SourceKind `json:"kind"`
-	ProjectID id.ProjectID  `json:"project_id"`
-	FileID    string        `json:"file_id"`
+	Kind       oc.SourceKind `json:"kind"`
+	ProjectID  id.ProjectID  `json:"project_id"`
+	FileID     string        `json:"file_id"`
+	ArtifactID string        `json:"artifact_id,omitempty"`
 }
 
 func messageWire(message Message) (canonicalMessageWire, error) {
@@ -158,10 +159,10 @@ func mediaWire(media *MediaPart) (*canonicalMediaWire, error) {
 		return nil, bad()
 	}
 	d := media.Ref.Details()
-	if d.Kind != oc.MCPFile {
+	if d.Kind != oc.MCPFile && d.Kind != oc.ArtifactFile {
 		return nil, bad()
 	}
-	return &canonicalMediaWire{canonicalMCPFileWire{d.Kind, d.ProjectID, d.FileID}, media.MediaType}, nil
+	return &canonicalMediaWire{canonicalMCPFileWire{Kind: d.Kind, ProjectID: d.ProjectID, FileID: d.FileID, ArtifactID: d.ArtifactID}, media.MediaType}, nil
 }
 
 func (wire canonicalMessageWire) message() (Message, error) {
@@ -203,10 +204,10 @@ func (wire *canonicalMediaWire) media() (*MediaPart, error) {
 	if wire == nil {
 		return nil, nil
 	}
-	if wire.Ref.Kind != oc.MCPFile {
+	if wire.Ref.Kind != oc.MCPFile && wire.Ref.Kind != oc.ArtifactFile {
 		return nil, bad()
 	}
-	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.MCPFile, ProjectID: wire.Ref.ProjectID, FileID: wire.Ref.FileID})
+	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: wire.Ref.Kind, ProjectID: wire.Ref.ProjectID, FileID: wire.Ref.FileID, ArtifactID: wire.Ref.ArtifactID})
 	if err != nil {
 		return nil, bad()
 	}

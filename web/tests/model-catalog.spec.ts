@@ -320,10 +320,12 @@ describe("model operation budgets", () => {
     duration_ms,
     created_at: createdAt,
   });
-  const testResult = (duration: number) => ({
+  const testResult = (duration: number, answer_text: string | null = null) => ({
     ...result(duration),
     model_id: modelId,
     model_version: "3",
+    answer_text,
+    answer_truncated: false,
   });
   type Request = {
     path: string;
@@ -481,7 +483,7 @@ describe("model operation budgets", () => {
     );
     expect(operations.isTestResult(testResult(120000))).toBe(true);
     expect(operations.isTestResult(testResult(120001))).toBe(false);
-    respond = async () => json(testResult(20001));
+    respond = async () => json(testResult(20001, "Chat answer"));
     const command = operations.modelTestCommand(provider, model("chat"));
     owners.push(command);
     await expect(command.run()).rejects.toMatchObject({
@@ -489,7 +491,7 @@ describe("model operation budgets", () => {
       commitState: "unknown",
     });
     expect(command.confirmed).toBe(false);
-    respond = async () => json(testResult(20000));
+    respond = async () => json(testResult(20000, "Chat answer"));
     await expect(command.run()).resolves.toMatchObject({ duration_ms: 20000 });
     expect(requests[1]!.key).toBe(requests[0]!.key);
   });

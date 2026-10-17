@@ -30,6 +30,9 @@ func runtimeTextShape(ctx context.Context, messages []mc.Message) error {
 	if err := runtimeContextError(ctx); err != nil {
 		return err
 	}
+	if len(runtimeMediaParts(messages)) != 0 {
+		return runtimeMediaShape(ctx, messages)
+	}
 	if len(messages) == 0 || len(messages) > 256 {
 		return fault(f.InvalidArgument)
 	}
@@ -93,6 +96,9 @@ func prepareRuntimeInput(ctx context.Context, request mc.ModelRequest, mode wire
 		return mc.ModelRequest{}, fault(f.InvalidArgument)
 	}
 	s, c := request.Model.Snapshot, request.Model.Snapshot.Capabilities
+	if err := runtimeMediaCapabilities(request.Messages, c); err != nil {
+		return mc.ModelRequest{}, err
+	}
 	structured := s.Identity.AdapterRevision == wire.OpenAIChatStructuredRevision
 	formatSupported := request.ResponseFormat.Kind == "text" || structured && request.ResponseFormat.Kind == "json_schema"
 	modesSupported := len(c.StructuredOutputModes) == 0 || runtimeOnlyText(c.StructuredOutputModes)

@@ -11,6 +11,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	agentc "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	artifactc "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	auditc "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
@@ -700,11 +701,27 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			return err
 		}
 	}
+	objectStore, ok := db.(object.Store)
+	if !ok {
+		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	artifactOwners, err := createArtifactOwners(db, projectUsage, artifactRunAuthorities...)
+	if err != nil {
+		return err
+	}
+	attachmentCapture, err := artifact.NewAttachmentCapture(artifactOwners)
+	if err != nil {
+		return err
+	}
+	var modelMedia *modelMediaAssembly
+	if runtimeEnabled {
+		modelMedia = &modelMediaAssembly{store: objectStore, objects: objects, authorities: executionAuthorities}
+	}
 	var planning *workPlanningAssembly
 	if runtimeEnabled {
-		planning, err = createOwnedWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects, taskToolAuthorities...)
+		planning, err = createOwnedWorkPlanningWithAttachments(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects, attachmentCapture, taskToolAuthorities...)
 	} else {
-		planning, err = createOwnedWorkPlanningWithAgents(cfg, db, workAuthority, authority, journal, workEvents, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects)
+		planning, err = createOwnedWorkPlanningWithAgents(cfg, db, workAuthority, authority, journal, workEvents, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects, attachmentCapture)
 	}
 	if err != nil {
 		return err
@@ -732,7 +749,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			return err
 		}
 		executions.add(executionRuntimeWork{stop: executions.realtime.StopAdmission, drain: executions.realtime.Stop, joined: executions.realtime.Joined})
-		if err = constructExecutionModels(executions, cfg, modelStore, executionAuthorities, projectUsage, secrets, transport); err != nil {
+		if err = constructExecutionModels(executions, cfg, modelStore, executionAuthorities, projectUsage, secrets, transport, modelMedia); err != nil {
 			return err
 		}
 		executions.servingRetention, err = model.NewServingSnapshotRetention(modelAuthority, executionAuthorities.consumers, secrets)
@@ -785,14 +802,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	objectStore, ok := db.(object.Store)
-	if !ok {
-		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
-	}
-	artifactOwners, err := createArtifactOwners(db, projectUsage, artifactRunAuthorities...)
-	if err != nil {
-		return err
-	}
+
 	var mcpOwners []objectOwnerAuthority
 	if remote != nil {
 		mcpOwners = append(mcpOwners, remote.contentAuthority)
@@ -889,6 +899,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			if runtimeInformationNil(executions.loopModel) {
 				return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 			}
+		}
+	}
+	if modelMedia != nil {
+		var mcpSource objectcontract.SourceResolver
+		if remote != nil {
+			mcpSource = remote.content
+		}
+		if err = modelMedia.construct(artifactOwners, mcpSource); err != nil {
+			return err
 		}
 	}
 	skills, err := createSkills(ctx, contentAuthorities.skills, objects)
@@ -1217,7 +1236,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			if err != nil {
 				return objects, err
 			}
-			if err = constructMeeting(db, executions, executionAuthorities, projectUsage, models, meetingReferences, objects, auditor, meetingProposals.events, meetingProposals.decisionEvents); err != nil {
+			if err = constructMeeting(db, executions, executionAuthorities, projectUsage, models, meetingReferences, objects, auditor, meetingProposals.events, meetingProposals.decisionEvents, attachmentCapture); err != nil {
 				return objects, err
 			}
 			executions.meetingProposals, err = meetingProposals.owner(db, executions.meetings)

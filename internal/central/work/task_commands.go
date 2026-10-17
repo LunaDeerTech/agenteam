@@ -3,6 +3,7 @@ package work
 import (
 	"context"
 	"errors"
+	"slices"
 	"time"
 
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
@@ -111,6 +112,14 @@ func (s *TaskService) executeTask(ctx context.Context, a i.Actor, m f.CommandMet
 			}
 		}
 		base, err := in.locks(key, source)
+		if err != nil {
+			return c.TaskMutation{}, err
+		}
+		attachmentLocks, err := s.taskAttachmentLocks(ctx, a, in)
+		if err != nil {
+			return c.TaskMutation{}, err
+		}
+		base, err = taskNormalize(append(base, attachmentLocks...))
 		if err != nil {
 			return c.TaskMutation{}, err
 		}
@@ -450,7 +459,7 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 			return nil, field(f.ResourceBusy, "/task_id", "TARGET_OCCUPIED")
 		}
 		v := in.Create
-		t = c.Task{ID: in.Target, ProjectID: in.Project, SprintID: v.SprintID, Title: v.Title, Description: v.Description, Type: v.Type, Priority: v.Priority, State: c.TaskStateBacklog, Plan: v.Plan, Version: 1, CreatedAt: at, UpdatedAt: at}
+		t = c.Task{ID: in.Target, ProjectID: in.Project, SprintID: v.SprintID, Title: v.Title, Description: v.Description, Type: v.Type, Priority: v.Priority, State: c.TaskStateBacklog, Plan: v.Plan, Attachments: slices.Clone(v.Attachments), Version: 1, CreatedAt: at, UpdatedAt: at}
 	} else {
 		v, err := loadTask(ctx, x, in.Project, in.Target)
 		if err != nil {
@@ -507,12 +516,20 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 			return nil, fault(f.DependencyUnbound)
 		}
 	}
+	p.Attachments, err = s.captureTaskAttachments(ctx, tx, a, in)
+	if err != nil {
+		return nil, err
+	}
 	fields := []c.TaskChangedField{}
 	var position *c.TaskPosition
 	var typeChange *c.TaskTypeChange
 	var priorityChange *c.TaskPriorityChange
 	if in.Update != nil {
 		u := in.Update
+		if u.Attachments != nil && !slices.Equal(*u.Attachments, t.Attachments) {
+			t.Attachments = slices.Clone(*u.Attachments)
+			fields = append(fields, c.TaskAttachmentsChanged)
+		}
 		if u.Description != nil && *u.Description != t.Description {
 			t.Description = *u.Description
 			fields = append(fields, c.TaskDescriptionChanged)
@@ -598,7 +615,7 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 				fields = []c.TaskChangedField{c.TaskRankChanged}
 			}
 			if in.Create != nil {
-				fields = []c.TaskChangedField{c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
+				fields = []c.TaskChangedField{c.TaskAttachmentsChanged, c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
 			}
 		}
 		if priorityChange != nil {
@@ -683,7 +700,7 @@ func (s *TaskService) evaluateTask(ctx context.Context, tx f.Tx, x postgres.SQLE
 }
 
 // Existing backlog planning remains unchanged. The only additional mutation
-// is a Human's title-only update of an assigned in-progress Task; it cannot
+// is a Human's title/attachment update of an assigned in-progress Task; it cannot
 // change the running claim's state, assignee, parent or logical position.
 // Persisted plans and no-op receipts use the same capability check on replay.
 func taskPlanningWriteSupported(in taskInput, t c.Task) bool {
@@ -693,7 +710,7 @@ func taskPlanningWriteSupported(in taskInput, t c.Task) bool {
 	u := in.Update
 	return t.State == c.TaskStateInProgress && t.AssigneeAgentID != nil &&
 		in.Command == taskUpdate && in.Create == nil && in.Reorder == nil &&
-		u != nil && u.Title != nil && u.Description == nil && u.Type == nil &&
+		u != nil && (u.Title != nil || u.Attachments != nil) && u.Description == nil && u.Type == nil &&
 		u.Priority == nil && u.Plan == nil
 }
 

@@ -24,7 +24,7 @@ func taskEventFixture(t *testing.T) (TaskEvents, event.Header, TaskChanged) {
 	}
 	version := f.Version(1)
 	h := event.Header{EventID: testID[event.EventIdentity](t, 22), EventType: TaskChangedName, SchemaVersion: TaskSchemaVersion, OccurredAt: v.UpdatedAt, Scope: event.Scope{Kind: event.ProjectScope, ProjectID: testID[event.Project](t, 5)}, AggregateType: TaskAggregate, AggregateID: testID[event.Aggregate](t, 20), AggregateVersion: &version}
-	p := TaskChanged{CommandID: testID[TaskCommand](t, 23), ActorUserID: testID[i.User](t, 1), TaskEventID: testID[TaskEvent](t, 21), MilestoneID: v.MilestoneID, SprintID: v.SprintID, Change: TaskCreatedChange, ChangedFields: []TaskChangedField{TaskDescriptionChanged, TaskRankChanged, TaskPlanChanged, TaskPriorityChanged, TaskTitleChanged, TaskTypeChanged}, Position: &TaskPosition{SprintID: v.SprintID, State: TaskStateBacklog, Priority: v.Priority, OrderGeneration: 2}}
+	p := TaskChanged{CommandID: testID[TaskCommand](t, 23), ActorUserID: testID[i.User](t, 1), TaskEventID: testID[TaskEvent](t, 21), MilestoneID: v.MilestoneID, SprintID: v.SprintID, Change: TaskCreatedChange, ChangedFields: []TaskChangedField{TaskAttachmentsChanged, TaskDescriptionChanged, TaskRankChanged, TaskPlanChanged, TaskPriorityChanged, TaskTitleChanged, TaskTypeChanged}, Position: &TaskPosition{SprintID: v.SprintID, State: TaskStateBacklog, Priority: v.Priority, OrderGeneration: 2}}
 	return typed, h, p
 }
 func taskHistoryFixture(t *testing.T) TaskEvent {
@@ -42,7 +42,7 @@ func TestTaskTypedEventSchemaHeaderAndCatalog(t *testing.T) {
 	p.ChangedFields[0] = TaskTitleChanged
 	p.Position.OrderGeneration = 99
 	decoded, err := typed.DecodeTaskChanged(ev)
-	if err != nil || decoded.Position.OrderGeneration != 2 || decoded.ChangedFields[0] != TaskDescriptionChanged {
+	if err != nil || decoded.Position.OrderGeneration != 2 || decoded.ChangedFields[0] != TaskAttachmentsChanged {
 		t.Fatal("event borrowed payload", err)
 	}
 	restored, err := typed.Restore(ev.Header(), ev.PayloadBytes())

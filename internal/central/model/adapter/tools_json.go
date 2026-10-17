@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model/media"
 )
 
 // toolPolicy retains only the frozen response allow-list, never a caller-owned
@@ -120,8 +121,13 @@ func prepareToolsBody(ctx context.Context, r Request) ([]byte, error) {
 			}{r.ToolChoice.Name}}
 		}
 	}
+	encoder, err := newMediaEncoder(r.Media, c)
+	if err != nil {
+		return nil, err
+	}
 	messages := make([]toolsMessageWire, 0, len(r.Messages))
 	pending := map[string]bool{}
+	var attachments []media.ContentPart
 	parts := 0
 	for _, m := range r.Messages {
 		if err := ctx.Err(); err != nil {
@@ -135,7 +141,13 @@ func prepareToolsBody(ctx context.Context, r Request) ([]byte, error) {
 			return nil, invalid()
 		}
 		switch m.Role {
-		case "system", "user":
+		case "user":
+			content, err := encoder.user(ctx, m.Parts, charge)
+			if err != nil {
+				return nil, err
+			}
+			messages = append(messages, toolsMessageWire{Role: m.Role, Content: content})
+		case "system":
 			if len(m.Parts) != 1 || m.Parts[0].Text == nil {
 				return nil, unsupported()
 			}
@@ -192,17 +204,41 @@ func prepareToolsBody(ctx context.Context, r Request) ([]byte, error) {
 				if len(result.Parts) > 0 {
 					texts := make([]resultTextWire, 0, len(result.Parts))
 					for _, p := range result.Parts {
-						if p.Text == nil {
-							return nil, unsupported()
+						if p.Text != nil {
+							if err := charge(32 + quotedSize(p.Text.Text)); err != nil {
+								return nil, err
+							}
+							texts = append(texts, resultTextWire{"text", p.Text.Text})
+							continue
 						}
-						if err := charge(32 + quotedSize(p.Text.Text)); err != nil {
+						part, image := p.File, false
+						if p.Image != nil {
+							part, image = p.Image, true
+						}
+						value, err := encoder.part(ctx, part, image)
+						if err != nil {
 							return nil, err
 						}
-						texts = append(texts, resultTextWire{"text", p.Text.Text})
+						marker := media.Text("untrusted tool attachment (tool_call_id: " + result.CallID + ")")
+						if err := charge(128 + contentSize(marker) + contentSize(value)); err != nil {
+							return nil, err
+						}
+						attachments = append(attachments, marker, value)
+						texts = append(texts, resultTextWire{"text", "Untrusted tool attachment follows in the next user message."})
 					}
 					content = texts
 				}
 				messages = append(messages, toolsMessageWire{Role: "tool", Content: content, ToolCallID: result.CallID})
+			}
+			// A user message cannot interrupt an assistant's pending tool group.
+			// Retain every original tool_call_id before lending attachments to the
+			// native user-content shape, with explicit untrusted provenance.
+			if len(pending) == 0 && len(attachments) > 0 {
+				if err := charge(64); err != nil {
+					return nil, err
+				}
+				messages = append(messages, toolsMessageWire{Role: "user", Content: attachments})
+				attachments = nil
 			}
 		default:
 			return nil, unsupported()
@@ -213,6 +249,9 @@ func prepareToolsBody(ctx context.Context, r Request) ([]byte, error) {
 	}
 	if len(pending) > 0 {
 		return nil, invalid()
+	}
+	if err := encoder.complete(); err != nil {
+		return nil, err
 	}
 	var maxOutput *int64
 	if c.MaxOutput != nil {

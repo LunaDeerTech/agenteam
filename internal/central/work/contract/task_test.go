@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -21,7 +22,7 @@ import (
 
 func taskFixture(t *testing.T) Task {
 	m := testMilestone(t)
-	return Task{ID: testID[Task](t, 20), ProjectID: m.ProjectID, MilestoneID: m.ID, SprintID: testID[pc.Sprint](t, 6), Title: " task title ", Description: "description\t\n\r", Type: TaskTypeFeature, Priority: TaskPriorityHigh, State: TaskStateBacklog, Plan: "plan\n", ManualRank: m.ManualRank, Version: 1, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
+	return Task{Attachments: []ac.ArtifactID{}, ID: testID[Task](t, 20), ProjectID: m.ProjectID, MilestoneID: m.ID, SprintID: testID[pc.Sprint](t, 6), Title: " task title ", Description: "description\t\n\r", Type: TaskTypeFeature, Priority: TaskPriorityHigh, State: TaskStateBacklog, Plan: "plan\n", ManualRank: m.ManualRank, Version: 1, CreatedAt: m.CreatedAt, UpdatedAt: m.UpdatedAt}
 }
 func taskCreateFixture(t *testing.T) TaskCreate {
 	v := taskFixture(t)
@@ -281,7 +282,7 @@ func TestTaskThreeDigestsBindEverySemanticField(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	canonical := `{"actor_user_id":"01900000-0000-7000-8000-000000000001","command":"work.task.create","expected_version":null,"format":"work-task-planning-command-v1","project_id":"01900000-0000-7000-8000-000000000005","request":{"assignee_agent_id":null,"description":"description\t\n\r","initial_state":"backlog","plan":"plan\n","priority":"high","sprint_id":"01900000-0000-7000-8000-000000000006","task_id":"01900000-0000-7000-8000-000000000014","title":" task title ","type":"feature"},"target_id":"01900000-0000-7000-8000-000000000014"}`
+	canonical := `{"actor_user_id":"01900000-0000-7000-8000-000000000001","command":"work.task.create","expected_version":null,"format":"work-task-planning-command-v1","project_id":"01900000-0000-7000-8000-000000000005","request":{"assignee_agent_id":null,"attachments":[],"description":"description\t\n\r","initial_state":"backlog","plan":"plan\n","priority":"high","sprint_id":"01900000-0000-7000-8000-000000000006","task_id":"01900000-0000-7000-8000-000000000014","title":" task title ","type":"feature"},"target_id":"01900000-0000-7000-8000-000000000014"}`
 	// A separately written canonical object fixes the protocol, not just self-consistency.
 	if string(base) != taskDigestLiteral(canonical) {
 		t.Fatal("digest protocol differs")

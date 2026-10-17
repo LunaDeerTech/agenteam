@@ -40,6 +40,8 @@ type runtimeCall struct {
 	embeddingResult                          *mc.Embeddings
 	material                                 sc.SecretMaterial
 	materialOwned                            bool
+	mediaSession                             mc.MediaSession
+	preparedMedia                            []wire.PreparedMedia
 	ioRetired                                bool
 	accepted, handoff, startReturned, joined bool
 	terminalPublished                        bool
@@ -378,6 +380,9 @@ func (c *runtimeCall) startRecord(consumer mc.ConsumerRequest, plan mc.ConsumerD
 	if err = runtimeContextError(c.ctx); err != nil {
 		return c.failStart(c.ctx, err)
 	}
+	if err := c.prepareMedia(); err != nil {
+		return c.failStart(c.ctx, err)
+	}
 	callContext, err := c.outboundContext()
 	if err != nil {
 		return c.failStart(c.ctx, err)
@@ -405,7 +410,7 @@ func (c *runtimeCall) startRecord(consumer mc.ConsumerRequest, plan mc.ConsumerD
 		}
 		return nil
 	}
-	x, err := c.runtime.deps.Adapter.Start(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c), wire.Request{Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, Tools: c.request.Tools, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
+	x, err := c.runtime.deps.Adapter.Start(c.mediaWireContext(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c)), wire.Request{Media: c.preparedMedia, Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, Tools: c.request.Tools, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
 	c.mu.Lock()
 	c.startReturned, c.exchange = true, x
 	c.mu.Unlock()

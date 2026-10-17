@@ -11,6 +11,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
@@ -200,7 +201,7 @@ func createWorkPlanningWithProviders(cfg config.Config, db database, authority *
 // The default App installs one original five-service/three-reader owner before
 // exposing any of its views. Legacy constructors above keep their independent
 // services and do not start registering calls.
-func createOwnedWorkPlanningWithAgents(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly) (*workPlanningAssembly, error) {
+func createOwnedWorkPlanningWithAgents(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly, attachments ...ec.ArtifactAttachmentCapture) (*workPlanningAssembly, error) {
 	store, ok := db.(work.Store)
 	if !ok || runtimeInformationNil(store) {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -209,10 +210,20 @@ func createOwnedWorkPlanningWithAgents(cfg config.Config, db database, authority
 	if err != nil {
 		return nil, err
 	}
-	return createOwnedWorkPlanningWithProviders(cfg, db, authority, accounts, journal, events, pending, agents, projects, lifecycle, objects)
+	if len(attachments) > 1 {
+		return nil, foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted)
+	}
+	var capture ec.ArtifactAttachmentCapture
+	if len(attachments) == 1 {
+		capture = attachments[0]
+	}
+	return createOwnedWorkPlanningWithAttachments(cfg, db, authority, accounts, journal, events, pending, agents, projects, lifecycle, objects, capture)
 }
 
 func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly, toolAuthorities ...wc.AgentTaskAuthority) (*workPlanningAssembly, error) {
+	return createOwnedWorkPlanningWithAttachments(cfg, db, authority, accounts, journal, events, pending, agents, projects, lifecycle, objects, nil, toolAuthorities...)
+}
+func createOwnedWorkPlanningWithAttachments(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly, attachments ec.ArtifactAttachmentCapture, toolAuthorities ...wc.AgentTaskAuthority) (*workPlanningAssembly, error) {
 	store, ok := db.(work.Store)
 	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || pending == nil || agents == nil || projects == nil || objects == nil || objects.guard == nil || objects.process.Validate() != nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() || !events.transitions.Valid() || !events.sprints.Valid() || !events.completion.Valid() {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -256,7 +267,7 @@ func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, author
 	}
 	pair, err := work.NewProjectCallOwnershipWithReaders(store, work.ProjectCallDependencies{
 		Structure:   work.Dependencies{Authority: authority, Events: journal, WorkEvents: events.structure, Activity: accounts},
-		Tasks:       work.TaskDependencies{Authority: authority, Structure: placement, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending},
+		Tasks:       work.TaskDependencies{Attachments: attachments, Authority: authority, Structure: placement, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending},
 		Transitions: transitionDependencies,
 		Blockers:    work.BlockerDependencies{Authority: authority, Structure: placement, Events: journal, BlockerEvents: events.blockers, Activity: accounts},
 		Sprints:     work.SprintLifecycleDependencies{Authority: authority, Projects: pointer, Events: journal, SprintEvents: events.sprints, Activity: accounts, Completion: &work.SprintCompletionDependencies{Projects: completion, Occupancy: occupancy, Pending: pending, Events: events.completion}},

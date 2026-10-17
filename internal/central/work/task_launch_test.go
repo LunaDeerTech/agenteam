@@ -70,6 +70,12 @@ func (s *taskLaunchTestStore) Exec(context.Context, string, ...any) (pgconn.Comm
 }
 func (s *taskLaunchTestStore) QueryRow(_ context.Context, query string, args ...any) postgres.Row {
 	s.queries++
+	if query == `SELECT attachment_data FROM agenteam_work.tasks WHERE project_id=$1 AND id=$2 AND version=$3` {
+		if len(args) != 3 || args[0] != s.task.ProjectID.String() || args[1] != s.task.ID.String() || args[2] != int64(s.task.Version) {
+			s.t.Fatal("incorrect frozen attachment query")
+		}
+		return taskTriggerRow{[]byte(`[]`)}
+	}
 	if len(args) != 2 || args[0] != s.task.ProjectID.String() {
 		s.t.Fatal("incorrect source project")
 	}
@@ -94,7 +100,7 @@ func (s *taskLaunchTestStore) QueryRow(_ context.Context, query string, args ...
 			text := v.AssigneeAgentID.String()
 			agent = &text
 		}
-		return taskTriggerRow{v.ID.String(), v.ProjectID.String(), v.MilestoneID.String(), v.SprintID.String(), v.Title, v.Description, v.Type, v.Priority, v.State, agent, v.Plan, v.ManualRank, v.Version, v.CreatedAt.Time(), v.UpdatedAt.Time()}
+		return taskTriggerRow{v.ID.String(), v.ProjectID.String(), v.MilestoneID.String(), v.SprintID.String(), v.Title, v.Description, v.Type, v.Priority, v.State, agent, v.Plan, v.ManualRank, v.Version, v.CreatedAt.Time(), v.UpdatedAt.Time(), []byte(`[]`)}
 	case strings.Contains(query, "FROM agenteam_work.sprints "):
 		v := s.sprint
 		if args[1] != v.ID.String() {

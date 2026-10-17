@@ -103,13 +103,22 @@ func ownerForObject(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID)
 	return f, nil
 }
 func (p *OwnerProvider) Discover(ctx context.Context, request oc.AccessRequest) (oc.AccessDependencies, error) {
+	if modelAttachment(ctx) != nil {
+		return p.modelDependencies(ctx, foundation.Tx{}, request)
+	}
 	return p.dependencies(ctx, foundation.Tx{}, request)
 }
 func (p *OwnerProvider) ValidateInTx(ctx context.Context, tx foundation.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
 	if expected.Validate() != nil {
 		return invalid()
 	}
-	current, err := p.dependencies(ctx, tx, request)
+	var current oc.AccessDependencies
+	var err error
+	if modelAttachment(ctx) != nil {
+		current, err = p.modelDependencies(ctx, tx, request)
+	} else {
+		current, err = p.dependencies(ctx, tx, request)
+	}
 	if err != nil {
 		return err
 	}
@@ -302,6 +311,9 @@ func (p *OwnerProvider) AuthorizeOwner(ctx context.Context, actor identity.Actor
 	return out, nil
 }
 func (p *OwnerProvider) AuthorizeOwnerInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, intent identity.AccessIntent) (oc.OwnerAuthorization, error) {
+	if modelAttachment(ctx) != nil {
+		return p.modelAuthorize(ctx, tx, actor, owner, intent)
+	}
 	if err := p.bound(); err != nil {
 		return oc.OwnerAuthorization{}, err
 	}
@@ -356,6 +368,10 @@ func (p *OwnerProvider) AuthorizeObjectReadInTx(ctx context.Context, tx foundati
 	return oc.NewOwnerAuthorization(d)
 }
 func (p *OwnerProvider) CheckInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, intent identity.AccessIntent) error {
+	if modelAttachment(ctx) != nil {
+		_, err := p.modelAuthorize(ctx, tx, actor, owner, intent)
+		return err
+	}
 	if err := p.bound(); err != nil {
 		return err
 	}

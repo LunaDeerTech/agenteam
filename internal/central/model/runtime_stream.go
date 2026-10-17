@@ -309,6 +309,9 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	} else if handoff && !returned {
 		return fault(f.ResourceBusy)
 	}
+	if err := c.closeMedia(ctx); err != nil {
+		return err
+	}
 	// Every borrower of the material has actually returned at this point.
 	c.mu.Lock()
 	material, owned := c.material, c.materialOwned

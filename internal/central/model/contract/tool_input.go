@@ -32,7 +32,7 @@ func ToolCallInputDigest(ctx context.Context, messages []Message, tool Tool) (f.
 		if n == 1 {
 			role = "user"
 		}
-		if message.Validate() != nil || message.Role != role || len(message.Parts) != 1 || message.Parts[0].Text == nil {
+		if !validFirstToolMessage(message, role) {
 			return "", bad()
 		}
 	}
@@ -57,7 +57,7 @@ func ToolInputDigest(ctx context.Context, messages []Message, tools []Tool, choi
 		if n == 1 {
 			role = "user"
 		}
-		if message.Validate() != nil || message.Role != role || len(message.Parts) != 1 || message.Parts[0].Text == nil {
+		if !validFirstToolMessage(message, role) {
 			return "", bad()
 		}
 	}
@@ -91,14 +91,41 @@ func ValidateToolInputRequest(ctx context.Context, request ModelRequest) error {
 	return nil
 }
 
+func validFirstToolMessage(message Message, role string) bool {
+	if message.Validate() != nil || message.Role != role {
+		return false
+	}
+	if role == "system" {
+		return len(message.Parts) == 1 && message.Parts[0].Text != nil
+	}
+	mediaCount := 0
+	for _, p := range message.Parts {
+		if p.ToolCall != nil || p.ToolResult != nil || p.Metadata != nil {
+			return false
+		}
+		if p.Image != nil || p.File != nil {
+			mediaCount++
+		}
+	}
+	if mediaCount == 0 {
+		return len(message.Parts) == 1 && message.Parts[0].Text != nil
+	}
+	return mediaCount <= 4
+}
 func toolInputDigest(ctx context.Context, schema f.Version, messages []Message, tools []Tool, choice ToolChoice) (f.Digest, error) {
+	messagesRaw, err := EncodeCanonicalMessages(messages)
+	if err != nil {
+		return "", err
+	}
+	defer clear(messagesRaw)
+
 	value := struct {
-		Schema         f.Version      `json:"schema_version"`
-		Messages       []Message      `json:"messages"`
-		Tools          []Tool         `json:"tools"`
-		ToolChoice     ToolChoice     `json:"tool_choice"`
-		ResponseFormat ResponseFormat `json:"response_format"`
-	}{schema, messages, tools, choice, ResponseFormat{Kind: "text"}}
+		Schema         f.Version       `json:"schema_version"`
+		Messages       json.RawMessage `json:"messages"`
+		Tools          []Tool          `json:"tools"`
+		ToolChoice     ToolChoice      `json:"tool_choice"`
+		ResponseFormat ResponseFormat  `json:"response_format"`
+	}{schema, messagesRaw, tools, choice, ResponseFormat{Kind: "text"}}
 	remaining := 16 << 20
 	if err := successorSemanticJSONSize(ctx, reflect.ValueOf(value), &remaining); err != nil {
 		return "", err

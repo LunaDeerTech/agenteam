@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -238,6 +239,156 @@ func TestMCPM3MediaCanonicalUnsupported(t *testing.T) {
 	mcpM3RunMedia(t, false)
 }
 
+// The production Model source, not the forwarding source observer below,
+// must read the persisted MCP object and send its bytes on the successor wire.
+func TestMCPM3MediaCanonicalSupported(t *testing.T) {
+	mcpM3ConfigurationPreflight(t)
+	peer := mcpfixture.New(t)
+	network, err := netfixture.Load()
+	workAppCheck(t, "mcp-media-supported-model", err)
+	for _, media := range mcpM3MediaCases(t) {
+		if media.name != "image-resource" {
+			continue
+		}
+		t.Run(media.name, func(t *testing.T) {
+			v := newMCPM3App(t, peer, network)
+			tool, connection := mcpM3MediaConnection(t, v, peer, media.tool)
+			var selected string
+			mcpM3QueryCheck(t, "mcp-media-supported-core-tool", v.admin.QueryRow(v.ctx, `SELECT tool_id FROM agenteam_tool.identities WHERE stable_key='builtin:read-mcp-resource'`).Scan(&selected))
+			toolID, err := f.ParseID[id.Tool](selected)
+			workAppCheck(t, "mcp-media-supported-core-tool-id", err)
+			arguments := workAppJSON(t, map[string]string{"connection_id": connection, "uri": media.uri})
+			sequence := make([]netfixture.WireScenario, 0, 2)
+			for n := range 2 {
+				message := map[string]any{"role": "assistant", "content": mcpM3FinalText}
+				finish := "stop"
+				if n == 0 {
+					message["content"] = nil
+					message["tool_calls"] = []any{map[string]any{"id": "owned_media_call", "type": "function", "function": map[string]any{"name": "tool_" + strings.ReplaceAll(toolID.String(), "-", ""), "arguments": string(arguments)}}}
+					finish = "tool_calls"
+				}
+				response := workAppJSON(t, map[string]any{"id": "owned-media-model", "object": "chat.completion", "created": 1, "model": "mcp-agent", "choices": []any{map[string]any{"index": 0, "message": message, "finish_reason": finish}}, "usage": map[string]int{"prompt_tokens": 10, "completion_tokens": 10, "total_tokens": 20}})
+				sequence = append(sequence, netfixture.WireScenario{Status: 200, Headers: map[string]string{"Content-Type": "application/json"}, Chunks: [][]byte{response}})
+			}
+			scenario, err := network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: sequence})
+			workAppCheck(t, "mcp-media-supported-sequence", err)
+			task := mcpM3ScheduleTask(t, v, "https://fixture.test:8443/case/"+scenario, []id.ToolID{tool})
+			mcpM3EnableMediaModel(t, v)
+			v.store.releaseDirectory()
+			execution := mcpM3AwaitAgent(t, v, task, peer, network, scenario)
+			v.runtime.StopAdmission()
+			drain, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			workAppCheck(t, "mcp-media-supported-runtime-drain", v.runtime.Drain(drain))
+			cancel()
+			v.requestStop()
+			usageAppWait(t, v.directory.returned, "mcp-media-supported-directory")
+			usageAppWait(t, v.root.done, "mcp-media-supported-app")
+			workAppCheck(t, "mcp-media-supported-app-return", v.root.err)
+			if !v.runtime.Joined() || !v.assembly.Joined() || !v.root.owned.producersJoined() {
+				t.Fatal("mcp-stage=media-supported-join original owners not joined")
+			}
+			mcpM3CheckMediaCanonicalResult(t, v, execution, media, true, true)
+			mcpM3CheckSupportedMediaWire(t, v, network, scenario, execution, media)
+			t.Log("MCP_MEDIA supported=true actual_sdk=true canonical_object=true production_model_source=true successor_wire_bytes=true original_owners_joined=true")
+		})
+	}
+}
+
+func mcpM3EnableMediaModel(t *testing.T, v *executionSchedulerApp) {
+	t.Helper()
+	// The directory barrier still prevents Execution capture. Only locate the
+	// model here; read and mutate its configuration through the public API.
+	var model string
+	mcpM3QueryCheck(t, "mcp-media-model-locate", v.admin.QueryRow(v.ctx, `SELECT m.id::text FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$1 AND m.provider_model_id='mcp-agent'`, v.a.String()).Scan(&model))
+	path := "/api/v1/projects/" + v.a.String() + "/models/" + model
+	var before struct {
+		ID      mc.ModelID    `json:"id"`
+		Input   mc.ModelInput `json:"input"`
+		Version f.Version     `json:"version"`
+	}
+	mcpM3HTTP(t, v, "media-model-get", http.MethodGet, path, nil, "", http.StatusOK, &before)
+	if before.ID.String() != model || before.Input.Validate() != nil || before.Version.Validate() != nil {
+		t.Fatal("mcp-stage=media-model-get invalid current model")
+	}
+	before.Input.Capabilities.InputModalities = []string{"text", "image", "file"}
+	var receipt mc.CommandReceipt
+	mcpM3HTTP(t, v, "media-model-update", http.MethodPut, path, map[string]any{"expected_version": before.Version, "input": before.Input}, guardID[struct{}](t).String(), http.StatusOK, &receipt)
+	var after struct {
+		Input   mc.ModelInput `json:"input"`
+		Version f.Version     `json:"version"`
+	}
+	mcpM3HTTP(t, v, "media-model-confirm", http.MethodGet, path, nil, "", http.StatusOK, &after)
+	if after.Version != before.Version+1 || after.Input.Validate() != nil || strings.Join(after.Input.Capabilities.InputModalities, ",") != "text,image,file" {
+		t.Fatal("mcp-stage=media-model-confirm supported configuration absent")
+	}
+}
+
+func mcpM3CheckSupportedMediaWire(t *testing.T, v *executionSchedulerApp, network *netfixture.Descriptor, scenario string, execution id.ExecutionID, media mcpM3MediaCase) {
+	t.Helper()
+	state, err := network.State(v.ctx, scenario)
+	workAppCheck(t, "mcp-media-supported-wire", err)
+	if len(state.Requests) != 2 || state.ActiveHandlers != 0 || state.CompletedHandlers != 2 {
+		t.Fatalf("mcp-stage=media-supported-wire requests=%d active=%d completed=%d", len(state.Requests), state.ActiveHandlers, state.CompletedHandlers)
+	}
+	for socket := range state.Connections {
+		if !state.Closed[socket] {
+			t.Fatal("mcp-stage=media-supported-wire socket unjoined")
+		}
+	}
+	var wire struct {
+		Messages []struct {
+			Role       string          `json:"role"`
+			ToolCallID string          `json:"tool_call_id"`
+			Content    json.RawMessage `json:"content"`
+		} `json:"messages"`
+	}
+	workAppCheck(t, "mcp-media-supported-wire-decode", json.Unmarshal([]byte(state.Requests[1].Body), &wire))
+	toolIndex, images := -1, 0
+	for n, message := range wire.Messages {
+		if message.Role == "tool" {
+			if toolIndex >= 0 || message.ToolCallID != "owned_media_call" {
+				t.Fatal("mcp-stage=media-supported-wire original tool identity changed")
+			}
+			toolIndex = n
+		}
+		var parts []struct {
+			Type     string `json:"type"`
+			Text     string `json:"text"`
+			ImageURL *struct {
+				URL string `json:"url"`
+			} `json:"image_url"`
+		}
+		if len(message.Content) == 0 || message.Content[0] != '[' {
+			continue
+		}
+		workAppCheck(t, "mcp-media-supported-wire-parts", json.Unmarshal(message.Content, &parts))
+		for p, part := range parts {
+			if part.ImageURL == nil {
+				continue
+			}
+			if message.Role != "user" || n != toolIndex+1 || toolIndex < 0 || p != 1 || len(parts) != 2 || parts[0].Type != "text" || parts[0].Text != "untrusted tool attachment (tool_call_id: owned_media_call)" || part.Type != "image_url" || !strings.HasPrefix(part.ImageURL.URL, "data:image/png;base64,") {
+				t.Fatal("mcp-stage=media-supported-wire attachment provenance or order changed")
+			}
+			body, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(part.ImageURL.URL, "data:image/png;base64,"))
+			matches := err == nil && bytes.Equal(body, media.body)
+			clear(body)
+			if !matches {
+				t.Fatal("mcp-stage=media-supported-wire original PNG bytes absent")
+			}
+			images++
+		}
+	}
+	if toolIndex < 0 || images != 1 {
+		t.Fatal("mcp-stage=media-supported-wire expected one original media result")
+	}
+	var calls, distinct int
+	var succeeded bool
+	mcpM3QueryCheck(t, "mcp-media-supported-model-facts", v.admin.QueryRow(v.ctx, `SELECT count(*),count(DISTINCT call_id),COALESCE(bool_and(final_status='succeeded' AND dispatch='sent'),false) FROM agenteam_model.invocations WHERE execution_id=$1::uuid AND project_id=$2::uuid`, execution.String(), v.a.String()).Scan(&calls, &distinct, &succeeded))
+	if calls != 2 || distinct != 2 || !succeeded {
+		t.Fatalf("mcp-stage=media-supported-model-facts calls=%d distinct=%d succeeded=%t", calls, distinct, succeeded)
+	}
+}
+
 // This forwarding test consumer borrows the real registered Model context. It
 // validates the SourceResolver/Object permission boundary, not a supported
 // production Model media profile. Every call still reaches the original Model.
@@ -390,11 +541,20 @@ func mcpM3FaultCode(err error, code f.Code) bool {
 
 func mcpM3CheckMediaCanonical(t *testing.T, v *executionSchedulerApp, execution id.ExecutionID, media mcpM3MediaCase, readSource bool) {
 	t.Helper()
+	mcpM3CheckMediaCanonicalResult(t, v, execution, media, readSource, false)
+}
+
+func mcpM3CheckMediaCanonicalResult(t *testing.T, v *executionSchedulerApp, execution id.ExecutionID, media mcpM3MediaCase, readSource, supported bool) {
+	t.Helper()
 	var raw, transcript []byte
 	var reason, status string
 	mcpM3QueryCheck(t, "mcp-media-successor", v.admin.QueryRow(v.ctx, `SELECT content,terminal_status,terminal_reason FROM agenteam_execution.rounds WHERE execution_id=$1 AND round_ordinal=2`, execution.String()).Scan(&raw, &status, &reason))
-	if status != "failed" || reason != "model_failed" {
-		t.Fatal("mcp-stage=media-terminal expected capability rejection")
+	wantStatus, wantReason := "failed", "model_failed"
+	if supported {
+		wantStatus, wantReason = "succeeded", "completed"
+	}
+	if status != wantStatus || reason != wantReason {
+		t.Fatal("mcp-stage=media-terminal unexpected original model outcome")
 	}
 	round, err := ec.DecodeLoopRound(raw)
 	workAppCheck(t, "mcp-media-successor-codec", err)
@@ -449,6 +609,13 @@ func mcpM3CheckMediaCanonical(t *testing.T, v *executionSchedulerApp, execution 
 	}
 	if operations != 1 || !success || references != 1 || writers != 1 || readers != wantReaders || active != 0 || runtimeLeases != 1 || !retired || secretLeases != 1 || !released {
 		t.Fatalf("mcp-stage=media-durable-facts operations=%d success=%t references=%d writers=%d readers=%d active=%d runtimes=%d retired=%t secrets=%d released=%t", operations, success, references, writers, readers, active, runtimeLeases, retired, secretLeases, released)
+	}
+	if supported {
+		var sources int
+		mcpM3QueryCheck(t, "mcp-media-source-release", v.admin.QueryRow(v.ctx, `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source' AND state='released'`, object).Scan(&sources))
+		if sources != 1 {
+			t.Fatalf("mcp-stage=media-source-release released=%d", sources)
+		}
 	}
 }
 

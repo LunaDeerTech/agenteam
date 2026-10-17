@@ -118,7 +118,8 @@ async function removeLevel(index: number) {
             :options="modalityOptions"
           />
           <p class="model-hint">
-            图像和文件仅记录模型能力，当前调用仅支持文本。
+            图像支持 PNG、JPEG、WebP、静态 GIF；文件支持 PDF，或提取
+            TXT、Markdown、DOCX 的文字。
           </p>
         </div>
         <div v-else class="fixed-modality">

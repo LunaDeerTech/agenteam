@@ -59,6 +59,11 @@ func NewOwnerAuthorization(d OwnerAuthorizationDetails) (OwnerAuthorization, err
 				a.CauseRef != d.CreationCause || d.ReadObjectID != (ObjectID{}) || d.ProtectedLease != nil {
 				return OwnerAuthorization{}, bad()
 			}
+		case identity.MeetingRuntime:
+			// Only a trusted current summary call may read its frozen Artifact.
+			if d.Owner.Details().Kind != Artifact || d.Intent != identity.Read || d.Existence != ExistingOwner || d.ReadObjectID.Validate() != nil || d.ProtectedLease != nil {
+				return OwnerAuthorization{}, bad()
+			}
 		case identity.KnowledgeRuntime:
 			// The Knowledge planner proves the original live indexing job.
 			// Its grant can read only that job's exact existing canonical object.

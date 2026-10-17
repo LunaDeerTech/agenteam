@@ -84,6 +84,11 @@ async function sendAccount<T>(
   if (!path.startsWith("/") || path.includes("?") || path.includes("#"))
     throw new AccountError("INVALID_REQUEST");
   const method = options.method ?? "GET";
+  const modelTest =
+    method === "POST" &&
+    /^\/system\/models\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/test$/.test(
+      path,
+    );
   const modelOperation =
     method === "POST" &&
     /^\/system\/(?:model-providers\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/discovery|models\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/test)$/.test(
@@ -126,16 +131,18 @@ async function sendAccount<T>(
   if (
     typeof options.body === "string" &&
     new TextEncoder().encode(options.body).length >
-      (["POST", "PUT", "DELETE"].includes(method) &&
-      /^\/system\/(?:model-providers|models|model-credentials)(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?$/.test(
-        path,
-      )
-        ? 1048576
-        : method === "PUT" && path === "/system/outbound-policy"
+      (modelTest
+        ? 16 * 1024 * 1024
+        : ["POST", "PUT", "DELETE"].includes(method) &&
+            /^\/system\/(?:model-providers|models|model-credentials)(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?$/.test(
+              path,
+            )
           ? 1048576
-          : method === "PUT" && path === "/system/smtp"
-            ? 32768
-            : 16384)
+          : method === "PUT" && path === "/system/outbound-policy"
+            ? 1048576
+            : method === "PUT" && path === "/system/smtp"
+              ? 32768
+              : 16384)
   )
     throw new AccountError("INVALID_ARGUMENT");
   const mutation = !!options.key;

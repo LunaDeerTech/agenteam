@@ -25,6 +25,7 @@ type RuntimeDependencies struct {
 	SecretUsage  sc.UsageOperations
 	Adapter      *wire.OpenAIChat
 	Embeddings   *wire.OpenAIEmbeddings
+	Media        mc.MediaSource
 }
 
 type Runtime struct{ data func() *runtimeState }
@@ -96,6 +97,11 @@ func (r *Runtime) Initialize(ctx context.Context) error {
 	s := r.state()
 	if s == nil {
 		return fault(f.DependencyUnbound)
+	}
+	if !nilPort(s.deps.Media) {
+		if err := s.deps.Media.RequireBound(); err != nil {
+			return runtimePortError(err)
+		}
 	}
 	s.mu.Lock()
 	if s.stopped {

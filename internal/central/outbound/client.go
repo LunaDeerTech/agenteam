@@ -440,10 +440,14 @@ func (w *firstWriter) Write(b []byte) (int, error) {
 		return w.pc.conn.Write(b)
 	}
 	w.first = false
+	return w.guardedFirstWrite(b)
+}
+
+func (w *firstWriter) writeFirst(ctx context.Context, b []byte) (int, error) {
 	if w.a.sent.Load() {
 		return 0, w.a.fail(ac.InternalError, nil)
 	}
-	release, err := w.a.client.state().policy.state().gate.acquire(w.a.ctx, false)
+	release, err := w.a.client.state().policy.state().gate.acquire(ctx, false)
 	if err != nil {
 		return 0, w.a.fail(w.a.reason(err, ac.Cancelled), err)
 	}
@@ -457,12 +461,18 @@ func (w *firstWriter) Write(b []byte) (int, error) {
 	if err = w.a.admit(w.pc.peer); err != nil {
 		return 0, err
 	}
+	if err = ctx.Err(); err != nil {
+		return 0, w.a.fail(w.a.reason(err, ac.Cancelled), err)
+	}
 	deadline := time.Now().Add(2 * time.Second)
-	if d, ok := w.a.ctx.Deadline(); ok && d.Before(deadline) {
+	if d, ok := ctx.Deadline(); ok && d.Before(deadline) {
 		deadline = d
 	}
 	if err = w.pc.setTransportWriteDeadline(deadline); err != nil {
 		return 0, w.a.fail(w.a.reason(err, ac.InternalError), err)
+	}
+	if err = ctx.Err(); err != nil {
+		return 0, w.a.fail(w.a.reason(err, ac.Cancelled), err)
 	}
 	n, err := w.pc.conn.Write(b)
 	if n > 0 {

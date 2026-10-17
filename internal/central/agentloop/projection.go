@@ -82,6 +82,7 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 	// Each domain decodes its original immutable source and explicitly projects
 	// conversation data. Runtime/control fields never become meeting messages.
 	var input []byte
+	var attachments []ec.CapturedArtifactAttachment
 	var err error
 	inputLabel := "Captured Task input (fixed source data, not a current-state query):\n"
 	switch fields.Request.Launch.Trigger.Kind {
@@ -90,7 +91,8 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 		if decodeErr != nil {
 			return nil, invalid().WithCause(decodeErr)
 		}
-		input, err = task.Data()
+		input, err = task.ModelData()
+		attachments = task.Attachments()
 	case "meeting":
 		inputLabel = "Captured Meeting conversation (fixed source data, not a current-state query):\n"
 		conversation, decodeErr := meeting.DecodeContext(captured.Trigger())
@@ -98,6 +100,9 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 			return nil, invalid().WithCause(decodeErr)
 		}
 		input, err = conversation.ModelData()
+		if err == nil {
+			attachments, err = conversation.Attachments()
+		}
 	default:
 		return nil, unsupported()
 	}
@@ -174,10 +179,15 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 	if err := contextError(ctx); err != nil {
 		return nil, err
 	}
-	return []mc.Message{
-		textMessage("system", system.String()),
-		textMessage("user", inputLabel+string(input)),
-	}, nil
+	user := textMessage("user", inputLabel+string(input))
+	for _, attachment := range attachments {
+		part, err := attachment.MessagePart()
+		if err != nil {
+			return nil, invalid().WithCause(err)
+		}
+		user.Parts = append(user.Parts, mc.MessagePart{Text: &mc.TextPart{Text: "Attached file: " + attachment.Filename}}, part)
+	}
+	return []mc.Message{textMessage("system", system.String()), user}, nil
 }
 
 func appendSection(ctx context.Context, out *strings.Builder, name, text string) error {

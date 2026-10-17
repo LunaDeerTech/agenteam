@@ -353,7 +353,7 @@ func pureTaskRecord(t *testing.T) (*taskRecord, i.Actor, event.Summary) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fields := []c.TaskChangedField{c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
+	fields := []c.TaskChangedField{c.TaskAttachmentsChanged, c.TaskDescriptionChanged, c.TaskRankChanged, c.TaskPlanChanged, c.TaskPriorityChanged, c.TaskTitleChanged, c.TaskTypeChanged}
 	payload := c.TaskChanged{CommandID: commandID, ActorUserID: input.User, TaskEventID: historyID, MilestoneID: milestoneID, SprintID: sprintID, Change: c.TaskCreatedChange, ChangedFields: fields, Position: &c.TaskPosition{SprintID: sprintID, State: c.TaskStateBacklog, Priority: c.TaskPriorityHigh, OrderGeneration: 2}}
 	typed, err := c.RegisterTaskEvents(event.NewCatalog())
 	if err != nil {

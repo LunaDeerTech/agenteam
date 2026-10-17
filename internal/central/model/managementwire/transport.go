@@ -7,13 +7,18 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model/media"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
@@ -38,17 +43,33 @@ type Transport struct {
 
 type Request struct {
 	Action, Protocol, Endpoint, Model string
+	Chat                              *ChatInput
 }
 
-type Result struct {
-	Items  []string
-	Reason string
+type ChatInput struct {
+	Text         string
+	Attachments  []*media.Prepared
+	Capabilities mc.Capabilities
 }
+
+func (ChatInput) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "management_chat_input") }
+func (ChatInput) LogValue() slog.Value       { return slog.StringValue("management_chat_input") }
+
+type Result struct {
+	Items      []string
+	Reason     string
+	Answer     string
+	Truncated  bool
+	fullAnswer string // only for credential-reflection checking before return
+}
+
+func (Result) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "management_result") }
+func (Result) LogValue() slog.Value       { return slog.StringValue("management_result") }
 
 // Timeout is the bounded operation budget for this fixed management request.
 // Callers use the effective protocol of their authorized, saved model.
 func Timeout(input Request) time.Duration {
-	if input.Action == "test" && input.Protocol == imageProtocol {
+	if input.Action == "test" && (input.Protocol == imageProtocol || input.Protocol == chatProtocol && input.Chat != nil && len(input.Chat.Attachments) > 0) {
 		return 120 * time.Second
 	}
 	return 20 * time.Second
@@ -56,12 +77,16 @@ func Timeout(input Request) time.Duration {
 
 func probeLimits(input Request, responseLimit int) outbound.Limits {
 	headers, idle := 15*time.Second, 5*time.Second
-	if input.Action == "test" && input.Protocol == imageProtocol {
+	if Timeout(input) == 120*time.Second {
 		headers, idle = 120*time.Second, 30*time.Second
+	}
+	requestLimit := int64(4096)
+	if input.Chat != nil {
+		requestLimit = media.MaxRequestBytes
 	}
 	return outbound.Limits{Overall: Timeout(input), ResponseHeaders: headers, ReadIdle: idle,
 		RequestHeaderBytes: 16 << 10, ResponseHeaderBytes: 32 << 10,
-		RequestBodyBytes: 4096, ResponseBodyBytes: int64(responseLimit)}
+		RequestBodyBytes: requestLimit, ResponseBodyBytes: int64(responseLimit)}
 }
 
 // Run never takes ownership of credential. A nil pointer explicitly selects an
@@ -78,7 +103,7 @@ func (t Transport) Run(ctx context.Context, input Request, credential *sc.Secret
 	if !supported(input) {
 		return Result{Reason: "unsupported_protocol"}, nil
 	}
-	request, limit, err := prepare(input)
+	request, limit, err := prepareContext(ctx, input)
 	if err != nil {
 		return Result{}, errConfiguration
 	}
@@ -138,8 +163,12 @@ func (t Transport) Run(ctx context.Context, input Request, credential *sc.Secret
 		return Result{Reason: "response_limit"}, nil
 	}
 	result = parse(ctx, input, body)
-	if result.Reason == "" && credential != nil && len(result.Items) != 0 {
+	if result.Reason == "" && credential != nil && (len(result.Items) != 0 || result.fullAnswer != "") {
 		if credential.Use(func(secret []byte) error {
+			if bytes.Contains([]byte(result.fullAnswer), secret) {
+				result = Result{Reason: "invalid_response"}
+				return nil
+			}
 			for _, item := range result.Items {
 				if bytes.Contains([]byte(item), secret) {
 					result = Result{Reason: "invalid_response"}
@@ -151,6 +180,7 @@ func (t Transport) Run(ctx context.Context, input Request, credential *sc.Secret
 			return Result{}, errConfiguration
 		}
 	}
+	result.fullAnswer = ""
 	if ctx.Err() != nil {
 		return Result{Reason: failure(ctx, ctx.Err())}, nil
 	}
@@ -169,7 +199,11 @@ func supported(input Request) bool {
 }
 
 func prepare(input Request) (*http.Request, int, error) {
-	if input.Action != "discovery" && input.Action != "test" || !supported(input) || len(input.Endpoint) > 8192 {
+	return prepareContext(context.Background(), input)
+}
+
+func prepareContext(ctx context.Context, input Request) (*http.Request, int, error) {
+	if ctx == nil || ctx.Err() != nil || input.Action != "discovery" && input.Action != "test" || !supported(input) || len(input.Endpoint) > 8192 || input.Chat != nil && (input.Action != "test" || input.Protocol != chatProtocol) {
 		return nil, 0, errConfiguration
 	}
 	u, err := url.Parse(input.Endpoint)
@@ -189,12 +223,21 @@ func prepare(input Request) (*http.Request, int, error) {
 		switch input.Protocol {
 		case chatProtocol:
 			suffix = "/chat/completions"
+			var content any = "Reply OK."
+			maxTokens := 16
+			if input.Chat != nil {
+				content, err = adapter.EncodeUserContent(ctx, input.Chat.Text, input.Chat.Attachments, input.Chat.Capabilities)
+				if err != nil {
+					return nil, 0, errConfiguration
+				}
+				maxTokens = 2048
+			}
 			body, err = json.Marshal(struct {
-				Model               string              `json:"model"`
-				Messages            []map[string]string `json:"messages"`
-				MaxCompletionTokens int                 `json:"max_completion_tokens"`
-				Stream              bool                `json:"stream"`
-			}{input.Model, []map[string]string{{"role": "user", "content": "Reply OK."}}, 16, false})
+				Model               string           `json:"model"`
+				Messages            []map[string]any `json:"messages"`
+				MaxCompletionTokens int              `json:"max_completion_tokens"`
+				Stream              bool             `json:"stream"`
+			}{input.Model, []map[string]any{{"role": "user", "content": content}}, maxTokens, false})
 		case embedProtocol:
 			suffix = "/embeddings"
 			body, err = json.Marshal(struct {
@@ -221,7 +264,7 @@ func prepare(input Request) (*http.Request, int, error) {
 		default:
 			return nil, 0, errConfiguration
 		}
-		if err != nil {
+		if err != nil || len(body) > media.MaxRequestBytes {
 			return nil, 0, errConfiguration
 		}
 	}

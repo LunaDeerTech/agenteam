@@ -52,6 +52,7 @@ func (v TaskChange) Validate() error {
 type TaskChangedField string
 
 const (
+	TaskAttachmentsChanged TaskChangedField = "attachments"
 	TaskDescriptionChanged TaskChangedField = "description"
 	TaskRankChanged        TaskChangedField = "manual_rank"
 	TaskPlanChanged        TaskChangedField = "plan"
@@ -62,13 +63,13 @@ const (
 
 func (v TaskChangedField) Validate() error {
 	switch v {
-	case TaskDescriptionChanged, TaskRankChanged, TaskPlanChanged, TaskPriorityChanged, TaskTitleChanged, TaskTypeChanged:
+	case TaskAttachmentsChanged, TaskDescriptionChanged, TaskRankChanged, TaskPlanChanged, TaskPriorityChanged, TaskTitleChanged, TaskTypeChanged:
 		return nil
 	}
 	return invalid("/changed_fields", "INVALID_CHANGED_FIELD")
 }
 func validateTaskFields(v []TaskChangedField) error {
-	if len(v) == 0 || len(v) > 6 {
+	if len(v) == 0 || len(v) > 7 {
 		return invalid("/changed_fields", "INVALID_CHANGED_FIELDS")
 	}
 	for n, field := range v {
@@ -298,7 +299,7 @@ func (v TaskChanged) Validate() error {
 	}
 	switch v.Change {
 	case TaskCreatedChange:
-		if v.Position != nil && v.Position.NextID == nil && slices.Equal(v.ChangedFields, []TaskChangedField{TaskDescriptionChanged, TaskRankChanged, TaskPlanChanged, TaskPriorityChanged, TaskTitleChanged, TaskTypeChanged}) {
+		if v.Position != nil && v.Position.NextID == nil && slices.Equal(v.ChangedFields, []TaskChangedField{TaskAttachmentsChanged, TaskDescriptionChanged, TaskRankChanged, TaskPlanChanged, TaskPriorityChanged, TaskTitleChanged, TaskTypeChanged}) {
 			return nil
 		}
 	case TaskUpdatedChange:

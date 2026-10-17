@@ -56,6 +56,8 @@ type ManagementResult struct {
 	Outcome         string            `json:"outcome"`
 	Reason          *string           `json:"reason"`
 	Items           *[]ManagementItem `json:"items,omitempty"`
+	AnswerText      *string           `json:"answer_text"`
+	AnswerTruncated bool              `json:"answer_truncated"`
 	DurationMS      int64             `json:"duration_ms"`
 	CreatedAt       f.Instant         `json:"created_at"`
 }
@@ -66,7 +68,8 @@ type managementOperation struct {
 	CreatedAt                                                                                 f.Instant
 	// Only the live operation needs its immutable model type to bound timing.
 	// Recovery emits duration zero; successful replays use the persisted receipt.
-	modelType mc.ModelType
+	modelType      mc.ModelType
+	hasAttachments bool
 }
 
 func managementLock(key string, mode f.LockMode) f.LockRequest {
@@ -96,6 +99,9 @@ func readManagement(ctx context.Context, x postgres.SQLExecutor, column, key str
 }
 func (o *managementOperation) result(reason string, duration time.Duration) ManagementResult {
 	budget := managementwire.Timeout(managementwire.Request{Action: o.Action, Protocol: string(mc.OpenAICompatible.EffectiveProtocol(o.modelType))})
+	if o.hasAttachments {
+		budget = 120 * time.Second
+	}
 	r := ManagementResult{OperationID: o.ID, ProviderID: o.Provider, ProviderVersion: o.ProviderVersion, ModelID: o.Model, ModelVersion: o.ModelVersion, Outcome: "failed", Reason: &reason, DurationMS: min(max(duration.Milliseconds(), 0), budget.Milliseconds()), CreatedAt: o.CreatedAt}
 	if reason == "" {
 		r.Outcome = "succeeded"
@@ -111,8 +117,11 @@ func (o *managementOperation) result(reason string, duration time.Duration) Mana
 	return r
 }
 
-func managementRequestContext(parent context.Context, started time.Time, modelType mc.ModelType) (context.Context, context.CancelFunc) {
+func managementRequestContext(parent context.Context, started time.Time, modelType mc.ModelType, attachments ...bool) (context.Context, context.CancelFunc) {
 	budget := managementwire.Timeout(managementwire.Request{Action: "test", Protocol: string(mc.OpenAICompatible.EffectiveProtocol(modelType))})
+	if len(attachments) > 0 && attachments[0] {
+		budget = 120 * time.Second
+	}
 	return context.WithDeadline(parent, started.Add(budget))
 }
 func managementUnknown() error {
@@ -126,4 +135,20 @@ func managementCommitError(r f.CommitResult) error {
 		return managementUnknown()
 	}
 	return commitError(r)
+}
+
+// Discovery has no model answer; only the model-test DTO carries these keys.
+func (r ManagementResult) MarshalJSON() ([]byte, error) {
+	type plain ManagementResult
+	raw, err := json.Marshal(plain(r))
+	if err != nil || r.Items == nil {
+		return raw, err
+	}
+	var fields map[string]json.RawMessage
+	if err = json.Unmarshal(raw, &fields); err != nil {
+		return nil, err
+	}
+	delete(fields, "answer_text")
+	delete(fields, "answer_truncated")
+	return json.Marshal(fields)
 }

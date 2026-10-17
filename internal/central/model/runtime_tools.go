@@ -19,20 +19,8 @@ func prepareRuntimeToolInput(ctx context.Context, request mc.ModelRequest, mode 
 	if mode != wire.JSONResponse || !runtimeSupportedOwner(request) || request.RetryClass != mc.AgentRetry || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !c.SupportsTextInput() || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || s.CredentialRef == nil || request.Model.CredentialLease == nil {
 		return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
 	}
-	// This profile consumes text tool results. Preserve canonical media parts
-	// and their business references in the caller's history, but reject the
-	// unsupported input before consumer admission, Usage or wire preparation.
-	for _, message := range request.Messages {
-		for _, part := range message.Parts {
-			if part.ToolResult == nil {
-				continue
-			}
-			for _, result := range part.ToolResult.Parts {
-				if result.Text == nil {
-					return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
-				}
-			}
-		}
+	if err := runtimeMediaCapabilities(request.Messages, c); err != nil {
+		return mc.ModelRequest{}, err
 	}
 	switch request.Input.SchemaVersion {
 	case mc.ToolCallInputSchemaVersion:

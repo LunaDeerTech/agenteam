@@ -91,7 +91,19 @@ func summaryMessages(input SummaryInput) ([]mc.Message, mc.ResponseFormat, error
 	}
 	// D24's JSON envelope is parsed by Meeting; it does not require structured
 	// output capability from the independently selected System chat model.
-	return []mc.Message{text("system", instruction), text("user", string(raw))}, mc.ResponseFormat{Kind: "text"}, nil
+	attachments, err := frozenAttachments(input.ProjectID, input.Messages)
+	if err != nil {
+		return nil, mc.ResponseFormat{}, err
+	}
+	user := text("user", string(raw))
+	for _, attachment := range attachments {
+		part, err := attachment.MessagePart()
+		if err != nil {
+			return nil, mc.ResponseFormat{}, err
+		}
+		user.Parts = append(user.Parts, mc.MessagePart{Text: &mc.TextPart{Text: "Attached file: " + attachment.Filename}}, part)
+	}
+	return []mc.Message{text("system", instruction), user}, mc.ResponseFormat{Kind: "text"}, nil
 }
 func (m *SummaryModel) tx(ctx context.Context, input SummaryInput, action string, extra []f.LockRequest, fn func(context.Context, f.Tx, postgres.SQLExecutor) error) error {
 	locks, err := normalize(append(summaryLocks(input.ProjectID, input.MeetingID), extra...))
@@ -132,7 +144,7 @@ func (m *SummaryModel) prepare(ctx context.Context, input SummaryInput) (summary
 	if err != nil {
 		return out, err
 	}
-	messageRaw, err := json.Marshal(messages)
+	messageRaw, err := mc.EncodeCanonicalMessages(messages)
 	if err != nil {
 		return out, err
 	}
@@ -330,9 +342,9 @@ func (m *SummaryModel) GenerateSummary(ctx context.Context, input SummaryInput) 
 		}
 		return zero, err
 	}
-	var messages []mc.Message
+	messages, decodeErr := mc.DecodeCanonicalMessages(row.messages)
 	var format mc.ResponseFormat
-	if json.Unmarshal(row.messages, &messages) != nil || json.Unmarshal(row.format, &format) != nil {
+	if decodeErr != nil || json.Unmarshal(row.format, &format) != nil {
 		return zero, fault(f.InternalError)
 	}
 	request := mc.ModelRequest{Actor: actor, CallID: row.call, Consumer: consumer, Model: resolved, Input: mc.InputIdentity{OperationID: input.GenerationID.String(), Digest: row.digest, SchemaVersion: 1}, Messages: messages, Tools: []mc.Tool{}, ToolChoice: mc.ToolChoice{Kind: "none"}, ResponseFormat: format, RetryClass: mc.BoundedRetry}
@@ -345,6 +357,10 @@ func (m *SummaryModel) GenerateSummary(ctx context.Context, input SummaryInput) 
 	}); err != nil {
 		return zero, err
 	}
+	owner.mu.Lock()
+	originalRequest := request.Clone()
+	owner.sourceRequest = &originalRequest
+	owner.mu.Unlock()
 	call.handle, err = m.deps.Calls.BeginChat(runCtx, request)
 	var response mc.ModelResponse
 	if err == nil {
@@ -352,6 +368,9 @@ func (m *SummaryModel) GenerateSummary(ctx context.Context, input SummaryInput) 
 	}
 	cleanupCtx, cleanupCancel := context.WithTimeout(context.WithoutCancel(runCtx), 10*time.Second)
 	defer cleanupCancel()
+	owner.mu.Lock()
+	owner.sourceClosing = true
+	owner.mu.Unlock()
 	if call.handle != nil {
 		closeErr := call.handle.Close(cleanupCtx)
 		if !call.handle.Joined() {
