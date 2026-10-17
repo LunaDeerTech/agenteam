@@ -10,6 +10,7 @@ const paths: Record<string, string[]> = {
   menu: ["M4 6h16M4 12h16M4 18h16"],
   "chevron-down": ["m6 9 6 6 6-6"],
   "chevron-right": ["m9 6 6 6-6 6"],
+  "more-horizontal": ["M5 12h.01M12 12h.01M19 12h.01"],
   "arrow-left": ["m12 5-7 7 7 7M5 12h14"],
   sun: [
     "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8",

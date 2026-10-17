@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, useId, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from "vue";
 import UiIcon from "./UiIcon.vue";
 import UiButton from "./UiButton.vue";
 import { useAnchoredLayer } from "./internal/useAnchoredLayer";
@@ -9,6 +9,7 @@ export interface SearchSelectOption {
   label: string;
   description?: string;
   disabledReason?: string;
+  details?: boolean;
 }
 const props = withDefaults(
   defineProps<{
@@ -26,6 +27,7 @@ const props = withDefaults(
     placeholder?: string;
     searchPlaceholder?: string;
     emptyText?: string;
+    rich?: boolean;
   }>(),
   {
     query: "",
@@ -54,12 +56,80 @@ const { trigger, panel, open, target, position, show, close } =
     topLayer: true,
   });
 const optionId = (index: number) => `${id}-option-${index}`;
+const detailsId = ref<string>();
+const detailsOption = computed(() =>
+  props.options.find((option) => option.value === detailsId.value),
+);
+const narrowMedia = window.matchMedia("(max-width: 640px)");
+const narrow = ref(narrowMedia.matches);
+const inlineDetails = ref<HTMLElement>();
+const {
+  trigger: detailsTrigger,
+  panel: detailsPanel,
+  open: detailsOpen,
+  target: detailsTarget,
+  position: detailsPosition,
+  show: showDetails,
+  close: hideDetails,
+} = useAnchoredLayer({
+  placement: "right",
+  width: 240,
+  maxHeight: 380,
+  topLayer: true,
+  container: () => panel.value ?? "body",
+});
+function closeDetails(restore = true) {
+  const trigger = detailsTrigger.value;
+  hideDetails(false);
+  detailsId.value = undefined;
+  if (restore)
+    void nextTick(
+      () => trigger?.isConnected && trigger.focus({ preventScroll: true }),
+    );
+}
+function resized(event: MediaQueryListEvent) {
+  closeDetails(false);
+  narrow.value = event.matches;
+  if (open.value)
+    void nextTick(() => searchInput.value?.focus({ preventScroll: true }));
+}
+narrowMedia.addEventListener("change", resized);
+onBeforeUnmount(() => narrowMedia.removeEventListener("change", resized));
+async function expandDetails(index: number) {
+  const option = props.options[index];
+  if (!props.rich || !option?.details || props.loading || props.error) return;
+  active.value = index;
+  detailsTrigger.value = document.getElementById(
+    `${optionId(index)}-more`,
+  ) as HTMLButtonElement;
+  detailsId.value = option.value;
+  if (narrow.value) await nextTick();
+  else await showDetails();
+  const surface = narrow.value ? inlineDetails.value : detailsPanel.value;
+  (
+    surface?.querySelector<HTMLElement>(
+      "button:not(:disabled),input:not(:disabled)",
+    ) ?? surface
+  )?.focus({ preventScroll: true });
+}
+function detailsKeydown(event: KeyboardEvent) {
+  if (event.key === "Escape" || event.key === "ArrowLeft") {
+    event.preventDefault();
+    event.stopPropagation();
+    closeDetails();
+  }
+}
+watch(detailsOpen, (value) => {
+  if (!value && !narrow.value) detailsId.value = undefined;
+});
 function resetActive() {
   const current = props.options.findIndex(
-    (o) => o.value === props.modelValue && !o.disabledReason,
+    (o) => o.value === props.modelValue && (props.rich || !o.disabledReason),
   );
   active.value =
-    current >= 0 ? current : props.options.findIndex((o) => !o.disabledReason);
+    current >= 0
+      ? current
+      : props.options.findIndex((o) => props.rich || !o.disabledReason);
 }
 async function expand() {
   if (props.disabled) return;
@@ -75,7 +145,7 @@ function choose(index: number) {
 }
 function move(delta: number) {
   const choices = props.options.flatMap((o, i) =>
-    o.disabledReason ? [] : [i],
+    !props.rich && o.disabledReason ? [] : [i],
   );
   if (!choices.length || props.loading || props.error) return;
   const current = choices.indexOf(active.value);
@@ -87,20 +157,36 @@ function move(delta: number) {
   );
 }
 function search(event: Event) {
+  closeDetails(false);
   active.value = -1;
   emit("update:query", (event.target as HTMLInputElement).value);
 }
 function onKeydown(event: KeyboardEvent) {
+  if (
+    detailsOption.value &&
+    (narrow.value || detailsPanel.value?.contains(event.target as Node))
+  )
+    return;
   if (event.key === "Escape") {
     event.preventDefault();
     event.stopPropagation();
     close();
   } else if (
-    event.target === searchInput.value &&
+    (event.target === searchInput.value ||
+      (props.rich && (event.target as HTMLElement).closest('[role="row"]'))) &&
     ["ArrowDown", "ArrowUp"].includes(event.key)
   ) {
     event.preventDefault();
     move(event.key === "ArrowDown" ? 1 : -1);
+    if (props.rich && event.target !== searchInput.value)
+      void nextTick(() =>
+        document
+          .getElementById(`${optionId(active.value)}-select`)
+          ?.focus({ preventScroll: true }),
+      );
+  } else if (props.rich && event.key === "ArrowRight") {
+    event.preventDefault();
+    void expandDetails(active.value);
   } else if (
     event.target === searchInput.value &&
     event.key === "Enter" &&
@@ -133,8 +219,27 @@ function navigate(direction: "previous" | "next") {
   else emit("previous");
   searchInput.value?.focus({ preventScroll: true });
 }
-watch(open, (value) => emit("open-change", value), { flush: "sync" });
-watch(() => props.options, resetActive);
+watch(
+  open,
+  (value) => {
+    if (!value) closeDetails(false);
+    emit("open-change", value);
+  },
+  { flush: "sync" },
+);
+watch(
+  () => props.options,
+  () => {
+    if (!detailsOption.value) closeDetails(false);
+    resetActive();
+  },
+);
+watch(
+  () => [props.loading, props.error],
+  () => {
+    if (props.loading || props.error) closeDetails(false);
+  },
+);
 watch(
   () => props.disabled,
   (value) => {
@@ -175,7 +280,7 @@ watch(
         :style="position"
         @keydown="onKeydown"
       >
-        <div class="ui-search-select-search">
+        <div v-show="!narrow || !detailsOption" class="ui-search-select-search">
           <UiIcon name="search" :size="16" />
           <input
             ref="searchInput"
@@ -186,6 +291,7 @@ watch(
             :placeholder="searchPlaceholder"
             autocomplete="off"
             aria-autocomplete="list"
+            :aria-haspopup="rich ? 'grid' : 'listbox'"
             aria-expanded="true"
             :aria-controls="`${id}-results`"
             :aria-activedescendant="
@@ -194,7 +300,11 @@ watch(
             @input="search"
           />
         </div>
-        <div class="ui-search-select-results" :aria-busy="loading">
+        <div
+          v-show="!narrow || !detailsOption"
+          class="ui-search-select-results"
+          :aria-busy="loading"
+        >
           <p v-if="loading" class="ui-popup-empty" role="status">
             正在读取模型…
           </p>
@@ -204,7 +314,7 @@ watch(
           </div>
           <ul
             :id="`${id}-results`"
-            role="listbox"
+            :role="rich ? 'grid' : 'listbox'"
             :aria-label="label"
             :hidden="loading || !!error"
           >
@@ -212,9 +322,9 @@ watch(
               v-for="(option, index) in options"
               :id="optionId(index)"
               :key="option.value"
-              role="option"
+              :role="rich ? 'row' : 'option'"
               :aria-selected="option.value === modelValue"
-              :aria-disabled="!!option.disabledReason || undefined"
+              :aria-disabled="(!rich && !!option.disabledReason) || undefined"
               :aria-describedby="
                 option.disabledReason ? `${id}-reason-${index}` : undefined
               "
@@ -222,12 +332,72 @@ watch(
               :class="{
                 'is-active': active === index,
                 'is-disabled': !!option.disabledReason,
+                'is-rich': rich,
               }"
-              @pointerdown.prevent
-              @pointermove="!option.disabledReason && (active = index)"
-              @click="choose(index)"
+              @pointerdown="!rich && $event.preventDefault()"
+              @pointermove="
+                (rich || !option.disabledReason) && (active = index)
+              "
+              @click="!rich && choose(index)"
             >
-              <span class="ui-popup-item-label"
+              <template v-if="rich">
+                <div role="gridcell" class="ui-search-select-primary">
+                  <button
+                    :id="`${optionId(index)}-select`"
+                    type="button"
+                    class="ui-search-select-row-button"
+                    :tabindex="active === index ? 0 : -1"
+                    :aria-disabled="!!option.disabledReason || undefined"
+                    :aria-describedby="
+                      option.disabledReason
+                        ? `${id}-reason-${index}`
+                        : undefined
+                    "
+                    @focus="active = index"
+                    @click.stop="choose(index)"
+                  >
+                    <span class="ui-popup-item-label">
+                      <span class="ui-search-select-name">{{
+                        option.label
+                      }}</span>
+                      <span
+                        v-if="option.disabledReason || option.description"
+                        :id="`${id}-reason-${index}`"
+                        class="ui-search-select-detail"
+                        >{{ option.disabledReason || option.description }}</span
+                      >
+                    </span>
+                    <UiIcon
+                      v-if="option.value === modelValue"
+                      name="check"
+                      :size="14"
+                    />
+                  </button>
+                </div>
+                <div
+                  v-if="option.details"
+                  role="gridcell"
+                  class="ui-search-select-action"
+                >
+                  <button
+                    :id="`${optionId(index)}-more`"
+                    type="button"
+                    class="ui-button ui-button--ghost ui-icon-button ui-search-select-more"
+                    :tabindex="active === index ? 0 : -1"
+                    :aria-label="`${option.label}，更多`"
+                    aria-haspopup="dialog"
+                    :aria-expanded="detailsId === option.value"
+                    :aria-controls="
+                      detailsId === option.value ? `${id}-details` : undefined
+                    "
+                    @focus="active = index"
+                    @click.stop="expandDetails(index)"
+                  >
+                    <UiIcon name="more-horizontal" :size="16" />
+                  </button>
+                </div>
+              </template>
+              <span v-else class="ui-popup-item-label"
                 ><span class="ui-search-select-name">{{ option.label }}</span>
                 <span
                   v-if="option.disabledReason || option.description"
@@ -236,7 +406,7 @@ watch(
                   >{{ option.disabledReason || option.description }}</span
                 > </span
               ><UiIcon
-                v-if="option.value === modelValue"
+                v-if="!rich && option.value === modelValue"
                 name="check"
                 :size="14"
               />
@@ -250,7 +420,11 @@ watch(
             {{ emptyText }}
           </p>
         </div>
-        <nav class="ui-search-select-pagination" :aria-label="`${label}分页`">
+        <nav
+          v-show="!narrow || !detailsOption"
+          class="ui-search-select-pagination"
+          :aria-label="`${label}分页`"
+        >
           <span>第 {{ pageIndex + 1 }} 页</span>
           <div>
             <UiButton
@@ -263,12 +437,110 @@ watch(
             >
           </div>
         </nav>
+        <div
+          v-if="narrow && detailsOption"
+          :id="`${id}-details`"
+          ref="inlineDetails"
+          class="ui-search-select-details"
+          role="dialog"
+          :aria-label="`${detailsOption.label}，更多`"
+          tabindex="-1"
+          @keydown="detailsKeydown"
+        >
+          <UiButton variant="ghost" @click="closeDetails()"
+            ><UiIcon name="arrow-left" :size="14" />返回模型列表</UiButton
+          >
+          <slot name="details" :option="detailsOption" :close="closeDetails" />
+        </div>
+        <Teleport :to="detailsTarget">
+          <Transition name="ui-overlay">
+            <div
+              v-if="!narrow && detailsOpen && detailsOption"
+              :id="`${id}-details`"
+              ref="detailsPanel"
+              popover="manual"
+              role="dialog"
+              :aria-label="`${detailsOption.label}，更多`"
+              class="ui-popup ui-search-select-details ui-search-select-side"
+              :style="detailsPosition"
+              tabindex="-1"
+              @keydown="detailsKeydown"
+            >
+              <slot
+                name="details"
+                :option="detailsOption"
+                :close="closeDetails"
+              />
+            </div>
+          </Transition>
+        </Teleport>
       </div>
     </Transition>
   </Teleport>
 </template>
 
 <style scoped>
+.ui-search-select-primary {
+  min-width: 0;
+  flex: 1;
+}
+.ui-search-select-action {
+  flex: none;
+}
+.ui-search-select-row-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ui-search-select-row-button .ui-popup-item-label {
+  flex: 1;
+  min-width: 0;
+}
+.ui-search-select-row-button svg {
+  flex: none;
+}
+.ui-search-select-row-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.ui-search-select-more {
+  opacity: 0;
+}
+.is-rich:hover .ui-search-select-more,
+.is-rich:focus-within .ui-search-select-more,
+.is-rich.is-active .ui-search-select-more {
+  opacity: 1;
+}
+.ui-search-select-details {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.ui-search-select-side {
+  inset: auto;
+  margin: 0;
+}
+@media (hover: none), (pointer: coarse) {
+  .ui-search-select-more {
+    opacity: 1;
+  }
+}
+@media (max-width: 640px) {
+  .ui-search-select-more {
+    opacity: 1;
+  }
+}
 .ui-search-select-trigger {
   display: flex;
   align-items: center;

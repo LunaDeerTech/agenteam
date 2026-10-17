@@ -12,6 +12,7 @@ const origin = "http://127.0.0.1:5281";
 const output = process.env.MODEL_PICKER_OUTPUT;
 assert(output?.startsWith("/workspace/scratch/"));
 const id = (n) => `019a5555-5555-7555-8555-${String(n).padStart(12, "0")}`;
+const choice = (n) => ({ model_id: id(n), reasoning: { mode: "default" } });
 const at = "2026-10-17T09:00:00.000000Z";
 const provider = (n, name) => ({
   id: id(n),
@@ -38,7 +39,7 @@ const model = (n, p, type, modelID) => ({
   created_at: at,
   updated_at: at,
   input: {
-    name: modelID,
+    notes: modelID,
     provider_model_id: modelID,
     type,
     enabled: true,
@@ -50,6 +51,7 @@ const model = (n, p, type, modelID) => ({
       parallel_tool_calls: false,
       streaming: false,
       reasoning: false,
+      reasoning_toggle_mode: null,
       input_modalities: ["text"],
       output_modalities: [type === "chat" ? "text" : "vector"],
       reasoning_efforts: [],
@@ -76,8 +78,8 @@ async function run(browser, width, theme) {
     id: id(40),
     version: "1",
     configured: {
-      embedding: id(11),
-      summary: id(10),
+      embedding: choice(11),
+      summary: choice(10),
       reranker: null,
       image: null,
     },
@@ -197,7 +199,12 @@ async function run(browser, width, theme) {
     });
     await expect(panel).toBeVisible();
     await expect(
-      panel.getByRole("option", { name: /sample-embedding/ }),
+      panel
+        .getByRole("row")
+        .filter({ hasText: "sample-embedding" })
+        .getByRole("gridcell")
+        .first()
+        .getByRole("button"),
     ).toHaveAttribute("aria-disabled", "true");
     const geometry = await panel.boundingBox();
     assert(geometry.x >= 7 && geometry.x + geometry.width <= width - 7);
@@ -210,15 +217,21 @@ async function run(browser, width, theme) {
     await panel
       .getByRole("combobox", { name: "搜索供应商或模型" })
       .fill("backup");
-    await expect(panel.getByRole("option")).toHaveCount(1);
-    await panel.getByRole("option", { name: /backup-summary/ }).click();
+    await expect(panel.getByRole("row")).toHaveCount(1);
+    await panel
+      .getByRole("row")
+      .filter({ hasText: "backup-summary" })
+      .getByRole("gridcell")
+      .first()
+      .getByRole("button")
+      .click();
     await expect(trigger).toContainText("备用模型服务/backup-summary");
     await expect(trigger).toBeFocused();
     assert.equal(writes.length, 0);
     await page.getByRole("button", { name: "保存", exact: true }).click();
     await expect(page.getByText("已保存。", { exact: true })).toBeVisible();
     assert.equal(writes.length, 1);
-    assert.equal(writes[0].summary, id(12));
+    assert.deepEqual(writes[0].summary, choice(12));
     const overflow = await page.evaluate(() => ({
       width: innerWidth,
       root: document.documentElement.scrollWidth,

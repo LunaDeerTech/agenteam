@@ -179,7 +179,6 @@ async function startImport() {
         input: modelDraftInput(
           {
             ...drafts[id]!,
-            name: [...id].slice(0, 128).join(""),
             providerModelId: id,
           },
           props.provider.input.protocol,

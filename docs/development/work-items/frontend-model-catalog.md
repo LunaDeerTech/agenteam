@@ -2,15 +2,17 @@
 
 状态：2026-10-17 原包起点 `97ac04e3`；统一总结模型、ModelPicker及从`90a1229b`开始的供应商列表/详情配置及模型列表动作增量已完成各自适用验证。记忆与会议共用单配置、四用途整组保存不变；此前页面与验证保留原输入边界，不替代本次结果。本卡是本包共同合同。仅系统管理员配置系统模型；项目模型、Agent、Executor/Runner与既有STOP不扩大。允许按新页面重做接口，不新增旧UI或路由迁移；当前公网实例、用户凭据和外部服务不用于开发验收。用户明确本包完成后不部署公网，交付新增页面功能截图，先上传图床再提供公网图片URL。
 
+当前增量（4107e01b后）：模型ID作为主标识、原名称改为可空备注，类型补英文后缀，容量字段标注tokens；共享选择器更多菜单编辑用途思考策略。前端首可调用链、type与5项定向用例及作者两尺寸合成浏览器已过，独审、最终构建和真实组合仍在途。本段不以此前四类型结果代替当前选择DTO验收。
+
 ## 1. 页面与完整流程
 
 系统“模型配置”分类下保留“模型接入”和“平台模型用途”两个入口，系统11项改为10项，正式页面由40叶改为39叶；供应商动态详情仍属于模型接入。系统与项目设置中的共享分类名均为“模型配置”；名称调整不改变既有URL或项目功能范围。删除旧 `/system/providers` 入口，不保留兼容跳转。
 
-| 路由                         | 任务与载体                                                                                                                                                                                                                                                                                    |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/system/models`             | “模型接入”正文显示“供应商列表”小标题；页头右侧新建供应商。每行实际启用开关替代状态文案，名称链接进入默认模型Tab；右侧“配置”进入`/system/models/:providerId?tab=config`，不再仅展示已配置凭据状态。                                                                                            |
-| `/system/models/:providerId` | 页头下设“模型”/“配置”UiTabs；模型Tab仅显示本供应商的provider_model_id，配轻量类型标签、可保存启用开关及并列“编辑”/“测试”按钮，自定义名称保留在编辑弹窗。配置Tab直接编辑API端点、凭据及供应商属性/选项。创建供应商、模型添加/编辑、发现导入和测试结果使用对应弹窗。返回目录恢复列表位置/焦点。 |
-| `/system/model-selection`    | 独立的平台用途页；嵌入、总结、重排、图像生成模型四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；右侧选框常显“供应商名称/模型ID”，点击打开下方锚定ModelPicker。                                                                                        |
+| 路由                         | 任务与载体                                                                                                                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/system/models`             | “模型接入”正文显示“供应商列表”小标题；页头右侧新建供应商。每行实际启用开关替代状态文案，名称链接进入默认模型Tab；右侧“配置”进入`/system/models/:providerId?tab=config`，不再仅展示已配置凭据状态。                                                                                          |
+| `/system/models/:providerId` | 页头下设“模型”/“配置”UiTabs；模型Tab仅显示本供应商的provider_model_id，配轻量类型标签、可保存启用开关及并列“编辑”/“测试”按钮，可空备注保留在编辑弹窗。配置Tab直接编辑API端点、凭据及供应商属性/选项。创建供应商、模型添加/编辑、发现导入和测试结果使用对应弹窗。返回目录恢复列表位置/焦点。 |
+| `/system/model-selection`    | 独立的平台用途页；嵌入、总结、重排、图像生成模型四用途平级，共用一个配置、版本与保存动作。“重新获取”位于页面标题行右侧，保存仍贴近表单；右侧选框常显“供应商名称/模型ID”，点击打开下方锚定ModelPicker。                                                                                      |
 
 完整出口是供应商与凭据配置→模型手工添加或发现勾选导入→显式真实测试→合法用途可选。复用SettingsShell、SystemList、UiDialog和共享页头动作；目录使用宽正文，标题无需装饰描述。页级动作在标题右侧，表单保存/取消贴近字段。宽窄、空态、读取失败、权限失效、409、Unknown、取消及返回焦点在对应任务中闭环。
 
@@ -18,7 +20,9 @@
 
 模型启用开关沿完整input和expected_version保存，仅改变enabled；确认回执后采用读回模型，读回失败只重读。等待、冲突及Unknown时保留行owner并禁用换页、切Tab和其它行操作，显式读取最新版本后才能采用保留的启停意图。被引用模型允许停用但不解除用途引用。仅本供应商列表省略供应商前缀，跨供应商选择器和用途页仍显示“供应商/模型ID”。编辑弹窗在干净且无未决命令时提供次要“删除模型”入口，复用既有引用/替换确认，取消返回编辑，完成返回列表。列表“测试”只打开既有测试弹窗；明确开始才按当前模型与供应商版本发请求，并遵守双启用、协议、权限及真实测试能力门，不因无凭据拒绝合法匿名配置。
 
-模型定义按类型显示，现compatible供应商family可配置对话（Chat）、嵌入（Embedding）、重排（Rerank）及图像生成（Image Generation）。Chat固定文本基础与文本输出，可额外声明图像/文件（当前调用仍仅支持文本），保JSON Schema及思考能力；嵌入固定text→vector、可填context，max_output始终null；重排为查询与文档→排序结果，wire input=[text]/output=[]；图像生成为text→image。两新类四项Chat布尔能力全false、等级/结构化数组空、context/max皆null，不显示无效高级项。新建/导入可选类型，编辑已有类型不可改；切换类型不泄漏隐藏草稿。各类启停/用途选择/显式管理测试沿真实服务端资格与能力门，不等于重排检索或图像Artifact业务consumer已接通。
+模型定义按类型显示，现compatible供应商family可配置对话（Chat）、嵌入（Embedding）、重排（ReRank）及图像生成（Image Generation）。Chat固定文本基础与文本输出，可额外声明图像/文件（当前调用仍仅支持文本），保JSON Schema及思考能力；嵌入固定text→vector、可填context，max_output始终null；重排为查询与文档→排序结果，wire input=[text]/output=[]；图像生成为text→image。两新类四项Chat布尔能力全false、等级/结构化数组空、context/max皆null，不显示无效高级项。新建/导入可选类型，编辑已有类型不可改；切换类型不泄漏隐藏草稿。各类启停/用途选择/显式管理测试沿真实服务端资格与能力门，不等于重排检索或图像Artifact业务consumer已接通。
+
+表单先显示模型ID，再显示“备注（可选）”；备注不作为上游身份、不在普通模型选项堆叠。上下文容量标为“上下文窗口（tokens，可选）”，不能解释成纯输入上限；Chat最大输出标为“最大输出（tokens，可选）”。无等级且支持思考时显示“思考开关格式”，可选供应商默认、enable_thinking或thinking.type，按供应商API明确选择；出现等级、关闭思考或切到非Chat时清空该映射。
 
 思考等级采用紧凑名称/值/叉号行，窄屏不拆成上下两行；可见编号去掉，原编号label仅视觉隐藏，保留可访问名称、错误反馈与新增/删除焦点。下方“添加思考等级”不创建默认值，原name/value及空等级语义不变。新建、编辑和导入仍共用ModelFormFields，版本/Unknown/确认后只读恢复不改。
 
@@ -45,7 +49,7 @@
 
 ### 可复用模型选择浮层
 
-ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层跨供应商模型列表承载搜索、当前选中勾选及不可选原因，不再要求先进入某个供应商才能找模型。空选框显示“点击选择模型”，已选时“供应商名称/模型ID”始终可见，hover只改变样式、不替换内容。搜索、分页、空结果、失败重读及迟到结果由同一请求owner管理；关闭浮层不清页面草稿，Escape返回触发控件。窄屏与缩放需保持触发关联、搜索及结果可达，正式组件接口由[共享组件规范](../frontend/components.md)维护。
+ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层跨供应商模型列表承载搜索、当前选中勾选及不可选原因，不再要求先进入某个供应商才能找模型。空选框显示“点击选择模型”，已选时“供应商名称/模型ID”始终可见，hover只改变样式、不替换内容。搜索、分页、空结果、失败重读及迟到结果由同一请求owner管理。普通行以供应商/模型ID为主，类型及资格原因弱化；有备注或思考设置时在行尾提供更多按钮，备注只在更多顶部显示且不加label。桌面侧层可左右避让，窄屏改为父层内第二视图并提供返回；Escape逐层回焦，外点不抢新目标焦点。更多内思考选项只更新用途草稿，不自动PUT；关闭浮层不清页面草稿。窄屏与缩放需保持触发关联、搜索及结果可达，正式组件接口由[共享组件规范](../frontend/components.md)维护。
 
 四用途各保留一句功能描述：嵌入用于知识/记忆检索，总结用于记忆提取整理及会议摘要，重排用于检索结果排序，图像生成用于生成图片。重排与图像生成可以配置、选择及显式管理测试，但对应检索或图像Artifact业务consumer尚未绑定，不能以管理测试成功暗示完整业务已接通。选择只改本地草稿，单summary资源保存、409与Unknown合同不变。
 
@@ -53,19 +57,19 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 以下路径均在 `/api/v1` 下；精确字段、nullable和枚举沿[model-system OpenAPI](../../../api/openapi/model-system.json)，后端唯一维护schema。普通读取200，配置命令200返回receipt，不返回伪造的当前投影。所有写与POST lookup使用当前System Session、CSRF和原命令Idempotency-Key；业务事务再次鉴权。version及receipt计数为规范十进制字符串。
 
-| 资源                                 | 方法与正文 / 返回                                                                                                                                                                                                                                                                                                          |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/system/model-providers`、`/{id}`   | GET列表或对象；POST `{input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version}`。对象为`{id,input,version,created_at,updated_at}`。                                                                                                                                                                     |
-| Provider input                       | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat、embedding、reranker和image_generation模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。 |
-| `/system/models`、`/{id}`            | GET/HEAD列表可选`provider_id`、`q`、`cursor`、`limit`，省略provider为跨System供应商；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。模型对象为`{id,provider_id,input,version,created_at,updated_at}`，列表项另含下述provider安全投影，详情DTO不变。 |
-| Model input                          | `{name,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；新family按每个模型的type选择既有chat或embedding adapter，能力必须通过真实校验，不能由模型名字猜推理、工具、上下文或价格。capabilities各字段严格沿schema，未知容量保持null。                               |
-| `/system/model-credentials`、`/{id}` | POST `{value}`；GET对象只读`{credential_id,purpose:'model',version}`；PUT `{expected_version,value}`；DELETE `{expected_version}`。写结果`{credential_id,purpose,version,deleted}`，材料从不回显。                                                                                                                         |
-| 配置receipt                          | `{kind,resource_id,version,affected_references}`，kind使用`provider.create`、`model.update`等现有点号枚举。Provider/Model/用途各有独立版本。                                                                                                                                                                               |
-| 配置lookup                           | POST `/system/model-commands/lookup`，body `{command}`、原key→`{found,receipt}`；Secret用 `/system/model-credential-commands/lookup`，create `{kind:'create'}`，update/delete另带`credential_id,expected_version`→`{observed,result}`。                                                                                    |
+| 资源                                 | 方法与正文 / 返回                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/system/model-providers`、`/{id}`   | GET列表或对象；POST `{input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version}`。对象为`{id,input,version,created_at,updated_at}`。                                                                                                                                                                                       |
+| Provider input                       | `{name,protocol,base_url,enabled,credential_ref:ID\|null,options:{}}`；protocol创建后不可改。新UI仅创建/编辑`openai-compatible`供应商family，同一供应商共享base_url与credential，允许同时添加chat、embedding、reranker和image_generation模型。旧五种协议记录不迁移，在新UI只读；不再要求同一服务按模型类型重复配置供应商。                   |
+| `/system/models`、`/{id}`            | GET/HEAD列表可选`provider_id`、`q`、`cursor`、`limit`，省略provider为跨System供应商；POST `{provider_id,input}`；PUT对象 `{expected_version,input}`；DELETE对象 `{expected_version,replacement:ID\|null}`。模型对象为`{id,provider_id,input,version,created_at,updated_at}`，列表项另含下述provider安全投影，详情DTO不变。                   |
+| Model input                          | `{notes,provider_model_id,type,enabled,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{…}}`；notes必传可空，最多2000个Unicode码点且8000 UTF-8字节，禁止NUL；只用于备注/搜索，不作模型身份。family按type选择四类既定协议，能力必须通过真实校验，不能从ID或备注猜能力。capabilities各字段严格沿schema，未知容量保持null。 |
+| `/system/model-credentials`、`/{id}` | POST `{value}`；GET对象只读`{credential_id,purpose:'model',version}`；PUT `{expected_version,value}`；DELETE `{expected_version}`。写结果`{credential_id,purpose,version,deleted}`，材料从不回显。                                                                                                                                           |
+| 配置receipt                          | `{kind,resource_id,version,affected_references}`，kind使用`provider.create`、`model.update`等现有点号枚举。Provider/Model/用途各有独立版本。                                                                                                                                                                                                 |
+| 配置lookup                           | POST `/system/model-commands/lookup`，body `{command}`、原key→`{found,receipt}`；Secret用 `/system/model-credential-commands/lookup`，create `{kind:'create'}`，update/delete另带`credential_id,expected_version`→`{observed,result}`。                                                                                                      |
 
 管理列表使用真实cursor/limit（后端1..100、默认50；管理页默认10，可选5/10/20/50），页长或供应商变化清cursor历史。ModelPicker用同一服务端列表做跨供应商查询，不拼接各供应商页面或把当前页过滤称为全局搜索。
 
-全局查询`q`可省略，trim后lowercase规范化；原始与规范化值各最多128个UTF-8字节，拒绝控制字符。它按字面子串匹配供应商名称、模型名称或provider_model_id，`%`与`_`不作为通配符。返回`{items,next_cursor}`，每个列表项新增必填`provider:{id,name,protocol,enabled,version}`安全投影，不含凭据；next_cursor为string或null。游标绑定当前用户、provider过滤及规范q，沿既有created_at/id水位排序，不承诺跨页MVCC快照；查询变化清旧cursor并退休旧读取。未新增purpose/type参数，停用或不符合当前用途的模型仍返回，由UI按既有能力规则显示不可选原因，保存时仍由后端重验。Project列表与模型详情DTO不变；本次不改迁移、鉴权或selector写入。
+全局查询`q`可省略，trim后lowercase规范化；原始与规范化值各最多128个UTF-8字节，拒绝控制字符。它按字面子串匹配供应商名称、模型备注或provider_model_id，`%`与`_`不作为通配符。返回`{items,next_cursor}`，每个列表项新增必填`provider:{id,name,protocol,enabled,version}`安全投影，不含凭据；next_cursor为string或null。游标绑定当前用户、provider过滤及规范q，沿既有created_at/id水位排序，不承诺跨页MVCC快照；查询变化清旧cursor并退休旧读取。未新增purpose/type参数，停用或不符合当前用途的模型仍返回，由UI按既有能力规则显示不可选原因，保存时仍由后端重验。列表与详情均使用新的ModelInput；全局查询不改变权限边界或按备注重新排序。
 
 配置Tab的凭据输入留空表示不发替换请求，非空才创建/替换；输入框旁提供独立“删除凭据”按钮，移除解除关联checkbox和详情重复菜单入口。无已保存凭据、旧协议只读或有未保存/未决编辑时不可发起删除。凭据写入和Provider关联是两个独立命令：已确认的凭据不能因关联失败再创建，显示实际部分完成并只恢复未完成步骤。取消不回滚已确认写入；解除关联和删除Secret不是同一事实，不能误删被其他配置引用的凭据。Provider删除不自动级联模型或独立Secret。
 
@@ -77,15 +81,15 @@ ModelPicker锚定在触发选框下方，不使用居中modal。浮层以一层�
 
 ## 3. 用途、删除影响与恢复
 
-唯一 `GET /system/model-selection`→`{id,version,configured:null|{embedding,summary,reranker,image}}`；PUT发送`{id,expected_version,embedding,summary,reranker,image}`。四字段均须显式提供：embedding与summary必填，reranker/image可null。embedding须为当前启用的System embedding模型；summary须为当前启用的System chat模型、供应商亦启用，并具备`json_schema`能力。候选按模型type、能力及当前启用状态判断，同一openai-compatible供应商可分别提供四类模型；未配置null不等于读取失败。
+唯一 `GET /system/model-selection`→`{id,version,configured:null|{embedding,summary,reranker,image}}`；PUT发送`{id,expected_version,embedding,summary,reranker,image}`。四字段均须显式提供：embedding与summary必填`ModelChoice={model_id,reasoning}`，reranker/image可null。`reasoning`严格为`{mode:"default"}`、`{mode:"on"}`、`{mode:"off"}`或`{mode:"effort",value}`。非Chat或不支持思考只允许default；有等级时只允许default或已声明value；无等级时仅显式`reasoning_toggle_mode`允许on/off，null映射不能冒充支持开关。模型能力中的映射必传null、enable_thinking或thinking_type，仅Chat且reasoning=true、等级空时可非null。embedding须为当前启用的System embedding模型；summary须为当前启用的System chat模型、供应商亦启用，并具备`json_schema`能力。候选按模型type、能力及当前启用状态判断，同一openai-compatible供应商可分别提供四类模型；未配置null不等于读取失败。
 
 “总结模型”同时供Memory提取、整理、reflect与Meeting摘要/首轮标题使用。两类消费者统一解析`SummarySelector='summary'`，平台引用role为`summary`，各自的业务Purpose、提示词、用量归属和生命周期保持。系统只存一个用途配置、一个id/version和`model.selection.update`回执；删除旧独立meeting-summary HTTP/command/store/owner/锁，旧路由返回404，旧memory字段严格拒绝。Project既有`project_summary`未绑定预留契约不属第二个System配置，本轮不删除或启用。
 
 `json_schema`是共享模型的能力门；Memory沿既有结构化输出调用，Meeting本轮只切selector，仍以`ResponseFormat=text`、空Tools生成并解析固定JSON envelope，不额外重做会议生成流程。
 
-页面维护一份四字段草稿，单次PUT原子保存整组，取消或无改动不写入；不再串行写两个资源，也不存在用途保存的部分成功。409保留草稿，显式重读并采用最新版本；Unknown冻结原key/body/version，lookup仅观察，须由原Execute返回匹配receipt才确认。已确认成功后的GET失败仅重读，不再次PUT；放弃未确认草稿不宣称服务端已回滚。模型名称统一显示为“供应商名称/模型ID”。
+页面维护一份四字段嵌套草稿，同模型保留已有策略、换模型重置default；菜单选择按name显示、按value保存，默认不等于关闭。单次PUT原子保存整组，取消或无改动不写入；不再串行写两个资源，也不存在用途保存的部分成功。409保留草稿，显式重读并采用最新版本；Unknown冻结原key/body/version，lookup仅观察，须由原Execute返回匹配receipt才确认。已确认成功后的GET失败仅重读，不再次PUT；放弃未确认草稿不宣称服务端已回滚。模型身份统一显示为“供应商名称/模型ID”，本供应商列表仅显示模型ID；备注不参与身份。
 
-00149仅重置System用途配置及其平台引用、移除旧独立配置表，再初始化version1的未配置单例；不自动选择任一旧模型、不保留旧接口兼容。账号、SMTP、供应商/模型/凭据及业务Purpose不因此重置。本轮仅在新建隔离库验证，现有公开实例保持。
+历史00149仅重置System用途配置及其平台引用、移除旧独立配置表，再初始化version1的未配置单例；不自动选择任一旧模型、不保留旧接口兼容。账号、SMTP、供应商/模型/凭据及业务Purpose不因此重置。本轮仅在新建隔离库验证，现有公开实例保持。
 
 模型删除先读 `/system/models/{id}/deletion-impact`，显示真实引用组、替代要求与`reference_adapter_unbound`等阻断。总结模型仅有共享平台引用，替代仍须为启用的System chat且支持`json_schema`，同事务替换该引用并推进整组版本；新调用使用新选择，已接受调用保持原snapshot。影响读取不授予删除，最终命令仍重验当前引用、替代模型和版本；不因旧计数为0假定删除安全，不扩大未绑定引用适配器。Provider非空、Secret被引用等失败保留真实反馈，不自动级联或解除其他配置引用。
 

@@ -6,9 +6,10 @@ import {
   type ModelType,
   type Protocol,
   type ReasoningEffort,
+  type ReasoningToggleMode,
 } from "./model-catalog";
 export interface ModelDraft {
-  name: string;
+  notes: string;
   providerModelId: string;
   type: ModelType;
   enabled: boolean;
@@ -18,6 +19,7 @@ export interface ModelDraft {
   reasoning: boolean;
   inputModalities: string;
   reasoningEfforts: ReasoningEffort[];
+  reasoningToggleMode: ReasoningToggleMode | "";
   structuredOutput: boolean;
   contextLength: string;
   maxOutput: string;
@@ -25,7 +27,7 @@ export interface ModelDraft {
 export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
   const c = input?.capabilities;
   return {
-    name: input?.name ?? "",
+    notes: input?.notes ?? "",
     providerModelId: input?.provider_model_id ?? "",
     type: input?.type ?? ("" as ModelType),
     enabled: input?.enabled ?? true,
@@ -36,6 +38,7 @@ export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
     inputModalities: c?.input_modalities.join(", ") ?? "text",
     reasoningEfforts:
       c?.reasoning_efforts.map((effort) => ({ ...effort })) ?? [],
+    reasoningToggleMode: c?.reasoning_toggle_mode ?? "",
     structuredOutput:
       c?.structured_output_modes.includes("json_schema") ?? false,
     contextLength: c?.context_length ?? "",
@@ -45,8 +48,12 @@ export function modelDraft(protocol: Protocol, input?: ModelInput): ModelDraft {
 const split = (value: string) =>
   value.trim() ? value.split(",").map((v) => v.trim()) : [];
 export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
-  if (!d.name.trim() || [...d.name.trim()].length > 128)
-    throw new Error("模型名称须为 1–128 个字符。");
+  if (
+    [...d.notes].length > 2000 ||
+    new TextEncoder().encode(d.notes).length > 8000 ||
+    d.notes.includes("\0")
+  )
+    throw new Error("备注最多 2000 个字符、8000 字节，不能包含空字符。");
   if (!d.providerModelId.trim() || [...d.providerModelId.trim()].length > 256)
     throw new Error("模型 ID 须为 1–256 个字符。");
   if (
@@ -114,7 +121,7 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
   )
     throw new Error("最大输出不能超过上下文长度。");
   return {
-    name: d.name.trim(),
+    notes: d.notes,
     provider_model_id: d.providerModelId.trim(),
     type: d.type,
     enabled: d.enabled,
@@ -129,6 +136,10 @@ export function modelDraftInput(d: ModelDraft, protocol: Protocol): ModelInput {
       input_modalities: input,
       output_modalities: output,
       reasoning_efforts: efforts,
+      reasoning_toggle_mode:
+        chat && d.reasoning && !efforts.length
+          ? d.reasoningToggleMode || null
+          : null,
       structured_output_modes: !chat
         ? []
         : d.structuredOutput

@@ -14,6 +14,8 @@ export function useAnchoredLayer(
     width?: number;
     maxHeight?: number;
     topLayer?: boolean;
+    placement?: "bottom" | "right";
+    container?: () => HTMLElement | string;
   } = {},
 ) {
   const trigger = ref<HTMLButtonElement | null>(null);
@@ -40,6 +42,27 @@ export function useAnchoredLayer(
         viewportWidth - edge * 2,
       ),
     );
+    if (options.placement === "right") {
+      const maxHeight = Math.max(
+        0,
+        Math.min(viewportHeight - edge * 2, options.maxHeight ?? Infinity),
+      );
+      const height = Math.min(panel.value.scrollHeight, maxHeight);
+      const right = anchor.right + gap;
+      const left =
+        right + width <= offsetLeft + viewportWidth - edge
+          ? right
+          : anchor.left - gap - width;
+      position.value = {
+        position: "fixed",
+        left: `${Math.max(offsetLeft + edge, Math.min(left, offsetLeft + viewportWidth - width - edge))}px`,
+        top: `${Math.max(offsetTop + edge, Math.min(anchor.top, offsetTop + viewportHeight - height - edge))}px`,
+        width: `${width}px`,
+        maxHeight: `${maxHeight}px`,
+        transformOrigin: left === right ? "left top" : "right top",
+      };
+      return;
+    }
     const below = viewportHeight + offsetTop - anchor.bottom - gap - edge;
     const above = anchor.top - offsetTop - gap - edge;
     const flip =
@@ -62,7 +85,8 @@ export function useAnchoredLayer(
   }
 
   async function show() {
-    target.value = trigger.value?.closest("dialog") ?? "body";
+    target.value =
+      options.container?.() ?? trigger.value?.closest("dialog") ?? "body";
     position.value = { visibility: "hidden" };
     open.value = true;
     await nextTick();

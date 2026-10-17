@@ -16,7 +16,7 @@ let CheckboxGroup: (typeof import("../src/components/ui/UiCheckboxGroup.vue"))["
 function mountFields(input?: ModelInput) {
   draft = reactive(modelDraft("openai-compatible", input));
   if (!input) {
-    draft.name = "Capability Fixture";
+    draft.notes = "Capability Fixture";
     draft.providerModelId = "upstream-fixture";
     draft.type = "chat";
   }
@@ -56,8 +56,8 @@ async function click(text: string) {
   (target.element as HTMLButtonElement).focus();
   await target.trigger("click");
 }
-async function selectType(text: string) {
-  const type = wrapper!.get('[role="combobox"]');
+async function selectOption(labelText: string, text: string) {
+  const type = wrapper!.get(`[id="${label(labelText).attributes("for")}"]`);
   expect(type.attributes("disabled")).toBeUndefined();
   await type.trigger("keydown", { key: "ArrowDown" });
   await flushPromises();
@@ -72,6 +72,7 @@ async function selectType(text: string) {
   await flushPromises();
   expect(type.text()).toBe(text);
 }
+const selectType = (text: string) => selectOption("模型类型", text);
 async function fillChatSettings() {
   await checkbox("图像").setValue(true);
   await checkbox("工具调用").setValue(true);
@@ -83,8 +84,8 @@ async function fillChatSettings() {
   await field("等级名称 1").setValue("深入");
   await field("等级值 1").setValue("high");
   await wrapper!.get("summary").trigger("click");
-  await field("上下文长度（可选）").setValue("128000");
-  await field("最大输出（可选）").setValue("4096");
+  await field("上下文窗口（tokens，可选）").setValue("128000");
+  await field("最大输出（tokens，可选）").setValue("4096");
 }
 const serialize = () => modelDraftInput(draft, "openai-compatible");
 
@@ -108,6 +109,7 @@ it("keeps mandatory chat text while changing optional media and JSON Schema supp
     structured_output_modes: ["text"],
     tool_calls: false,
     reasoning: false,
+    reasoning_toggle_mode: null,
     reasoning_efforts: [],
     context_length: null,
     max_output: null,
@@ -134,7 +136,10 @@ it("keeps mandatory chat text while changing optional media and JSON Schema supp
   expect(serialize().capabilities.input_modalities).toEqual(["text"]);
   expect(serialize().capabilities.output_modalities).toEqual(["text"]);
   expect(serialize().capabilities.structured_output_modes).toEqual(["text"]);
-  expect(wrapper!.find("textarea").exists()).toBe(false);
+  const notes = label("备注（可选）").get("textarea");
+  await notes.setValue("");
+  expect(serialize().notes).toBe("");
+  expect(wrapper!.findAll("textarea")).toHaveLength(1);
   expect(serialize()).toMatchObject({
     parameters: {},
     request_overwrite: {},
@@ -189,6 +194,7 @@ it("adds and removes explicit reasoning levels, restores saved input, and never 
   const disabledInput = serialize();
   expect(disabledInput.capabilities).toMatchObject({
     reasoning: false,
+    reasoning_toggle_mode: null,
     reasoning_efforts: [],
   });
   wrapper!.unmount();
@@ -200,9 +206,50 @@ it("adds and removes explicit reasoning levels, restores saved input, and never 
   });
 });
 
+it("keeps toggle mapping only for level-free chat reasoning and clears it when hidden", async () => {
+  const hasMapping = () =>
+    wrapper!.findAll("label").some((item) => item.text() === "思考开关格式");
+  expect(hasMapping()).toBe(false);
+  await checkbox("支持思考").setValue(true);
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+  await selectOption("思考开关格式", "thinking.type");
+  expect(serialize().capabilities.reasoning_toggle_mode).toBe("thinking_type");
+  const saved = serialize();
+  wrapper!.unmount();
+  mountFields(saved);
+  expect(
+    wrapper!.get(`[id="${label("思考开关格式").attributes("for")}"]`).text(),
+  ).toBe("thinking.type");
+
+  await click("添加思考等级");
+  expect(hasMapping()).toBe(false);
+  await field("等级名称 1").setValue("深入");
+  await field("等级值 1").setValue("high");
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+  await click("删除等级 1");
+  expect(hasMapping()).toBe(true);
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+  await selectOption("思考开关格式", "enable_thinking");
+  expect(serialize().capabilities.reasoning_toggle_mode).toBe(
+    "enable_thinking",
+  );
+  await checkbox("支持思考").setValue(false);
+  expect(hasMapping()).toBe(false);
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+  await checkbox("支持思考").setValue(true);
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+  await selectOption("思考开关格式", "enable_thinking");
+  await selectType("嵌入（Embedding）");
+  expect(hasMapping()).toBe(false);
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+  await selectType("对话（Chat）");
+  expect(hasMapping()).toBe(true);
+  expect(serialize().capabilities.reasoning_toggle_mode).toBeNull();
+});
+
 it("switches new models to fixed embedding capabilities without leaking chat settings", async () => {
   await fillChatSettings();
-  await selectType("嵌入");
+  await selectType("嵌入（Embedding）");
   for (const text of [
     "图像",
     "文件",
@@ -211,7 +258,7 @@ it("switches new models to fixed embedding capabilities without leaking chat set
     "流式输出",
     "支持思考",
     "支持结构化输出（JSON Schema）",
-    "最大输出（可选）",
+    "最大输出（tokens，可选）",
   ])
     expect(wrapper!.findAll("label").some((item) => item.text() === text)).toBe(
       false,
@@ -225,6 +272,7 @@ it("switches new models to fixed embedding capabilities without leaking chat set
     parallel_tool_calls: false,
     streaming: false,
     reasoning: false,
+    reasoning_toggle_mode: null,
     reasoning_efforts: [],
     structured_output_modes: [],
     context_length: "128000",
@@ -238,14 +286,14 @@ it("switches new models to fixed embedding capabilities without leaking chat set
 it.each([
   {
     type: "reranker",
-    label: "重排",
+    label: "重排（ReRank）",
     inputLabel: "查询与文档",
     outputLabel: "排序结果",
     output: [],
   },
   {
     type: "image_generation",
-    label: "图像生成",
+    label: "图像生成（Image Generation）",
     inputLabel: "文本",
     outputLabel: "图像",
     output: ["image"],
@@ -263,8 +311,8 @@ it.each([
       "流式输出",
       "支持思考",
       "支持结构化输出（JSON Schema）",
-      "上下文长度（可选）",
-      "最大输出（可选）",
+      "上下文窗口（tokens，可选）",
+      "最大输出（tokens，可选）",
     ])
       expect(
         wrapper!.findAll("label").some((item) => item.text() === text),
@@ -282,6 +330,7 @@ it.each([
       parallel_tool_calls: false,
       streaming: false,
       reasoning: false,
+      reasoning_toggle_mode: null,
       reasoning_efforts: [],
       structured_output_modes: [],
       context_length: null,

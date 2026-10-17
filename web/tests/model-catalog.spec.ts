@@ -287,7 +287,7 @@ describe("model operation budgets", () => {
     provider_id: id,
     version: "3",
     input: {
-      name: "Budget Model",
+      notes: "Budget Model",
       provider_model_id: "budget-model",
       type,
       enabled: true,
@@ -301,6 +301,7 @@ describe("model operation budgets", () => {
         parallel_tool_calls: false,
         streaming: false,
         reasoning: false,
+        reasoning_toggle_mode: null,
         reasoning_efforts: [],
         structured_output_modes: type === "chat" ? ["text"] : [],
         context_length: null,
@@ -529,7 +530,7 @@ it("adds only mandatory chat text capabilities and rejects inconsistent explicit
     await import("../src/system/model-draft");
   const draft = modelDraft("openai-compatible");
   draft.type = "chat";
-  draft.name = "Explicit";
+  draft.notes = "Explicit";
   draft.providerModelId = "model-that-looks-capable";
   const input = modelDraftInput(draft, "openai-compatible");
   expect(input.capabilities.input_modalities).toEqual(["text"]);
@@ -548,6 +549,33 @@ it("adds only mandatory chat text capabilities and rejects inconsistent explicit
   );
 });
 
+it("allows empty notes and preserves Unicode notes within the wire limits", async () => {
+  const { modelDraft, modelDraftInput } =
+    await import("../src/system/model-draft");
+  const { isModelInput } = await import("../src/system/model-catalog");
+  const draft = modelDraft("openai-compatible");
+  draft.type = "chat";
+  draft.providerModelId = "an-upstream-id-is-not-a-note";
+  const empty = modelDraftInput(draft, "openai-compatible");
+  expect(empty.notes).toBe("");
+  expect(empty).not.toHaveProperty("name");
+  expect(isModelInput(empty)).toBe(true);
+  expect(modelDraft("openai-compatible", empty).notes).toBe("");
+
+  for (const notes of ["  一条备注\n保留原文  ", "🧠".repeat(2000)]) {
+    draft.notes = notes;
+    const input = modelDraftInput(draft, "openai-compatible");
+    expect(input.notes).toBe(notes);
+    expect(isModelInput(input)).toBe(true);
+    expect(modelDraft("openai-compatible", input).notes).toBe(notes);
+  }
+  for (const notes of ["a".repeat(2001), "🧠".repeat(2001), "before\0after"]) {
+    draft.notes = notes;
+    expect(() => modelDraftInput(draft, "openai-compatible")).toThrow();
+    expect(isModelInput({ ...empty, notes })).toBe(false);
+  }
+});
+
 it("round-trips explicit reasoning names and wire values and rejects ambiguous or unsafe levels", async () => {
   const { modelDraft, modelDraftInput } =
     await import("../src/system/model-draft");
@@ -555,7 +583,7 @@ it("round-trips explicit reasoning names and wire values and rejects ambiguous o
   const draft = modelDraft("openai-compatible");
   Object.assign(draft, {
     type: "chat",
-    name: "Reasoning Fixture",
+    notes: "Reasoning Fixture",
     providerModelId: "reasoning-fixture",
     inputModalities: "text",
     reasoning: true,
@@ -638,7 +666,7 @@ it("accepts the unified platform summary reference while rejecting removed platf
   const draft = modelDraft("openai-compatible");
   Object.assign(draft, {
     type: "chat",
-    name: "Summary",
+    notes: "Summary",
     providerModelId: "summary-model",
     inputModalities: "text",
   });

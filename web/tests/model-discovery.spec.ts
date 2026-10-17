@@ -137,7 +137,7 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
     await flushPromises();
     await type.trigger("keydown", { key: "Enter" });
     await flushPromises();
-    expect(type.text()).toBe("对话");
+    expect(type.text()).toBe("对话（Chat）");
     const input = field
       .findAll("fieldset")
       .find((group) => group.find("legend").text() === "输入模态")!;
@@ -165,12 +165,14 @@ it("keeps successful imports, explicitly skips a failed item, and sends only the
     "chat",
     "chat",
   ]);
+  expect(importedInputs.map((input) => input.notes)).toEqual(["", "", ""]);
   for (const input of importedInputs)
     expect(input.capabilities).toMatchObject({
       input_modalities: ["text", "image"],
       output_modalities: ["text"],
       structured_output_modes: ["text"],
       reasoning_efforts: [],
+      reasoning_toggle_mode: null,
     });
   expect(wrapper.text()).toContain("已导入 2 / 3");
   expect(wrapper.text()).toContain("已跳过");
