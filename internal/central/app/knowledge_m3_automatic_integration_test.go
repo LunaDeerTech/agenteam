@@ -76,7 +76,7 @@ func TestKnowledgeM3AppAutomaticIndex(t *testing.T) {
 		t.Fatal("document update unnecessarily replaced embedding profile")
 	}
 	input := knowledgeM3ModelInput(t, "embedding", "knowledge-retention")
-	input.Name = "Knowledge automatic replacement"
+	input.Notes = "Knowledge automatic replacement"
 	var receipt mc.CommandReceipt
 	knowledgeM3SystemCall(t, v, "POST", "models", map[string]any{"provider_id": provider, "input": knowledgeM3ModelWire(input)}, &receipt)
 	replacement, err := f.ParseID[mc.Model](receipt.ResourceID)
